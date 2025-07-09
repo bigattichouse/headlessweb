@@ -27,6 +27,16 @@ public:
     bool waitForElementWithContent(const std::string& selector, int timeout_ms);
     std::string getInnerText(const std::string& selector);
     std::string getFirstNonEmptyText(const std::string& selector);
+    
+    // Enhanced form operations
+    bool fillInput(const std::string& selector, const std::string& value);
+    bool clickElement(const std::string& selector);
+    bool submitForm(const std::string& form_selector = "form");
+    bool waitForNavigation(int timeout_ms);
+    bool searchForm(const std::string& query);
+    std::string getCurrentUrl();
+    std::string getPageTitle();
+    std::string getAttribute(const std::string& selector, const std::string& attribute);
 
 private:
     void waitForJavaScriptCompletion(int timeout_ms = 5000);

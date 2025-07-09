@@ -1,43 +1,46 @@
 #!/bin/bash
 
-# Exit immediately if a command exits with a non-zero status.
 set -e
 
-# Define the session name
-SESSION_NAME="limitless_search_test"
-
-# Define the session directory
+SESSION_NAME="enhanced_test"
 SESSION_DIR="$HOME/.hweb-poc/sessions"
-
-# Define the search query
 SEARCH_QUERY="monster"
 
-echo "--- Starting hweb-poc demonstration ---"
+echo "--- Testing Enhanced Command Chaining ---"
 
-# 1. Clean up previous session data
-echo "1. Cleaning up previous session data..."
+# Clean up
+echo "1. Cleaning up..."
 rm -rf "$SESSION_DIR"
 mkdir -p "$SESSION_DIR"
 
-# 2. Initial Visit to Limitless Adventures and saving session
-echo "2. Initial Visit to Limitless Adventures and saving session..."
-./hweb-poc --session "$SESSION_NAME" --url "https://limitless-adventures.com"
+# Test the new command chaining approach
+echo "2. Navigate and fill form with command chaining..."
+./hweb-poc --session "$SESSION_NAME" \
+    --url "https://limitless-adventures.com" \
+    --wait "h1" \
+    --type "input[name=search]" "$SEARCH_QUERY" \
+    --click "button[name=dosearch]" \
+    --wait-nav
 
-# 3. Navigate directly to search results using the --url parameter
-echo "3. Navigating directly to search results..."
-./hweb-poc --session "$SESSION_NAME" --url "https://limitless-adventures.com/catalog.php?search=${SEARCH_QUERY}"
+echo "3. Check results..."
+./hweb-poc --session "$SESSION_NAME" \
+    --wait "h1" \
+    --text "h1"
 
-# 4. Re-opening the Session and Verifying the Page Content
-echo "4. Re-opening session and verifying current URL..."
-VERIFY_JS="
-    var current_url = window.location.href;
-    var url_contains_query = current_url.includes('search=${SEARCH_QUERY}') || current_url.includes('catalog.php');
-    current_url + ' | URL contains query or catalog: ' + url_contains_query;
-"
-./hweb-poc --session "$SESSION_NAME" --js "${VERIFY_JS}"
+echo "4. Get current URL..."
+./hweb-poc --session "$SESSION_NAME" \
+    --js "(function() { return window.location.href; })()"
 
-# 5. Clear the session at the end
-echo "5. Clearing session '${SESSION_NAME}'..."
+# Alternative: Test the smart search command
+echo "5. Testing smart search command..."
+./hweb-poc --session "$SESSION_NAME" \
+    --url "https://limitless-adventures.com" \
+    --search "$SEARCH_QUERY" \
+    --wait "h1" \
+    --text "h1"
+
+# Cleanup
+echo "6. Cleanup..."
 ./hweb-poc --session "$SESSION_NAME" --end
 
-echo "--- hweb-poc demonstration completed successfully ---"
+echo "--- Enhanced test completed ---"

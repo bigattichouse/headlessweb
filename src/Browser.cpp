@@ -240,3 +240,129 @@ std::string Browser::getFirstNonEmptyText(const std::string& selector) {
     
     return result;
 }
+
+// Enhanced form operations
+bool Browser::fillInput(const std::string& selector, const std::string& value) {
+    std::string js_script = 
+        "(function() { "
+        "  var element = document.querySelector('" + selector + "'); "
+        "  if (element) { "
+        "    element.value = '" + value + "'; "
+        "    element.dispatchEvent(new Event('input', { bubbles: true })); "
+        "    return true; "
+        "  } "
+        "  return false; "
+        "})()";
+    
+    std::string result = "";
+    executeJavascript(js_script, &result);
+    waitForJavaScriptCompletion();
+    
+    return result == "true";
+}
+
+bool Browser::clickElement(const std::string& selector) {
+    std::string js_script = 
+        "(function() { "
+        "  var element = document.querySelector('" + selector + "'); "
+        "  if (element) { "
+        "    element.click(); "
+        "    return true; "
+        "  } "
+        "  return false; "
+        "})()";
+    
+    std::string result = "";
+    executeJavascript(js_script, &result);
+    waitForJavaScriptCompletion();
+    
+    return result == "true";
+}
+
+bool Browser::submitForm(const std::string& form_selector) {
+    std::string js_script = 
+        "(function() { "
+        "  var form = document.querySelector('" + form_selector + "'); "
+        "  if (form) { "
+        "    form.submit(); "
+        "    return true; "
+        "  } "
+        "  return false; "
+        "})()";
+    
+    std::string result = "";
+    executeJavascript(js_script, &result);
+    waitForJavaScriptCompletion();
+    
+    return result == "true";
+}
+
+bool Browser::waitForNavigation(int timeout_ms) {
+    std::string initial_url = getCurrentUrl();
+    int elapsed_time = 0;
+    
+    while (elapsed_time < timeout_ms) {
+        g_usleep(500 * 1000); // Wait 500ms
+        elapsed_time += 500;
+        
+        std::string current_url = getCurrentUrl();
+        if (current_url != initial_url && !current_url.empty()) {
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+bool Browser::searchForm(const std::string& query) {
+    // Try to find and fill a search form automatically
+    std::string js_script = 
+        "(function() { "
+        "  var searchInputs = document.querySelectorAll('input[name*=search], input[type=search], input[placeholder*=search], input[placeholder*=Search]'); "
+        "  var searchButtons = document.querySelectorAll('button[name*=search], input[type=submit], button[type=submit]'); "
+        "  "
+        "  if (searchInputs.length > 0 && searchButtons.length > 0) { "
+        "    searchInputs[0].value = '" + query + "'; "
+        "    searchInputs[0].dispatchEvent(new Event('input', { bubbles: true })); "
+        "    searchButtons[0].click(); "
+        "    return true; "
+        "  } "
+        "  return false; "
+        "})()";
+    
+    std::string result = "";
+    executeJavascript(js_script, &result);
+    waitForJavaScriptCompletion();
+    
+    return result == "true";
+}
+
+std::string Browser::getCurrentUrl() {
+    std::string js_script = "window.location.href;";
+    std::string result = "";
+    executeJavascript(js_script, &result);
+    waitForJavaScriptCompletion();
+    return result;
+}
+
+std::string Browser::getPageTitle() {
+    std::string js_script = "document.title;";
+    std::string result = "";
+    executeJavascript(js_script, &result);
+    waitForJavaScriptCompletion();
+    return result;
+}
+
+std::string Browser::getAttribute(const std::string& selector, const std::string& attribute) {
+    std::string js_script = 
+        "(function() { "
+        "  var element = document.querySelector('" + selector + "'); "
+        "  return element ? (element.getAttribute('" + attribute + "') || '') : ''; "
+        "})()";
+    
+    std::string result = "";
+    executeJavascript(js_script, &result);
+    waitForJavaScriptCompletion();
+    
+    return result;
+}
