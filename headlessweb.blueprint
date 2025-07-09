@@ -1,0 +1,691 @@
+# HeadlessWeb - Persistent Browser Automation Tool
+
+## Overview
+
+HeadlessWeb is a command-line tool that enables stateful browser automation without requiring a background daemon. It allows you to interact with web pages through simple commands while maintaining browser state (cookies, login sessions, etc.) between invocations.
+
+The tool can be invoked using either `headlessweb` or the shorter alias `hweb`. All examples in this document use `hweb` for brevity, but both commands are equivalent.
+
+### Key Features
+
+- **Persistent Sessions**: Browser state persists between commands - stay logged in
+- **No Daemon Required**: Each command runs independently, no background processes
+- **Multiple Named Sessions**: Manage multiple browser contexts simultaneously  
+- **Simple CLI**: Intuitive commands for common browser operations
+- **Scriptable**: Perfect for shell scripts with proper exit codes and stdout/stderr
+
+### Quick Example
+
+```bash
+# Login to a website
+hweb --session UserLogin https://app.example.com/login
+hweb --session UserLogin --type '#username' 'user@example.com'
+hweb --session UserLogin --type '#password' 'mypassword'
+hweb --session UserLogin --click '#login-button'
+
+# Later, still logged in
+hweb --session UserLogin --text '.account-balance'  # $1,234.56
+
+# Clean up when done
+hweb --session UserLogin --end
+```
+
+## Core Concepts
+
+### Sessions
+- Each session maintains independent browser state (cookies, storage, etc.)
+- Sessions are created automatically when you use a new name
+- Default session is called "default" if no `--session` specified
+- Sessions persist until explicitly cleared with `--end`
+
+### Stateless Architecture
+- No background daemon or service
+- Each command launches browser, restores state, executes, saves state, exits
+- State stored in `~/.headlessweb/sessions/` directory
+- Optimized for ~400ms startup time
+
+### Command Chaining
+- Multiple operations can be performed in a single invocation
+- State is saved after the entire command completes
+- Exit codes indicate success/failure for scripting
+
+## Command Reference
+
+### Session Management
+
+```bash
+--session <name>, -s <name>    # Use named session (creates if new)
+--start                        # Force fresh session (clears existing)
+--end                          # End and clear current session
+--list                         # List all active sessions
+```
+
+### Navigation
+
+```bash
+hweb [url]              # Navigate to URL
+hweb --back             # Go back in history
+hweb --forward          # Go forward in history
+hweb --reload           # Reload current page
+```
+
+### JavaScript Execution
+
+```bash
+--js <code>, --javascript      # Execute JavaScript and return result
+--js-file <file>               # Execute JavaScript from file
+```
+
+### DOM Queries
+
+```bash
+--exists <selector>            # Check if element exists (exit 0/1)
+--text <selector>              # Get text content of element
+--html <selector>              # Get HTML of element
+--attr <selector> <attribute>  # Get attribute value
+--count <selector>             # Count matching elements
+--wait <selector>              # Wait for element to appear
+```
+
+### Interaction
+
+```bash
+--click <selector>             # Click element
+--type <selector> <text>       # Type text into element
+--select <selector> <value>    # Select dropdown option
+--check <selector>             # Check checkbox
+--uncheck <selector>           # Uncheck checkbox
+--focus <selector>             # Focus element
+--submit <selector>            # Submit form
+```
+
+### State Management
+
+```bash
+--store <var> --js <code>      # Store result in session variable
+--get <var>                    # Retrieve stored variable
+--cookies                      # List all cookies
+--clear-cookies                # Clear all cookies
+--screenshot [file]            # Take screenshot (default: screenshot.png)
+```
+
+### Assertions and Testing
+
+```bash
+--assert-exists <selector>     # Assert element exists (outputs PASS/FAIL)
+--assert-text <s> <expected>   # Assert element text equals expected
+--assert-contains <s> <text>   # Assert element text contains substring
+--assert-count <s> <n>         # Assert element count equals n
+--assert-js <expression>       # Assert JavaScript expression is truthy
+
+--pass-fail                    # Add PASS/FAIL output to commands
+--message <text>               # Custom message for assertions
+
+--test-report start <name>     # Start tracking test results
+--test-report end              # Output test summary and end tracking
+--test-report status           # Show current test results
+```
+
+### Output Control
+
+```bash
+--json                         # Output results as JSON
+--quiet, -q                    # Suppress output, only exit codes
+--verbose, -v                  # Verbose output for debugging
+--format <type>                # Output format: text, json, diff
+```
+
+## BluePrint Specification
+
+```blueprint
+Tool HeadlessWeb {
+  name: "headlessweb",
+  alias: "hweb",
+  description: "Persistent browser automation without daemon",
+  
+  Architecture {
+    StatelessExecutor {
+      description: "Each command launches browser, restores state, executes, saves state, exits",
+      
+      execution_flow: [
+        "Parse command line arguments",
+        "Determine session name (default: 'default')",
+        "Load session state from disk (if exists)",
+        "Launch WebKit with restored state",
+        "Execute requested command(s)",
+        "Capture new browser state",
+        "Save state to disk",
+        "Output results",
+        "Exit completely"
+      ]
+    },
+    
+    SessionState {
+      description: "Comprehensive state persisted between invocations",
+      
+      file_location: "~/.headlessweb/sessions/{name}.state",
+      
+      persisted_data: {
+        // Navigation state
+        current_url: string,
+        history: string[],
+        history_index: int,
+        
+        // All storage mechanisms
+        cookies: Cookie[],
+        local_storage: map<string, string>,
+        session_storage: map<string, string>,
+        
+        // Authentication
+        http_auth_credentials: map<string, Credential>,
+        
+        // Page state
+        scroll_position: {x: int, y: int},
+        viewport: {width: int, height: int},
+        
+        // User-defined variables
+        custom_variables: map<string, any>,
+        
+        // Browser context
+        user_agent: string,
+        
+        // Persistent scripts
+        injected_scripts: string[],
+        
+        // Test tracking (if active)
+        test_report: TestReport | null
+      }
+    },
+    
+    TestReporter {
+      description: "Tracks and reports test assertions",
+      
+      properties: {
+        name: string,
+        start_time: timestamp,
+        results: TestResult[]
+      },
+      
+      TestResult: {
+        type: "assertion" | "action",
+        command: string,
+        success: bool,
+        message: string,
+        actual?: any,
+        expected?: any,
+        timestamp: timestamp
+      },
+      
+      methods: {
+        track_assertion(cmd: AssertionCommand, result: bool, actual?: any) -> void,
+        track_action(description: string) -> void,
+        generate_report(format: "text" | "json" | "junit") -> string,
+        get_summary() -> {total: int, passed: int, failed: int}
+      }
+    },
+    
+    SessionManager {
+      description: "Handles session lifecycle and isolation",
+      
+      methods: {
+        create_session(name: string) -> Session,
+        load_session(name: string) -> Session | null,
+        save_session(session: Session) -> void,
+        delete_session(name: string) -> void,
+        list_sessions() -> SessionInfo[],
+        
+        ensure_isolation() -> void {
+          // Each session has separate:
+          // - Cookie jar
+          // - Cache directory  
+          // - Local/session storage
+          // - No data leaks between sessions
+        }
+      }
+    },
+    
+    CommandParser {
+      description: "Parses CLI arguments into executable commands",
+      
+      command_types: {
+        NavigationCommand: {url: string},
+        JavaScriptCommand: {code: string},
+        QueryCommand: {selector: string, attribute?: string},
+        InteractionCommand: {action: string, selector: string, value?: string},
+        SessionCommand: {action: string, name?: string},
+        StateCommand: {action: string, variable?: string, value?: any},
+        AssertionCommand: {
+          type: "exists" | "text" | "contains" | "count" | "js",
+          selector?: string,
+          expected?: any,
+          message?: string
+        },
+        TestReportCommand: {
+          action: "start" | "end" | "status",
+          name?: string,
+          format?: "text" | "json" | "junit"
+        }
+      },
+      
+      parse(args: string[]) -> Command[] {
+        // Support multiple commands in single invocation
+        // Handle both flags and positional arguments
+        // Validate command combinations
+        // Transform --assert-* into AssertionCommand with pass/fail output
+      }
+    },
+    
+    WebKitInterface {
+      description: "Minimal WebKit wrapper for headless browsing",
+      
+      properties: {
+        headless: bool = true,
+        viewport: Viewport = {width: 1920, height: 1080},
+        user_agent: string,
+        javascript_enabled: bool = true
+      },
+      
+      methods: {
+        launch(options: LaunchOptions) -> Browser,
+        restore_state(state: SessionState) -> void,
+        capture_state() -> SessionState,
+        execute_command(command: Command) -> CommandResult,
+        cleanup() -> void
+      }
+    },
+    
+    OptimizationLayer {
+      description: "Performance optimizations for fast startup",
+      
+      techniques: {
+        SharedCache: {
+          path: "~/.headlessweb/cache/shared/",
+          description: "WebKit cache shared across sessions"
+        },
+        
+        LazyStateLoading: {
+          description: "Only load state sections needed for command",
+          levels: ["MINIMAL", "STANDARD", "FULL"]
+        },
+        
+        ParallelInitialization: {
+          tasks: [
+            "Launch WebKit process",
+            "Parse state file", 
+            "Prepare JavaScript context"
+          ]
+        },
+        
+        FastSerialization: {
+          format: "Binary with ZSTD compression",
+          features: ["Partial reads", "Memory-mapped files"]
+        }
+      }
+    },
+    
+    OutputHandler {
+      description: "Manages command output and formatting",
+      
+      modes: {
+        DEFAULT: {
+          description: "Unix-style - silent success, errors to stderr",
+          success_output: "",
+          error_output: "Error: {message}"
+        },
+        
+        PASS_FAIL: {
+          description: "Explicit PASS/FAIL output",
+          success_output: "PASS{: message}",
+          error_output: "FAIL{: message}"
+        },
+        
+        ASSERTION: {
+          description: "Always outputs result with details",
+          success_output: "PASS: {description}",
+          error_output: "FAIL: {description}\n  Expected: {expected}\n  Actual: {actual}"
+        },
+        
+        VERBOSE: {
+          description: "Detailed operation logging",
+          includes: ["Session loading", "Navigation", "Command execution", "State saving"]
+        }
+      },
+      
+      formats: {
+        text: "Human-readable output",
+        json: "Structured JSON output",
+        diff: "Show differences for comparisons",
+        junit: "JUnit XML format for CI/CD"
+      }
+    },
+    
+    ErrorHandling {
+      strategies: {
+        CorruptedState: {
+          detection: "Checksum validation",
+          recovery: "Backup and start fresh"
+        },
+        
+        BrowserCrash: {
+          detection: "Process monitoring",
+          recovery: "Save partial state, report error"
+        },
+        
+        ConcurrentAccess: {
+          prevention: "File locking",
+          behavior: "Wait or fail based on --wait-lock flag"
+        }
+      }
+    }
+  },
+  
+  FileStructure {
+    base_directory: "~/.headlessweb/",
+    
+    layout: {
+      "sessions/": {
+        "{name}.state": "Binary state file",
+        "{name}.meta": "JSON metadata for quick access",
+        "{name}.lock": "Lock file for concurrent access"
+      },
+      
+      "cache/": {
+        "{name}/": "Per-session WebKit cache",
+        "shared/": "Shared resources"
+      },
+      
+      "config.json": "Global configuration",
+      "sessions.json": "Session registry"
+    }
+  },
+  
+  ExitCodes {
+    0: "Success / Element exists / True result / All tests passed",
+    1: "Element not found / False result / Assertion failed",
+    2: "JavaScript execution error", 
+    3: "Navigation error",
+    4: "Session error",
+    5: "Invalid command syntax",
+    127: "Command not found"
+  }
+}
+```
+
+## Usage Examples
+
+### Basic Web Automation
+
+```bash
+# Navigate and interact
+hweb https://example.com
+hweb --click '.sign-in-button'
+hweb --type '#email' 'user@example.com'
+hweb --type '#password' 'secretpass'
+hweb --click '#login'
+hweb --wait '.dashboard'
+hweb --screenshot dashboard.png
+```
+
+### Multiple Sessions
+
+```bash
+# Personal account
+hweb --session personal https://bank.example.com
+hweb --session personal --js "login('personal@email.com', 'pass1')"
+
+# Business account  
+hweb --session business https://bank.example.com
+hweb --session business --js "login('business@email.com', 'pass2')"
+
+# Check both
+hweb --session personal --text '.balance'  # $1,234
+hweb --session business --text '.balance'  # $56,789
+
+# List sessions
+hweb --list
+# personal    https://bank.example.com    1.2M   2 min ago
+# business    https://bank.example.com    1.1M   1 min ago
+
+# Clean up
+hweb --session personal --end
+hweb --session business --end
+```
+
+### Shell Script Integration
+
+```bash
+#!/bin/bash
+
+# Login if needed
+if ! hweb --exists '.user-menu'; then
+  echo "Logging in..."
+  hweb https://app.example.com/login
+  hweb --type '#username' "$USERNAME"
+  hweb --type '#password' "$PASSWORD"
+  hweb --click '#login-btn'
+  hweb --wait '.user-menu'
+fi
+
+# Extract data
+BALANCE=$(hweb --text '.balance')
+echo "Current balance: $BALANCE"
+
+# Store for later
+hweb --store last_balance --js "$('.balance').text()"
+
+# Process transactions
+hweb --js "
+  Array.from(document.querySelectorAll('.transaction')).map(t => ({
+    date: t.querySelector('.date').textContent,
+    amount: t.querySelector('.amount').textContent  
+  }))
+" --json > transactions.json
+```
+
+### Session Variables
+
+```bash
+# Store data during session
+hweb --session report https://analytics.example.com
+hweb --session report --store user_count --js "$('.users .count').text()"
+hweb --session report --store revenue --js "$('.revenue .total').text()"
+
+# Later, retrieve without launching browser
+COUNT=$(hweb --session report --get user_count)
+REVENUE=$(hweb --session report --get revenue)
+echo "Users: $COUNT, Revenue: $REVENUE"
+```
+
+### Testing and Assertions
+
+```bash
+# Basic assertions with automatic PASS/FAIL output
+hweb --assert-exists '.user-menu'
+# Output: PASS: Element '.user-menu' exists
+
+hweb --assert-text '.balance' '$1,234.56'
+# Output: FAIL: '.balance' equals '$999.99' (expected: '$1,234.56')
+# Exit code: 1
+
+# Regular commands with --pass-fail flag
+hweb --exists '.checkout-btn' --pass-fail --message "Checkout button visible"
+# Output: PASS: Checkout button visible
+
+hweb --exists '.error-message' --pass-fail
+# Output: FAIL
+# Exit code: 1
+
+# Comparison with silent default behavior
+hweb --exists '.user-menu'  # No output, just exit code
+hweb --exists '.user-menu' --pass-fail  # Output: PASS
+
+# Test report tracking
+hweb --test-report start "Login Flow Tests"
+hweb https://app.example.com/login
+hweb --assert-exists '#login-form'
+hweb --type '#email' 'test@example.com'
+hweb --type '#password' 'testpass'
+hweb --click '#submit'
+hweb --wait '.dashboard'
+hweb --assert-exists '.dashboard'
+hweb --assert-text '.user-name' 'Test User'
+hweb --assert-contains '.welcome' 'Welcome'
+hweb --test-report end
+
+# Output:
+# Login Flow Tests
+# ================
+# ✓ Element '#login-form' exists
+# ✓ Element '.dashboard' exists  
+# ✗ '.user-name' equals 'Test User' (actual: 'test@example.com')
+# ✓ '.welcome' contains 'Welcome'
+#
+# Tests: 4, Passed: 3, Failed: 1
+
+# Integration with CI/CD
+#!/bin/bash
+set -e  # Exit on first failure
+
+hweb --session ci-test --start
+hweb --session ci-test https://staging.example.com
+hweb --session ci-test --assert-exists '.app-loaded'
+hweb --session ci-test --assert-js "window.APP_VERSION === '2.0.1'"
+hweb --session ci-test --assert-contains 'h1' 'Welcome'
+hweb --session ci-test --end
+```
+
+## Implementation Guide for LLMs
+
+### Core Requirements
+
+1. **Command Aliases**
+   - Support both `headlessweb` and `hweb` as command names
+   - Both should invoke the same executable
+   - Package name remains "headlessweb" for consistency
+
+2. **WebKit Integration**
+   - Use webkit2gtk or similar for headless browsing
+   - Implement proper process lifecycle management
+   - Handle browser crashes gracefully
+
+3. **State Persistence**
+   - Implement efficient binary format for state files
+   - Use ZSTD compression for space efficiency
+   - Support partial loading for performance
+   - Ensure atomic writes to prevent corruption
+
+4. **Command Processing**
+   - Parse command line arguments into command objects
+   - Support command chaining in single invocation
+   - Validate command combinations
+   - Implement proper exit codes
+
+5. **Session Isolation**
+   - Separate cookie jars per session
+   - Independent cache directories
+   - No shared state between sessions
+   - Secure cleanup on --end
+
+6. **Performance Targets**
+   - < 100ms for state-only operations (--get, --list)
+   - < 400ms for browser operations on warm cache
+   - < 800ms for first run with cold cache
+
+### Implementation Priority
+
+1. **Phase 1: Core Functionality**
+   - Basic WebKit launcher
+   - Simple state save/restore (cookies + URL)
+   - Essential commands: navigate, --js, --text, --click
+   - Session create/load/save
+
+2. **Phase 2: Full State Management**
+   - Complete state persistence (storage, auth, etc.)
+   - All query commands (--exists, --wait, etc.)
+   - All interaction commands
+   - Session management (--list, --end)
+
+3. **Phase 3: Testing Features**
+   - Assertion commands (--assert-*)
+   - --pass-fail flag for explicit output
+   - Test report tracking and output
+   - Exit code handling for CI/CD
+
+4. **Phase 4: Optimizations**
+   - Fast state serialization
+   - Shared cache implementation
+   - Parallel initialization
+   - Command chaining
+
+5. **Phase 5: Advanced Features**
+   - Custom variables (--store/--get)
+   - Session import/export
+   - Configuration file support
+   - Plugin system
+
+### Key Implementation Patterns
+
+```python
+# Example command execution pattern
+class CommandExecutor:
+    def execute(self, session_name: str, commands: List[Command]) -> int:
+        try:
+            # Load or create session
+            session = self.load_session(session_name)
+            
+            # Launch browser with state
+            browser = WebKitBrowser()
+            browser.restore_state(session.state)
+            
+            # Execute commands
+            for command in commands:
+                result = command.execute(browser)
+                
+                # Handle pass/fail output
+                if command.pass_fail_flag or isinstance(command, AssertionCommand):
+                    self.output_pass_fail(command, result)
+                
+                # Track in test report if active
+                if session.state.test_report:
+                    session.state.test_report.track(command, result)
+                
+                if result.should_exit:
+                    return result.exit_code
+            
+            # Save state
+            session.state = browser.capture_state()
+            self.save_session(session)
+            
+            return 0
+            
+        finally:
+            browser.cleanup()
+            
+    def output_pass_fail(self, command: Command, result: Result):
+        if result.success:
+            print(f"PASS: {command.description}")
+        else:
+            print(f"FAIL: {command.description}")
+            if result.actual and result.expected:
+                print(f"  Expected: {result.expected}")
+                print(f"  Actual: {result.actual}")
+```
+
+### Testing Strategy
+
+1. **Unit Tests**
+   - State serialization/deserialization
+   - Command parsing
+   - Session management
+
+2. **Integration Tests**
+   - Full command flows
+   - Session persistence across invocations
+   - Error recovery
+
+3. **Performance Tests**
+   - Startup time benchmarks
+   - State file size optimization
+   - Concurrent session handling
+
+Remember: The goal is a simple, reliable tool that "just works" for browser automation while maintaining state between commands. Keep the user interface minimal and predictable.
