@@ -24,5 +24,10 @@ public:
     bool isOperationCompleted() const;
     bool waitForSelector(const std::string& selector, int timeout_ms);
     bool waitForText(const std::string& text, int timeout_ms);
-    std::string getInnerText(const std::string& selector); // New method
+    bool waitForElementWithContent(const std::string& selector, int timeout_ms);
+    std::string getInnerText(const std::string& selector);
+    std::string getFirstNonEmptyText(const std::string& selector);
+
+private:
+    void waitForJavaScriptCompletion(int timeout_ms = 5000);
 };

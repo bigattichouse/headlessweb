@@ -71,12 +71,15 @@ int main(int argc, char* argv[]) {
             browser.loadUri(session.getUrl());
             wait_for_completion(browser, 10000); // Wait up to 10 seconds for page load
         }
+        
         // Wait for the H1 element to appear
         std::cout << "Waiting for H1 element..." << std::endl;
         if (!browser.waitForSelector("h1", 10000)) { // Wait up to 10 seconds for H1
             std::cerr << "Error: H1 element not found within timeout." << std::endl;
             return 1;
         }
+        
+        // Get H1 text
         std::string h1_text = browser.getInnerText("h1");
         std::cout << "H1 text: " << h1_text << std::endl;
 
