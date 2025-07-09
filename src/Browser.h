@@ -22,4 +22,7 @@ public:
     void setCookies(const std::string& cookies);
 
     bool isOperationCompleted() const;
+    bool waitForSelector(const std::string& selector, int timeout_ms);
+    bool waitForText(const std::string& text, int timeout_ms);
+    std::string getInnerText(const std::string& selector); // New method
 };
