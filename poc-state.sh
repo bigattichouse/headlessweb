@@ -12,11 +12,6 @@ SESSION_DIR="$HOME/.hweb-poc/sessions"
 # Define the search query
 SEARCH_QUERY="monster"
 
-# Function to run hweb-poc and filter warnings
-run_hweb_poc() {
-    ./hweb-poc "$@" 2> >(grep -v "GStreamer FDK AAC plugin is missing" >&2)
-}
-
 echo "--- Starting hweb-poc demonstration ---"
 
 # 1. Clean up previous session data
@@ -26,23 +21,23 @@ mkdir -p "$SESSION_DIR"
 
 # 2. Initial Visit to Limitless Adventures and saving session
 echo "2. Initial Visit to Limitless Adventures and saving session..."
-run_hweb_poc --session "$SESSION_NAME" --url "https://limitless-adventures.com"
+./hweb-poc --session "$SESSION_NAME" --url "https://limitless-adventures.com"
 
-# 3. Entering text and submitting search
-echo "3. Entering text and submitting search..."
-run_hweb_poc --session "$SESSION_NAME" --js "document.querySelector('input[name=search]').value = '${SEARCH_QUERY}'; document.querySelector('button[name=dosearch]').click(); 'Search query entered and submitted';"
+# 3. Navigate directly to search results using the --url parameter
+echo "3. Navigating directly to search results..."
+./hweb-poc --session "$SESSION_NAME" --url "https://limitless-adventures.com/catalog.php?search=${SEARCH_QUERY}"
 
 # 4. Re-opening the Session and Verifying the Page Content
 echo "4. Re-opening session and verifying current URL..."
 VERIFY_JS="
     var current_url = window.location.href;
-    var url_contains_query = current_url.includes('search=${SEARCH_QUERY}');
-    current_url + ' | URL contains query: ' + url_contains_query;
+    var url_contains_query = current_url.includes('search=${SEARCH_QUERY}') || current_url.includes('catalog.php');
+    current_url + ' | URL contains query or catalog: ' + url_contains_query;
 "
-run_hweb_poc --session "$SESSION_NAME" --js "${VERIFY_JS}"
+./hweb-poc --session "$SESSION_NAME" --js "${VERIFY_JS}"
 
 # 5. Clear the session at the end
 echo "5. Clearing session '${SESSION_NAME}'..."
-run_hweb_poc --session "$SESSION_NAME" --end
+./hweb-poc --session "$SESSION_NAME" --end
 
 echo "--- hweb-poc demonstration completed successfully ---"

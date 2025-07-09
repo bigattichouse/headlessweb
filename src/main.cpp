@@ -83,9 +83,44 @@ int main(int argc, char* argv[]) {
         std::string h1_text = browser.getInnerText("h1");
         std::cout << "H1 text: " << h1_text << std::endl;
 
+        // Execute JavaScript
         std::string js_result_str;
         browser.executeJavascript(js, &js_result_str);
         wait_for_completion(browser, 5000); // Wait up to 5 seconds for JS execution
+        
+        // If the JavaScript might cause navigation (like form submission), wait for it
+        if (js.find(".click()") != std::string::npos || 
+            js.find(".submit()") != std::string::npos ||
+            js.find("window.location") != std::string::npos ||
+            js.find("location.href") != std::string::npos) {
+            std::cout << "Detected navigation JavaScript, waiting for page load..." << std::endl;
+            
+            // First, wait a bit for the form submission to initiate
+            g_usleep(1000 * 1000); // Wait 1 second
+            
+            // Wait for navigation to complete - using the load-changed signal
+            wait_for_completion(browser, 15000); // Wait up to 15 seconds for navigation
+            
+            // Give extra time for any redirects or dynamic loading
+            g_usleep(3000 * 1000); // Wait 3 more seconds
+            
+            // Get the current URL after navigation
+            std::string current_url = "";
+            browser.executeJavascript("window.location.href;", &current_url);
+            wait_for_completion(browser, 5000);
+            
+            // Also check the page title to see if we're on a different page
+            std::string current_title = "";
+            browser.executeJavascript("document.title;", &current_title);
+            wait_for_completion(browser, 5000);
+            
+            std::cout << "Navigation completed. New URL: " << current_url << std::endl;
+            std::cout << "Page title: " << current_title << std::endl;
+            
+            // Update session with new URL (even if it's the same, might have query params)
+            session.setUrl(current_url);
+        }
+        
         session.setCookies(browser.getCookies());
         sessionManager.saveSession(session);
         std::cout << "Executed JavaScript in session '" << sessionName << "'. Result: " << js_result_str << std::endl;
