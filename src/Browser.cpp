@@ -17,7 +17,10 @@ static void js_eval_callback(GObject* object, GAsyncResult* res, gpointer user_d
     Browser* browser_instance = static_cast<Browser*>(g_object_get_data(G_OBJECT(object), "browser-instance"));
     
     if (error) {
-        std::cerr << "JavaScript error: " << error->message << std::endl;
+        // Don't log SecurityError for localStorage/sessionStorage on file:// URLs - it's expected
+        if (!strstr(error->message, "SecurityError")) {
+            std::cerr << "JavaScript error: " << error->message << std::endl;
+        }
         g_error_free(error);
         if (user_data) {
             *(static_cast<std::string*>(user_data)) = "";
@@ -66,7 +69,7 @@ static void load_changed_callback(WebKitWebView* web_view, WebKitLoadEvent load_
     }
 }
 
-Browser::Browser() : cookieManager(nullptr), dataManager(nullptr), operation_completed(false) {
+Browser::Browser() : cookieManager(nullptr), operation_completed(false) {
     gtk_init();
     
     // Initialize with a proper data manager for cookie/storage persistence
@@ -74,14 +77,7 @@ Browser::Browser() : cookieManager(nullptr), dataManager(nullptr), operation_com
     sessionDataPath = home + "/.hweb-poc/webkit-data";
     std::filesystem::create_directories(sessionDataPath);
     
-    webView = WEBKIT_WEB_VIEW(webkit_web_view_new());
-    
-    if (!webView) {
-        std::cerr << "Failed to create WebKit web view" << std::endl;
-        exit(1);
-    }
-    
-    // Create and apply settings
+    // Create WebKit settings first
     WebKitSettings* settings = webkit_settings_new();
     webkit_settings_set_enable_media(settings, FALSE);
     webkit_settings_set_enable_media_stream(settings, FALSE);
@@ -91,7 +87,28 @@ Browser::Browser() : cookieManager(nullptr), dataManager(nullptr), operation_com
     webkit_settings_set_enable_page_cache(settings, TRUE);
     webkit_settings_set_enable_html5_local_storage(settings, TRUE);
     webkit_settings_set_enable_html5_database(settings, TRUE);
+    webkit_settings_set_allow_file_access_from_file_urls(settings, TRUE);  // Important for file:// URLs
+    webkit_settings_set_allow_universal_access_from_file_urls(settings, TRUE);  // Allow cross-origin for file://
     
+    // Create web context with custom data directory
+    WebKitWebContext* context = webkit_web_context_get_default();
+    webkit_web_context_set_cache_model(context, WEBKIT_CACHE_MODEL_WEB_BROWSER);
+    
+    // Create data directories for persistent storage
+    std::string dataDir = sessionDataPath + "/data";
+    std::string cacheDir = sessionDataPath + "/cache";
+    std::filesystem::create_directories(dataDir);
+    std::filesystem::create_directories(cacheDir);
+    
+    // Create web view
+    webView = WEBKIT_WEB_VIEW(webkit_web_view_new());
+    
+    if (!webView) {
+        std::cerr << "Failed to create WebKit web view" << std::endl;
+        exit(1);
+    }
+    
+    // Apply settings to the web view
     webkit_web_view_set_settings(webView, settings);
     
     // Get the network session for cookie management
@@ -241,8 +258,8 @@ void Browser::restoreSession(const Session& session) {
             wait(100); // Small delay for user agent to take effect
         }
         
-        // Navigate to current URL if present
-        if (!session.getCurrentUrl().empty()) {
+        // Navigate to current URL if present and not already there
+        if (!session.getCurrentUrl().empty() && session.getCurrentUrl() != getCurrentUrl()) {
             std::cerr << "Debug: Loading URL: " << session.getCurrentUrl() << std::endl;
             loadUri(session.getCurrentUrl());
             
@@ -272,6 +289,9 @@ void Browser::restoreSession(const Session& session) {
             return;
         }
         
+        // Check if this is a file:// URL
+        bool isFileUrl = session.getCurrentUrl().find("file://") == 0;
+        
         // Restore state step by step with error handling
         std::cerr << "Debug: Starting state restoration..." << std::endl;
         
@@ -288,21 +308,25 @@ void Browser::restoreSession(const Session& session) {
             std::cerr << "Warning: Failed to restore cookies: " << e.what() << std::endl;
         }
         
-        // Storage
-        try {
-            if (!session.getLocalStorage().empty()) {
-                setLocalStorage(session.getLocalStorage());
-                wait(500);
-                std::cerr << "Debug: Restored localStorage" << std::endl;
+        // Storage - skip for file:// URLs due to security restrictions
+        if (!isFileUrl) {
+            try {
+                if (!session.getLocalStorage().empty()) {
+                    setLocalStorage(session.getLocalStorage());
+                    wait(500);
+                    std::cerr << "Debug: Restored localStorage" << std::endl;
+                }
+                
+                if (!session.getSessionStorage().empty()) {
+                    setSessionStorage(session.getSessionStorage());
+                    wait(500);
+                    std::cerr << "Debug: Restored sessionStorage" << std::endl;
+                }
+            } catch (const std::exception& e) {
+                std::cerr << "Warning: Failed to restore storage: " << e.what() << std::endl;
             }
-            
-            if (!session.getSessionStorage().empty()) {
-                setSessionStorage(session.getSessionStorage());
-                wait(500);
-                std::cerr << "Debug: Restored sessionStorage" << std::endl;
-            }
-        } catch (const std::exception& e) {
-            std::cerr << "Warning: Failed to restore storage: " << e.what() << std::endl;
+        } else {
+            std::cerr << "Debug: Skipping storage restoration for file:// URL" << std::endl;
         }
         
         // Form state
@@ -358,6 +382,9 @@ void Browser::updateSessionState(Session& session) {
             return;
         }
         
+        // Check if this is a file:// URL
+        bool isFileUrl = getCurrentUrl().find("file://") == 0;
+        
         // Only proceed if we have a properly loaded page
         if (readyState == "complete" || readyState == "interactive") {
             // Safe state extraction with individual try-catch blocks
@@ -383,17 +410,19 @@ void Browser::updateSessionState(Session& session) {
                 std::cerr << "Warning: Failed to extract cookies: " << e.what() << std::endl;
             }
             
-            // Storage - with error handling
-            try {
-                session.setLocalStorage(getLocalStorage());
-            } catch (const std::exception& e) {
-                std::cerr << "Warning: Failed to extract localStorage: " << e.what() << std::endl;
-            }
-            
-            try {
-                session.setSessionStorage(getSessionStorage());
-            } catch (const std::exception& e) {
-                std::cerr << "Warning: Failed to extract sessionStorage: " << e.what() << std::endl;
+            // Storage - skip for file:// URLs
+            if (!isFileUrl) {
+                try {
+                    session.setLocalStorage(getLocalStorage());
+                } catch (const std::exception& e) {
+                    // Expected for file:// URLs
+                }
+                
+                try {
+                    session.setSessionStorage(getSessionStorage());
+                } catch (const std::exception& e) {
+                    // Expected for file:// URLs
+                }
             }
             
             // Form state - this was causing crashes, so be extra careful
@@ -468,7 +497,7 @@ void Browser::getCookiesAsync(std::function<void(std::vector<Cookie>)> callback)
                             result.push({
                                 name: parts[0],
                                 value: parts.slice(1).join('='),
-                                domain: window.location.hostname,
+                                domain: window.location.hostname || 'localhost',
                                 path: '/'
                             });
                         }
@@ -508,7 +537,7 @@ void Browser::setCookie(const Cookie& cookie) {
     std::stringstream js;
     js << "(function() { try { document.cookie = \"" << cookie.name << "=" << cookie.value;
     
-    if (!cookie.domain.empty()) {
+    if (!cookie.domain.empty() && cookie.domain != "localhost") {
         js << "; domain=" << cookie.domain;
     }
     
@@ -526,16 +555,19 @@ void Browser::setCookie(const Cookie& cookie) {
         js << "; expires=" << cookie.expires;
     }
     
-    js << "\"; return 'set'; } catch(e) { return 'error'; } })()";
+    js << "\"; return 'set'; } catch(e) { return 'error: ' + e.message; } })()";
     
-    executeJavascript(js.str());
-    waitForJavaScriptCompletion(500);
+    std::string result = executeJavascriptSync(js.str());
+    if (result.find("error") != std::string::npos) {
+        std::cerr << "Warning: Cookie set result: " << result << std::endl;
+    }
 }
 
 std::map<std::string, std::string> Browser::getLocalStorage() {
     std::string js = R"(
         (function() {
             try {
+                if (typeof(Storage) === 'undefined') return '{}';
                 var result = {};
                 for (var i = 0; i < localStorage.length; i++) {
                     var key = localStorage.key(i);
@@ -563,6 +595,13 @@ std::map<std::string, std::string> Browser::getLocalStorage() {
 }
 
 void Browser::setLocalStorage(const std::map<std::string, std::string>& storage) {
+    // First check if localStorage is available
+    std::string check = executeJavascriptSync("(function() { try { return typeof(Storage) !== 'undefined' ? 'available' : 'unavailable'; } catch(e) { return 'error'; } })()");
+    if (check != "available") {
+        std::cerr << "Warning: localStorage not available (likely due to file:// URL)" << std::endl;
+        return;
+    }
+    
     executeJavascript("(function() { try { localStorage.clear(); return 'cleared'; } catch(e) { return 'error'; } })()");
     waitForJavaScriptCompletion(500);
     
@@ -578,6 +617,7 @@ std::map<std::string, std::string> Browser::getSessionStorage() {
     std::string js = R"(
         (function() {
             try {
+                if (typeof(Storage) === 'undefined') return '{}';
                 var result = {};
                 for (var i = 0; i < sessionStorage.length; i++) {
                     var key = sessionStorage.key(i);
@@ -605,6 +645,13 @@ std::map<std::string, std::string> Browser::getSessionStorage() {
 }
 
 void Browser::setSessionStorage(const std::map<std::string, std::string>& storage) {
+    // First check if sessionStorage is available
+    std::string check = executeJavascriptSync("(function() { try { return typeof(Storage) !== 'undefined' ? 'available' : 'unavailable'; } catch(e) { return 'error'; } })()");
+    if (check != "available") {
+        std::cerr << "Warning: sessionStorage not available (likely due to file:// URL)" << std::endl;
+        return;
+    }
+    
     executeJavascript("(function() { try { sessionStorage.clear(); return 'cleared'; } catch(e) { return 'error'; } })()");
     waitForJavaScriptCompletion(500);
     
@@ -1089,12 +1136,14 @@ std::string Browser::getInnerText(const std::string& selector) {
         "    var text = (element.innerText || element.textContent || '').trim(); "
         "    return text; "
         "  } catch(e) { "
+        "    console.log('Error in getInnerText:', e); "
         "    return ''; "
         "  } "
         "})()";
     
     std::string result = executeJavascriptSync(text_content_script);
     
+    // Clean up the result
     std::string cleaned;
     cleaned.reserve(result.length());
     for (char c : result) {
@@ -1142,7 +1191,10 @@ bool Browser::fillInput(const std::string& selector, const std::string& value) {
         "      return true; "
         "    } "
         "    return false; "
-        "  } catch(e) { return false; } "
+        "  } catch(e) { "
+        "    console.log('Error in fillInput:', e); "
+        "    return false; "
+        "  } "
         "})()";
     
     std::string result = executeJavascriptSync(js_script);
@@ -1159,7 +1211,10 @@ bool Browser::clickElement(const std::string& selector) {
         "      return true; "
         "    } "
         "    return false; "
-        "  } catch(e) { return false; } "
+        "  } catch(e) { "
+        "    console.log('Error in clickElement:', e); "
+        "    return false; "
+        "  } "
         "})()";
     
     std::string result = executeJavascriptSync(js_script);
@@ -1252,7 +1307,7 @@ void Browser::setScrollPosition(int x, int y) {
 }
 
 std::pair<int, int> Browser::getScrollPosition() {
-    std::string js = "(function() { try { return JSON.stringify({x: window.pageXOffset, y: window.pageYOffset}); } catch(e) { return '{\"x\":0,\"y\":0}'; } })()";
+    std::string js = "(function() { try { return JSON.stringify({x: window.pageXOffset || 0, y: window.pageYOffset || 0}); } catch(e) { return '{\"x\":0,\"y\":0}'; } })()";
     std::string result = executeJavascriptSync(js);
     
     Json::Value root;
@@ -1329,7 +1384,7 @@ bool Browser::waitForText(const std::string& text, int timeout_ms) {
         pos = escaped_text.find("'", pos + 2);
     }
 
-    std::string js_check_script = "(function() { try { return document.body.innerText.includes('" + escaped_text + "'); } catch(e) { return false; } })()";
+    std::string js_check_script = "(function() { try { return document.body && document.body.innerText.includes('" + escaped_text + "'); } catch(e) { return false; } })()";
     
     while (elapsed_time < timeout_ms) {
         std::string result = executeJavascriptSync(js_check_script);

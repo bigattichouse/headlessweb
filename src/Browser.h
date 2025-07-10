@@ -3,12 +3,14 @@
 #include "Session.h"
 #include <string>
 #include <functional>
+#include <map>
+#include <set>
+#include <json/json.h>
 
 // Forward declarations for GTK and WebKit types
 typedef struct _GtkWidget GtkWidget;
 typedef struct _WebKitWebView WebKitWebView;
 typedef struct _WebKitCookieManager WebKitCookieManager;
-typedef struct _WebKitWebsiteDataManager WebKitWebsiteDataManager;
 
 class Browser {
 public:
@@ -123,7 +125,6 @@ public:
 
 private:
     WebKitCookieManager* cookieManager;
-    WebKitWebsiteDataManager* dataManager;
     std::string sessionDataPath;
     std::string js_result_buffer;  // Buffer for JavaScript results
     

@@ -49,7 +49,10 @@ Session SessionManager::loadOrCreateSession(const std::string& name) {
             }
             
             try {
-                return Session::deserialize(data);
+                Session session = Session::deserialize(data);
+                // Update the last accessed time when loading
+                session.updateLastAccessed();
+                return session;
             } catch (const std::exception& e) {
                 std::cerr << "Warning: Failed to deserialize session (creating new): " << e.what() << std::endl;
                 // Backup corrupted session file
@@ -93,16 +96,41 @@ void SessionManager::saveSession(const Session& session) {
             
             if (file.fail()) {
                 std::cerr << "Error: Failed to write session data to: " << tempPath << std::endl;
-                fs::remove(tempPath);
+                try {
+                    fs::remove(tempPath);
+                } catch (...) {
+                    // Ignore removal errors
+                }
                 return;
             }
         }
         
-        // Atomically replace the old session file
-        if (fs::exists(filePath)) {
-            fs::remove(filePath);
+        // Verify the temp file was created and has content
+        if (!fs::exists(tempPath) || fs::file_size(tempPath) == 0) {
+            std::cerr << "Error: Temporary session file is empty or missing: " << tempPath << std::endl;
+            return;
         }
-        fs::rename(tempPath, filePath);
+        
+        // Atomically replace the old session file
+        try {
+            // On POSIX systems, rename is atomic
+            fs::rename(tempPath, filePath);
+        } catch (const fs::filesystem_error& e) {
+            // If rename fails, try remove + rename
+            std::cerr << "Warning: Atomic rename failed, trying alternative: " << e.what() << std::endl;
+            try {
+                if (fs::exists(filePath)) {
+                    fs::remove(filePath);
+                }
+                fs::rename(tempPath, filePath);
+            } catch (const fs::filesystem_error& e2) {
+                std::cerr << "Error: Failed to save session file: " << e2.what() << std::endl;
+                // Try to clean up temp file
+                try {
+                    fs::remove(tempPath);
+                } catch (...) {}
+            }
+        }
         
     } catch (const std::exception& e) {
         std::cerr << "Error saving session: " << e.what() << std::endl;
@@ -133,11 +161,33 @@ std::vector<SessionInfo> SessionManager::listSessions() {
                 try {
                     // Load session to get details
                     std::string sessionName = entry.path().stem().string();
-                    Session session = loadOrCreateSession(sessionName);
+                    
+                    // Quick load just to get basic info without full deserialization
+                    std::ifstream file(entry.path());
+                    if (!file.is_open()) {
+                        continue;
+                    }
+                    
+                    std::string data((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+                    file.close();
+                    
+                    if (data.empty()) {
+                        continue;
+                    }
+                    
+                    // Parse just the fields we need
+                    Json::Value root;
+                    Json::Reader reader;
+                    if (!reader.parse(data, root)) {
+                        continue;
+                    }
                     
                     SessionInfo info;
                     info.name = sessionName;
-                    info.url = session.getCurrentUrl();
+                    info.url = root.get("currentUrl", "").asString();
+                    if (info.url.empty()) {
+                        info.url = root.get("url", "").asString(); // Backward compatibility
+                    }
                     
                     // Format size
                     auto fileSize = fs::file_size(entry.path());
@@ -152,7 +202,18 @@ std::vector<SessionInfo> SessionManager::listSessions() {
                     }
                     
                     // Format last accessed time
-                    auto lastAccessed = session.getLastAccessed();
+                    auto lastAccessed = root.get("lastAccessed", 0).asInt64();
+                    if (lastAccessed == 0) {
+                        // Use file modification time as fallback
+                        auto ftime = fs::last_write_time(entry.path());
+                        auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
+                            ftime - fs::file_time_type::clock::now() + std::chrono::system_clock::now()
+                        );
+                        lastAccessed = std::chrono::duration_cast<std::chrono::seconds>(
+                            sctp.time_since_epoch()
+                        ).count();
+                    }
+                    
                     auto now = std::chrono::system_clock::now();
                     auto nowTime = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
                     auto diff = nowTime - lastAccessed;
