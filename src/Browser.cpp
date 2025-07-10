@@ -1,7 +1,6 @@
 #include "Browser.h"
 #include <gtk/gtk.h>
 #include <webkit/webkit.h>
-#include <libsoup/soup.h>
 #include <unistd.h>
 #include <glib.h>
 #include <iostream>
@@ -63,26 +62,9 @@ Browser::Browser() {
     sessionDataPath = home + "/.hweb-poc/webkit-data";
     std::filesystem::create_directories(sessionDataPath);
     
-    // Create data manager with persistent storage
-    dataManager = webkit_website_data_manager_new(
-        "base-data-directory", sessionDataPath.c_str(),
-        "base-cache-directory", (sessionDataPath + "/cache").c_str(),
-        nullptr
-    );
-    
-    // Create web context with the data manager
-    WebKitWebContext* context = webkit_web_context_new_with_website_data_manager(dataManager);
-    
-    // Create web view with the context
-    webView = WEBKIT_WEB_VIEW(webkit_web_view_new_with_context(context));
-    
-    // Get cookie manager
-    cookieManager = webkit_website_data_manager_get_cookie_manager(dataManager);
-    
-    // Set persistent cookie storage
-    std::string cookieFile = sessionDataPath + "/cookies.txt";
-    webkit_cookie_manager_set_persistent_storage(cookieManager, 
-        cookieFile.c_str(), WEBKIT_COOKIE_PERSISTENT_STORAGE_TEXT);
+    // In WebKitGTK+ 6.0, we create the web view directly with settings
+    // The data manager is handled differently
+    webView = WEBKIT_WEB_VIEW(webkit_web_view_new());
     
     // Create and apply settings
     WebKitSettings* settings = webkit_settings_new();
@@ -92,11 +74,21 @@ Browser::Browser() {
     webkit_settings_set_enable_javascript(settings, TRUE);
     webkit_settings_set_enable_developer_extras(settings, TRUE);
     webkit_settings_set_enable_page_cache(settings, TRUE);
-    webkit_settings_set_enable_offline_web_application_cache(settings, TRUE);
     webkit_settings_set_enable_html5_local_storage(settings, TRUE);
     webkit_settings_set_enable_html5_database(settings, TRUE);
     
     webkit_web_view_set_settings(webView, settings);
+    
+    // Get the network session for cookie management
+    WebKitNetworkSession* session = webkit_web_view_get_network_session(webView);
+    if (session) {
+        cookieManager = webkit_network_session_get_cookie_manager(session);
+        
+        // Set persistent cookie storage
+        std::string cookieFile = sessionDataPath + "/cookies.txt";
+        webkit_cookie_manager_set_persistent_storage(cookieManager, 
+            cookieFile.c_str(), WEBKIT_COOKIE_PERSISTENT_STORAGE_TEXT);
+    }
     
     window = gtk_window_new();
     gtk_window_set_child(GTK_WINDOW(window), GTK_WIDGET(webView));
@@ -245,7 +237,10 @@ void Browser::updateSessionState(Session& session) {
     // Extract custom state using registered extractors
     if (!session.getStateExtractors().empty()) {
         auto customState = extractCustomState(session.getStateExtractors());
-        for (const auto& [key, value] : customState.getMemberNames()) {
+        
+        // Fixed: iterate over member names properly
+        auto memberNames = customState.getMemberNames();
+        for (const auto& key : memberNames) {
             session.setExtractedState(key, customState[key]);
         }
     }
@@ -253,6 +248,13 @@ void Browser::updateSessionState(Session& session) {
     // Update last accessed time
     session.updateLastAccessed();
 }
+
+// Fixed lambda function for cookies callback
+struct CookieCallbackData {
+    std::function<void(std::vector<Cookie>)> callback;
+    std::string* result;
+    Browser* browser;
+};
 
 void Browser::getCookiesAsync(std::function<void(std::vector<Cookie>)> callback) {
     std::string js = R"(
@@ -274,53 +276,61 @@ void Browser::getCookiesAsync(std::function<void(std::vector<Cookie>)> callback)
         })()
     )";
     
-    std::string* result = new std::string();
-    
-    auto cb = [callback, result](GObject* object, GAsyncResult* res, gpointer user_data) {
-        GError* error = NULL;
-        JSCValue* value = webkit_web_view_evaluate_javascript_finish(WEBKIT_WEB_VIEW(object), res, &error);
-        
-        std::vector<Cookie> cookies;
-        
-        if (!error && value && jsc_value_is_string(value)) {
-            char* str_value = jsc_value_to_string(value);
-            
-            // Parse JSON result
-            Json::Value root;
-            Json::Reader reader;
-            if (reader.parse(str_value, root) && root.isArray()) {
-                for (const auto& cookieJson : root) {
-                    Cookie cookie;
-                    cookie.name = cookieJson.get("name", "").asString();
-                    cookie.value = cookieJson.get("value", "").asString();
-                    cookie.domain = cookieJson.get("domain", "").asString();
-                    cookie.path = cookieJson.get("path", "/").asString();
-                    cookie.secure = false;
-                    cookie.httpOnly = false;
-                    cookie.expires = -1; // Session cookie
-                    cookies.push_back(cookie);
-                }
-            }
-            
-            g_free(str_value);
-        }
-        
-        if (error) {
-            g_error_free(error);
-        }
-        
-        callback(cookies);
-        delete result;
-        
-        Browser* browser_instance = static_cast<Browser*>(g_object_get_data(G_OBJECT(object), "browser-instance"));
-        if (browser_instance) {
-            browser_instance->operation_completed = true;
-        }
-    };
+    auto* data = new CookieCallbackData{callback, new std::string(), this};
     
     operation_completed = false;
-    webkit_web_view_evaluate_javascript(webView, js.c_str(), -1, NULL, NULL, NULL, 
-        (GAsyncReadyCallback)cb, result);
+    webkit_web_view_evaluate_javascript(
+        webView, 
+        js.c_str(), 
+        -1, 
+        NULL, 
+        NULL, 
+        NULL, 
+        [](GObject* object, GAsyncResult* res, gpointer user_data) {
+            auto* data = static_cast<CookieCallbackData*>(user_data);
+            GError* error = NULL;
+            JSCValue* value = webkit_web_view_evaluate_javascript_finish(WEBKIT_WEB_VIEW(object), res, &error);
+            
+            std::vector<Cookie> cookies;
+            
+            if (!error && value && jsc_value_is_string(value)) {
+                char* str_value = jsc_value_to_string(value);
+                
+                // Parse JSON result
+                Json::Value root;
+                Json::Reader reader;
+                if (reader.parse(str_value, root) && root.isArray()) {
+                    for (const auto& cookieJson : root) {
+                        Cookie cookie;
+                        cookie.name = cookieJson.get("name", "").asString();
+                        cookie.value = cookieJson.get("value", "").asString();
+                        cookie.domain = cookieJson.get("domain", "").asString();
+                        cookie.path = cookieJson.get("path", "/").asString();
+                        cookie.secure = false;
+                        cookie.httpOnly = false;
+                        cookie.expires = -1; // Session cookie
+                        cookies.push_back(cookie);
+                    }
+                }
+                
+                g_free(str_value);
+            }
+            
+            if (error) {
+                g_error_free(error);
+            }
+            
+            data->callback(cookies);
+            delete data->result;
+            
+            if (data->browser) {
+                data->browser->operation_completed = true;
+            }
+            
+            delete data;
+        },
+        data
+    );
 }
 
 void Browser::setCookie(const Cookie& cookie) {
@@ -1095,5 +1105,28 @@ void Browser::setUserAgent(const std::string& userAgent) {
 }
 
 void Browser::clearCookies() {
-    webkit_website_data_manager_clear(dataManager, WEBKIT_WEBSITE_DATA_COOKIES, 0, NULL, NULL, NULL);
+    // In WebKitGTK+ 6.0, we clear cookies using JavaScript
+    std::string js = R"(
+        (function() {
+            // Get all cookies
+            var cookies = document.cookie.split(';');
+            
+            // Clear each cookie
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i];
+                var eqPos = cookie.indexOf("=");
+                var name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+                
+                // Delete cookie by setting expiration date to past
+                document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+                document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=" + window.location.hostname;
+                document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=." + window.location.hostname;
+            }
+            
+            return 'Cookies cleared';
+        })()
+    )";
+    
+    executeJavascript(js);
+    waitForJavaScriptCompletion(500);
 }
