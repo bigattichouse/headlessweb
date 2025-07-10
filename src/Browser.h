@@ -35,9 +35,19 @@ public:
     void restoreSession(const Session& session);
     void updateSessionState(Session& session);
     
+    // Enhanced session operations
+    bool restoreSessionSafely(const Session& session);
+    void waitForPageStabilization(int timeout_ms = 2000);
+    
+    // Validation and health checks
+    bool isPageLoaded() const;
+    bool validateSession(const Session& session) const;
+    std::string getPageLoadState() const;
+    
     // Cookie management
     void getCookiesAsync(std::function<void(std::vector<Cookie>)> callback);
     void setCookie(const Cookie& cookie);
+    void setCookieSafe(const Cookie& cookie);
     void clearCookies();
     
     // Storage management
@@ -103,6 +113,13 @@ public:
     bool elementExists(const std::string& selector);
     int countElements(const std::string& selector);
     std::string getElementHtml(const std::string& selector);
+
+    // Enhanced JavaScript execution with error handling
+    std::string executeJavascriptSyncSafe(const std::string& script);
+    
+    // File URL validation and handling
+    bool isFileUrl(const std::string& url) const;
+    bool validateFileUrl(const std::string& url) const;
 
 private:
     WebKitCookieManager* cookieManager;

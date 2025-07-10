@@ -5,33 +5,118 @@
 #include <ctime>
 #include <sstream>
 #include <iomanip>
+#include <iostream>
 
 namespace fs = std::filesystem;
 
 SessionManager::SessionManager(const std::string& sessionPath) : sessionPath(sessionPath) {
-    fs::create_directories(sessionPath);
+    try {
+        fs::create_directories(sessionPath);
+        
+        // Verify directory is writable
+        std::string testFile = sessionPath + "/.write_test";
+        std::ofstream test(testFile);
+        if (test.is_open()) {
+            test << "test";
+            test.close();
+            fs::remove(testFile);
+        } else {
+            std::cerr << "Warning: Session directory may not be writable: " << sessionPath << std::endl;
+        }
+    } catch (const fs::filesystem_error& e) {
+        std::cerr << "Error creating session directory: " << e.what() << std::endl;
+        // Try to continue anyway
+    }
 }
 
 Session SessionManager::loadOrCreateSession(const std::string& name) {
     std::string filePath = getSessionFilePath(name);
+    
     if (fs::exists(filePath)) {
-        std::ifstream file(filePath);
-        std::string data((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-        return Session::deserialize(data);
+        try {
+            std::ifstream file(filePath);
+            if (!file.is_open()) {
+                std::cerr << "Warning: Could not open session file: " << filePath << std::endl;
+                return Session(name);
+            }
+            
+            std::string data((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+            file.close();
+            
+            if (data.empty()) {
+                std::cerr << "Warning: Session file is empty: " << filePath << std::endl;
+                return Session(name);
+            }
+            
+            try {
+                return Session::deserialize(data);
+            } catch (const std::exception& e) {
+                std::cerr << "Warning: Failed to deserialize session (creating new): " << e.what() << std::endl;
+                // Backup corrupted session file
+                std::string backupPath = filePath + ".corrupted." + std::to_string(std::time(nullptr));
+                try {
+                    fs::copy_file(filePath, backupPath);
+                    std::cerr << "Corrupted session backed up to: " << backupPath << std::endl;
+                } catch (...) {
+                    // Ignore backup errors
+                }
+                return Session(name);
+            }
+        } catch (const std::exception& e) {
+            std::cerr << "Warning: Error loading session file (creating new): " << e.what() << std::endl;
+            return Session(name);
+        }
     }
+    
     return Session(name);
 }
 
 void SessionManager::saveSession(const Session& session) {
     std::string filePath = getSessionFilePath(session.getName());
-    std::ofstream file(filePath);
-    file << session.serialize();
+    
+    try {
+        // Create directory if it doesn't exist
+        fs::create_directories(fs::path(filePath).parent_path());
+        
+        // Write to temporary file first, then rename (atomic operation)
+        std::string tempPath = filePath + ".tmp";
+        {
+            std::ofstream file(tempPath);
+            if (!file.is_open()) {
+                std::cerr << "Error: Could not create temporary session file: " << tempPath << std::endl;
+                return;
+            }
+            
+            std::string serialized = session.serialize();
+            file << serialized;
+            file.close();
+            
+            if (file.fail()) {
+                std::cerr << "Error: Failed to write session data to: " << tempPath << std::endl;
+                fs::remove(tempPath);
+                return;
+            }
+        }
+        
+        // Atomically replace the old session file
+        if (fs::exists(filePath)) {
+            fs::remove(filePath);
+        }
+        fs::rename(tempPath, filePath);
+        
+    } catch (const std::exception& e) {
+        std::cerr << "Error saving session: " << e.what() << std::endl;
+    }
 }
 
 void SessionManager::deleteSession(const std::string& name) {
     std::string filePath = getSessionFilePath(name);
-    if (fs::exists(filePath)) {
-        fs::remove(filePath);
+    try {
+        if (fs::exists(filePath)) {
+            fs::remove(filePath);
+        }
+    } catch (const fs::filesystem_error& e) {
+        std::cerr << "Warning: Could not delete session file: " << e.what() << std::endl;
     }
 }
 
@@ -39,6 +124,10 @@ std::vector<SessionInfo> SessionManager::listSessions() {
     std::vector<SessionInfo> sessions;
     
     try {
+        if (!fs::exists(sessionPath) || !fs::is_directory(sessionPath)) {
+            return sessions;
+        }
+        
         for (const auto& entry : fs::directory_iterator(sessionPath)) {
             if (entry.is_regular_file() && entry.path().extension() == ".json") {
                 try {
@@ -80,13 +169,14 @@ std::vector<SessionInfo> SessionManager::listSessions() {
                     
                     sessions.push_back(info);
                 } catch (const std::exception& e) {
-                    // Skip sessions that can't be loaded
+                    // Skip sessions that can't be loaded, but don't spam errors
+                    std::cerr << "Warning: Skipping unreadable session file: " << entry.path().filename() << std::endl;
                     continue;
                 }
             }
         }
     } catch (const fs::filesystem_error& e) {
-        // Directory doesn't exist or can't be accessed
+        std::cerr << "Warning: Error listing sessions: " << e.what() << std::endl;
         return sessions;
     }
     

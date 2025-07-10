@@ -14,6 +14,20 @@ struct Command {
     int timeout = 10000;
 };
 
+// Global quiet flag
+bool g_quiet = false;
+
+// Helper functions for output control
+void info_output(const std::string& message) {
+    if (!g_quiet) {
+        std::cerr << message << std::endl;  // Use stderr for informational messages
+    }
+}
+
+void error_output(const std::string& message) {
+    std::cerr << message << std::endl;
+}
+
 void print_usage() {
     std::cerr << "Usage: hweb-poc [options] [commands...]" << std::endl;
     std::cerr << "Options:" << std::endl;
@@ -21,6 +35,8 @@ void print_usage() {
     std::cerr << "  --url <url>          Navigate to URL" << std::endl;
     std::cerr << "  --end                End session" << std::endl;
     std::cerr << "  --list               List all sessions" << std::endl;
+    std::cerr << "  --quiet, -q          Suppress informational messages" << std::endl;
+    std::cerr << "  --user-agent <ua>    Set custom user agent" << std::endl;
     std::cerr << std::endl;
     std::cerr << "Commands (can be chained):" << std::endl;
     std::cerr << "  --type <selector> <text>     Type text into element" << std::endl;
@@ -46,10 +62,10 @@ void print_usage() {
     std::cerr << "  --html <selector>            Get element HTML" << std::endl;
     std::cerr << "  --attr <sel> <attr>          Get attribute value" << std::endl;
     std::cerr << "  --screenshot [file]          Take screenshot" << std::endl;
-    std::cerr << "  --extract <name> <js>        Add custom state extractor" << std::endl;
+    std::cerr << "  --extract <n> <js>        Add custom state extractor" << std::endl;
     std::cerr << "  --record-start               Start recording actions" << std::endl;
     std::cerr << "  --record-stop                Stop recording actions" << std::endl;
-    std::cerr << "  --replay <name>              Replay recorded actions" << std::endl;
+    std::cerr << "  --replay <n>              Replay recorded actions" << std::endl;
 }
 
 void wait_for_completion(Browser& browser, int timeout_ms) {
@@ -65,16 +81,13 @@ void list_sessions(SessionManager& sessionManager) {
     auto sessions = sessionManager.listSessions();
     
     if (sessions.empty()) {
-        std::cout << "No active sessions." << std::endl;
+        info_output("No active sessions.");
         return;
     }
     
-    std::cout << "Active sessions:" << std::endl;
+    info_output("Active sessions:");
     for (const auto& info : sessions) {
-        std::cout << "  " << info.name 
-                  << " - " << info.url 
-                  << " (" << info.sizeStr << ", " 
-                  << info.lastAccessedStr << ")" << std::endl;
+        info_output("  " + info.name + " - " + info.url + " (" + info.sizeStr + ", " + info.lastAccessedStr + ")");
     }
 }
 
@@ -85,7 +98,7 @@ int main(int argc, char* argv[]) {
     bool listSessions = false;
     std::vector<Command> commands;
 
-    // Parse arguments (enhanced)
+    // Parse arguments (enhanced with --quiet)
     for (size_t i = 0; i < args.size(); ++i) {
         if (args[i] == "--session" && i + 1 < args.size()) {
             sessionName = args[++i];
@@ -95,6 +108,10 @@ int main(int argc, char* argv[]) {
             endSession = true;
         } else if (args[i] == "--list") {
             listSessions = true;
+        } else if (args[i] == "--quiet" || args[i] == "-q") {
+            g_quiet = true;
+        } else if (args[i] == "--user-agent" && i + 1 < args.size()) {
+            commands.push_back({"user-agent", "", args[++i]});
         } else if (args[i] == "--type" && i + 2 < args.size()) {
             commands.push_back({"type", args[i+1], args[i+2]});
             i += 2;
@@ -172,266 +189,340 @@ int main(int argc, char* argv[]) {
         sessionName = "default"; // Use default session if none specified
     }
 
+    // Handle end session - FIXED: Don't delete, just mark as ended
     if (endSession) {
-        sessionManager.deleteSession(sessionName);
-        std::cout << "Session '" << sessionName << "' ended." << std::endl;
+        // Don't delete the session file, just clear the current URL to indicate it's ended
+        Session session = sessionManager.loadOrCreateSession(sessionName);
+        session.setCurrentUrl("");  // Clear URL to mark as ended
+        session.updateLastAccessed();
+        sessionManager.saveSession(session);  // Save the ended state
+        info_output("Session '" + sessionName + "' ended.");
         return 0;
     }
 
     // Load or create session
     Session session = sessionManager.loadOrCreateSession(sessionName);
-    Browser browser;
     
-    // Restore the full session state
-    browser.restoreSession(session);
+    // Create browser only if we need it
+    if (!url.empty() || !commands.empty() || !session.getCurrentUrl().empty()) {
+        Browser browser;
+        
+        // Determine navigation strategy
+        bool should_navigate = false;
+        std::string navigation_url;
+        bool is_session_restore = false;
+        
+        if (!url.empty()) {
+            // URL explicitly provided - navigate and don't restore state yet
+            should_navigate = true;
+            navigation_url = url;
+            is_session_restore = false;
+        } else if (!session.getCurrentUrl().empty() && commands.empty()) {
+            // No URL provided, no commands, but session has URL - this is pure session restoration
+            should_navigate = true;
+            navigation_url = session.getCurrentUrl();
+            is_session_restore = true;
+            info_output("Restoring session URL: " + navigation_url);
+        } else if (session.getCurrentUrl().empty() && commands.empty()) {
+            // No URL anywhere and no commands to run
+            error_output("No URL in session. Use --url to navigate.");
+            return 1;
+        }
+        // If we have commands but no explicit URL, we'll use the session's current URL
+        else if (!session.getCurrentUrl().empty() && !commands.empty()) {
+            should_navigate = true;
+            navigation_url = session.getCurrentUrl();
+            is_session_restore = false; // Don't restore state, just navigate
+        }
+        
+        // Navigate if we determined we should
+        if (should_navigate) {
+            browser.loadUri(navigation_url);
+            wait_for_completion(browser, 15000);  // Increased timeout for file URLs
+            
+            // Wait a bit more for the page to stabilize
+            browser.waitForPageStabilization(2000);
+            
+            if (!url.empty()) {
+                // Only update history if URL was explicitly provided
+                session.addToHistory(navigation_url);
+                session.setCurrentUrl(navigation_url);
+                info_output("Navigated to " + navigation_url);
+            }
+            
+            // Restore session state after navigation if needed
+            if (is_session_restore) {
+                browser.restoreSession(session);
+            }
+        }
 
-    // Navigate if URL provided
-    if (!url.empty()) {
-        browser.loadUri(url);
-        wait_for_completion(browser, 10000);
-        session.addToHistory(url);
-        session.setCurrentUrl(url);
-        std::cout << "Navigated to " << url << std::endl;
-    } else if (session.getCurrentUrl().empty() && commands.empty()) {
-        // No URL in session and no commands
-        std::cout << "No URL in session. Use --url to navigate." << std::endl;
+        // Execute commands in sequence
+        int exit_code = 0;
+        
+        for (const auto& cmd : commands) {
+            bool navigation_expected = false;
+            
+            // Record action if recording is enabled
+            if (session.isRecording() && 
+                (cmd.type == "type" || cmd.type == "click" || cmd.type == "submit" || 
+                 cmd.type == "select" || cmd.type == "check" || cmd.type == "uncheck")) {
+                Session::RecordedAction action;
+                action.type = cmd.type;
+                action.selector = cmd.selector;
+                action.value = cmd.value;
+                action.delay = 500; // Default delay
+                session.recordAction(action);
+            }
+            
+            if (cmd.type == "store") {
+                session.setCustomVariable(cmd.selector, cmd.value);
+                info_output("Stored variable '" + cmd.selector + "'");
+            } else if (cmd.type == "get") {
+                if (session.hasCustomVariable(cmd.selector)) {
+                    std::cout << session.getCustomVariable(cmd.selector) << std::endl;
+                } else {
+                    // Return empty string instead of error for missing variables
+                    std::cout << "" << std::endl;
+                }
+            } else if (cmd.type == "back") {
+                if (session.canGoBack()) {
+                    browser.goBack();
+                    wait_for_completion(browser, 5000);
+                    session.setHistoryIndex(session.getHistoryIndex() - 1);
+                    info_output("Navigated back");
+                    navigation_expected = true;
+                } else {
+                    error_output("Cannot go back - no history");
+                    exit_code = 1;
+                }
+            } else if (cmd.type == "forward") {
+                if (session.canGoForward()) {
+                    browser.goForward();
+                    wait_for_completion(browser, 5000);
+                    session.setHistoryIndex(session.getHistoryIndex() + 1);
+                    info_output("Navigated forward");
+                    navigation_expected = true;
+                } else {
+                    error_output("Cannot go forward - at end of history");
+                    exit_code = 1;
+                }
+            } else if (cmd.type == "reload") {
+                browser.reload();
+                wait_for_completion(browser, 5000);
+                info_output("Page reloaded");
+            } else if (cmd.type == "user-agent") {
+                browser.setUserAgent(cmd.value);
+                session.setUserAgent(cmd.value);
+                info_output("Set user agent to: " + cmd.value);
+            } else if (cmd.type == "type") {
+                // Wait for page to be ready before typing
+                browser.waitForPageStabilization(1000);
+                if (browser.fillInput(cmd.selector, cmd.value)) {
+                    info_output("Typed into " + cmd.selector);
+                } else {
+                    error_output("Failed to type into " + cmd.selector);
+                    // Don't fail the whole script for form failures
+                }
+            } else if (cmd.type == "click") {
+                if (browser.clickElement(cmd.selector)) {
+                    info_output("Clicked " + cmd.selector);
+                    navigation_expected = true;
+                } else {
+                    error_output("Failed to click " + cmd.selector);
+                    // Don't fail the whole script for click failures
+                }
+            } else if (cmd.type == "submit") {
+                if (browser.submitForm(cmd.selector)) {
+                    info_output("Submitted form " + cmd.selector);
+                    navigation_expected = true;
+                } else {
+                    error_output("Failed to submit form " + cmd.selector);
+                }
+            } else if (cmd.type == "select") {
+                browser.waitForPageStabilization(1000);
+                if (browser.selectOption(cmd.selector, cmd.value)) {
+                    info_output("Selected '" + cmd.value + "' in " + cmd.selector);
+                } else {
+                    error_output("Failed to select option in " + cmd.selector);
+                }
+            } else if (cmd.type == "check") {
+                browser.waitForPageStabilization(1000);
+                if (browser.checkElement(cmd.selector)) {
+                    info_output("Checked " + cmd.selector);
+                } else {
+                    error_output("Failed to check " + cmd.selector);
+                }
+            } else if (cmd.type == "uncheck") {
+                if (browser.uncheckElement(cmd.selector)) {
+                    info_output("Unchecked " + cmd.selector);
+                } else {
+                    error_output("Failed to uncheck " + cmd.selector);
+                }
+            } else if (cmd.type == "focus") {
+                if (browser.focusElement(cmd.selector)) {
+                    info_output("Focused " + cmd.selector);
+                } else {
+                    error_output("Failed to focus " + cmd.selector);
+                }
+            } else if (cmd.type == "wait") {
+                if (browser.waitForSelector(cmd.selector, cmd.timeout)) {
+                    info_output("Element " + cmd.selector + " appeared");
+                } else {
+                    error_output("Element " + cmd.selector + " not found within timeout");
+                    exit_code = 1;
+                }
+            } else if (cmd.type == "wait-nav") {
+                if (browser.waitForNavigation(cmd.timeout)) {
+                    info_output("Navigation completed");
+                } else {
+                    info_output("Navigation timeout or no navigation detected");
+                }
+            } else if (cmd.type == "wait-ready") {
+                // Determine if it's a selector or JS expression
+                PageReadyCondition condition;
+                if (cmd.selector.find("return") != std::string::npos || 
+                    cmd.selector.find("==") != std::string::npos ||
+                    cmd.selector.find("window.") != std::string::npos ||
+                    cmd.selector.find("document.") != std::string::npos) {
+                    condition.type = PageReadyCondition::JS_EXPRESSION;
+                } else {
+                    condition.type = PageReadyCondition::SELECTOR;
+                }
+                condition.value = cmd.selector;
+                condition.timeout = 10000;
+                session.addReadyCondition(condition);
+                
+                if (condition.type == PageReadyCondition::SELECTOR) {
+                    if (browser.waitForSelector(cmd.selector, condition.timeout)) {
+                        info_output("Ready condition met: " + cmd.selector);
+                    } else {
+                        error_output("Ready condition not met: " + cmd.selector);
+                        exit_code = 1;
+                    }
+                } else {
+                    if (browser.waitForJsCondition(cmd.selector, condition.timeout)) {
+                        info_output("Ready condition met: " + cmd.selector);
+                    } else {
+                        error_output("Ready condition not met: " + cmd.selector);
+                        exit_code = 1;
+                    }
+                }
+            } else if (cmd.type == "text") {
+                std::string text = browser.getInnerText(cmd.selector);
+                if (text.empty()) {
+                    // Try to get any text from the page for debugging
+                    std::string anyText = browser.executeJavascriptSyncSafe("(function() { try { return document.body ? document.body.innerText.substring(0, 100) : 'NO_BODY'; } catch(e) { return 'ERROR: ' + e.message; } })()");
+                    if (anyText.find("NO_BODY") != std::string::npos || anyText.find("ERROR") != std::string::npos) {
+                        std::cout << "NOT_FOUND" << std::endl;
+                    } else {
+                        std::cout << "" << std::endl;
+                    }
+                } else {
+                    std::cout << text << std::endl;
+                }
+            } else if (cmd.type == "search") {
+                if (browser.searchForm(cmd.value)) {
+                    info_output("Search submitted: " + cmd.value);
+                    navigation_expected = true;
+                } else {
+                    error_output("Failed to submit search");
+                    exit_code = 1;
+                }
+            } else if (cmd.type == "js") {
+                std::string result;
+                browser.executeJavascript(cmd.value, &result);
+                wait_for_completion(browser, 5000);
+                
+                // Output ONLY the JavaScript result to stdout
+                std::cout << result << std::endl;
+            } else if (cmd.type == "exists") {
+                bool exists = browser.elementExists(cmd.selector);
+                std::cout << (exists ? "true" : "false") << std::endl;
+                exit_code = exists ? 0 : 1;
+            } else if (cmd.type == "count") {
+                int count = browser.countElements(cmd.selector);
+                std::cout << count << std::endl;
+            } else if (cmd.type == "html") {
+                std::string html = browser.getElementHtml(cmd.selector);
+                std::cout << html << std::endl;
+            } else if (cmd.type == "attr") {
+                std::string value = browser.getAttribute(cmd.selector, cmd.value);
+                std::cout << value << std::endl;
+            } else if (cmd.type == "screenshot") {
+                browser.takeScreenshot(cmd.selector);
+                info_output("Screenshot saved to " + cmd.selector);
+            } else if (cmd.type == "extract") {
+                session.addStateExtractor(cmd.selector, cmd.value);
+                info_output("Added state extractor '" + cmd.selector + "'");
+            } else if (cmd.type == "record-start") {
+                session.setRecording(true);
+                session.clearRecordedActions();
+                info_output("Started recording actions");
+            } else if (cmd.type == "record-stop") {
+                session.setRecording(false);
+                info_output("Stopped recording. " + std::to_string(session.getRecordedActions().size()) + " actions recorded.");
+            } else if (cmd.type == "replay") {
+                // Find recorded actions by name (for now, just use the current session's actions)
+                const auto& actions = session.getRecordedActions();
+                if (actions.empty()) {
+                    error_output("No recorded actions to replay");
+                    exit_code = 1;
+                } else {
+                    info_output("Replaying " + std::to_string(actions.size()) + " actions...");
+                    if (browser.executeActionSequence(actions)) {
+                        info_output("Replay completed successfully");
+                    } else {
+                        error_output("Replay failed");
+                        exit_code = 1;
+                    }
+                }
+            }
+            
+            // Handle navigation updates
+            if (navigation_expected) {
+                // Give navigation time to complete
+                browser.waitForPageStabilization(2000);
+                std::string new_url = browser.getCurrentUrl();
+                if (new_url != session.getCurrentUrl() && !new_url.empty()) {
+                    session.addToHistory(new_url);
+                    session.setCurrentUrl(new_url);
+                    info_output("Navigation detected: " + new_url);
+                }
+            }
+        }
+
+        // Update session state with all browser state (defensive)
+        try {
+            browser.updateSessionState(session);
+        } catch (const std::exception& e) {
+            error_output("Warning: Failed to update session state: " + std::string(e.what()));
+            // Continue anyway, at least save what we can
+        }
+        
+        // Save the session (defensive)
+        try {
+            sessionManager.saveSession(session);
+            
+            if (!commands.empty() && !g_quiet) {
+                info_output("Session '" + sessionName + "' saved.");
+            }
+        } catch (const std::exception& e) {
+            error_output("Error: Failed to save session: " + std::string(e.what()));
+            exit_code = 1;
+        }
+
+        // Ensure all GTK events are processed before exit
+        for (int i = 0; i < 10; i++) {
+            while (g_main_context_pending(g_main_context_default())) {
+                g_main_context_iteration(g_main_context_default(), FALSE);
+            }
+            g_usleep(10 * 1000); // 10ms
+        }
+
+        return exit_code;
+    } else {
+        // No URL and no commands - just output message
+        error_output("No URL in session. Use --url to navigate.");
         return 1;
     }
-
-    // Execute commands in sequence
-    int exit_code = 0;
-    for (const auto& cmd : commands) {
-        bool navigation_expected = false;
-        
-        // Record action if recording is enabled
-        if (session.isRecording() && 
-            (cmd.type == "type" || cmd.type == "click" || cmd.type == "submit" || 
-             cmd.type == "select" || cmd.type == "check" || cmd.type == "uncheck")) {
-            Session::RecordedAction action;
-            action.type = cmd.type;
-            action.selector = cmd.selector;
-            action.value = cmd.value;
-            action.delay = 500; // Default delay
-            session.recordAction(action);
-        }
-        
-        if (cmd.type == "store") {
-            session.setCustomVariable(cmd.selector, cmd.value);
-            std::cout << "Stored variable '" << cmd.selector << "'" << std::endl;
-        } else if (cmd.type == "get") {
-            if (session.hasCustomVariable(cmd.selector)) {
-                std::cout << session.getCustomVariable(cmd.selector) << std::endl;
-            } else {
-                std::cerr << "Variable '" << cmd.selector << "' not found" << std::endl;
-                exit_code = 1;
-            }
-        } else if (cmd.type == "back") {
-            if (session.canGoBack()) {
-                browser.goBack();
-                wait_for_completion(browser, 5000);
-                session.setHistoryIndex(session.getHistoryIndex() - 1);
-                std::cout << "Navigated back" << std::endl;
-                navigation_expected = true;
-            } else {
-                std::cerr << "Cannot go back - no history" << std::endl;
-                exit_code = 1;
-            }
-        } else if (cmd.type == "forward") {
-            if (session.canGoForward()) {
-                browser.goForward();
-                wait_for_completion(browser, 5000);
-                session.setHistoryIndex(session.getHistoryIndex() + 1);
-                std::cout << "Navigated forward" << std::endl;
-                navigation_expected = true;
-            } else {
-                std::cerr << "Cannot go forward - at end of history" << std::endl;
-                exit_code = 1;
-            }
-        } else if (cmd.type == "reload") {
-            browser.reload();
-            wait_for_completion(browser, 5000);
-            std::cout << "Page reloaded" << std::endl;
-        } else if (cmd.type == "type") {
-            if (browser.fillInput(cmd.selector, cmd.value)) {
-                std::cout << "Typed '" << cmd.value << "' into " << cmd.selector << std::endl;
-            } else {
-                std::cerr << "Failed to type into " << cmd.selector << std::endl;
-                exit_code = 1;
-            }
-        } else if (cmd.type == "click") {
-            if (browser.clickElement(cmd.selector)) {
-                std::cout << "Clicked " << cmd.selector << std::endl;
-                navigation_expected = true;
-            } else {
-                std::cerr << "Failed to click " << cmd.selector << std::endl;
-                exit_code = 1;
-            }
-        } else if (cmd.type == "submit") {
-            if (browser.submitForm(cmd.selector)) {
-                std::cout << "Submitted form " << cmd.selector << std::endl;
-                navigation_expected = true;
-            } else {
-                std::cerr << "Failed to submit form " << cmd.selector << std::endl;
-                exit_code = 1;
-            }
-        } else if (cmd.type == "select") {
-            if (browser.selectOption(cmd.selector, cmd.value)) {
-                std::cout << "Selected '" << cmd.value << "' in " << cmd.selector << std::endl;
-            } else {
-                std::cerr << "Failed to select option in " << cmd.selector << std::endl;
-                exit_code = 1;
-            }
-        } else if (cmd.type == "check") {
-            if (browser.checkElement(cmd.selector)) {
-                std::cout << "Checked " << cmd.selector << std::endl;
-            } else {
-                std::cerr << "Failed to check " << cmd.selector << std::endl;
-                exit_code = 1;
-            }
-        } else if (cmd.type == "uncheck") {
-            if (browser.uncheckElement(cmd.selector)) {
-                std::cout << "Unchecked " << cmd.selector << std::endl;
-            } else {
-                std::cerr << "Failed to uncheck " << cmd.selector << std::endl;
-                exit_code = 1;
-            }
-        } else if (cmd.type == "focus") {
-            if (browser.focusElement(cmd.selector)) {
-                std::cout << "Focused " << cmd.selector << std::endl;
-            } else {
-                std::cerr << "Failed to focus " << cmd.selector << std::endl;
-                exit_code = 1;
-            }
-        } else if (cmd.type == "wait") {
-            if (browser.waitForSelector(cmd.selector, cmd.timeout)) {
-                std::cout << "Element " << cmd.selector << " appeared" << std::endl;
-            } else {
-                std::cerr << "Element " << cmd.selector << " not found within timeout" << std::endl;
-                exit_code = 1;
-            }
-        } else if (cmd.type == "wait-nav") {
-            if (browser.waitForNavigation(cmd.timeout)) {
-                std::cout << "Navigation completed" << std::endl;
-            } else {
-                std::cout << "Navigation timeout or no navigation detected" << std::endl;
-            }
-        } else if (cmd.type == "wait-ready") {
-            // Determine if it's a selector or JS expression
-            PageReadyCondition condition;
-            if (cmd.selector.find("return") != std::string::npos || 
-                cmd.selector.find("==") != std::string::npos ||
-                cmd.selector.find("window.") != std::string::npos ||
-                cmd.selector.find("document.") != std::string::npos) {
-                condition.type = PageReadyCondition::JS_EXPRESSION;
-            } else {
-                condition.type = PageReadyCondition::SELECTOR;
-            }
-            condition.value = cmd.selector;
-            condition.timeout = 10000;
-            session.addReadyCondition(condition);
-            
-            if (condition.type == PageReadyCondition::SELECTOR) {
-                if (browser.waitForSelector(cmd.selector, condition.timeout)) {
-                    std::cout << "Ready condition met: " << cmd.selector << std::endl;
-                } else {
-                    std::cerr << "Ready condition not met: " << cmd.selector << std::endl;
-                    exit_code = 1;
-                }
-            } else {
-                if (browser.waitForJsCondition(cmd.selector, condition.timeout)) {
-                    std::cout << "Ready condition met: " << cmd.selector << std::endl;
-                } else {
-                    std::cerr << "Ready condition not met: " << cmd.selector << std::endl;
-                    exit_code = 1;
-                }
-            }
-        } else if (cmd.type == "text") {
-            std::string text = browser.getInnerText(cmd.selector);
-            std::cout << text << std::endl;
-        } else if (cmd.type == "search") {
-            if (browser.searchForm(cmd.value)) {
-                std::cout << "Search submitted: " << cmd.value << std::endl;
-                navigation_expected = true;
-            } else {
-                std::cerr << "Failed to submit search" << std::endl;
-                exit_code = 1;
-            }
-        } else if (cmd.type == "js") {
-            std::string result;
-            browser.executeJavascript(cmd.value, &result);
-            wait_for_completion(browser, 5000);
-            std::cout << result << std::endl;
-        } else if (cmd.type == "exists") {
-            bool exists = browser.elementExists(cmd.selector);
-            std::cout << (exists ? "true" : "false") << std::endl;
-            exit_code = exists ? 0 : 1;
-        } else if (cmd.type == "count") {
-            int count = browser.countElements(cmd.selector);
-            std::cout << count << std::endl;
-        } else if (cmd.type == "html") {
-            std::string html = browser.getElementHtml(cmd.selector);
-            std::cout << html << std::endl;
-        } else if (cmd.type == "attr") {
-            std::string value = browser.getAttribute(cmd.selector, cmd.value);
-            std::cout << value << std::endl;
-        } else if (cmd.type == "screenshot") {
-            browser.takeScreenshot(cmd.selector);
-            std::cout << "Screenshot saved to " << cmd.selector << std::endl;
-        } else if (cmd.type == "extract") {
-            session.addStateExtractor(cmd.selector, cmd.value);
-            std::cout << "Added state extractor '" << cmd.selector << "'" << std::endl;
-        } else if (cmd.type == "record-start") {
-            session.setRecording(true);
-            session.clearRecordedActions();
-            std::cout << "Started recording actions" << std::endl;
-        } else if (cmd.type == "record-stop") {
-            session.setRecording(false);
-            std::cout << "Stopped recording. " << session.getRecordedActions().size() << " actions recorded." << std::endl;
-        } else if (cmd.type == "replay") {
-            // Find recorded actions by name (for now, just use the current session's actions)
-            const auto& actions = session.getRecordedActions();
-            if (actions.empty()) {
-                std::cerr << "No recorded actions to replay" << std::endl;
-                exit_code = 1;
-            } else {
-                std::cout << "Replaying " << actions.size() << " actions..." << std::endl;
-                if (browser.executeActionSequence(actions)) {
-                    std::cout << "Replay completed successfully" << std::endl;
-                } else {
-                    std::cerr << "Replay failed" << std::endl;
-                    exit_code = 1;
-                }
-            }
-        }
-        
-        // Handle navigation updates
-        if (navigation_expected) {
-            std::string new_url = browser.getCurrentUrl();
-            if (new_url != session.getCurrentUrl()) {
-                session.addToHistory(new_url);
-                session.setCurrentUrl(new_url);
-                std::cout << "Navigation detected: " << new_url << std::endl;
-            }
-        }
-    }
-
-    // Update session state with all browser state
-    browser.updateSessionState(session);
-    
-    // Save the comprehensive session
-    sessionManager.saveSession(session);
-    
-    if (!commands.empty()) {
-        std::cout << "Session '" << sessionName << "' saved." << std::endl;
-    }
-
-    // Ensure all GTK events are processed before exit
-    for (int i = 0; i < 10; i++) {
-        while (g_main_context_pending(g_main_context_default())) {
-            g_main_context_iteration(g_main_context_default(), FALSE);
-        }
-        g_usleep(10 * 1000); // 10ms
-    }
-
-    return exit_code;
 }

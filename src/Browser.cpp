@@ -74,11 +74,8 @@ Browser::Browser() : cookieManager(nullptr), dataManager(nullptr), operation_com
     sessionDataPath = home + "/.hweb-poc/webkit-data";
     std::filesystem::create_directories(sessionDataPath);
     
-    // In WebKitGTK+ 6.0, we create the web view directly with settings
-    // The data manager is handled differently
     webView = WEBKIT_WEB_VIEW(webkit_web_view_new());
     
-    // Ensure webView is valid
     if (!webView) {
         std::cerr << "Failed to create WebKit web view" << std::endl;
         exit(1);
@@ -122,7 +119,6 @@ Browser::Browser() : cookieManager(nullptr), dataManager(nullptr), operation_com
 
 Browser::~Browser() {
     // Don't do anything here - let GTK handle cleanup
-    // GTK widgets are reference-counted and will be cleaned up automatically
 }
 
 void Browser::loadUri(const std::string& uri) {
@@ -156,12 +152,10 @@ void Browser::reload() {
 void Browser::executeJavascript(const std::string& script, std::string* result) {
     operation_completed = false;
     
-    // Ensure the result pointer is valid and cleared
     if (result) {
         result->clear();
     }
     
-    // Validate script is not empty
     if (script.empty()) {
         std::cerr << "Warning: Empty JavaScript script" << std::endl;
         if (result) {
@@ -171,7 +165,6 @@ void Browser::executeJavascript(const std::string& script, std::string* result) 
         return;
     }
     
-    // Check if webView is valid
     if (!webView) {
         std::cerr << "Error: WebView is null" << std::endl;
         if (result) {
@@ -184,7 +177,7 @@ void Browser::executeJavascript(const std::string& script, std::string* result) 
     webkit_web_view_evaluate_javascript(
         webView, 
         script.c_str(), 
-        -1,  // Use -1 for null-terminated string
+        -1,
         NULL, 
         NULL, 
         NULL, 
@@ -197,184 +190,300 @@ bool Browser::waitForJavaScriptCompletion(int timeout_ms) {
     int elapsed_time = 0;
     while (!isOperationCompleted() && elapsed_time < timeout_ms) {
         g_main_context_iteration(g_main_context_default(), FALSE);
-        g_usleep(10 * 1000); // Sleep for 10ms
+        g_usleep(10 * 1000);
         elapsed_time += 10;
     }
     return operation_completed;
 }
 
-void Browser::restoreSession(const Session& session) {
-    // Set user agent
-    if (!session.getUserAgent().empty()) {
-        setUserAgent(session.getUserAgent());
+std::string Browser::executeJavascriptSync(const std::string& script) {
+    if (script.empty() || !webView) {
+        return "";
     }
     
-    // Navigate to current URL
-    if (!session.getCurrentUrl().empty()) {
-        loadUri(session.getCurrentUrl());
-        if (!waitForJavaScriptCompletion(10000)) {
-            std::cerr << "Warning: Page load timeout during session restore" << std::endl;
-        }
-        
-        // Extra wait to ensure page is stable
-        wait(500);
-    }
+    // Allocate result on heap to avoid stack issues
+    std::string* result = new std::string();
     
-    // Wait for page to be ready based on conditions
-    waitForPageReady(session);
-    
-    // Only restore state if the page loaded successfully
-    std::string readyState = executeJavascriptSync("document.readyState");
-    if (readyState != "complete" && readyState != "interactive") {
-        std::cerr << "Warning: Page not ready for state restoration (state: " << readyState << ")" << std::endl;
-        return;
-    }
-    
-    // Restore cookies with error handling
     try {
-        for (const auto& cookie : session.getCookies()) {
-            setCookie(cookie);
+        executeJavascript(script, result);
+        if (!waitForJavaScriptCompletion(5000)) {
+            std::cerr << "JavaScript execution timeout for: " << script.substr(0, 50) << "..." << std::endl;
+            delete result;
+            return "";
         }
+        
+        // Make a copy of the result before deleting
+        std::string final_result;
+        if (result && !result->empty()) {
+            // Ensure we don't have a ridiculously long result
+            if (result->length() > 100000) {  // 100KB limit
+                final_result = result->substr(0, 100000);
+            } else {
+                final_result = *result;
+            }
+        }
+        
+        delete result;
+        return final_result;
+        
     } catch (const std::exception& e) {
-        std::cerr << "Warning: Failed to restore cookies: " << e.what() << std::endl;
+        std::cerr << "Exception in JavaScript execution: " << e.what() << std::endl;
+        delete result;
+        return "";
     }
-    
-    // Skip storage restoration for now - it might be causing issues
-    bool skip_storage = true;
-    
-    if (!skip_storage) {
-        // Restore local storage
-        if (!session.getLocalStorage().empty()) {
-            setLocalStorage(session.getLocalStorage());
+}
+
+void Browser::restoreSession(const Session& session) {
+    try {
+        // Set user agent first if present
+        if (!session.getUserAgent().empty()) {
+            setUserAgent(session.getUserAgent());
+            wait(100); // Small delay for user agent to take effect
         }
         
-        // Restore session storage
-        if (!session.getSessionStorage().empty()) {
-            setSessionStorage(session.getSessionStorage());
-        }
-    }
-    
-    // Skip form state restoration for problematic sites
-    std::string hostname = executeJavascriptSync("window.location.hostname");
-    if (hostname.find("limitless-adventures.com") == std::string::npos) {
-        // Restore form state
-        if (!session.getFormFields().empty()) {
-            restoreFormState(session.getFormFields());
+        // Navigate to current URL if present
+        if (!session.getCurrentUrl().empty()) {
+            std::cerr << "Debug: Loading URL: " << session.getCurrentUrl() << std::endl;
+            loadUri(session.getCurrentUrl());
+            
+            // Wait for load with longer timeout
+            if (!waitForJavaScriptCompletion(15000)) {
+                std::cerr << "Warning: Page load timeout during session restore" << std::endl;
+                return; // Don't try to restore state on failed page load
+            }
+            
+            // Wait for page to be ready
+            wait(2000); // Longer wait for stability
+            
+            // Verify we can execute JavaScript
+            std::string testResult = executeJavascriptSync("(function() { return 'test'; })()");
+            if (testResult != "test") {
+                std::cerr << "Warning: JavaScript execution not working properly" << std::endl;
+                return;
+            }
+            
+            std::cerr << "Debug: Page loaded successfully" << std::endl;
         }
         
-        // Restore active elements
-        if (!session.getActiveElements().empty()) {
-            restoreActiveElements(session.getActiveElements());
+        // Only restore state if page loaded successfully
+        std::string readyState = executeJavascriptSync("(function() { try { return document.readyState; } catch(e) { return 'error'; } })()");
+        if (readyState != "complete" && readyState != "interactive") {
+            std::cerr << "Warning: Page not ready for state restoration (state: " << readyState << ")" << std::endl;
+            return;
         }
-    }
-    
-    // Skip custom state restoration - might contain problematic data
-    
-    // Restore viewport
-    auto [width, height] = session.getViewport();
-    setViewport(width, height);
-    
-    // Restore scroll positions
-    if (!session.getAllScrollPositions().empty()) {
-        restoreScrollPositions(session.getAllScrollPositions());
+        
+        // Restore state step by step with error handling
+        std::cerr << "Debug: Starting state restoration..." << std::endl;
+        
+        // Cookies
+        try {
+            if (!session.getCookies().empty()) {
+                for (const auto& cookie : session.getCookies()) {
+                    setCookie(cookie);
+                }
+                wait(500);
+                std::cerr << "Debug: Restored " << session.getCookies().size() << " cookies" << std::endl;
+            }
+        } catch (const std::exception& e) {
+            std::cerr << "Warning: Failed to restore cookies: " << e.what() << std::endl;
+        }
+        
+        // Storage
+        try {
+            if (!session.getLocalStorage().empty()) {
+                setLocalStorage(session.getLocalStorage());
+                wait(500);
+                std::cerr << "Debug: Restored localStorage" << std::endl;
+            }
+            
+            if (!session.getSessionStorage().empty()) {
+                setSessionStorage(session.getSessionStorage());
+                wait(500);
+                std::cerr << "Debug: Restored sessionStorage" << std::endl;
+            }
+        } catch (const std::exception& e) {
+            std::cerr << "Warning: Failed to restore storage: " << e.what() << std::endl;
+        }
+        
+        // Form state
+        try {
+            if (!session.getFormFields().empty()) {
+                restoreFormState(session.getFormFields());
+                wait(500);
+                std::cerr << "Debug: Restored form state" << std::endl;
+            }
+        } catch (const std::exception& e) {
+            std::cerr << "Warning: Failed to restore form state: " << e.what() << std::endl;
+        }
+        
+        // Scroll positions
+        try {
+            if (!session.getAllScrollPositions().empty()) {
+                restoreScrollPositions(session.getAllScrollPositions());
+                wait(500);
+                std::cerr << "Debug: Restored scroll positions" << std::endl;
+            }
+        } catch (const std::exception& e) {
+            std::cerr << "Warning: Failed to restore scroll positions: " << e.what() << std::endl;
+        }
+        
+        // Final wait for everything to settle
+        wait(1000);
+        std::cerr << "Debug: Session restoration complete" << std::endl;
+        
+    } catch (const std::exception& e) {
+        std::cerr << "Error in session restoration: " << e.what() << std::endl;
     }
 }
 
 void Browser::updateSessionState(Session& session) {
-    // Check if browser is in a valid state
-    std::string readyState = executeJavascriptSync("document.readyState");
-    if (readyState.empty() || (readyState != "complete" && readyState != "interactive")) {
-        std::cerr << "Warning: Page not ready for state extraction (state: " << readyState << ")" << std::endl;
-        // Only update URL and basic info
+    try {
+        // Always update current URL first (this should never fail)
         session.setCurrentUrl(getCurrentUrl());
-        session.updateLastAccessed();
-        return;
-    }
-    
-    // Update current URL
-    session.setCurrentUrl(getCurrentUrl());
-    
-    // Skip detailed state extraction for problematic sites
-    std::string hostname = executeJavascriptSync("window.location.hostname");
-    if (hostname.find("limitless-adventures.com") != std::string::npos) {
-        std::cerr << "Debug: Skipping detailed state extraction for limitless-adventures.com" << std::endl;
-        session.updateLastAccessed();
-        return;
-    }
-    
-    // Update page hash
-    session.setPageHash(extractPageHash());
-    
-    // Update document ready state
-    session.setDocumentReadyState(extractDocumentReadyState());
-    
-    // Get cookies asynchronously
-    getCookiesAsync([&session](std::vector<Cookie> cookies) {
-        session.setCookies(cookies);
-    });
-    
-    // Wait for cookie operation to complete
-    waitForJavaScriptCompletion(2000);
-    
-    // Update storage
-    session.setLocalStorage(getLocalStorage());
-    session.setSessionStorage(getSessionStorage());
-    
-    // Extract form state
-    session.setFormFields(extractFormState());
-    
-    // Extract active elements
-    session.setActiveElements(extractActiveElements());
-    
-    // Extract scroll positions
-    auto scrollPositions = extractAllScrollPositions();
-    for (const auto& [selector, pos] : scrollPositions) {
-        session.setScrollPosition(selector, pos.first, pos.second);
-    }
-    
-    // Extract custom state using registered extractors
-    if (!session.getStateExtractors().empty()) {
-        auto customState = extractCustomState(session.getStateExtractors());
         
-        // Fixed: iterate over member names properly
-        auto memberNames = customState.getMemberNames();
-        for (const auto& key : memberNames) {
-            session.setExtractedState(key, customState[key]);
+        // Try a simple JavaScript test first
+        std::string testResult = executeJavascriptSync("(function() { try { return 'alive'; } catch(e) { return 'dead'; } })()");
+        if (testResult != "alive") {
+            std::cerr << "Warning: JavaScript execution not working, skipping state extraction" << std::endl;
+            session.updateLastAccessed();
+            return;
+        }
+        
+        // Check if we can safely execute JavaScript
+        std::string readyState = executeJavascriptSync("(function() { try { return document.readyState || 'unknown'; } catch(e) { return 'error'; } })()");
+        
+        if (readyState == "error" || readyState.empty() || readyState == "unknown") {
+            std::cerr << "Warning: Cannot determine page state, skipping detailed state extraction" << std::endl;
+            session.updateLastAccessed();
+            return;
+        }
+        
+        // Only proceed if we have a properly loaded page
+        if (readyState == "complete" || readyState == "interactive") {
+            // Safe state extraction with individual try-catch blocks
+            try {
+                session.setPageHash(extractPageHash());
+            } catch (const std::exception& e) {
+                std::cerr << "Warning: Failed to extract page hash: " << e.what() << std::endl;
+            }
+            
+            try {
+                session.setDocumentReadyState(readyState);
+            } catch (const std::exception& e) {
+                std::cerr << "Warning: Failed to set document ready state: " << e.what() << std::endl;
+            }
+            
+            // Cookies - try but don't fail if it doesn't work
+            try {
+                getCookiesAsync([&session](std::vector<Cookie> cookies) {
+                    session.setCookies(cookies);
+                });
+                waitForJavaScriptCompletion(1000); // Shorter timeout
+            } catch (const std::exception& e) {
+                std::cerr << "Warning: Failed to extract cookies: " << e.what() << std::endl;
+            }
+            
+            // Storage - with error handling
+            try {
+                session.setLocalStorage(getLocalStorage());
+            } catch (const std::exception& e) {
+                std::cerr << "Warning: Failed to extract localStorage: " << e.what() << std::endl;
+            }
+            
+            try {
+                session.setSessionStorage(getSessionStorage());
+            } catch (const std::exception& e) {
+                std::cerr << "Warning: Failed to extract sessionStorage: " << e.what() << std::endl;
+            }
+            
+            // Form state - this was causing crashes, so be extra careful
+            try {
+                // Test if we can query form elements first
+                std::string formTest = executeJavascriptSync("(function() { try { return document.querySelectorAll('input, textarea, select').length.toString(); } catch(e) { return 'error'; } })()");
+                if (formTest != "error" && !formTest.empty()) {
+                    auto formFields = extractFormState();
+                    session.setFormFields(formFields);
+                }
+            } catch (const std::exception& e) {
+                std::cerr << "Warning: Failed to extract form state: " << e.what() << std::endl;
+            }
+            
+            // Active elements
+            try {
+                session.setActiveElements(extractActiveElements());
+            } catch (const std::exception& e) {
+                std::cerr << "Warning: Failed to extract active elements: " << e.what() << std::endl;
+            }
+            
+            // Scroll positions
+            try {
+                auto scrollPositions = extractAllScrollPositions();
+                for (const auto& [selector, pos] : scrollPositions) {
+                    session.setScrollPosition(selector, pos.first, pos.second);
+                }
+            } catch (const std::exception& e) {
+                std::cerr << "Warning: Failed to extract scroll positions: " << e.what() << std::endl;
+            }
+            
+            // Custom state - skip for now to avoid issues
+            try {
+                if (!session.getStateExtractors().empty()) {
+                    auto customState = extractCustomState(session.getStateExtractors());
+                    auto memberNames = customState.getMemberNames();
+                    for (const auto& key : memberNames) {
+                        session.setExtractedState(key, customState[key]);
+                    }
+                }
+            } catch (const std::exception& e) {
+                std::cerr << "Warning: Failed to extract custom state: " << e.what() << std::endl;
+            }
+        } else {
+            std::cerr << "Warning: Page not in ready state (" << readyState << "), skipping detailed extraction" << std::endl;
+        }
+        
+        // Always update last accessed time
+        session.updateLastAccessed();
+        
+    } catch (const std::exception& e) {
+        std::cerr << "Error in updateSessionState: " << e.what() << std::endl;
+        // At minimum, update the timestamp
+        try {
+            session.updateLastAccessed();
+        } catch (...) {
+            // Even this failed, just continue
         }
     }
-    
-    // Update last accessed time
-    session.updateLastAccessed();
 }
 
 void Browser::getCookiesAsync(std::function<void(std::vector<Cookie>)> callback) {
     std::string js = R"(
         (function() {
-            var cookies = document.cookie.split('; ');
-            var result = [];
-            for (var i = 0; i < cookies.length; i++) {
-                if (cookies[i].length > 0) {
-                    var parts = cookies[i].split('=');
-                    if (parts.length >= 2) {
-                        result.push({
-                            name: parts[0],
-                            value: parts.slice(1).join('='),
-                            domain: window.location.hostname,
-                            path: '/'
-                        });
+            try {
+                var cookies = document.cookie.split('; ');
+                var result = [];
+                for (var i = 0; i < cookies.length; i++) {
+                    if (cookies[i].length > 0) {
+                        var parts = cookies[i].split('=');
+                        if (parts.length >= 2) {
+                            result.push({
+                                name: parts[0],
+                                value: parts.slice(1).join('='),
+                                domain: window.location.hostname,
+                                path: '/'
+                            });
+                        }
                     }
                 }
+                return JSON.stringify(result);
+            } catch(e) {
+                return '[]';
             }
-            return JSON.stringify(result);
         })()
     )";
     
-    // For now, use synchronous execution to avoid complex async memory management
     std::string result = executeJavascriptSync(js);
-    
     std::vector<Cookie> cookies;
     
-    // Parse JSON result
     Json::Value root;
     Json::Reader reader;
     if (reader.parse(result, root) && root.isArray()) {
@@ -386,7 +495,7 @@ void Browser::getCookiesAsync(std::function<void(std::vector<Cookie>)> callback)
             cookie.path = cookieJson.get("path", "/").asString();
             cookie.secure = false;
             cookie.httpOnly = false;
-            cookie.expires = -1; // Session cookie
+            cookie.expires = -1;
             cookies.push_back(cookie);
         }
     }
@@ -396,9 +505,8 @@ void Browser::getCookiesAsync(std::function<void(std::vector<Cookie>)> callback)
 }
 
 void Browser::setCookie(const Cookie& cookie) {
-    // Use JavaScript to set cookies
     std::stringstream js;
-    js << "document.cookie = \"" << cookie.name << "=" << cookie.value;
+    js << "(function() { try { document.cookie = \"" << cookie.name << "=" << cookie.value;
     
     if (!cookie.domain.empty()) {
         js << "; domain=" << cookie.domain;
@@ -418,7 +526,7 @@ void Browser::setCookie(const Cookie& cookie) {
         js << "; expires=" << cookie.expires;
     }
     
-    js << "\";";
+    js << "\"; return 'set'; } catch(e) { return 'error'; } })()";
     
     executeJavascript(js.str());
     waitForJavaScriptCompletion(500);
@@ -427,12 +535,16 @@ void Browser::setCookie(const Cookie& cookie) {
 std::map<std::string, std::string> Browser::getLocalStorage() {
     std::string js = R"(
         (function() {
-            var result = {};
-            for (var i = 0; i < localStorage.length; i++) {
-                var key = localStorage.key(i);
-                result[key] = localStorage.getItem(key);
+            try {
+                var result = {};
+                for (var i = 0; i < localStorage.length; i++) {
+                    var key = localStorage.key(i);
+                    result[key] = localStorage.getItem(key);
+                }
+                return JSON.stringify(result);
+            } catch(e) {
+                return '{}';
             }
-            return JSON.stringify(result);
         })()
     )";
     
@@ -451,12 +563,12 @@ std::map<std::string, std::string> Browser::getLocalStorage() {
 }
 
 void Browser::setLocalStorage(const std::map<std::string, std::string>& storage) {
-    executeJavascript("localStorage.clear();");
+    executeJavascript("(function() { try { localStorage.clear(); return 'cleared'; } catch(e) { return 'error'; } })()");
     waitForJavaScriptCompletion(500);
     
     for (const auto& [key, value] : storage) {
         std::stringstream js;
-        js << "localStorage.setItem('" << key << "', '" << value << "');";
+        js << "(function() { try { localStorage.setItem('" << key << "', '" << value << "'); return 'set'; } catch(e) { return 'error'; } })()";
         executeJavascript(js.str());
     }
     waitForJavaScriptCompletion(1000);
@@ -465,12 +577,16 @@ void Browser::setLocalStorage(const std::map<std::string, std::string>& storage)
 std::map<std::string, std::string> Browser::getSessionStorage() {
     std::string js = R"(
         (function() {
-            var result = {};
-            for (var i = 0; i < sessionStorage.length; i++) {
-                var key = sessionStorage.key(i);
-                result[key] = sessionStorage.getItem(key);
+            try {
+                var result = {};
+                for (var i = 0; i < sessionStorage.length; i++) {
+                    var key = sessionStorage.key(i);
+                    result[key] = sessionStorage.getItem(key);
+                }
+                return JSON.stringify(result);
+            } catch(e) {
+                return '{}';
             }
-            return JSON.stringify(result);
         })()
     )";
     
@@ -489,12 +605,12 @@ std::map<std::string, std::string> Browser::getSessionStorage() {
 }
 
 void Browser::setSessionStorage(const std::map<std::string, std::string>& storage) {
-    executeJavascript("sessionStorage.clear();");
+    executeJavascript("(function() { try { sessionStorage.clear(); return 'cleared'; } catch(e) { return 'error'; } })()");
     waitForJavaScriptCompletion(500);
     
     for (const auto& [key, value] : storage) {
         std::stringstream js;
-        js << "sessionStorage.setItem('" << key << "', '" << value << "');";
+        js << "(function() { try { sessionStorage.setItem('" << key << "', '" << value << "'); return 'set'; } catch(e) { return 'error'; } })()";
         executeJavascript(js.str());
     }
     waitForJavaScriptCompletion(1000);
@@ -503,61 +619,76 @@ void Browser::setSessionStorage(const std::map<std::string, std::string>& storag
 std::vector<FormField> Browser::extractFormState() {
     std::string js = R"(
         (function() {
-            var fields = [];
-            var elements = document.querySelectorAll('input, textarea, select');
-            
-            elements.forEach(function(el, index) {
-                var field = {
-                    selector: '',
-                    name: el.name || '',
-                    id: el.id || '',
-                    type: el.type || el.tagName.toLowerCase(),
-                    value: '',
-                    checked: false
-                };
+            try {
+                var fields = [];
+                var elements = document.querySelectorAll('input, textarea, select');
                 
-                // Build a unique selector
-                if (el.id) {
-                    field.selector = '#' + el.id;
-                } else if (el.name) {
-                    field.selector = '[name="' + el.name + '"]';
-                } else {
-                    field.selector = el.tagName.toLowerCase() + ':nth-of-type(' + (index + 1) + ')';
+                for (var i = 0; i < elements.length; i++) {
+                    var el = elements[i];
+                    var field = {
+                        selector: '',
+                        name: el.name || '',
+                        id: el.id || '',
+                        type: el.type || el.tagName.toLowerCase(),
+                        value: '',
+                        checked: false
+                    };
+                    
+                    // Build a unique selector
+                    if (el.id) {
+                        field.selector = '#' + el.id;
+                    } else if (el.name) {
+                        field.selector = '[name="' + el.name + '"]';
+                    } else {
+                        field.selector = el.tagName.toLowerCase() + ':nth-of-type(' + (i + 1) + ')';
+                    }
+                    
+                    // Get value based on type - ensure strings
+                    if (el.type === 'checkbox' || el.type === 'radio') {
+                        field.checked = el.checked;
+                        field.value = String(el.value || '');
+                    } else if (el.tagName === 'SELECT') {
+                        field.value = String(el.value || '');
+                    } else {
+                        field.value = String(el.value || '');
+                    }
+                    
+                    fields.push(field);
                 }
                 
-                // Get value based on type
-                if (el.type === 'checkbox' || el.type === 'radio') {
-                    field.checked = el.checked;
-                    field.value = el.value;
-                } else if (el.tagName === 'SELECT') {
-                    field.value = el.value;
-                } else {
-                    field.value = el.value;
-                }
-                
-                fields.push(field);
-            });
-            
-            return JSON.stringify(fields);
+                return JSON.stringify(fields);
+            } catch(e) {
+                console.log('extractFormState error:', e);
+                return '[]';
+            }
         })()
     )";
     
     std::string result = executeJavascriptSync(js);
     std::vector<FormField> fields;
     
-    Json::Value root;
-    Json::Reader reader;
-    if (reader.parse(result, root) && root.isArray()) {
-        for (const auto& fieldJson : root) {
-            FormField field;
-            field.selector = fieldJson.get("selector", "").asString();
-            field.name = fieldJson.get("name", "").asString();
-            field.id = fieldJson.get("id", "").asString();
-            field.type = fieldJson.get("type", "").asString();
-            field.value = fieldJson.get("value", "").asString();
-            field.checked = fieldJson.get("checked", false).asBool();
-            fields.push_back(field);
+    if (result.empty() || result == "[]") {
+        return fields; // Return empty vector if no result
+    }
+    
+    try {
+        Json::Value root;
+        Json::Reader reader;
+        if (reader.parse(result, root) && root.isArray()) {
+            for (const auto& fieldJson : root) {
+                FormField field;
+                field.selector = fieldJson.get("selector", "").asString();
+                field.name = fieldJson.get("name", "").asString();
+                field.id = fieldJson.get("id", "").asString();
+                field.type = fieldJson.get("type", "").asString();
+                field.value = fieldJson.get("value", "").asString();
+                field.checked = fieldJson.get("checked", false).asBool();
+                fields.push_back(field);
+            }
         }
+    } catch (const std::exception& e) {
+        std::cerr << "Error parsing form state JSON: " << e.what() << std::endl;
+        // Return empty vector instead of crashing
     }
     
     return fields;
@@ -568,14 +699,16 @@ void Browser::restoreFormState(const std::vector<FormField>& fields) {
         std::stringstream js;
         
         if (field.type == "checkbox" || field.type == "radio") {
-            js << "var el = document.querySelector('" << field.selector << "'); ";
+            js << "(function() { try { var el = document.querySelector('" << field.selector << "'); ";
             js << "if (el) { el.checked = " << (field.checked ? "true" : "false") << "; ";
-            js << "el.dispatchEvent(new Event('change', { bubbles: true })); }";
+            js << "el.dispatchEvent(new Event('change', { bubbles: true })); return 'set'; } ";
+            js << "return 'not_found'; } catch(e) { return 'error'; } })()";
         } else {
-            js << "var el = document.querySelector('" << field.selector << "'); ";
+            js << "(function() { try { var el = document.querySelector('" << field.selector << "'); ";
             js << "if (el) { el.value = '" << field.value << "'; ";
             js << "el.dispatchEvent(new Event('input', { bubbles: true })); ";
-            js << "el.dispatchEvent(new Event('change', { bubbles: true })); }";
+            js << "el.dispatchEvent(new Event('change', { bubbles: true })); return 'set'; } ";
+            js << "return 'not_found'; } catch(e) { return 'error'; } })()";
         }
         
         executeJavascript(js.str());
@@ -586,39 +719,29 @@ void Browser::restoreFormState(const std::vector<FormField>& fields) {
 std::set<std::string> Browser::extractActiveElements() {
     std::string js = R"(
         (function() {
-            var active = [];
-            
-            // Checked checkboxes and radios
-            document.querySelectorAll('input[type="checkbox"]:checked, input[type="radio"]:checked').forEach(function(el) {
-                if (el.id) {
-                    active.push('#' + el.id);
-                } else if (el.name) {
-                    active.push('[name="' + el.name + '"][value="' + el.value + '"]');
-                }
-            });
-            
-            // Selected options
-            document.querySelectorAll('option:checked').forEach(function(el) {
-                if (el.parentElement.id) {
-                    active.push('#' + el.parentElement.id + ' option[value="' + el.value + '"]');
-                }
-            });
-            
-            // Elements with aria-selected="true"
-            document.querySelectorAll('[aria-selected="true"]').forEach(function(el) {
-                if (el.id) {
-                    active.push('#' + el.id);
-                }
-            });
-            
-            // Active tabs, accordions, etc.
-            document.querySelectorAll('.active, .selected, .open').forEach(function(el) {
-                if (el.id) {
-                    active.push('#' + el.id);
-                }
-            });
-            
-            return JSON.stringify(active);
+            try {
+                var active = [];
+                
+                // Checked checkboxes and radios
+                document.querySelectorAll('input[type="checkbox"]:checked, input[type="radio"]:checked').forEach(function(el) {
+                    if (el.id) {
+                        active.push('#' + el.id);
+                    } else if (el.name) {
+                        active.push('[name="' + el.name + '"][value="' + el.value + '"]');
+                    }
+                });
+                
+                // Selected options
+                document.querySelectorAll('option:checked').forEach(function(el) {
+                    if (el.parentElement.id) {
+                        active.push('#' + el.parentElement.id + ' option[value="' + el.value + '"]');
+                    }
+                });
+                
+                return JSON.stringify(active);
+            } catch(e) {
+                return '[]';
+            }
         })()
     )";
     
@@ -639,13 +762,14 @@ std::set<std::string> Browser::extractActiveElements() {
 void Browser::restoreActiveElements(const std::set<std::string>& elements) {
     for (const auto& selector : elements) {
         std::stringstream js;
-        js << "var el = document.querySelector('" << selector << "'); ";
+        js << "(function() { try { var el = document.querySelector('" << selector << "'); ";
         js << "if (el) { ";
         js << "  if (el.type === 'checkbox' || el.type === 'radio') { el.checked = true; } ";
         js << "  else if (el.tagName === 'OPTION') { el.selected = true; } ";
         js << "  else { el.classList.add('active'); } ";
         js << "  el.dispatchEvent(new Event('change', { bubbles: true })); ";
-        js << "}";
+        js << "  return 'set'; ";
+        js << "} return 'not_found'; } catch(e) { return 'error'; } })()";
         
         executeJavascript(js.str());
     }
@@ -653,40 +777,44 @@ void Browser::restoreActiveElements(const std::set<std::string>& elements) {
 }
 
 std::string Browser::extractPageHash() {
-    return executeJavascriptSync("window.location.hash");
+    return executeJavascriptSync("(function() { try { return window.location.hash; } catch(e) { return ''; } })()");
 }
 
 std::string Browser::extractDocumentReadyState() {
-    return executeJavascriptSync("document.readyState");
+    return executeJavascriptSync("(function() { try { return document.readyState; } catch(e) { return ''; } })()");
 }
 
 std::map<std::string, std::pair<int, int>> Browser::extractAllScrollPositions() {
     std::string js = R"(
         (function() {
-            var positions = {};
-            
-            // Window scroll
-            positions['window'] = [window.pageXOffset, window.pageYOffset];
-            
-            // Find all scrollable elements
-            var elements = document.querySelectorAll('*');
-            for (var i = 0; i < elements.length; i++) {
-                var el = elements[i];
-                if (el.scrollHeight > el.clientHeight || el.scrollWidth > el.clientWidth) {
-                    var selector = '';
-                    if (el.id) {
-                        selector = '#' + el.id;
-                    } else if (el.className) {
-                        selector = '.' + el.className.split(' ')[0];
-                    }
-                    
-                    if (selector && (el.scrollTop > 0 || el.scrollLeft > 0)) {
-                        positions[selector] = [el.scrollLeft, el.scrollTop];
+            try {
+                var positions = {};
+                
+                // Window scroll
+                positions['window'] = [window.pageXOffset || 0, window.pageYOffset || 0];
+                
+                // Find scrollable elements with actual scroll
+                var elements = document.querySelectorAll('*');
+                for (var i = 0; i < elements.length; i++) {
+                    var el = elements[i];
+                    if (el.scrollHeight > el.clientHeight || el.scrollWidth > el.clientWidth) {
+                        var selector = '';
+                        if (el.id) {
+                            selector = '#' + el.id;
+                        } else if (el.className) {
+                            selector = '.' + el.className.split(' ')[0];
+                        }
+                        
+                        if (selector && (el.scrollTop > 0 || el.scrollLeft > 0)) {
+                            positions[selector] = [el.scrollLeft || 0, el.scrollTop || 0];
+                        }
                     }
                 }
+                
+                return JSON.stringify(positions);
+            } catch(e) {
+                return '{"window":[0,0]}';
             }
-            
-            return JSON.stringify(positions);
         })()
     )";
     
@@ -711,10 +839,11 @@ void Browser::restoreScrollPositions(const std::map<std::string, std::pair<int, 
         std::stringstream js;
         
         if (selector == "window") {
-            js << "window.scrollTo(" << pos.first << ", " << pos.second << ");";
+            js << "(function() { try { window.scrollTo(" << pos.first << ", " << pos.second << "); return 'set'; } catch(e) { return 'error'; } })()";
         } else {
-            js << "var el = document.querySelector('" << selector << "'); ";
-            js << "if (el) { el.scrollLeft = " << pos.first << "; el.scrollTop = " << pos.second << "; }";
+            js << "(function() { try { var el = document.querySelector('" << selector << "'); ";
+            js << "if (el) { el.scrollLeft = " << pos.first << "; el.scrollTop = " << pos.second << "; return 'set'; } ";
+            js << "return 'not_found'; } catch(e) { return 'error'; } })()";
         }
         
         executeJavascript(js.str());
@@ -723,10 +852,10 @@ void Browser::restoreScrollPositions(const std::map<std::string, std::pair<int, 
 }
 
 bool Browser::waitForPageReady(const Session& session) {
-    // First wait for basic document ready
+    // Wait for basic document ready
     waitForJsCondition("document.readyState === 'complete'", 10000);
     
-    // Then wait for any custom ready conditions
+    // Wait for any custom ready conditions
     for (const auto& condition : session.getReadyConditions()) {
         switch (condition.type) {
             case PageReadyCondition::SELECTOR:
@@ -742,14 +871,13 @@ bool Browser::waitForPageReady(const Session& session) {
                 break;
                 
             case PageReadyCondition::CUSTOM:
-                // Execute custom ready check
                 executeJavascript(condition.value);
                 waitForJavaScriptCompletion(condition.timeout);
                 break;
         }
     }
     
-    // Additional wait for dynamic content to settle
+    // Additional wait for dynamic content
     wait(500);
     
     return true;
@@ -757,7 +885,7 @@ bool Browser::waitForPageReady(const Session& session) {
 
 bool Browser::waitForJsCondition(const std::string& condition, int timeout_ms) {
     int elapsed_time = 0;
-    std::string js_check = "(function() { return " + condition + "; })()";
+    std::string js_check = "(function() { try { return " + condition + "; } catch(e) { return false; } })()";
     
     while (elapsed_time < timeout_ms) {
         std::string result = executeJavascriptSync(js_check);
@@ -778,13 +906,11 @@ Json::Value Browser::extractCustomState(const std::map<std::string, std::string>
     for (const auto& [name, jsCode] : extractors) {
         std::string extractedValue = executeJavascriptSync(jsCode);
         
-        // Try to parse as JSON
         Json::Value parsed;
         Json::Reader reader;
         if (reader.parse(extractedValue, parsed)) {
             result[name] = parsed;
         } else {
-            // Store as string if not valid JSON
             result[name] = extractedValue;
         }
     }
@@ -793,8 +919,6 @@ Json::Value Browser::extractCustomState(const std::map<std::string, std::string>
 }
 
 void Browser::restoreCustomState(const std::map<std::string, Json::Value>& state) {
-    // This is application-specific and would need custom restore code
-    // For now, we'll just log what would be restored
     for (const auto& [key, value] : state) {
         std::cout << "Would restore custom state: " << key << std::endl;
     }
@@ -840,13 +964,15 @@ bool Browser::executeActionSequence(const std::vector<Session::RecordedAction>& 
 bool Browser::selectOption(const std::string& selector, const std::string& value) {
     std::stringstream js;
     js << "(function() { ";
-    js << "  var select = document.querySelector('" << selector << "'); ";
-    js << "  if (select) { ";
-    js << "    select.value = '" << value << "'; ";
-    js << "    select.dispatchEvent(new Event('change', { bubbles: true })); ";
-    js << "    return true; ";
-    js << "  } ";
-    js << "  return false; ";
+    js << "  try { ";
+    js << "    var select = document.querySelector('" << selector << "'); ";
+    js << "    if (select) { ";
+    js << "      select.value = '" << value << "'; ";
+    js << "      select.dispatchEvent(new Event('change', { bubbles: true })); ";
+    js << "      return true; ";
+    js << "    } ";
+    js << "    return false; ";
+    js << "  } catch(e) { return false; } ";
     js << "})()";
     
     std::string result = executeJavascriptSync(js.str());
@@ -856,13 +982,15 @@ bool Browser::selectOption(const std::string& selector, const std::string& value
 bool Browser::checkElement(const std::string& selector) {
     std::stringstream js;
     js << "(function() { ";
-    js << "  var el = document.querySelector('" << selector << "'); ";
-    js << "  if (el && (el.type === 'checkbox' || el.type === 'radio')) { ";
-    js << "    el.checked = true; ";
-    js << "    el.dispatchEvent(new Event('change', { bubbles: true })); ";
-    js << "    return true; ";
-    js << "  } ";
-    js << "  return false; ";
+    js << "  try { ";
+    js << "    var el = document.querySelector('" << selector << "'); ";
+    js << "    if (el && (el.type === 'checkbox' || el.type === 'radio')) { ";
+    js << "      el.checked = true; ";
+    js << "      el.dispatchEvent(new Event('change', { bubbles: true })); ";
+    js << "      return true; ";
+    js << "    } ";
+    js << "    return false; ";
+    js << "  } catch(e) { return false; } ";
     js << "})()";
     
     std::string result = executeJavascriptSync(js.str());
@@ -872,13 +1000,15 @@ bool Browser::checkElement(const std::string& selector) {
 bool Browser::uncheckElement(const std::string& selector) {
     std::stringstream js;
     js << "(function() { ";
-    js << "  var el = document.querySelector('" << selector << "'); ";
-    js << "  if (el && (el.type === 'checkbox' || el.type === 'radio')) { ";
-    js << "    el.checked = false; ";
-    js << "    el.dispatchEvent(new Event('change', { bubbles: true })); ";
-    js << "    return true; ";
-    js << "  } ";
-    js << "  return false; ";
+    js << "  try { ";
+    js << "    var el = document.querySelector('" << selector << "'); ";
+    js << "    if (el && (el.type === 'checkbox' || el.type === 'radio')) { ";
+    js << "      el.checked = false; ";
+    js << "      el.dispatchEvent(new Event('change', { bubbles: true })); ";
+    js << "      return true; ";
+    js << "    } ";
+    js << "    return false; ";
+    js << "  } catch(e) { return false; } ";
     js << "})()";
     
     std::string result = executeJavascriptSync(js.str());
@@ -888,12 +1018,14 @@ bool Browser::uncheckElement(const std::string& selector) {
 bool Browser::focusElement(const std::string& selector) {
     std::stringstream js;
     js << "(function() { ";
-    js << "  var el = document.querySelector('" << selector << "'); ";
-    js << "  if (el) { ";
-    js << "    el.focus(); ";
-    js << "    return true; ";
-    js << "  } ";
-    js << "  return false; ";
+    js << "  try { ";
+    js << "    var el = document.querySelector('" << selector << "'); ";
+    js << "    if (el) { ";
+    js << "      el.focus(); ";
+    js << "      return true; ";
+    js << "    } ";
+    js << "    return false; ";
+    js << "  } catch(e) { return false; } ";
     js << "})()";
     
     std::string result = executeJavascriptSync(js.str());
@@ -901,13 +1033,13 @@ bool Browser::focusElement(const std::string& selector) {
 }
 
 bool Browser::elementExists(const std::string& selector) {
-    std::string js = "document.querySelector('" + selector + "') !== null";
+    std::string js = "(function() { try { return document.querySelector('" + selector + "') !== null; } catch(e) { return false; } })()";
     std::string result = executeJavascriptSync(js);
     return result == "true";
 }
 
 int Browser::countElements(const std::string& selector) {
-    std::string js = "document.querySelectorAll('" + selector + "').length";
+    std::string js = "(function() { try { return document.querySelectorAll('" + selector + "').length; } catch(e) { return 0; } })()";
     std::string result = executeJavascriptSync(js);
     try {
         return std::stoi(result);
@@ -919,61 +1051,254 @@ int Browser::countElements(const std::string& selector) {
 std::string Browser::getElementHtml(const std::string& selector) {
     std::stringstream js;
     js << "(function() { ";
-    js << "  var el = document.querySelector('" << selector << "'); ";
-    js << "  return el ? el.outerHTML : ''; ";
+    js << "  try { ";
+    js << "    var el = document.querySelector('" << selector << "'); ";
+    js << "    return el ? el.outerHTML : ''; ";
+    js << "  } catch(e) { return ''; } ";
     js << "})()";
     
     return executeJavascriptSync(js.str());
 }
 
 void Browser::takeScreenshot(const std::string& filename) {
-    // WebKitGTK+ 6.0 screenshot implementation would go here
     std::cout << "Screenshot functionality not implemented in this version" << std::endl;
 }
 
 std::string Browser::getPageSource() {
-    return executeJavascriptSync("document.documentElement.outerHTML");
+    return executeJavascriptSync("(function() { try { return document.documentElement.outerHTML; } catch(e) { return ''; } })()");
 }
 
-// Existing methods remain the same...
-
-std::string Browser::executeJavascriptSync(const std::string& script) {
-    // Allocate result on heap to avoid stack issues
-    std::string* result = new std::string();
-    
-    executeJavascript(script, result);
-    if (!waitForJavaScriptCompletion(5000)) {
-        std::cerr << "JavaScript execution timeout" << std::endl;
-        delete result;
-        return "";
-    }
-    
-    // Make a copy of the result before deleting
-    std::string final_result;
-    if (result && !result->empty()) {
-        // Ensure we don't have a ridiculously long result
-        if (result->length() > 1000000) {  // 1MB limit
-            final_result = result->substr(0, 1000000);
+std::string Browser::getInnerText(const std::string& selector) {
+    std::string escaped_selector;
+    escaped_selector.reserve(selector.length());
+    for (char c : selector) {
+        if (c == '\\') {
+            escaped_selector += "\\\\";
+        } else if (c == '\'') {
+            escaped_selector += "\\'";
         } else {
-            final_result = *result;
+            escaped_selector += c;
         }
     }
     
-    delete result;
-    return final_result;
+    std::string text_content_script = 
+        "(function() { "
+        "  try { "
+        "    var element = document.querySelector('" + escaped_selector + "'); "
+        "    if (!element) return ''; "
+        "    var text = (element.innerText || element.textContent || '').trim(); "
+        "    return text; "
+        "  } catch(e) { "
+        "    return ''; "
+        "  } "
+        "})()";
+    
+    std::string result = executeJavascriptSync(text_content_script);
+    
+    std::string cleaned;
+    cleaned.reserve(result.length());
+    for (char c : result) {
+        if (c >= 32 && c <= 126) {
+            cleaned += c;
+        } else if (c == '\n' || c == '\r' || c == '\t') {
+            cleaned += c;
+        } else if ((unsigned char)c >= 128) {
+            cleaned += c;
+        } else {
+            cleaned += ' ';
+        }
+    }
+    
+    return cleaned;
 }
 
-void Browser::wait(int milliseconds) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
+std::string Browser::getFirstNonEmptyText(const std::string& selector) {
+    std::string js_script = 
+        "(function() { "
+        "  try { "
+        "    var elements = document.querySelectorAll('" + selector + "'); "
+        "    for (var i = 0; i < elements.length; i++) { "
+        "      var text = elements[i].innerText || elements[i].textContent || ''; "
+        "      if (text.trim()) { "
+        "        return text.trim(); "
+        "      } "
+        "    } "
+        "    return ''; "
+        "  } catch(e) { return ''; } "
+        "})()";
+    
+    return executeJavascriptSync(js_script);
 }
 
-bool Browser::isOperationCompleted() const {
-    return operation_completed;
+bool Browser::fillInput(const std::string& selector, const std::string& value) {
+    std::string js_script = 
+        "(function() { "
+        "  try { "
+        "    var element = document.querySelector('" + selector + "'); "
+        "    if (element) { "
+        "      element.value = '" + value + "'; "
+        "      element.dispatchEvent(new Event('input', { bubbles: true })); "
+        "      element.dispatchEvent(new Event('change', { bubbles: true })); "
+        "      return true; "
+        "    } "
+        "    return false; "
+        "  } catch(e) { return false; } "
+        "})()";
+    
+    std::string result = executeJavascriptSync(js_script);
+    return result == "true";
+}
+
+bool Browser::clickElement(const std::string& selector) {
+    std::string js_script = 
+        "(function() { "
+        "  try { "
+        "    var element = document.querySelector('" + selector + "'); "
+        "    if (element) { "
+        "      element.click(); "
+        "      return true; "
+        "    } "
+        "    return false; "
+        "  } catch(e) { return false; } "
+        "})()";
+    
+    std::string result = executeJavascriptSync(js_script);
+    return result == "true";
+}
+
+bool Browser::submitForm(const std::string& form_selector) {
+    std::string js_script = 
+        "(function() { "
+        "  try { "
+        "    var form = document.querySelector('" + form_selector + "'); "
+        "    if (form) { "
+        "      form.submit(); "
+        "      return true; "
+        "    } "
+        "    return false; "
+        "  } catch(e) { return false; } "
+        "})()";
+    
+    std::string result = executeJavascriptSync(js_script);
+    return result == "true";
+}
+
+bool Browser::waitForNavigation(int timeout_ms) {
+    std::string initial_url = getCurrentUrl();
+    int elapsed_time = 0;
+    
+    while (elapsed_time < timeout_ms) {
+        wait(100);
+        elapsed_time += 100;
+        
+        std::string current_url = getCurrentUrl();
+        if (current_url != initial_url && !current_url.empty()) {
+            wait(500);
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+bool Browser::searchForm(const std::string& query) {
+    std::string js_script = 
+        "(function() { "
+        "  try { "
+        "    var searchInputs = document.querySelectorAll('input[name*=search], input[type=search], input[placeholder*=search i], input[placeholder*=Search]'); "
+        "    var searchButtons = document.querySelectorAll('button[name*=search], input[type=submit], button[type=submit]'); "
+        "    "
+        "    if (searchInputs.length > 0) { "
+        "      searchInputs[0].value = '" + query + "'; "
+        "      searchInputs[0].dispatchEvent(new Event('input', { bubbles: true })); "
+        "      searchInputs[0].dispatchEvent(new Event('change', { bubbles: true })); "
+        "      "
+        "      if (searchButtons.length > 0) { "
+        "        searchButtons[0].click(); "
+        "      } else { "
+        "        searchInputs[0].form && searchInputs[0].form.submit(); "
+        "      } "
+        "      return true; "
+        "    } "
+        "    return false; "
+        "  } catch(e) { return false; } "
+        "})()";
+    
+    std::string result = executeJavascriptSync(js_script);
+    return result == "true";
+}
+
+std::string Browser::getAttribute(const std::string& selector, const std::string& attribute) {
+    std::string js_script = 
+        "(function() { "
+        "  try { "
+        "    var element = document.querySelector('" + selector + "'); "
+        "    return element ? (element.getAttribute('" + attribute + "') || '') : ''; "
+        "  } catch(e) { return ''; } "
+        "})()";
+    
+    return executeJavascriptSync(js_script);
+}
+
+void Browser::setViewport(int width, int height) {
+    gtk_window_set_default_size(GTK_WINDOW(window), width, height);
+}
+
+void Browser::setScrollPosition(int x, int y) {
+    std::stringstream js;
+    js << "(function() { try { window.scrollTo(" << x << ", " << y << "); return 'done'; } catch(e) { return 'error'; } })()";
+    executeJavascript(js.str());
+    waitForJavaScriptCompletion(500);
+}
+
+std::pair<int, int> Browser::getScrollPosition() {
+    std::string js = "(function() { try { return JSON.stringify({x: window.pageXOffset, y: window.pageYOffset}); } catch(e) { return '{\"x\":0,\"y\":0}'; } })()";
+    std::string result = executeJavascriptSync(js);
+    
+    Json::Value root;
+    Json::Reader reader;
+    if (reader.parse(result, root)) {
+        return {root.get("x", 0).asInt(), root.get("y", 0).asInt()};
+    }
+    
+    return {0, 0};
+}
+
+void Browser::setUserAgent(const std::string& userAgent) {
+    WebKitSettings* settings = webkit_web_view_get_settings(webView);
+    webkit_settings_set_user_agent(settings, userAgent.c_str());
+}
+
+void Browser::clearCookies() {
+    std::string js = R"(
+        (function() {
+            try {
+                var cookies = document.cookie.split(';');
+                
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i];
+                    var eqPos = cookie.indexOf("=");
+                    var name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+                    
+                    document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+                    document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=" + window.location.hostname;
+                    document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=." + window.location.hostname;
+                }
+                
+                return 'Cookies cleared';
+            } catch(e) {
+                return 'Error clearing cookies';
+            }
+        })()
+    )";
+    
+    executeJavascript(js);
+    waitForJavaScriptCompletion(500);
 }
 
 bool Browser::waitForSelector(const std::string& selector, int timeout_ms) {
     int elapsed_time = 0;
-    std::string js_check_script = "(function() { return document.querySelector('" + selector + "') !== null; })()";
+    std::string js_check_script = "(function() { try { return document.querySelector('" + selector + "') !== null; } catch(e) { return false; } })()";
 
     while (elapsed_time < timeout_ms) {
         std::string js_result_str;
@@ -1004,7 +1329,7 @@ bool Browser::waitForText(const std::string& text, int timeout_ms) {
         pos = escaped_text.find("'", pos + 2);
     }
 
-    std::string js_check_script = "document.body.innerText.includes('" + escaped_text + "');";
+    std::string js_check_script = "(function() { try { return document.body.innerText.includes('" + escaped_text + "'); } catch(e) { return false; } })()";
     
     while (elapsed_time < timeout_ms) {
         std::string result = executeJavascriptSync(js_check_script);
@@ -1022,228 +1347,162 @@ bool Browser::waitForText(const std::string& text, int timeout_ms) {
 bool Browser::waitForElementWithContent(const std::string& selector, int timeout_ms) {
     std::string js_check = 
         "(function() { "
-        "  var element = document.querySelector('" + selector + "'); "
-        "  return element && (element.innerText.trim() || element.textContent.trim()) ? true : false; "
+        "  try { "
+        "    var element = document.querySelector('" + selector + "'); "
+        "    return element && (element.innerText.trim() || element.textContent.trim()) ? true : false; "
+        "  } catch(e) { return false; } "
         "})()";
     
     return waitForJsCondition(js_check, timeout_ms);
 }
 
-std::string Browser::getInnerText(const std::string& selector) {
-    // Escape single quotes and backslashes in selector
-    std::string escaped_selector;
-    escaped_selector.reserve(selector.length());
-    for (char c : selector) {
-        if (c == '\\') {
-            escaped_selector += "\\\\";
-        } else if (c == '\'') {
-            escaped_selector += "\\'";
-        } else {
-            escaped_selector += c;
+void Browser::wait(int milliseconds) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
+}
+
+bool Browser::isOperationCompleted() const {
+    return operation_completed;
+}
+
+// Enhanced methods for better reliability
+
+bool Browser::isPageLoaded() const {
+    std::string readyState = const_cast<Browser*>(this)->executeJavascriptSync("(function() { try { return document.readyState; } catch(e) { return 'loading'; } })()");
+    return readyState == "complete" || readyState == "interactive";
+}
+
+bool Browser::validateSession(const Session& session) const {
+    if (session.getName().empty()) {
+        std::cerr << "Warning: Session has empty name" << std::endl;
+        return false;
+    }
+    
+    const std::string& url = session.getCurrentUrl();
+    if (!url.empty()) {
+        if (url.find("://") == std::string::npos) {
+            std::cerr << "Warning: Session URL appears invalid: " << url << std::endl;
+            return false;
         }
     }
     
-    std::string text_content_script = 
-        "(function() { "
-        "  try { "
-        "    var element = document.querySelector('" + escaped_selector + "'); "
-        "    if (!element) return ''; "
-        "    var text = (element.innerText || element.textContent || '').trim(); "
-        "    return text; "
-        "  } catch(e) { "
-        "    return 'Error: ' + e.message; "
-        "  } "
-        "})()";
-    
-    std::string result = executeJavascriptSync(text_content_script);
-    
-    // Additional safety: clean the result string
-    std::string cleaned;
-    cleaned.reserve(result.length());
-    for (char c : result) {
-        if (c >= 32 && c <= 126) {  // Printable ASCII characters
-            cleaned += c;
-        } else if (c == '\n' || c == '\r' || c == '\t') {
-            cleaned += c;  // Allow newlines and tabs
-        } else if ((unsigned char)c >= 128) {
-            cleaned += c;  // Allow UTF-8 characters
-        } else {
-            cleaned += ' ';  // Replace control characters with space
-        }
+    return true;
+}
+
+std::string Browser::getPageLoadState() const {
+    return const_cast<Browser*>(this)->executeJavascriptSync("(function() { try { return document.readyState + '|' + window.location.href; } catch(e) { return 'error|unknown'; } })()");
+}
+
+bool Browser::restoreSessionSafely(const Session& session) {
+    if (!validateSession(session)) {
+        std::cerr << "Warning: Session validation failed, continuing with limited restore" << std::endl;
     }
     
-    return cleaned;
-}
-
-std::string Browser::getFirstNonEmptyText(const std::string& selector) {
-    std::string js_script = 
-        "(function() { "
-        "  var elements = document.querySelectorAll('" + selector + "'); "
-        "  for (var i = 0; i < elements.length; i++) { "
-        "    var text = elements[i].innerText || elements[i].textContent || ''; "
-        "    if (text.trim()) { "
-        "      return text.trim(); "
-        "    } "
-        "  } "
-        "  return ''; "
-        "})()";
-    
-    return executeJavascriptSync(js_script);
-}
-
-bool Browser::fillInput(const std::string& selector, const std::string& value) {
-    std::string js_script = 
-        "(function() { "
-        "  var element = document.querySelector('" + selector + "'); "
-        "  if (element) { "
-        "    element.value = '" + value + "'; "
-        "    element.dispatchEvent(new Event('input', { bubbles: true })); "
-        "    element.dispatchEvent(new Event('change', { bubbles: true })); "
-        "    return true; "
-        "  } "
-        "  return false; "
-        "})()";
-    
-    std::string result = executeJavascriptSync(js_script);
-    return result == "true";
-}
-
-bool Browser::clickElement(const std::string& selector) {
-    std::string js_script = 
-        "(function() { "
-        "  var element = document.querySelector('" + selector + "'); "
-        "  if (element) { "
-        "    element.click(); "
-        "    return true; "
-        "  } "
-        "  return false; "
-        "})()";
-    
-    std::string result = executeJavascriptSync(js_script);
-    return result == "true";
-}
-
-bool Browser::submitForm(const std::string& form_selector) {
-    std::string js_script = 
-        "(function() { "
-        "  var form = document.querySelector('" + form_selector + "'); "
-        "  if (form) { "
-        "    form.submit(); "
-        "    return true; "
-        "  } "
-        "  return false; "
-        "})()";
-    
-    std::string result = executeJavascriptSync(js_script);
-    return result == "true";
-}
-
-bool Browser::waitForNavigation(int timeout_ms) {
-    std::string initial_url = getCurrentUrl();
-    int elapsed_time = 0;
-    
-    while (elapsed_time < timeout_ms) {
-        wait(100);
-        elapsed_time += 100;
+    try {
+        restoreSession(session);
         
-        std::string current_url = getCurrentUrl();
-        if (current_url != initial_url && !current_url.empty()) {
-            // Wait a bit more for the page to stabilize
-            wait(500);
-            return true;
+        waitForPageStabilization();
+        
+        if (!isPageLoaded()) {
+            std::cerr << "Warning: Page may not have loaded completely after session restore" << std::endl;
+            std::cerr << "Page state: " << getPageLoadState() << std::endl;
+            return false;
         }
+        
+        return true;
+    } catch (const std::exception& e) {
+        std::cerr << "Error during session restore: " << e.what() << std::endl;
+        return false;
+    }
+}
+
+void Browser::waitForPageStabilization(int timeout_ms) {
+    int elapsed = 0;
+    std::string previousState = "";
+    
+    while (elapsed < timeout_ms) {
+        std::string currentState = getPageLoadState();
+        
+        if (!previousState.empty() && currentState == previousState) {
+            wait(200);
+            return;
+        }
+        
+        previousState = currentState;
+        wait(200);
+        elapsed += 200;
     }
     
-    return false;
+    std::cerr << "Warning: Page stabilization timeout after " << timeout_ms << "ms" << std::endl;
 }
 
-bool Browser::searchForm(const std::string& query) {
-    std::string js_script = 
-        "(function() { "
-        "  var searchInputs = document.querySelectorAll('input[name*=search], input[type=search], input[placeholder*=search i], input[placeholder*=Search]'); "
-        "  var searchButtons = document.querySelectorAll('button[name*=search], input[type=submit], button[type=submit]'); "
-        "  "
-        "  if (searchInputs.length > 0) { "
-        "    searchInputs[0].value = '" + query + "'; "
-        "    searchInputs[0].dispatchEvent(new Event('input', { bubbles: true })); "
-        "    searchInputs[0].dispatchEvent(new Event('change', { bubbles: true })); "
-        "    "
-        "    if (searchButtons.length > 0) { "
-        "      searchButtons[0].click(); "
-        "    } else { "
-        "      searchInputs[0].form && searchInputs[0].form.submit(); "
-        "    } "
-        "    return true; "
-        "  } "
-        "  return false; "
-        "})()";
-    
-    std::string result = executeJavascriptSync(js_script);
-    return result == "true";
+std::string Browser::executeJavascriptSyncSafe(const std::string& script) {
+    try {
+        if (!webView) {
+            std::cerr << "Error: WebView not initialized" << std::endl;
+            return "";
+        }
+        
+        if (script.empty()) {
+            return "";
+        }
+        
+        if (!isPageLoaded()) {
+            std::cerr << "Warning: Executing JavaScript on potentially unready page" << std::endl;
+        }
+        
+        return executeJavascriptSync(script);
+    } catch (const std::exception& e) {
+        std::cerr << "Error in JavaScript execution: " << e.what() << std::endl;
+        return "";
+    }
 }
 
-std::string Browser::getAttribute(const std::string& selector, const std::string& attribute) {
-    std::string js_script = 
-        "(function() { "
-        "  var element = document.querySelector('" + selector + "'); "
-        "  return element ? (element.getAttribute('" + attribute + "') || '') : ''; "
-        "})()";
-    
-    return executeJavascriptSync(js_script);
-}
-
-void Browser::setViewport(int width, int height) {
-    gtk_window_set_default_size(GTK_WINDOW(window), width, height);
-}
-
-void Browser::setScrollPosition(int x, int y) {
-    std::stringstream js;
-    js << "window.scrollTo(" << x << ", " << y << ");";
-    executeJavascript(js.str());
-    waitForJavaScriptCompletion(500);
-}
-
-std::pair<int, int> Browser::getScrollPosition() {
-    std::string js = "JSON.stringify({x: window.pageXOffset, y: window.pageYOffset});";
-    std::string result = executeJavascriptSync(js);
-    
-    Json::Value root;
-    Json::Reader reader;
-    if (reader.parse(result, root)) {
-        return {root.get("x", 0).asInt(), root.get("y", 0).asInt()};
+void Browser::setCookieSafe(const Cookie& cookie) {
+    if (cookie.name.empty() || cookie.value.empty()) {
+        std::cerr << "Warning: Skipping invalid cookie (empty name or value)" << std::endl;
+        return;
     }
     
-    return {0, 0};
+    try {
+        setCookie(cookie);
+        
+        std::string verification = executeJavascriptSyncSafe(
+            "(function() { "
+            "  try { "
+            "    var cookies = document.cookie.split(';'); "
+            "    for (var i = 0; i < cookies.length; i++) { "
+            "      if (cookies[i].trim().startsWith('" + cookie.name + "=')) { "
+            "        return 'found'; "
+            "      } "
+            "    } "
+            "    return 'not_found'; "
+            "  } catch(e) { return 'error'; } "
+            "})()"
+        );
+        
+        if (verification != "found") {
+            std::cerr << "Warning: Cookie '" << cookie.name << "' may not have been set properly" << std::endl;
+        }
+    } catch (const std::exception& e) {
+        std::cerr << "Error setting cookie '" << cookie.name << "': " << e.what() << std::endl;
+    }
 }
 
-void Browser::setUserAgent(const std::string& userAgent) {
-    WebKitSettings* settings = webkit_web_view_get_settings(webView);
-    webkit_settings_set_user_agent(settings, userAgent.c_str());
+bool Browser::isFileUrl(const std::string& url) const {
+    return url.find("file://") == 0;
 }
 
-void Browser::clearCookies() {
-    // In WebKitGTK+ 6.0, we clear cookies using JavaScript
-    std::string js = R"(
-        (function() {
-            // Get all cookies
-            var cookies = document.cookie.split(';');
-            
-            // Clear each cookie
-            for (var i = 0; i < cookies.length; i++) {
-                var cookie = cookies[i];
-                var eqPos = cookie.indexOf("=");
-                var name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
-                
-                // Delete cookie by setting expiration date to past
-                document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
-                document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=" + window.location.hostname;
-                document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=." + window.location.hostname;
-            }
-            
-            return 'Cookies cleared';
-        })()
-    )";
+bool Browser::validateFileUrl(const std::string& url) const {
+    if (!isFileUrl(url)) {
+        return true;
+    }
     
-    executeJavascript(js);
-    waitForJavaScriptCompletion(500);
+    std::string filePath = url.substr(7);
+    
+    try {
+        return std::filesystem::exists(filePath);
+    } catch (const std::exception& e) {
+        std::cerr << "Error validating file URL: " << e.what() << std::endl;
+        return false;
+    }
 }
