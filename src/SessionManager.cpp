@@ -6,6 +6,7 @@
 #include <sstream>
 #include <iomanip>
 #include <iostream>
+#include <json/json.h>
 
 namespace fs = std::filesystem;
 

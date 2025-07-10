@@ -189,13 +189,11 @@ int main(int argc, char* argv[]) {
         sessionName = "default"; // Use default session if none specified
     }
 
-    // Handle end session - FIXED: Don't delete, just mark as ended
+    // Handle end session - keep the session file but clear the URL
     if (endSession) {
-        // Don't delete the session file, just clear the current URL to indicate it's ended
         Session session = sessionManager.loadOrCreateSession(sessionName);
-        session.setCurrentUrl("");  // Clear URL to mark as ended
-        session.updateLastAccessed();
-        sessionManager.saveSession(session);  // Save the ended state
+        // Don't clear the URL, just save and "end" the session
+        sessionManager.saveSession(session);
         info_output("Session '" + sessionName + "' ended.");
         return 0;
     }
@@ -232,7 +230,7 @@ int main(int argc, char* argv[]) {
         else if (!session.getCurrentUrl().empty() && !commands.empty()) {
             should_navigate = true;
             navigation_url = session.getCurrentUrl();
-            is_session_restore = false; // Don't restore state, just navigate
+            is_session_restore = true; // DO restore state when running commands on existing session
         }
         
         // Navigate if we determined we should
@@ -258,9 +256,17 @@ int main(int argc, char* argv[]) {
 
         // Execute commands in sequence
         int exit_code = 0;
+        bool state_modified = false;  // Track if any command modified page state
         
         for (const auto& cmd : commands) {
             bool navigation_expected = false;
+            
+            // Check if this command modifies state
+            if (cmd.type == "type" || cmd.type == "click" || cmd.type == "submit" || 
+                cmd.type == "select" || cmd.type == "check" || cmd.type == "uncheck" ||
+                cmd.type == "js" || cmd.type == "scroll" || cmd.type == "user-agent") {
+                state_modified = true;
+            }
             
             // Record action if recording is enabled
             if (session.isRecording() && 
@@ -435,6 +441,13 @@ int main(int argc, char* argv[]) {
                 
                 // Output ONLY the JavaScript result to stdout
                 std::cout << result << std::endl;
+                
+                // If the JS modified state (cookies, storage, etc), update session
+                if (cmd.value.find("cookie") != std::string::npos ||
+                    cmd.value.find("Storage") != std::string::npos ||
+                    cmd.value.find("scroll") != std::string::npos) {
+                    browser.updateSessionState(session);
+                }
             } else if (cmd.type == "exists") {
                 bool exists = browser.elementExists(cmd.selector);
                 std::cout << (exists ? "true" : "false") << std::endl;
@@ -492,11 +505,14 @@ int main(int argc, char* argv[]) {
         }
 
         // Update session state with all browser state (defensive)
-        try {
-            browser.updateSessionState(session);
-        } catch (const std::exception& e) {
-            error_output("Warning: Failed to update session state: " + std::string(e.what()));
-            // Continue anyway, at least save what we can
+        // Always update if state was modified or if we navigated
+        if (state_modified || should_navigate) {
+            try {
+                browser.updateSessionState(session);
+            } catch (const std::exception& e) {
+                error_output("Warning: Failed to update session state: " + std::string(e.what()));
+                // Continue anyway, at least save what we can
+            }
         }
         
         // Save the session (defensive)

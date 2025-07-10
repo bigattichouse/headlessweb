@@ -332,6 +332,10 @@ void Browser::restoreSession(const Session& session) {
         // Form state
         try {
             if (!session.getFormFields().empty()) {
+                std::cerr << "Debug: Restoring " << session.getFormFields().size() << " form fields" << std::endl;
+                for (const auto& field : session.getFormFields()) {
+                    std::cerr << "  Restoring: " << field.selector << " = " << field.value << " (checked: " << field.checked << ")" << std::endl;
+                }
                 restoreFormState(session.getFormFields());
                 wait(500);
                 std::cerr << "Debug: Restored form state" << std::endl;
@@ -403,6 +407,10 @@ void Browser::updateSessionState(Session& session) {
             // Cookies - try but don't fail if it doesn't work
             try {
                 getCookiesAsync([&session](std::vector<Cookie> cookies) {
+                    std::cerr << "Debug: Extracted " << cookies.size() << " cookies" << std::endl;
+                    for (const auto& cookie : cookies) {
+                        std::cerr << "  Cookie: " << cookie.name << " = " << cookie.value << std::endl;
+                    }
                     session.setCookies(cookies);
                 });
                 waitForJavaScriptCompletion(1000); // Shorter timeout
@@ -432,6 +440,10 @@ void Browser::updateSessionState(Session& session) {
                 if (formTest != "error" && !formTest.empty()) {
                     auto formFields = extractFormState();
                     session.setFormFields(formFields);
+                    std::cerr << "Debug: Extracted " << formFields.size() << " form fields" << std::endl;
+                    for (const auto& field : formFields) {
+                        std::cerr << "  Field: " << field.selector << " = " << field.value << " (checked: " << field.checked << ")" << std::endl;
+                    }
                 }
             } catch (const std::exception& e) {
                 std::cerr << "Warning: Failed to extract form state: " << e.what() << std::endl;
@@ -447,8 +459,10 @@ void Browser::updateSessionState(Session& session) {
             // Scroll positions
             try {
                 auto scrollPositions = extractAllScrollPositions();
+                std::cerr << "Debug: Extracted scroll positions:" << std::endl;
                 for (const auto& [selector, pos] : scrollPositions) {
                     session.setScrollPosition(selector, pos.first, pos.second);
+                    std::cerr << "  " << selector << ": " << pos.first << ", " << pos.second << std::endl;
                 }
             } catch (const std::exception& e) {
                 std::cerr << "Warning: Failed to extract scroll positions: " << e.what() << std::endl;
@@ -488,44 +502,43 @@ void Browser::getCookiesAsync(std::function<void(std::vector<Cookie>)> callback)
     std::string js = R"(
         (function() {
             try {
-                var cookies = document.cookie.split('; ');
-                var result = [];
-                for (var i = 0; i < cookies.length; i++) {
-                    if (cookies[i].length > 0) {
-                        var parts = cookies[i].split('=');
-                        if (parts.length >= 2) {
-                            result.push({
-                                name: parts[0],
-                                value: parts.slice(1).join('='),
-                                domain: window.location.hostname || 'localhost',
-                                path: '/'
-                            });
-                        }
-                    }
-                }
-                return JSON.stringify(result);
+                // Return the raw cookie string if checking for specific cookie
+                return document.cookie || '';
             } catch(e) {
-                return '[]';
+                return '';
             }
         })()
     )";
     
-    std::string result = executeJavascriptSync(js);
+    std::string cookieString = executeJavascriptSync(js);
     std::vector<Cookie> cookies;
     
-    Json::Value root;
-    Json::Reader reader;
-    if (reader.parse(result, root) && root.isArray()) {
-        for (const auto& cookieJson : root) {
-            Cookie cookie;
-            cookie.name = cookieJson.get("name", "").asString();
-            cookie.value = cookieJson.get("value", "").asString();
-            cookie.domain = cookieJson.get("domain", "").asString();
-            cookie.path = cookieJson.get("path", "/").asString();
-            cookie.secure = false;
-            cookie.httpOnly = false;
-            cookie.expires = -1;
-            cookies.push_back(cookie);
+    // Parse the cookie string manually
+    if (!cookieString.empty()) {
+        std::istringstream stream(cookieString);
+        std::string cookiePair;
+        
+        while (std::getline(stream, cookiePair, ';')) {
+            // Trim whitespace
+            size_t start = cookiePair.find_first_not_of(" \t");
+            size_t end = cookiePair.find_last_not_of(" \t");
+            if (start != std::string::npos && end != std::string::npos) {
+                cookiePair = cookiePair.substr(start, end - start + 1);
+            }
+            
+            // Split on first =
+            size_t eqPos = cookiePair.find('=');
+            if (eqPos != std::string::npos) {
+                Cookie cookie;
+                cookie.name = cookiePair.substr(0, eqPos);
+                cookie.value = cookiePair.substr(eqPos + 1);
+                cookie.domain = getCurrentUrl().find("file://") == 0 ? "localhost" : "";
+                cookie.path = "/";
+                cookie.secure = false;
+                cookie.httpOnly = false;
+                cookie.expires = -1;
+                cookies.push_back(cookie);
+            }
         }
     }
     
@@ -681,13 +694,16 @@ std::vector<FormField> Browser::extractFormState() {
                         checked: false
                     };
                     
-                    // Build a unique selector
+                    // Build a unique selector - prefer ID
                     if (el.id) {
                         field.selector = '#' + el.id;
                     } else if (el.name) {
                         field.selector = '[name="' + el.name + '"]';
                     } else {
-                        field.selector = el.tagName.toLowerCase() + ':nth-of-type(' + (i + 1) + ')';
+                        // Use index-based selector as last resort
+                        var tagName = el.tagName.toLowerCase();
+                        var index = Array.from(document.querySelectorAll(tagName)).indexOf(el) + 1;
+                        field.selector = tagName + ':nth-of-type(' + index + ')';
                     }
                     
                     // Get value based on type - ensure strings
@@ -837,8 +853,10 @@ std::map<std::string, std::pair<int, int>> Browser::extractAllScrollPositions() 
             try {
                 var positions = {};
                 
-                // Window scroll
-                positions['window'] = [window.pageXOffset || 0, window.pageYOffset || 0];
+                // Window scroll - try multiple methods
+                var scrollX = window.pageXOffset || document.documentElement.scrollLeft || document.body.scrollLeft || 0;
+                var scrollY = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+                positions['window'] = [scrollX, scrollY];
                 
                 // Find scrollable elements with actual scroll
                 var elements = document.querySelectorAll('*');
@@ -1307,7 +1325,7 @@ void Browser::setScrollPosition(int x, int y) {
 }
 
 std::pair<int, int> Browser::getScrollPosition() {
-    std::string js = "(function() { try { return JSON.stringify({x: window.pageXOffset || 0, y: window.pageYOffset || 0}); } catch(e) { return '{\"x\":0,\"y\":0}'; } })()";
+    std::string js = "(function() { try { return JSON.stringify({x: window.pageXOffset || document.documentElement.scrollLeft || 0, y: window.pageYOffset || document.documentElement.scrollTop || 0}); } catch(e) { return '{\"x\":0,\"y\":0}'; } })()";
     std::string result = executeJavascriptSync(js);
     
     Json::Value root;
