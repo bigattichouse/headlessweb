@@ -1030,12 +1030,17 @@ bool Browser::waitForElementWithContent(const std::string& selector, int timeout
 }
 
 std::string Browser::getInnerText(const std::string& selector) {
-    // Escape single quotes in selector
-    std::string escaped_selector = selector;
-    size_t pos = 0;
-    while ((pos = escaped_selector.find("'", pos)) != std::string::npos) {
-        escaped_selector.replace(pos, 1, "\\'");
-        pos += 2;
+    // Escape single quotes and backslashes in selector
+    std::string escaped_selector;
+    escaped_selector.reserve(selector.length());
+    for (char c : selector) {
+        if (c == '\\') {
+            escaped_selector += "\\\\";
+        } else if (c == '\'') {
+            escaped_selector += "\\'";
+        } else {
+            escaped_selector += c;
+        }
     }
     
     std::string text_content_script = 
@@ -1044,10 +1049,6 @@ std::string Browser::getInnerText(const std::string& selector) {
         "    var element = document.querySelector('" + escaped_selector + "'); "
         "    if (!element) return ''; "
         "    var text = (element.innerText || element.textContent || '').trim(); "
-        "    // Remove any null bytes and control characters "
-        "    text = text.replace(/\\0/g, '').replace(/[\\x00-\\x1F\\x7F-\\x9F]/g, ' '); "
-        "    // Limit length to prevent issues "
-        "    if (text.length > 10000) text = text.substring(0, 10000) + '...'; "
         "    return text; "
         "  } catch(e) { "
         "    return 'Error: ' + e.message; "

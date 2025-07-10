@@ -16,11 +16,14 @@ EOF
 # Test with local file
 echo "Testing with local file..."
 ./hweb-poc --session minimal --url "file:///tmp/test.html"
+echo "waiting on h1"
 ./hweb-poc --session minimal --wait "h1"
+echo "reading text from h1"
 ./hweb-poc --session minimal --text "h1"
 echo "Exit code: $?"
 
 # Cleanup
+echo "Cleanup session"
 ./hweb-poc --session minimal --end
 rm /tmp/test.html
 
