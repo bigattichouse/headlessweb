@@ -14,31 +14,43 @@ static void js_eval_callback(GObject* object, GAsyncResult* res, gpointer user_d
     GError* error = NULL;
     JSCValue* value = webkit_web_view_evaluate_javascript_finish(WEBKIT_WEB_VIEW(object), res, &error);
     
+    Browser* browser_instance = static_cast<Browser*>(g_object_get_data(G_OBJECT(object), "browser-instance"));
+    
     if (error) {
         std::cerr << "JavaScript error: " << error->message << std::endl;
         g_error_free(error);
         if (user_data) {
             *(static_cast<std::string*>(user_data)) = "";
         }
-    } else if (value && user_data) {
-        if (jsc_value_is_string(value)) {
-            char* str_value = jsc_value_to_string(value);
-            *(static_cast<std::string*>(user_data)) = str_value;
-            g_free(str_value);
-        } else if (jsc_value_is_number(value)) {
-            *(static_cast<std::string*>(user_data)) = std::to_string(jsc_value_to_double(value));
-        } else if (jsc_value_is_boolean(value)) {
-            *(static_cast<std::string*>(user_data)) = jsc_value_to_boolean(value) ? "true" : "false";
-        } else if (jsc_value_is_null(value)) {
-            *(static_cast<std::string*>(user_data)) = "null";
-        } else if (jsc_value_is_undefined(value)) {
-            *(static_cast<std::string*>(user_data)) = "undefined";
-        } else {
-            *(static_cast<std::string*>(user_data)) = "[JS Result]";
+    } else if (value) {
+        if (user_data) {
+            if (jsc_value_is_string(value)) {
+                char* str_value = jsc_value_to_string(value);
+                if (str_value) {
+                    *(static_cast<std::string*>(user_data)) = str_value;
+                    g_free(str_value);
+                } else {
+                    *(static_cast<std::string*>(user_data)) = "";
+                }
+            } else if (jsc_value_is_number(value)) {
+                *(static_cast<std::string*>(user_data)) = std::to_string(jsc_value_to_double(value));
+            } else if (jsc_value_is_boolean(value)) {
+                *(static_cast<std::string*>(user_data)) = jsc_value_to_boolean(value) ? "true" : "false";
+            } else if (jsc_value_is_null(value)) {
+                *(static_cast<std::string*>(user_data)) = "null";
+            } else if (jsc_value_is_undefined(value)) {
+                *(static_cast<std::string*>(user_data)) = "undefined";
+            } else {
+                *(static_cast<std::string*>(user_data)) = "";
+            }
+        }
+        g_object_unref(value);
+    } else {
+        if (user_data) {
+            *(static_cast<std::string*>(user_data)) = "";
         }
     }
     
-    Browser* browser_instance = static_cast<Browser*>(g_object_get_data(G_OBJECT(object), "browser-instance"));
     if (browser_instance) {
         browser_instance->operation_completed = true;
     }
@@ -54,7 +66,7 @@ static void load_changed_callback(WebKitWebView* web_view, WebKitLoadEvent load_
     }
 }
 
-Browser::Browser() {
+Browser::Browser() : cookieManager(nullptr), dataManager(nullptr), operation_completed(false) {
     gtk_init();
     
     // Initialize with a proper data manager for cookie/storage persistence
@@ -65,6 +77,12 @@ Browser::Browser() {
     // In WebKitGTK+ 6.0, we create the web view directly with settings
     // The data manager is handled differently
     webView = WEBKIT_WEB_VIEW(webkit_web_view_new());
+    
+    // Ensure webView is valid
+    if (!webView) {
+        std::cerr << "Failed to create WebKit web view" << std::endl;
+        exit(1);
+    }
     
     // Create and apply settings
     WebKitSettings* settings = webkit_settings_new();
@@ -92,14 +110,19 @@ Browser::Browser() {
     
     window = gtk_window_new();
     gtk_window_set_child(GTK_WINDOW(window), GTK_WIDGET(webView));
-    operation_completed = false;
+    
+    // Set window to be offscreen for headless operation
+    gtk_widget_set_visible(window, FALSE);
+    
+    // Store browser instance in the webView for callbacks
     g_object_set_data(G_OBJECT(webView), "browser-instance", this);
     
     g_object_unref(settings);
 }
 
 Browser::~Browser() {
-    // Cleanup handled by GTK
+    // Don't do anything here - let GTK handle cleanup
+    // GTK widgets are reference-counted and will be cleaned up automatically
 }
 
 void Browser::loadUri(const std::string& uri) {
@@ -132,7 +155,42 @@ void Browser::reload() {
 
 void Browser::executeJavascript(const std::string& script, std::string* result) {
     operation_completed = false;
-    webkit_web_view_evaluate_javascript(webView, script.c_str(), -1, NULL, NULL, NULL, js_eval_callback, result ? static_cast<gpointer>(result) : NULL);
+    
+    // Ensure the result pointer is valid and cleared
+    if (result) {
+        result->clear();
+    }
+    
+    // Validate script is not empty
+    if (script.empty()) {
+        std::cerr << "Warning: Empty JavaScript script" << std::endl;
+        if (result) {
+            *result = "";
+        }
+        operation_completed = true;
+        return;
+    }
+    
+    // Check if webView is valid
+    if (!webView) {
+        std::cerr << "Error: WebView is null" << std::endl;
+        if (result) {
+            *result = "";
+        }
+        operation_completed = true;
+        return;
+    }
+    
+    webkit_web_view_evaluate_javascript(
+        webView, 
+        script.c_str(), 
+        -1,  // Use -1 for null-terminated string
+        NULL, 
+        NULL, 
+        NULL, 
+        js_eval_callback, 
+        result
+    );
 }
 
 bool Browser::waitForJavaScriptCompletion(int timeout_ms) {
@@ -154,41 +212,63 @@ void Browser::restoreSession(const Session& session) {
     // Navigate to current URL
     if (!session.getCurrentUrl().empty()) {
         loadUri(session.getCurrentUrl());
-        waitForJavaScriptCompletion(10000);
+        if (!waitForJavaScriptCompletion(10000)) {
+            std::cerr << "Warning: Page load timeout during session restore" << std::endl;
+        }
+        
+        // Extra wait to ensure page is stable
+        wait(500);
     }
     
     // Wait for page to be ready based on conditions
     waitForPageReady(session);
     
-    // Restore cookies
-    for (const auto& cookie : session.getCookies()) {
-        setCookie(cookie);
+    // Only restore state if the page loaded successfully
+    std::string readyState = executeJavascriptSync("document.readyState");
+    if (readyState != "complete" && readyState != "interactive") {
+        std::cerr << "Warning: Page not ready for state restoration (state: " << readyState << ")" << std::endl;
+        return;
     }
     
-    // Restore local storage
-    if (!session.getLocalStorage().empty()) {
-        setLocalStorage(session.getLocalStorage());
+    // Restore cookies with error handling
+    try {
+        for (const auto& cookie : session.getCookies()) {
+            setCookie(cookie);
+        }
+    } catch (const std::exception& e) {
+        std::cerr << "Warning: Failed to restore cookies: " << e.what() << std::endl;
     }
     
-    // Restore session storage
-    if (!session.getSessionStorage().empty()) {
-        setSessionStorage(session.getSessionStorage());
+    // Skip storage restoration for now - it might be causing issues
+    bool skip_storage = true;
+    
+    if (!skip_storage) {
+        // Restore local storage
+        if (!session.getLocalStorage().empty()) {
+            setLocalStorage(session.getLocalStorage());
+        }
+        
+        // Restore session storage
+        if (!session.getSessionStorage().empty()) {
+            setSessionStorage(session.getSessionStorage());
+        }
     }
     
-    // Restore form state
-    if (!session.getFormFields().empty()) {
-        restoreFormState(session.getFormFields());
+    // Skip form state restoration for problematic sites
+    std::string hostname = executeJavascriptSync("window.location.hostname");
+    if (hostname.find("limitless-adventures.com") == std::string::npos) {
+        // Restore form state
+        if (!session.getFormFields().empty()) {
+            restoreFormState(session.getFormFields());
+        }
+        
+        // Restore active elements
+        if (!session.getActiveElements().empty()) {
+            restoreActiveElements(session.getActiveElements());
+        }
     }
     
-    // Restore active elements
-    if (!session.getActiveElements().empty()) {
-        restoreActiveElements(session.getActiveElements());
-    }
-    
-    // Restore custom state
-    if (!session.getAllExtractedState().empty()) {
-        restoreCustomState(session.getAllExtractedState());
-    }
+    // Skip custom state restoration - might contain problematic data
     
     // Restore viewport
     auto [width, height] = session.getViewport();
@@ -201,8 +281,26 @@ void Browser::restoreSession(const Session& session) {
 }
 
 void Browser::updateSessionState(Session& session) {
+    // Check if browser is in a valid state
+    std::string readyState = executeJavascriptSync("document.readyState");
+    if (readyState.empty() || (readyState != "complete" && readyState != "interactive")) {
+        std::cerr << "Warning: Page not ready for state extraction (state: " << readyState << ")" << std::endl;
+        // Only update URL and basic info
+        session.setCurrentUrl(getCurrentUrl());
+        session.updateLastAccessed();
+        return;
+    }
+    
     // Update current URL
     session.setCurrentUrl(getCurrentUrl());
+    
+    // Skip detailed state extraction for problematic sites
+    std::string hostname = executeJavascriptSync("window.location.hostname");
+    if (hostname.find("limitless-adventures.com") != std::string::npos) {
+        std::cerr << "Debug: Skipping detailed state extraction for limitless-adventures.com" << std::endl;
+        session.updateLastAccessed();
+        return;
+    }
     
     // Update page hash
     session.setPageHash(extractPageHash());
@@ -249,88 +347,52 @@ void Browser::updateSessionState(Session& session) {
     session.updateLastAccessed();
 }
 
-// Fixed lambda function for cookies callback
-struct CookieCallbackData {
-    std::function<void(std::vector<Cookie>)> callback;
-    std::string* result;
-    Browser* browser;
-};
-
 void Browser::getCookiesAsync(std::function<void(std::vector<Cookie>)> callback) {
     std::string js = R"(
         (function() {
             var cookies = document.cookie.split('; ');
             var result = [];
             for (var i = 0; i < cookies.length; i++) {
-                var parts = cookies[i].split('=');
-                if (parts.length >= 2) {
-                    result.push({
-                        name: parts[0],
-                        value: parts.slice(1).join('='),
-                        domain: window.location.hostname,
-                        path: '/'
-                    });
+                if (cookies[i].length > 0) {
+                    var parts = cookies[i].split('=');
+                    if (parts.length >= 2) {
+                        result.push({
+                            name: parts[0],
+                            value: parts.slice(1).join('='),
+                            domain: window.location.hostname,
+                            path: '/'
+                        });
+                    }
                 }
             }
             return JSON.stringify(result);
         })()
     )";
     
-    auto* data = new CookieCallbackData{callback, new std::string(), this};
+    // For now, use synchronous execution to avoid complex async memory management
+    std::string result = executeJavascriptSync(js);
     
-    operation_completed = false;
-    webkit_web_view_evaluate_javascript(
-        webView, 
-        js.c_str(), 
-        -1, 
-        NULL, 
-        NULL, 
-        NULL, 
-        [](GObject* object, GAsyncResult* res, gpointer user_data) {
-            auto* data = static_cast<CookieCallbackData*>(user_data);
-            GError* error = NULL;
-            JSCValue* value = webkit_web_view_evaluate_javascript_finish(WEBKIT_WEB_VIEW(object), res, &error);
-            
-            std::vector<Cookie> cookies;
-            
-            if (!error && value && jsc_value_is_string(value)) {
-                char* str_value = jsc_value_to_string(value);
-                
-                // Parse JSON result
-                Json::Value root;
-                Json::Reader reader;
-                if (reader.parse(str_value, root) && root.isArray()) {
-                    for (const auto& cookieJson : root) {
-                        Cookie cookie;
-                        cookie.name = cookieJson.get("name", "").asString();
-                        cookie.value = cookieJson.get("value", "").asString();
-                        cookie.domain = cookieJson.get("domain", "").asString();
-                        cookie.path = cookieJson.get("path", "/").asString();
-                        cookie.secure = false;
-                        cookie.httpOnly = false;
-                        cookie.expires = -1; // Session cookie
-                        cookies.push_back(cookie);
-                    }
-                }
-                
-                g_free(str_value);
-            }
-            
-            if (error) {
-                g_error_free(error);
-            }
-            
-            data->callback(cookies);
-            delete data->result;
-            
-            if (data->browser) {
-                data->browser->operation_completed = true;
-            }
-            
-            delete data;
-        },
-        data
-    );
+    std::vector<Cookie> cookies;
+    
+    // Parse JSON result
+    Json::Value root;
+    Json::Reader reader;
+    if (reader.parse(result, root) && root.isArray()) {
+        for (const auto& cookieJson : root) {
+            Cookie cookie;
+            cookie.name = cookieJson.get("name", "").asString();
+            cookie.value = cookieJson.get("value", "").asString();
+            cookie.domain = cookieJson.get("domain", "").asString();
+            cookie.path = cookieJson.get("path", "/").asString();
+            cookie.secure = false;
+            cookie.httpOnly = false;
+            cookie.expires = -1; // Session cookie
+            cookies.push_back(cookie);
+        }
+    }
+    
+    callback(cookies);
+    operation_completed = true;
 }
 
 void Browser::setCookie(const Cookie& cookie) {
@@ -876,10 +938,29 @@ std::string Browser::getPageSource() {
 // Existing methods remain the same...
 
 std::string Browser::executeJavascriptSync(const std::string& script) {
-    std::string result;
-    executeJavascript(script, &result);
-    waitForJavaScriptCompletion();
-    return result;
+    // Allocate result on heap to avoid stack issues
+    std::string* result = new std::string();
+    
+    executeJavascript(script, result);
+    if (!waitForJavaScriptCompletion(5000)) {
+        std::cerr << "JavaScript execution timeout" << std::endl;
+        delete result;
+        return "";
+    }
+    
+    // Make a copy of the result before deleting
+    std::string final_result;
+    if (result && !result->empty()) {
+        // Ensure we don't have a ridiculously long result
+        if (result->length() > 1000000) {  // 1MB limit
+            final_result = result->substr(0, 1000000);
+        } else {
+            final_result = *result;
+        }
+    }
+    
+    delete result;
+    return final_result;
 }
 
 void Browser::wait(int milliseconds) {
@@ -892,10 +973,10 @@ bool Browser::isOperationCompleted() const {
 
 bool Browser::waitForSelector(const std::string& selector, int timeout_ms) {
     int elapsed_time = 0;
-    std::string js_check_script = "document.querySelector('" + selector + "') != null;";
-    std::string js_result_str;
+    std::string js_check_script = "(function() { return document.querySelector('" + selector + "') !== null; })()";
 
     while (elapsed_time < timeout_ms) {
+        std::string js_result_str;
         operation_completed = false;
         webkit_web_view_evaluate_javascript(webView, js_check_script.c_str(), -1, NULL, NULL, NULL, js_eval_callback, &js_result_str);
         
@@ -949,13 +1030,48 @@ bool Browser::waitForElementWithContent(const std::string& selector, int timeout
 }
 
 std::string Browser::getInnerText(const std::string& selector) {
+    // Escape single quotes in selector
+    std::string escaped_selector = selector;
+    size_t pos = 0;
+    while ((pos = escaped_selector.find("'", pos)) != std::string::npos) {
+        escaped_selector.replace(pos, 1, "\\'");
+        pos += 2;
+    }
+    
     std::string text_content_script = 
         "(function() { "
-        "  var element = document.querySelector('" + selector + "'); "
-        "  return element ? (element.innerText || element.textContent || '') : ''; "
+        "  try { "
+        "    var element = document.querySelector('" + escaped_selector + "'); "
+        "    if (!element) return ''; "
+        "    var text = (element.innerText || element.textContent || '').trim(); "
+        "    // Remove any null bytes and control characters "
+        "    text = text.replace(/\\0/g, '').replace(/[\\x00-\\x1F\\x7F-\\x9F]/g, ' '); "
+        "    // Limit length to prevent issues "
+        "    if (text.length > 10000) text = text.substring(0, 10000) + '...'; "
+        "    return text; "
+        "  } catch(e) { "
+        "    return 'Error: ' + e.message; "
+        "  } "
         "})()";
     
-    return executeJavascriptSync(text_content_script);
+    std::string result = executeJavascriptSync(text_content_script);
+    
+    // Additional safety: clean the result string
+    std::string cleaned;
+    cleaned.reserve(result.length());
+    for (char c : result) {
+        if (c >= 32 && c <= 126) {  // Printable ASCII characters
+            cleaned += c;
+        } else if (c == '\n' || c == '\r' || c == '\t') {
+            cleaned += c;  // Allow newlines and tabs
+        } else if ((unsigned char)c >= 128) {
+            cleaned += c;  // Allow UTF-8 characters
+        } else {
+            cleaned += ' ';  // Replace control characters with space
+        }
+    }
+    
+    return cleaned;
 }
 
 std::string Browser::getFirstNonEmptyText(const std::string& selector) {

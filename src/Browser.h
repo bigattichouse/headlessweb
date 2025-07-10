@@ -108,6 +108,7 @@ private:
     WebKitCookieManager* cookieManager;
     WebKitWebsiteDataManager* dataManager;
     std::string sessionDataPath;
+    std::string js_result_buffer;  // Buffer for JavaScript results
     
     void initializeDataManager(const std::string& sessionName);
     std::string executeJavascriptSync(const std::string& script);

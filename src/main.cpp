@@ -425,5 +425,13 @@ int main(int argc, char* argv[]) {
         std::cout << "Session '" << sessionName << "' saved." << std::endl;
     }
 
+    // Ensure all GTK events are processed before exit
+    for (int i = 0; i < 10; i++) {
+        while (g_main_context_pending(g_main_context_default())) {
+            g_main_context_iteration(g_main_context_default(), FALSE);
+        }
+        g_usleep(10 * 1000); // 10ms
+    }
+
     return exit_code;
 }
