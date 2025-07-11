@@ -210,7 +210,7 @@ FORM_CHECKBOX=$(./hweb-poc --session "$SESSION_NAME" --js "document.querySelecto
 verify_value "$FORM_CHECKBOX" "true" "Form checkbox restoration"
 
 SCROLL_POS=$(./hweb-poc --session "$SESSION_NAME" --js "window.pageYOffset" 2>/dev/null | tail -n 1)
-if [[ "$SCROLL_POS" -gt 900 ]]; then
+if (( $(echo "$SCROLL_POS > 900" | bc -l) )); then
     echo -e "${GREEN}✓ PASS${NC}: Scroll position restored ($SCROLL_POS > 900)"
 else
     echo -e "${YELLOW}? INFO${NC}: Scroll position may not be restored ($SCROLL_POS)"
@@ -379,7 +379,7 @@ check_command "./hweb-poc --session 'nav_test' --end" "End navigation test"
 # Test 11: Screenshot Functionality
 echo "=== Test 11: Screenshot Functionality ==="
 
-check_command "./hweb-poc --session 'screenshot_test' --url 'file://$LOCAL_TEST_FILE'" "Setup for screenshot"
+check_command "./hweb-poc --session 'screenshot_test' --url 'file://$LOCAL_TEST_FILE' --width 1000" "Setup for screenshot"
 
 # Test visible area screenshot
 check_command "./hweb-poc --session 'screenshot_test' --screenshot 'test_visible.png'" "Visible area screenshot"

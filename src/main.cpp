@@ -33,6 +33,7 @@ void print_usage() {
     std::cerr << "  --list               List all sessions" << std::endl;
     std::cerr << "  --debug              Enable debug output" << std::endl;
     std::cerr << "  --user-agent <ua>    Set custom user agent" << std::endl;
+    std::cerr << "  --width <px>         Set browser width (default: 1000)" << std::endl;
     std::cerr << std::endl;
     std::cerr << "Commands (can be chained):" << std::endl;
     std::cerr << "  --type <selector> <text>     Type text into element" << std::endl;
@@ -93,6 +94,7 @@ int main(int argc, char* argv[]) {
     std::string sessionName, url;
     bool endSession = false;
     bool listSessions = false;
+    int browser_width = 1000;
     std::vector<Command> commands;
 
     // Parse arguments
@@ -107,6 +109,8 @@ int main(int argc, char* argv[]) {
             listSessions = true;
         } else if (args[i] == "--debug") {
             g_debug = true;
+        } else if (args[i] == "--width" && i + 1 < args.size()) {
+            browser_width = std::stoi(args[++i]);
         } else if (args[i] == "--user-agent" && i + 1 < args.size()) {
             commands.push_back({"user-agent", "", args[++i]});
         } else if (args[i] == "--type" && i + 2 < args.size()) {
@@ -204,6 +208,7 @@ int main(int argc, char* argv[]) {
     // Create browser only if we need it
     if (!url.empty() || !commands.empty() || !session.getCurrentUrl().empty()) {
         Browser browser;
+        browser.setViewport(browser_width, 800); // Default height
         
         // Determine navigation strategy
         bool should_navigate = false;
