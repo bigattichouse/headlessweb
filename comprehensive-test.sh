@@ -376,6 +376,40 @@ check_command "./hweb-poc --session 'nav_test' --reload" "Reload page"
 
 check_command "./hweb-poc --session 'nav_test' --end" "End navigation test"
 
+# Test 11: Screenshot Functionality
+echo "=== Test 11: Screenshot Functionality ==="
+
+check_command "./hweb-poc --session 'screenshot_test' --url 'file://$LOCAL_TEST_FILE'" "Setup for screenshot"
+
+# Test visible area screenshot
+check_command "./hweb-poc --session 'screenshot_test' --screenshot 'test_visible.png'" "Visible area screenshot"
+if [[ -f "test_visible.png" ]]; then
+    echo -e "${GREEN}✓ SUCCESS${NC}: Screenshot file created"
+    rm -f test_visible.png
+else
+    echo -e "${RED}✗ FAIL${NC}: Screenshot file not created"
+fi
+
+# Test full page screenshot
+check_command "./hweb-poc --session 'screenshot_test' --screenshot-full 'test_full.png'" "Full page screenshot"
+if [[ -f "test_full.png" ]]; then
+    echo -e "${GREEN}✓ SUCCESS${NC}: Full page screenshot file created"
+    rm -f test_full.png
+else
+    echo -e "${RED}✗ FAIL${NC}: Full page screenshot file not created"
+fi
+
+# Test default filename
+check_command "./hweb-poc --session 'screenshot_test' --screenshot" "Screenshot with default filename"
+if [[ -f "screenshot.png" ]]; then
+    echo -e "${GREEN}✓ SUCCESS${NC}: Default screenshot created"
+    rm -f screenshot.png
+else
+    echo -e "${RED}✗ FAIL${NC}: Default screenshot not created"
+fi
+
+check_command "./hweb-poc --session 'screenshot_test' --end" "End screenshot test"
+
 # Final cleanup
 echo "=== Final Cleanup ==="
 cleanup
@@ -395,6 +429,7 @@ echo "✓ Multiple session management and isolation"
 echo "✓ Advanced JavaScript and DOM queries"
 echo "✓ Debug mode functionality"
 echo "✓ Navigation commands (back, forward, reload)"
+echo "✓ Screenshot functionality (visible area and full page)"
 echo ""
 echo "Note: Some features may show warnings due to:"
 echo "- Browser security restrictions (sessionStorage on file:// URLs)"

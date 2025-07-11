@@ -1,6 +1,7 @@
 #include "Browser.h"
 #include <gtk/gtk.h>
 #include <webkit/webkit.h>
+#include <cairo/cairo.h>
 #include <unistd.h>
 #include <glib.h>
 #include <iostream>
@@ -1138,7 +1139,129 @@ std::string Browser::getElementHtml(const std::string& selector) {
 }
 
 void Browser::takeScreenshot(const std::string& filename) {
-    std::cout << "Screenshot functionality not implemented in this version" << std::endl;
+    try {
+        // Ensure we have a valid webView
+        if (!webView) {
+            std::cerr << "Error: WebView not initialized for screenshot" << std::endl;
+            return;
+        }
+        
+        // Wait for any pending operations
+        wait(500);
+        
+        // Create a cairo surface to capture the screenshot
+        WebKitSnapshotOptions options = WEBKIT_SNAPSHOT_OPTIONS_NONE;
+        
+        // We'll use the async API with a callback
+        operation_completed = false;
+        
+        webkit_web_view_get_snapshot(webView,
+            WEBKIT_SNAPSHOT_REGION_VISIBLE,  // Just visible area for now
+            options,
+            NULL,  // cancellable
+            [](GObject* source_object, GAsyncResult* res, gpointer user_data) {
+                GError* error = NULL;
+                cairo_surface_t* surface = webkit_web_view_get_snapshot_finish(
+                    WEBKIT_WEB_VIEW(source_object), res, &error);
+                
+                if (error) {
+                    std::cerr << "Error taking screenshot: " << error->message << std::endl;
+                    g_error_free(error);
+                } else if (surface) {
+                    const char* filename = static_cast<const char*>(user_data);
+                    
+                    // Save the surface as PNG
+                    cairo_status_t status = cairo_surface_write_to_png(surface, filename);
+                    
+                    if (status == CAIRO_STATUS_SUCCESS) {
+                        std::cout << "Screenshot saved to: " << filename << std::endl;
+                    } else {
+                        std::cerr << "Error saving screenshot: " << cairo_status_to_string(status) << std::endl;
+                    }
+                    
+                    cairo_surface_destroy(surface);
+                }
+                
+                // Mark operation as completed
+                Browser* browser = static_cast<Browser*>(g_object_get_data(G_OBJECT(source_object), "browser-instance"));
+                if (browser) {
+                    browser->operation_completed = true;
+                }
+            },
+            const_cast<char*>(filename.c_str())
+        );
+        
+        // Wait for the screenshot to complete
+        if (!waitForJavaScriptCompletion(5000)) {
+            std::cerr << "Screenshot operation timed out" << std::endl;
+        }
+        
+    } catch (const std::exception& e) {
+        std::cerr << "Exception during screenshot: " << e.what() << std::endl;
+    }
+}
+
+void Browser::takeFullPageScreenshot(const std::string& filename) {
+    try {
+        // Ensure we have a valid webView
+        if (!webView) {
+            std::cerr << "Error: WebView not initialized for screenshot" << std::endl;
+            return;
+        }
+        
+        // Wait for any pending operations
+        wait(500);
+        
+        // Create a cairo surface to capture the screenshot
+        WebKitSnapshotOptions options = WEBKIT_SNAPSHOT_OPTIONS_NONE;
+        
+        // We'll use the async API with a callback
+        operation_completed = false;
+        
+        webkit_web_view_get_snapshot(webView,
+            WEBKIT_SNAPSHOT_REGION_FULL_DOCUMENT,  // Full document
+            options,
+            NULL,  // cancellable
+            [](GObject* source_object, GAsyncResult* res, gpointer user_data) {
+                GError* error = NULL;
+                cairo_surface_t* surface = webkit_web_view_get_snapshot_finish(
+                    WEBKIT_WEB_VIEW(source_object), res, &error);
+                
+                if (error) {
+                    std::cerr << "Error taking full page screenshot: " << error->message << std::endl;
+                    g_error_free(error);
+                } else if (surface) {
+                    const char* filename = static_cast<const char*>(user_data);
+                    
+                    // Save the surface as PNG
+                    cairo_status_t status = cairo_surface_write_to_png(surface, filename);
+                    
+                    if (status == CAIRO_STATUS_SUCCESS) {
+                        std::cout << "Full page screenshot saved to: " << filename << std::endl;
+                    } else {
+                        std::cerr << "Error saving full page screenshot: " << cairo_status_to_string(status) << std::endl;
+                    }
+                    
+                    cairo_surface_destroy(surface);
+                }
+                
+                // Mark operation as completed
+                Browser* browser = static_cast<Browser*>(g_object_get_data(G_OBJECT(source_object), "browser-instance"));
+                if (browser) {
+                    browser->operation_completed = true;
+                }
+            },
+            const_cast<char*>(filename.c_str())
+        );
+        
+        // Wait for the screenshot to complete
+        if (!waitForJavaScriptCompletion(5000)) {
+            std::cerr << "Full page screenshot operation timed out" << std::endl;
+        }
+        
+    } catch (const std::exception& e) {
+        std::cerr << "Exception during full page screenshot: " << e.what() << std::endl;
+    }
 }
 
 std::string Browser::getPageSource() {

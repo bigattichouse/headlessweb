@@ -109,6 +109,7 @@ public:
     // Advanced operations
     bool executeActionSequence(const std::vector<Session::RecordedAction>& actions);
     void takeScreenshot(const std::string& filename);
+    void takeFullPageScreenshot(const std::string& filename);
     std::string getPageSource();
     
     // Element queries

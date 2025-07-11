@@ -65,7 +65,8 @@ void print_usage() {
     std::cerr << "  --count <selector>           Count matching elements" << std::endl;
     std::cerr << "  --html <selector>            Get element HTML" << std::endl;
     std::cerr << "  --attr <sel> <attr>          Get attribute value" << std::endl;
-    std::cerr << "  --screenshot [file]          Take screenshot" << std::endl;
+    std::cerr << "  --screenshot [file]          Take screenshot (default: screenshot.png)" << std::endl;
+    std::cerr << "  --screenshot-full [f]        Take full page screenshot" << std::endl;
     std::cerr << "  --extract <n> <js>        Add custom state extractor" << std::endl;
     std::cerr << "  --record-start               Start recording actions" << std::endl;
     std::cerr << "  --record-stop                Stop recording actions" << std::endl;
@@ -168,6 +169,9 @@ int main(int argc, char* argv[]) {
         } else if (args[i] == "--screenshot") {
             std::string filename = (i + 1 < args.size() && args[i+1][0] != '-') ? args[++i] : "screenshot.png";
             commands.push_back({"screenshot", filename, ""});
+        } else if (args[i] == "--screenshot-full") {
+            std::string filename = (i + 1 < args.size() && args[i+1][0] != '-') ? args[++i] : "screenshot-full.png";
+            commands.push_back({"screenshot-full", filename, ""});
         } else if (args[i] == "--extract" && i + 2 < args.size()) {
             commands.push_back({"extract", args[i+1], args[i+2]});
             i += 2;
@@ -468,6 +472,9 @@ int main(int argc, char* argv[]) {
             } else if (cmd.type == "screenshot") {
                 browser.takeScreenshot(cmd.selector);
                 info_output("Screenshot saved to " + cmd.selector);
+            } else if (cmd.type == "screenshot-full") {
+                browser.takeFullPageScreenshot(cmd.selector);
+                info_output("Full page screenshot saved to " + cmd.selector);
             } else if (cmd.type == "extract") {
                 session.addStateExtractor(cmd.selector, cmd.value);
                 info_output("Added state extractor '" + cmd.selector + "'");
