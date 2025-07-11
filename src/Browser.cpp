@@ -11,16 +11,6 @@
 #include <thread>
 #include <chrono>
 
-// External debug flag
-extern bool g_debug;
-
-// Debug output function
-void debug_output(const std::string& message) {
-    if (g_debug) {
-        std::cerr << "Debug: " << message << std::endl;
-    }
-}
-
 // Callback for JavaScript evaluation
 static void js_eval_callback(GObject* object, GAsyncResult* res, gpointer user_data) {
     GError* error = NULL;

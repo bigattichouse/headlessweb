@@ -304,6 +304,7 @@ CMakeFiles/hweb-poc.dir/src/main.cpp.o: \
  /usr/include/jsoncpp/json/writer.h /usr/include/c++/13/optional \
  /usr/include/c++/13/bits/enable_special_members.h \
  /home/bigattichouse/workspace/headlessweb/src/Browser.h \
+ /home/bigattichouse/workspace/headlessweb/src/Debug.h \
  /usr/include/c++/13/functional /usr/include/c++/13/bits/std_function.h \
  /usr/include/c++/13/unordered_map \
  /usr/include/c++/13/bits/unordered_map.h \

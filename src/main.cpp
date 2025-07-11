@@ -6,6 +6,7 @@
 #include <glib.h>
 #include "SessionManager.h"
 #include "Browser.h"
+#include "Debug.h"
 
 struct Command {
     std::string type;
@@ -14,18 +15,9 @@ struct Command {
     int timeout = 10000;
 };
 
-// Global debug flag
-bool g_debug = false;
-
 // Helper functions for output control
 void info_output(const std::string& message) {
     std::cerr << message << std::endl;  // Always show info messages
-}
-
-void debug_output(const std::string& message) {
-    if (g_debug) {
-        std::cerr << "Debug: " << message << std::endl;
-    }
 }
 
 void error_output(const std::string& message) {

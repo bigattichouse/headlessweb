@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Session.h"
+#include "Debug.h"
 #include <string>
 #include <functional>
 #include <map>
