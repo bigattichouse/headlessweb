@@ -6,7 +6,11 @@
 #include <functional>
 #include <map>
 #include <set>
+#include <memory>
+#include <vector>
 #include <json/json.h>
+#include <glib.h> // Include glib.h for GMainLoop
+#include <algorithm> // For std::remove_if
 
 // Forward declarations for GTK and WebKit types
 typedef struct _GtkWidget GtkWidget;
@@ -14,11 +18,39 @@ typedef struct _WebKitWebView WebKitWebView;
 typedef struct _WebKitCookieManager WebKitCookieManager;
 
 class Browser {
+private:
+    // Event management structures
+    struct EventWaiter {
+        std::string event_type;
+        std::string condition;
+        std::function<void(bool)> callback;
+        guint timeout_id;
+        bool completed;
+    };
+    
+    struct SignalWaiter {
+        gulong signal_id;
+        std::string signal_name;
+        std::function<void()> callback;
+        bool completed;
+        guint timeout_id;
+    };
+    
+    std::vector<std::unique_ptr<EventWaiter>> active_waiters;
+    std::vector<std::unique_ptr<SignalWaiter>> signal_waiters;
+    
+    // JavaScript event helpers
+    std::string setupDOMObserver(const std::string& selector, int timeout_ms);
+    std::string setupVisibilityObserver(const std::string& selector, int timeout_ms);
+    std::string setupNavigationObserver(int timeout_ms);
+    std::string setupConditionObserver(const std::string& condition, int timeout_ms);
+    
+    void setupSignalHandlers();
+    void cleanupWaiters();
+
 public:
     GtkWidget* window;
     WebKitWebView* webView;
-    bool operation_completed;
-
     Browser();
     ~Browser();
 
@@ -33,6 +65,12 @@ public:
     // JavaScript execution
     void executeJavascript(const std::string& script, std::string* result = nullptr);
     bool waitForJavaScriptCompletion(int timeout_ms = 5000);
+
+    // PUBLIC NOTIFICATION METHODS FOR SIGNAL HANDLERS
+    void notifyNavigationComplete();
+    void notifyUriChanged();
+    void notifyTitleChanged();
+    void notifyReadyToShow();
 
     // Session state management
     void restoreSession(const Session& session);
@@ -71,7 +109,15 @@ public:
     std::map<std::string, std::pair<int, int>> extractAllScrollPositions();
     void restoreScrollPositions(const std::map<std::string, std::pair<int, int>>& positions);
     
-    // Dynamic content waiting
+    // Event-driven waiting methods (NEW)
+    bool waitForSelectorEvent(const std::string& selector, int timeout_ms);
+    bool waitForNavigationEvent(int timeout_ms);
+    bool waitForNavigationSignal(int timeout_ms);
+    bool waitForVisibilityEvent(const std::string& selector, int timeout_ms);
+    bool waitForConditionEvent(const std::string& js_condition, int timeout_ms);
+    bool waitForPageReadyEvent(int timeout_ms);
+    
+    // Dynamic content waiting (UPDATED to use events)
     bool waitForPageReady(const Session& session);
     bool waitForSelector(const std::string& selector, int timeout_ms);
     bool waitForJsCondition(const std::string& condition, int timeout_ms);
@@ -92,11 +138,10 @@ public:
     void setUserAgent(const std::string& userAgent);
 
     // Helper methods
-    bool isOperationCompleted() const;
     std::string getInnerText(const std::string& selector);
     std::string getFirstNonEmptyText(const std::string& selector);
     
-    // Form operations
+    // Form operations (ENHANCED with event waiting)
     bool fillInput(const std::string& selector, const std::string& value);
     bool clickElement(const std::string& selector);
     bool submitForm(const std::string& form_selector = "form");
@@ -125,12 +170,15 @@ public:
     bool isFileUrl(const std::string& url) const;
     bool validateFileUrl(const std::string& url) const;
 
-private:
+    void wait(int milliseconds); // Blocking wait
+
+protected:
     WebKitCookieManager* cookieManager;
     std::string sessionDataPath;
     std::string js_result_buffer;  // Buffer for JavaScript results
+public:
+    GMainLoop* main_loop; // For synchronous operations
     
     void initializeDataManager(const std::string& sessionName);
     std::string executeJavascriptSync(const std::string& script);
-    void wait(int milliseconds);
 };

@@ -66,13 +66,15 @@ void print_usage() {
     std::cerr << "  --replay <n>              Replay recorded actions" << std::endl;
 }
 
-void wait_for_completion(Browser& browser, int timeout_ms) {
-    int elapsed_time = 0;
-    while (!browser.isOperationCompleted() && elapsed_time < timeout_ms) {
-        g_main_context_iteration(g_main_context_default(), FALSE);
-        g_usleep(10 * 1000);
-        elapsed_time += 10;
-    }
+// Event-driven navigation waiting - replaces the polling wait_for_completion
+bool wait_for_navigation_complete(Browser& browser, int timeout_ms) {
+    // Use the new event-driven navigation waiting
+    return browser.waitForNavigationSignal(timeout_ms);
+}
+
+// Event-driven page ready waiting
+bool wait_for_page_ready(Browser& browser, int timeout_ms) {
+    return browser.waitForPageReadyEvent(timeout_ms);
 }
 
 void list_sessions(SessionManager& sessionManager) {
@@ -241,10 +243,17 @@ int main(int argc, char* argv[]) {
         // Navigate if we determined we should
         if (should_navigate) {
             browser.loadUri(navigation_url);
-            wait_for_completion(browser, 15000);  // Increased timeout for file URLs
             
-            // Wait a bit more for the page to stabilize
-            browser.waitForPageStabilization(2000);
+            // Use event-driven navigation waiting instead of polling
+            if (!wait_for_navigation_complete(browser, 15000)) {
+                error_output("Navigation timeout for: " + navigation_url);
+                return 1;
+            }
+            
+            // Use event-driven page ready waiting
+            if (!wait_for_page_ready(browser, 5000)) {
+                info_output("Warning: Page may not be fully ready, continuing...");
+            }
             
             if (!url.empty()) {
                 // Only update history if URL was explicitly provided
@@ -298,10 +307,15 @@ int main(int argc, char* argv[]) {
             } else if (cmd.type == "back") {
                 if (session.canGoBack()) {
                     browser.goBack();
-                    wait_for_completion(browser, 5000);
-                    session.setHistoryIndex(session.getHistoryIndex() - 1);
-                    info_output("Navigated back");
-                    navigation_expected = true;
+                    // Use event-driven navigation waiting
+                    if (wait_for_navigation_complete(browser, 5000)) {
+                        session.setHistoryIndex(session.getHistoryIndex() - 1);
+                        info_output("Navigated back");
+                        navigation_expected = true;
+                    } else {
+                        error_output("Back navigation timeout");
+                        exit_code = 1;
+                    }
                 } else {
                     error_output("Cannot go back - no history");
                     exit_code = 1;
@@ -309,25 +323,33 @@ int main(int argc, char* argv[]) {
             } else if (cmd.type == "forward") {
                 if (session.canGoForward()) {
                     browser.goForward();
-                    wait_for_completion(browser, 5000);
-                    session.setHistoryIndex(session.getHistoryIndex() + 1);
-                    info_output("Navigated forward");
-                    navigation_expected = true;
+                    // Use event-driven navigation waiting
+                    if (wait_for_navigation_complete(browser, 5000)) {
+                        session.setHistoryIndex(session.getHistoryIndex() + 1);
+                        info_output("Navigated forward");
+                        navigation_expected = true;
+                    } else {
+                        error_output("Forward navigation timeout");
+                        exit_code = 1;
+                    }
                 } else {
                     error_output("Cannot go forward - at end of history");
                     exit_code = 1;
                 }
             } else if (cmd.type == "reload") {
                 browser.reload();
-                wait_for_completion(browser, 5000);
-                info_output("Page reloaded");
+                // Use event-driven navigation waiting for reload
+                if (wait_for_navigation_complete(browser, 5000)) {
+                    info_output("Page reloaded");
+                } else {
+                    info_output("Reload timeout, but page may have loaded");
+                }
             } else if (cmd.type == "user-agent") {
                 browser.setUserAgent(cmd.value);
                 session.setUserAgent(cmd.value);
                 info_output("Set user agent to: " + cmd.value);
             } else if (cmd.type == "type") {
-                // Wait for page to be ready before typing
-                browser.waitForPageStabilization(1000);
+                // No need for page stabilization - the new fillInput method handles element waiting
                 if (browser.fillInput(cmd.selector, cmd.value)) {
                     info_output("Typed into " + cmd.selector);
                 } else {
@@ -335,6 +357,7 @@ int main(int argc, char* argv[]) {
                     // Don't fail the whole script for form failures
                 }
             } else if (cmd.type == "click") {
+                // The new clickElement method handles element waiting and visibility
                 if (browser.clickElement(cmd.selector)) {
                     info_output("Clicked " + cmd.selector);
                     navigation_expected = true;
@@ -350,14 +373,13 @@ int main(int argc, char* argv[]) {
                     error_output("Failed to submit form " + cmd.selector);
                 }
             } else if (cmd.type == "select") {
-                browser.waitForPageStabilization(1000);
+                // No page stabilization needed - let the event-driven method handle it
                 if (browser.selectOption(cmd.selector, cmd.value)) {
                     info_output("Selected '" + cmd.value + "' in " + cmd.selector);
                 } else {
                     error_output("Failed to select option in " + cmd.selector);
                 }
             } else if (cmd.type == "check") {
-                browser.waitForPageStabilization(1000);
                 if (browser.checkElement(cmd.selector)) {
                     info_output("Checked " + cmd.selector);
                 } else {
@@ -376,6 +398,7 @@ int main(int argc, char* argv[]) {
                     error_output("Failed to focus " + cmd.selector);
                 }
             } else if (cmd.type == "wait") {
+                // Now uses event-driven waiting automatically
                 if (browser.waitForSelector(cmd.selector, cmd.timeout)) {
                     info_output("Element " + cmd.selector + " appeared");
                 } else {
@@ -383,6 +406,7 @@ int main(int argc, char* argv[]) {
                     exit_code = 1;
                 }
             } else if (cmd.type == "wait-nav") {
+                // Use event-driven navigation waiting
                 if (browser.waitForNavigation(cmd.timeout)) {
                     info_output("Navigation completed");
                 } else {
@@ -404,6 +428,7 @@ int main(int argc, char* argv[]) {
                 session.addReadyCondition(condition);
                 
                 if (condition.type == PageReadyCondition::SELECTOR) {
+                    // Now uses event-driven waiting automatically
                     if (browser.waitForSelector(cmd.selector, condition.timeout)) {
                         info_output("Ready condition met: " + cmd.selector);
                     } else {
@@ -411,6 +436,7 @@ int main(int argc, char* argv[]) {
                         exit_code = 1;
                     }
                 } else {
+                    // Now uses event-driven condition waiting automatically
                     if (browser.waitForJsCondition(cmd.selector, condition.timeout)) {
                         info_output("Ready condition met: " + cmd.selector);
                     } else {
@@ -442,7 +468,8 @@ int main(int argc, char* argv[]) {
             } else if (cmd.type == "js") {
                 std::string result;
                 browser.executeJavascript(cmd.value, &result);
-                wait_for_completion(browser, 5000);
+                // Use event-driven completion waiting
+                browser.waitForJavaScriptCompletion(5000);
                 
                 // Output ONLY the JavaScript result to stdout
                 std::cout << result << std::endl;
@@ -499,9 +526,9 @@ int main(int argc, char* argv[]) {
                 }
             }
             
-            // Handle navigation updates
+            // Handle navigation updates using event-driven detection
             if (navigation_expected) {
-                // Give navigation time to complete
+                // Use event-driven page stabilization
                 browser.waitForPageStabilization(2000);
                 std::string new_url = browser.getCurrentUrl();
                 if (new_url != session.getCurrentUrl() && !new_url.empty()) {
@@ -540,7 +567,7 @@ int main(int argc, char* argv[]) {
             while (g_main_context_pending(g_main_context_default())) {
                 g_main_context_iteration(g_main_context_default(), FALSE);
             }
-            g_usleep(10 * 1000); // 10ms
+            browser.wait(10); // 10ms
         }
 
         return exit_code;

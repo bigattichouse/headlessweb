@@ -96,7 +96,6 @@ hweb-poc: \
   /lib/i386-linux-gnu/libepoxy.so.0 \
   /usr/lib/i386-linux-gnu/libepoxy.so.0 \
   /lib/x86_64-linux-gnu/libepoxy.so.0 \
-  /lib/x86_64-linux-gnu/libm.so.6 \
   /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/libgraphene-1.0.so \
   /lib/i386-linux-gnu/libXi.so.6 \
   /usr/lib/i386-linux-gnu/libXi.so.6 \
@@ -638,8 +637,6 @@ CMakeFiles/hweb-poc.dir/src/Browser.cpp.o:
 /usr/lib/i386-linux-gnu/libepoxy.so.0:
 
 /lib/x86_64-linux-gnu/libepoxy.so.0:
-
-/lib/x86_64-linux-gnu/libm.so.6:
 
 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/libgraphene-1.0.so:
 
