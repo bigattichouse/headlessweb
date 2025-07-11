@@ -1,6 +1,7 @@
 #include "Browser.h"
 #include <gtk/gtk.h>
 #include <webkit/webkit.h>
+#include <gdk/gdk.h>
 #include <cairo/cairo.h>
 #include <unistd.h>
 #include <glib.h>
@@ -1161,25 +1162,25 @@ void Browser::takeScreenshot(const std::string& filename) {
             NULL,  // cancellable
             [](GObject* source_object, GAsyncResult* res, gpointer user_data) {
                 GError* error = NULL;
-                cairo_surface_t* surface = webkit_web_view_get_snapshot_finish(
+                GdkTexture* texture = webkit_web_view_get_snapshot_finish(
                     WEBKIT_WEB_VIEW(source_object), res, &error);
                 
                 if (error) {
                     std::cerr << "Error taking screenshot: " << error->message << std::endl;
                     g_error_free(error);
-                } else if (surface) {
+                } else if (texture) {
                     const char* filename = static_cast<const char*>(user_data);
                     
-                    // Save the surface as PNG
-                    cairo_status_t status = cairo_surface_write_to_png(surface, filename);
+                    // Save the texture as PNG using GDK
+                    gboolean success = gdk_texture_save_to_png(texture, filename);
                     
-                    if (status == CAIRO_STATUS_SUCCESS) {
+                    if (success) {
                         std::cout << "Screenshot saved to: " << filename << std::endl;
                     } else {
-                        std::cerr << "Error saving screenshot: " << cairo_status_to_string(status) << std::endl;
+                        std::cerr << "Error saving screenshot" << std::endl;
                     }
                     
-                    cairo_surface_destroy(surface);
+                    g_object_unref(texture);
                 }
                 
                 // Mark operation as completed
@@ -1224,25 +1225,25 @@ void Browser::takeFullPageScreenshot(const std::string& filename) {
             NULL,  // cancellable
             [](GObject* source_object, GAsyncResult* res, gpointer user_data) {
                 GError* error = NULL;
-                cairo_surface_t* surface = webkit_web_view_get_snapshot_finish(
+                GdkTexture* texture = webkit_web_view_get_snapshot_finish(
                     WEBKIT_WEB_VIEW(source_object), res, &error);
                 
                 if (error) {
                     std::cerr << "Error taking full page screenshot: " << error->message << std::endl;
                     g_error_free(error);
-                } else if (surface) {
+                } else if (texture) {
                     const char* filename = static_cast<const char*>(user_data);
                     
-                    // Save the surface as PNG
-                    cairo_status_t status = cairo_surface_write_to_png(surface, filename);
+                    // Save the texture as PNG using GDK
+                    gboolean success = gdk_texture_save_to_png(texture, filename);
                     
-                    if (status == CAIRO_STATUS_SUCCESS) {
+                    if (success) {
                         std::cout << "Full page screenshot saved to: " << filename << std::endl;
                     } else {
-                        std::cerr << "Error saving full page screenshot: " << cairo_status_to_string(status) << std::endl;
+                        std::cerr << "Error saving full page screenshot" << std::endl;
                     }
                     
-                    cairo_surface_destroy(surface);
+                    g_object_unref(texture);
                 }
                 
                 // Mark operation as completed
