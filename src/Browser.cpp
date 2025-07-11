@@ -9,6 +9,16 @@
 #include <thread>
 #include <chrono>
 
+// External debug flag
+extern bool g_debug;
+
+// Debug output function
+void debug_output(const std::string& message) {
+    if (g_debug) {
+        std::cerr << "Debug: " << message << std::endl;
+    }
+}
+
 // Callback for JavaScript evaluation
 static void js_eval_callback(GObject* object, GAsyncResult* res, gpointer user_data) {
     GError* error = NULL;
@@ -260,7 +270,7 @@ void Browser::restoreSession(const Session& session) {
         
         // Navigate to current URL if present and not already there
         if (!session.getCurrentUrl().empty() && session.getCurrentUrl() != getCurrentUrl()) {
-            std::cerr << "Debug: Loading URL: " << session.getCurrentUrl() << std::endl;
+            debug_output("Loading URL: " + session.getCurrentUrl());
             loadUri(session.getCurrentUrl());
             
             // Wait for load with longer timeout
@@ -279,7 +289,7 @@ void Browser::restoreSession(const Session& session) {
                 return;
             }
             
-            std::cerr << "Debug: Page loaded successfully" << std::endl;
+            debug_output("Page loaded successfully");
         }
         
         // Only restore state if page loaded successfully
@@ -293,7 +303,7 @@ void Browser::restoreSession(const Session& session) {
         bool isFileUrl = session.getCurrentUrl().find("file://") == 0;
         
         // Restore state step by step with error handling
-        std::cerr << "Debug: Starting state restoration..." << std::endl;
+        debug_output("Starting state restoration...");
         
         // Cookies
         try {
@@ -302,7 +312,7 @@ void Browser::restoreSession(const Session& session) {
                     setCookie(cookie);
                 }
                 wait(500);
-                std::cerr << "Debug: Restored " << session.getCookies().size() << " cookies" << std::endl;
+                debug_output("Restored " + std::to_string(session.getCookies().size()) + " cookies");
             }
         } catch (const std::exception& e) {
             std::cerr << "Warning: Failed to restore cookies: " << e.what() << std::endl;
@@ -314,31 +324,31 @@ void Browser::restoreSession(const Session& session) {
                 if (!session.getLocalStorage().empty()) {
                     setLocalStorage(session.getLocalStorage());
                     wait(500);
-                    std::cerr << "Debug: Restored localStorage" << std::endl;
+                    debug_output("Restored localStorage");
                 }
                 
                 if (!session.getSessionStorage().empty()) {
                     setSessionStorage(session.getSessionStorage());
                     wait(500);
-                    std::cerr << "Debug: Restored sessionStorage" << std::endl;
+                    debug_output("Restored sessionStorage");
                 }
             } catch (const std::exception& e) {
                 std::cerr << "Warning: Failed to restore storage: " << e.what() << std::endl;
             }
         } else {
-            std::cerr << "Debug: Skipping storage restoration for file:// URL" << std::endl;
+            debug_output("Skipping storage restoration for file:// URL");
         }
         
         // Form state
         try {
             if (!session.getFormFields().empty()) {
-                std::cerr << "Debug: Restoring " << session.getFormFields().size() << " form fields" << std::endl;
+                debug_output("Restoring " + std::to_string(session.getFormFields().size()) + " form fields");
                 for (const auto& field : session.getFormFields()) {
-                    std::cerr << "  Restoring: " << field.selector << " = " << field.value << " (checked: " << field.checked << ")" << std::endl;
+                    debug_output("  Restoring: " + field.selector + " = " + field.value + " (checked: " + std::to_string(field.checked) + ")");
                 }
                 restoreFormState(session.getFormFields());
                 wait(500);
-                std::cerr << "Debug: Restored form state" << std::endl;
+                debug_output("Restored form state");
             }
         } catch (const std::exception& e) {
             std::cerr << "Warning: Failed to restore form state: " << e.what() << std::endl;
@@ -349,7 +359,7 @@ void Browser::restoreSession(const Session& session) {
             if (!session.getAllScrollPositions().empty()) {
                 restoreScrollPositions(session.getAllScrollPositions());
                 wait(500);
-                std::cerr << "Debug: Restored scroll positions" << std::endl;
+                debug_output("Restored scroll positions");
             }
         } catch (const std::exception& e) {
             std::cerr << "Warning: Failed to restore scroll positions: " << e.what() << std::endl;
@@ -357,7 +367,7 @@ void Browser::restoreSession(const Session& session) {
         
         // Final wait for everything to settle
         wait(1000);
-        std::cerr << "Debug: Session restoration complete" << std::endl;
+        debug_output("Session restoration complete");
         
     } catch (const std::exception& e) {
         std::cerr << "Error in session restoration: " << e.what() << std::endl;
@@ -407,9 +417,11 @@ void Browser::updateSessionState(Session& session) {
             // Cookies - try but don't fail if it doesn't work
             try {
                 getCookiesAsync([&session](std::vector<Cookie> cookies) {
-                    std::cerr << "Debug: Extracted " << cookies.size() << " cookies" << std::endl;
-                    for (const auto& cookie : cookies) {
-                        std::cerr << "  Cookie: " << cookie.name << " = " << cookie.value << std::endl;
+                    if (g_debug) {
+                        std::cerr << "Debug: Extracted " << cookies.size() << " cookies" << std::endl;
+                        for (const auto& cookie : cookies) {
+                            std::cerr << "  Cookie: " << cookie.name << " = " << cookie.value << std::endl;
+                        }
                     }
                     session.setCookies(cookies);
                 });
@@ -440,9 +452,9 @@ void Browser::updateSessionState(Session& session) {
                 if (formTest != "error" && !formTest.empty()) {
                     auto formFields = extractFormState();
                     session.setFormFields(formFields);
-                    std::cerr << "Debug: Extracted " << formFields.size() << " form fields" << std::endl;
+                    debug_output("Extracted " + std::to_string(formFields.size()) + " form fields");
                     for (const auto& field : formFields) {
-                        std::cerr << "  Field: " << field.selector << " = " << field.value << " (checked: " << field.checked << ")" << std::endl;
+                        debug_output("  Field: " + field.selector + " = " + field.value + " (checked: " + std::to_string(field.checked) + ")");
                     }
                 }
             } catch (const std::exception& e) {
@@ -459,10 +471,10 @@ void Browser::updateSessionState(Session& session) {
             // Scroll positions
             try {
                 auto scrollPositions = extractAllScrollPositions();
-                std::cerr << "Debug: Extracted scroll positions:" << std::endl;
+                debug_output("Extracted scroll positions:");
                 for (const auto& [selector, pos] : scrollPositions) {
                     session.setScrollPosition(selector, pos.first, pos.second);
-                    std::cerr << "  " << selector << ": " << pos.first << ", " << pos.second << std::endl;
+                    debug_output("  " + selector + ": " + std::to_string(pos.first) + ", " + std::to_string(pos.second));
                 }
             } catch (const std::exception& e) {
                 std::cerr << "Warning: Failed to extract scroll positions: " << e.what() << std::endl;

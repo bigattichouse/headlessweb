@@ -14,13 +14,17 @@ struct Command {
     int timeout = 10000;
 };
 
-// Global quiet flag
-bool g_quiet = false;
+// Global debug flag
+bool g_debug = false;
 
 // Helper functions for output control
 void info_output(const std::string& message) {
-    if (!g_quiet) {
-        std::cerr << message << std::endl;  // Use stderr for informational messages
+    std::cerr << message << std::endl;  // Always show info messages
+}
+
+void debug_output(const std::string& message) {
+    if (g_debug) {
+        std::cerr << "Debug: " << message << std::endl;
     }
 }
 
@@ -35,7 +39,7 @@ void print_usage() {
     std::cerr << "  --url <url>          Navigate to URL" << std::endl;
     std::cerr << "  --end                End session" << std::endl;
     std::cerr << "  --list               List all sessions" << std::endl;
-    std::cerr << "  --quiet, -q          Suppress informational messages" << std::endl;
+    std::cerr << "  --debug              Enable debug output" << std::endl;
     std::cerr << "  --user-agent <ua>    Set custom user agent" << std::endl;
     std::cerr << std::endl;
     std::cerr << "Commands (can be chained):" << std::endl;
@@ -98,7 +102,7 @@ int main(int argc, char* argv[]) {
     bool listSessions = false;
     std::vector<Command> commands;
 
-    // Parse arguments (enhanced with --quiet)
+    // Parse arguments
     for (size_t i = 0; i < args.size(); ++i) {
         if (args[i] == "--session" && i + 1 < args.size()) {
             sessionName = args[++i];
@@ -108,8 +112,8 @@ int main(int argc, char* argv[]) {
             endSession = true;
         } else if (args[i] == "--list") {
             listSessions = true;
-        } else if (args[i] == "--quiet" || args[i] == "-q") {
-            g_quiet = true;
+        } else if (args[i] == "--debug") {
+            g_debug = true;
         } else if (args[i] == "--user-agent" && i + 1 < args.size()) {
             commands.push_back({"user-agent", "", args[++i]});
         } else if (args[i] == "--type" && i + 2 < args.size()) {
@@ -519,7 +523,7 @@ int main(int argc, char* argv[]) {
         try {
             sessionManager.saveSession(session);
             
-            if (!commands.empty() && !g_quiet) {
+            if (!commands.empty()) {
                 info_output("Session '" + sessionName + "' saved.");
             }
         } catch (const std::exception& e) {
