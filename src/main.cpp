@@ -315,8 +315,8 @@ int main(int argc, char* argv[]) {
             } else if (cmd.type == "back") {
                 if (session.canGoBack()) {
                     browser.goBack();
-                    // Use event-driven navigation waiting
-                    if (wait_for_navigation_complete(browser, 5000)) {
+                    // Use specific back/forward navigation waiting
+                    if (browser.waitForBackForwardNavigation(3000)) {
                         session.setHistoryIndex(session.getHistoryIndex() - 1);
                         info_output("Navigated back");
                         navigation_expected = true;
@@ -331,8 +331,8 @@ int main(int argc, char* argv[]) {
             } else if (cmd.type == "forward") {
                 if (session.canGoForward()) {
                     browser.goForward();
-                    // Use event-driven navigation waiting
-                    if (wait_for_navigation_complete(browser, 5000)) {
+                    // Use specific back/forward navigation waiting
+                    if (browser.waitForBackForwardNavigation(3000)) {
                         session.setHistoryIndex(session.getHistoryIndex() + 1);
                         info_output("Navigated forward");
                         navigation_expected = true;

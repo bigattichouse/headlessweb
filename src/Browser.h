@@ -116,6 +116,7 @@ public:
     bool waitForSelectorEvent(const std::string& selector, int timeout_ms);
     bool waitForNavigationEvent(int timeout_ms);
     bool waitForNavigationSignal(int timeout_ms);
+    bool waitForBackForwardNavigation(int timeout_ms);
     bool waitForVisibilityEvent(const std::string& selector, int timeout_ms);
     bool waitForConditionEvent(const std::string& js_condition, int timeout_ms);
     bool waitForPageReadyEvent(int timeout_ms);

@@ -590,6 +590,34 @@ bool Browser::waitForNavigationSignal(int timeout_ms) {
     return success;
 }
 
+bool Browser::waitForBackForwardNavigation(int timeout_ms) {
+    // For back/forward navigation, URL change is more reliable than load events
+    std::string initial_url = getCurrentUrl();
+    debug_output("Waiting for back/forward navigation from: " + initial_url);
+    
+    const int check_interval = 50; // Faster checking for back/forward
+    int elapsed = 0;
+    
+    while (elapsed < timeout_ms) {
+        // Process any pending GTK events
+        while (g_main_context_pending(g_main_context_default())) {
+            g_main_context_iteration(g_main_context_default(), FALSE);
+        }
+        
+        std::string current_url = getCurrentUrl();
+        if (current_url != initial_url && !current_url.empty()) {
+            debug_output("Back/forward navigation detected: " + current_url);
+            return true;
+        }
+        
+        wait(check_interval);
+        elapsed += check_interval;
+    }
+    
+    debug_output("Back/forward navigation timeout");
+    return false;
+}
+
 bool Browser::waitForVisibilityEvent(const std::string& selector, int timeout_ms) {
     std::string observerScript = setupVisibilityObserver(selector, timeout_ms);
     
