@@ -11,6 +11,7 @@
 #include <thread>
 #include <chrono>
 #include <cmath>
+#include <stdexcept>
 
 // External debug flag
 extern bool g_debug;
@@ -697,6 +698,34 @@ void Browser::waitForPageStabilization(int timeout_ms) {
 
 // Navigation methods
 void Browser::loadUri(const std::string& uri) {
+    // Validate URL format before attempting to load
+    if (uri.empty()) {
+        throw std::invalid_argument("Error: Empty URL provided");
+    }
+    
+    // Basic URL validation
+    if (uri.find("://") == std::string::npos) {
+        throw std::invalid_argument("Error: Invalid URL format (missing protocol): " + uri);
+    }
+    
+    // Check for clearly invalid protocols
+    std::string protocol = uri.substr(0, uri.find("://"));
+    if (protocol != "http" && protocol != "https" && protocol != "file" && protocol != "ftp") {
+        // Allow some other common protocols but warn about unknown ones
+        if (protocol != "data" && protocol != "about" && protocol != "javascript") {
+            throw std::invalid_argument("Error: Invalid URL protocol '" + protocol + "': " + uri);
+        }
+    }
+    
+    // Additional validation for file URLs
+    if (protocol == "file") {
+        std::string path = uri.substr(7); // Remove "file://"
+        if (path.empty()) {
+            throw std::invalid_argument("Error: Invalid file URL (empty path): " + uri);
+        }
+    }
+    
+    debug_output("Loading URI: " + uri);
     webkit_web_view_load_uri(webView, uri.c_str());
 }
 

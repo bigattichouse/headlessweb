@@ -61,6 +61,9 @@ public:
     void goBack();
     void goForward();
     void reload();
+    
+    // URL validation
+    bool validateUrl(const std::string& url) const;
 
     // JavaScript execution
     void executeJavascript(const std::string& script, std::string* result = nullptr);

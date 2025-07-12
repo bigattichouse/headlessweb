@@ -242,29 +242,37 @@ int main(int argc, char* argv[]) {
         
         // Navigate if we determined we should
         if (should_navigate) {
-            browser.loadUri(navigation_url);
-            
-            // Use event-driven navigation waiting instead of polling
-            if (!wait_for_navigation_complete(browser, 15000)) {
-                error_output("Navigation timeout for: " + navigation_url);
+            try {
+                browser.loadUri(navigation_url);
+                
+                // Use event-driven navigation waiting instead of polling
+                if (!wait_for_navigation_complete(browser, 15000)) {
+                    error_output("Navigation timeout for: " + navigation_url);
+                    return 1;
+                }
+                
+                // Use event-driven page ready waiting
+                if (!wait_for_page_ready(browser, 5000)) {
+                    info_output("Warning: Page may not be fully ready, continuing...");
+                }
+                
+                if (!url.empty()) {
+                    // Only update history if URL was explicitly provided
+                    session.addToHistory(navigation_url);
+                    session.setCurrentUrl(navigation_url);
+                    info_output("Navigated to " + navigation_url);
+                }
+                
+                // Restore session state after navigation if needed
+                if (is_session_restore) {
+                    browser.restoreSession(session);
+                }
+            } catch (const std::invalid_argument& e) {
+                error_output(e.what());
                 return 1;
-            }
-            
-            // Use event-driven page ready waiting
-            if (!wait_for_page_ready(browser, 5000)) {
-                info_output("Warning: Page may not be fully ready, continuing...");
-            }
-            
-            if (!url.empty()) {
-                // Only update history if URL was explicitly provided
-                session.addToHistory(navigation_url);
-                session.setCurrentUrl(navigation_url);
-                info_output("Navigated to " + navigation_url);
-            }
-            
-            // Restore session state after navigation if needed
-            if (is_session_restore) {
-                browser.restoreSession(session);
+            } catch (const std::exception& e) {
+                error_output("Error: Failed to navigate to " + navigation_url + ": " + e.what());
+                return 1;
             }
         }
 
