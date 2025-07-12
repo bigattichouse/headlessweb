@@ -158,6 +158,45 @@ static void load_changed_callback(WebKitWebView* web_view, WebKitLoadEvent load_
     }
 }
 
+// Screenshot callback structure
+struct ScreenshotData {
+    std::string filename;
+    GMainLoop* loop;
+    bool success;
+};
+
+// Callback for screenshot completion
+static void screenshot_callback(GObject* source_object, GAsyncResult* res, gpointer user_data) {
+    ScreenshotData* data = static_cast<ScreenshotData*>(user_data);
+    GError* error = NULL;
+    
+    cairo_surface_t* surface = webkit_web_view_get_snapshot_finish(
+        WEBKIT_WEB_VIEW(source_object), res, &error);
+    
+    if (error) {
+        std::cerr << "Screenshot error: " << error->message << std::endl;
+        g_error_free(error);
+        data->success = false;
+    } else if (surface) {
+        // Save the surface to a PNG file
+        cairo_status_t status = cairo_surface_write_to_png(surface, data->filename.c_str());
+        if (status != CAIRO_STATUS_SUCCESS) {
+            std::cerr << "Failed to write PNG: " << cairo_status_to_string(status) << std::endl;
+            data->success = false;
+        } else {
+            data->success = true;
+        }
+        cairo_surface_destroy(surface);
+    } else {
+        std::cerr << "No surface returned from snapshot" << std::endl;
+        data->success = false;
+    }
+    
+    if (g_main_loop_is_running(data->loop)) {
+        g_main_loop_quit(data->loop);
+    }
+}
+
 Browser::Browser() : cookieManager(nullptr), main_loop(g_main_loop_new(NULL, FALSE)) {
     gtk_init();
     
@@ -1317,23 +1356,47 @@ void Browser::setUserAgent(const std::string& userAgent) {
     webkit_settings_set_user_agent(settings, userAgent.c_str());
 }
 
-// Screenshot methods
+// Screenshot methods - FIXED IMPLEMENTATION
 void Browser::takeScreenshot(const std::string& filename) {
-    // Implementation for taking screenshot
-    webkit_web_view_get_snapshot(webView, WEBKIT_SNAPSHOT_REGION_VISIBLE, 
-                                 WEBKIT_SNAPSHOT_OPTIONS_NONE, NULL, 
-                                 [](GObject* object, GAsyncResult* result, gpointer user_data) {
-        // Callback implementation
-    }, const_cast<char*>(filename.c_str()));
+    ScreenshotData data;
+    data.filename = filename;
+    data.loop = main_loop;
+    data.success = false;
+    
+    webkit_web_view_get_snapshot(webView, 
+                                WEBKIT_SNAPSHOT_REGION_VISIBLE,
+                                WEBKIT_SNAPSHOT_OPTIONS_NONE, 
+                                NULL,
+                                screenshot_callback, 
+                                &data);
+    
+    // Wait for the screenshot to complete
+    g_main_loop_run(main_loop);
+    
+    if (!data.success) {
+        std::cerr << "Failed to take screenshot" << std::endl;
+    }
 }
 
 void Browser::takeFullPageScreenshot(const std::string& filename) {
-    // Implementation for taking full page screenshot
-    webkit_web_view_get_snapshot(webView, WEBKIT_SNAPSHOT_REGION_FULL_DOCUMENT, 
-                                 WEBKIT_SNAPSHOT_OPTIONS_NONE, NULL, 
-                                 [](GObject* object, GAsyncResult* result, gpointer user_data) {
-        // Callback implementation
-    }, const_cast<char*>(filename.c_str()));
+    ScreenshotData data;
+    data.filename = filename;
+    data.loop = main_loop;
+    data.success = false;
+    
+    webkit_web_view_get_snapshot(webView, 
+                                WEBKIT_SNAPSHOT_REGION_FULL_DOCUMENT,
+                                WEBKIT_SNAPSHOT_OPTIONS_NONE, 
+                                NULL,
+                                screenshot_callback, 
+                                &data);
+    
+    // Wait for the screenshot to complete
+    g_main_loop_run(main_loop);
+    
+    if (!data.success) {
+        std::cerr << "Failed to take full page screenshot" << std::endl;
+    }
 }
 
 // Action sequence execution

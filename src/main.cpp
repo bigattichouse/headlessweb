@@ -279,6 +279,7 @@ int main(int argc, char* argv[]) {
         // Execute commands in sequence
         int exit_code = 0;
         bool state_modified = false;  // Track if any command modified page state
+        bool isHistoryNavigation = false;  // Track if we're doing back/forward navigation
         
         for (const auto& cmd : commands) {
             bool navigation_expected = false;
@@ -313,15 +314,36 @@ int main(int argc, char* argv[]) {
                     std::cout << "" << std::endl;
                 }
             } else if (cmd.type == "back") {
+                isHistoryNavigation = true;  // Mark as history navigation
                 if (session.canGoBack()) {
-                    browser.goBack();
-                    // Use specific back/forward navigation waiting
-                    if (browser.waitForBackForwardNavigation(3000)) {
-                        session.setHistoryIndex(session.getHistoryIndex() - 1);
-                        info_output("Navigated back");
-                        navigation_expected = true;
+                    // Get the target URL from session history
+                    int targetIndex = session.getHistoryIndex() - 1;
+                    const auto& history = session.getHistory();
+                    
+                    if (targetIndex >= 0 && targetIndex < static_cast<int>(history.size())) {
+                        std::string targetUrl = history[targetIndex];
+                        info_output("Navigating back to: " + targetUrl);
+                        
+                        // Navigate to the URL directly instead of using browser.goBack()
+                        browser.loadUri(targetUrl);
+                        
+                        // Wait for navigation to complete
+                        if (wait_for_navigation_complete(browser, 5000)) {
+                            // Update the history index and current URL
+                            session.setHistoryIndex(targetIndex);
+                            session.setCurrentUrl(targetUrl);
+                            info_output("Navigated back");
+                            
+                            // Restore session state after navigation
+                            browser.restoreSession(session);
+                            
+                            // IMPORTANT: Don't set navigation_expected to prevent duplicate history
+                        } else {
+                            error_output("Back navigation timeout");
+                            exit_code = 1;
+                        }
                     } else {
-                        error_output("Back navigation timeout");
+                        error_output("Invalid history index");
                         exit_code = 1;
                     }
                 } else {
@@ -329,15 +351,36 @@ int main(int argc, char* argv[]) {
                     exit_code = 1;
                 }
             } else if (cmd.type == "forward") {
+                isHistoryNavigation = true;  // Mark as history navigation
                 if (session.canGoForward()) {
-                    browser.goForward();
-                    // Use specific back/forward navigation waiting
-                    if (browser.waitForBackForwardNavigation(3000)) {
-                        session.setHistoryIndex(session.getHistoryIndex() + 1);
-                        info_output("Navigated forward");
-                        navigation_expected = true;
+                    // Get the target URL from session history
+                    int targetIndex = session.getHistoryIndex() + 1;
+                    const auto& history = session.getHistory();
+                    
+                    if (targetIndex >= 0 && targetIndex < static_cast<int>(history.size())) {
+                        std::string targetUrl = history[targetIndex];
+                        info_output("Navigating forward to: " + targetUrl);
+                        
+                        // Navigate to the URL directly instead of using browser.goForward()
+                        browser.loadUri(targetUrl);
+                        
+                        // Wait for navigation to complete
+                        if (wait_for_navigation_complete(browser, 5000)) {
+                            // Update the history index and current URL
+                            session.setHistoryIndex(targetIndex);
+                            session.setCurrentUrl(targetUrl);
+                            info_output("Navigated forward");
+                            
+                            // Restore session state after navigation
+                            browser.restoreSession(session);
+                            
+                            // IMPORTANT: Don't set navigation_expected to prevent duplicate history
+                        } else {
+                            error_output("Forward navigation timeout");
+                            exit_code = 1;
+                        }
                     } else {
-                        error_output("Forward navigation timeout");
+                        error_output("Invalid history index");
                         exit_code = 1;
                     }
                 } else {
@@ -535,7 +578,7 @@ int main(int argc, char* argv[]) {
             }
             
             // Handle navigation updates using event-driven detection
-            if (navigation_expected) {
+            if (navigation_expected && !isHistoryNavigation) {
                 // Use event-driven page stabilization
                 browser.waitForPageStabilization(2000);
                 std::string new_url = browser.getCurrentUrl();
