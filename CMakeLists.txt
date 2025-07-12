@@ -9,10 +9,12 @@ pkg_check_modules(GTK4 REQUIRED gtk4)
 pkg_check_modules(WEBKIT REQUIRED webkitgtk-6.0)
 pkg_check_modules(JSONCPP REQUIRED jsoncpp)
 pkg_check_modules(CAIRO REQUIRED cairo)
+pkg_check_modules(GDKPIXBUF REQUIRED gdk-pixbuf-2.0)
 
 
 include_directories(${WEBKIT_INCLUDE_DIRS})
 include_directories(${JSONCPP_INCLUDE_DIRS})
+include_directories(${GDKPIXBUF_INCLUDE_DIRS})
 
 add_executable(hweb-poc
     src/main.cpp
@@ -27,6 +29,7 @@ target_link_libraries(hweb-poc
     ${WEBKIT_LIBRARIES}
     ${JSONCPP_LIBRARIES}
     ${CAIRO_LIBRARIES}
+    ${GDKPIXBUF_LIBRARIES}
 )
 
 # In the target_include_directories section, add:
@@ -35,4 +38,5 @@ target_include_directories(hweb-poc PRIVATE
     ${WEBKIT_INCLUDE_DIRS}
     ${JSONCPP_INCLUDE_DIRS}
     ${CAIRO_INCLUDE_DIRS}
+    ${GDKPIXBUF_INCLUDE_DIRS}
 )

@@ -234,6 +234,15 @@ hweb-poc_SOURCE_DIR:STATIC=/home/bigattichouse/workspace/headlessweb
 pkgcfg_lib_CAIRO_cairo:FILEPATH=/usr/lib/x86_64-linux-gnu/libcairo.so
 
 //Path to a library.
+pkgcfg_lib_GDKPIXBUF_gdk_pixbuf-2.0:FILEPATH=/usr/lib/x86_64-linux-gnu/libgdk_pixbuf-2.0.so
+
+//Path to a library.
+pkgcfg_lib_GDKPIXBUF_glib-2.0:FILEPATH=/usr/lib/x86_64-linux-gnu/libglib-2.0.so
+
+//Path to a library.
+pkgcfg_lib_GDKPIXBUF_gobject-2.0:FILEPATH=/usr/lib/x86_64-linux-gnu/libgobject-2.0.so
+
+//Path to a library.
 pkgcfg_lib_GTK4_cairo:FILEPATH=/usr/lib/x86_64-linux-gnu/libcairo.so
 
 //Path to a library.
@@ -527,6 +536,41 @@ CMAKE_UNAME:INTERNAL=/usr/bin/uname
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
 //Details about finding PkgConfig
 FIND_PACKAGE_MESSAGE_DETAILS_PkgConfig:INTERNAL=[/usr/bin/pkg-config][v1.8.1()]
+GDKPIXBUF_CFLAGS:INTERNAL=-I/usr/include/gdk-pixbuf-2.0;-I/usr/include;-I/usr/include/glib-2.0;-I/usr/lib/x86_64-linux-gnu/glib-2.0/include;-I/usr/include/libpng16;-I/usr/include/x86_64-linux-gnu;-I/usr/include/webp;-pthread;-I/usr/include/libmount;-I/usr/include/blkid
+GDKPIXBUF_CFLAGS_I:INTERNAL=
+GDKPIXBUF_CFLAGS_OTHER:INTERNAL=-pthread
+GDKPIXBUF_FOUND:INTERNAL=1
+GDKPIXBUF_INCLUDEDIR:INTERNAL=/usr/include
+GDKPIXBUF_INCLUDE_DIRS:INTERNAL=/usr/include/gdk-pixbuf-2.0;/usr/include;/usr/include/glib-2.0;/usr/lib/x86_64-linux-gnu/glib-2.0/include;/usr/include/libpng16;/usr/include/x86_64-linux-gnu;/usr/include/webp;/usr/include/libmount;/usr/include/blkid
+GDKPIXBUF_LDFLAGS:INTERNAL=-L/usr/lib/x86_64-linux-gnu;-lgdk_pixbuf-2.0;-lgobject-2.0;-lglib-2.0
+GDKPIXBUF_LDFLAGS_OTHER:INTERNAL=
+GDKPIXBUF_LIBDIR:INTERNAL=/usr/lib/x86_64-linux-gnu
+GDKPIXBUF_LIBRARIES:INTERNAL=gdk_pixbuf-2.0;gobject-2.0;glib-2.0
+GDKPIXBUF_LIBRARY_DIRS:INTERNAL=/usr/lib/x86_64-linux-gnu
+GDKPIXBUF_LIBS:INTERNAL=
+GDKPIXBUF_LIBS_L:INTERNAL=
+GDKPIXBUF_LIBS_OTHER:INTERNAL=
+GDKPIXBUF_LIBS_PATHS:INTERNAL=
+GDKPIXBUF_MODULE_NAME:INTERNAL=gdk-pixbuf-2.0
+GDKPIXBUF_PREFIX:INTERNAL=/usr
+GDKPIXBUF_STATIC_CFLAGS:INTERNAL=-I/usr/include/gdk-pixbuf-2.0;-I/usr/include;-I/usr/include/glib-2.0;-I/usr/lib/x86_64-linux-gnu/glib-2.0/include;-I/usr/include/libpng16;-I/usr/include/x86_64-linux-gnu;-I/usr/include/webp;-pthread;-I/usr/include/libmount;-I/usr/include/blkid;-DLZMA_API_STATIC
+GDKPIXBUF_STATIC_CFLAGS_I:INTERNAL=
+GDKPIXBUF_STATIC_CFLAGS_OTHER:INTERNAL=-pthread;-DLZMA_API_STATIC
+GDKPIXBUF_STATIC_INCLUDE_DIRS:INTERNAL=/usr/include/gdk-pixbuf-2.0;/usr/include;/usr/include/glib-2.0;/usr/lib/x86_64-linux-gnu/glib-2.0/include;/usr/include/libpng16;/usr/include/x86_64-linux-gnu;/usr/include/webp;/usr/include/libmount;/usr/include/blkid
+GDKPIXBUF_STATIC_LDFLAGS:INTERNAL=-L/usr/lib/x86_64-linux-gnu;-lgdk_pixbuf-2.0;-lm;-lm;-pthread;-L/usr/lib/x86_64-linux-gnu;-lpcre2-8;-lffi;-L/usr/lib/x86_64-linux-gnu;-lpng16;-lm;-lz;-lm;-L/usr/lib/x86_64-linux-gnu;-L/usr/lib/x86_64-linux-gnu;-lz;-ljpeg;-ltiff;-lwebp;-lLerc;-ljbig;-lm;-L/usr/lib/x86_64-linux-gnu;-lwebp;-lm;-L/usr/lib/x86_64-linux-gnu;-lsharpyuv;-lm;-L/usr/lib;-lzstd;-pthread;-llzma;-pthread;-lpthread;-ljpeg;-ldeflate;-lm;-L/usr/lib/x86_64-linux-gnu;-lpcre2-8;-lgmodule-2.0;-pthread;-lglib-2.0;-lm;-pthread;-L/usr/lib/x86_64-linux-gnu;-lpcre2-8;-lgio-2.0;-lm;-pthread;-L/usr/lib/x86_64-linux-gnu;-lpcre2-8;-lgobject-2.0;-lglib-2.0;-lm;-pthread;-L/usr/lib/x86_64-linux-gnu;-lpcre2-8;-lffi;-L/usr/lib/x86_64-linux-gnu;-lgmodule-2.0;-pthread;-L/usr/lib/x86_64-linux-gnu;-lglib-2.0;-lm;-pthread;-L/usr/lib/x86_64-linux-gnu;-lz;-lmount;-ldl;-L/usr/lib/x86_64-linux-gnu;-lblkid;-L/usr/lib/x86_64-linux-gnu;-lsepol;-lselinux;-L/usr/lib/x86_64-linux-gnu;-lsepol;-lpcre2-8
+GDKPIXBUF_STATIC_LDFLAGS_OTHER:INTERNAL=-pthread;-pthread;-pthread;-pthread;-pthread;-pthread;-pthread;-pthread;-pthread
+GDKPIXBUF_STATIC_LIBDIR:INTERNAL=
+GDKPIXBUF_STATIC_LIBRARIES:INTERNAL=gdk_pixbuf-2.0;m;m;pcre2-8;ffi;png16;m;z;m;z;jpeg;tiff;webp;Lerc;jbig;m;webp;m;sharpyuv;m;zstd;lzma;pthread;jpeg;deflate;m;pcre2-8;gmodule-2.0;glib-2.0;m;pcre2-8;gio-2.0;m;pcre2-8;gobject-2.0;glib-2.0;m;pcre2-8;ffi;gmodule-2.0;glib-2.0;m;z;mount;dl;blkid;sepol;selinux;sepol;pcre2-8
+GDKPIXBUF_STATIC_LIBRARY_DIRS:INTERNAL=/usr/lib/x86_64-linux-gnu;/usr/lib/x86_64-linux-gnu;/usr/lib/x86_64-linux-gnu;/usr/lib/x86_64-linux-gnu;/usr/lib/x86_64-linux-gnu;/usr/lib/x86_64-linux-gnu;/usr/lib/x86_64-linux-gnu;/usr/lib;/usr/lib/x86_64-linux-gnu;/usr/lib/x86_64-linux-gnu;/usr/lib/x86_64-linux-gnu;/usr/lib/x86_64-linux-gnu;/usr/lib/x86_64-linux-gnu;/usr/lib/x86_64-linux-gnu;/usr/lib/x86_64-linux-gnu;/usr/lib/x86_64-linux-gnu;/usr/lib/x86_64-linux-gnu;/usr/lib/x86_64-linux-gnu
+GDKPIXBUF_STATIC_LIBS:INTERNAL=
+GDKPIXBUF_STATIC_LIBS_L:INTERNAL=
+GDKPIXBUF_STATIC_LIBS_OTHER:INTERNAL=
+GDKPIXBUF_STATIC_LIBS_PATHS:INTERNAL=
+GDKPIXBUF_VERSION:INTERNAL=2.42.10
+GDKPIXBUF_gdk-pixbuf-2.0_INCLUDEDIR:INTERNAL=
+GDKPIXBUF_gdk-pixbuf-2.0_LIBDIR:INTERNAL=
+GDKPIXBUF_gdk-pixbuf-2.0_PREFIX:INTERNAL=
+GDKPIXBUF_gdk-pixbuf-2.0_VERSION:INTERNAL=
 GTK4_CFLAGS:INTERNAL=-I/usr/include/gtk-4.0;-I/usr/include/pango-1.0;-I/usr/include;-I/usr/include/glib-2.0;-I/usr/lib/x86_64-linux-gnu/glib-2.0/include;-I/usr/include/harfbuzz;-I/usr/include/freetype2;-I/usr/include/libpng16;-I/usr/include/libmount;-I/usr/include/blkid;-I/usr/include/fribidi;-I/usr/include/cairo;-I/usr/include/pixman-1;-I/usr/include/gdk-pixbuf-2.0;-I/usr/include/x86_64-linux-gnu;-I/usr/include/webp;-I/usr/include/graphene-1.0;-I/usr/lib/x86_64-linux-gnu/graphene-1.0/include;-mfpmath=sse;-msse;-msse2;-pthread
 GTK4_CFLAGS_I:INTERNAL=
 GTK4_CFLAGS_OTHER:INTERNAL=-mfpmath=sse;-msse;-msse2;-pthread
@@ -647,15 +691,23 @@ WEBKIT_webkitgtk-6.0_VERSION:INTERNAL=
 //linker supports push/pop state
 _CMAKE_LINKER_PUSHPOP_STATE_SUPPORTED:INTERNAL=TRUE
 __pkg_config_arguments_CAIRO:INTERNAL=REQUIRED;cairo
+__pkg_config_arguments_GDKPIXBUF:INTERNAL=REQUIRED;gdk-pixbuf-2.0
 __pkg_config_arguments_GTK4:INTERNAL=REQUIRED;gtk4
 __pkg_config_arguments_JSONCPP:INTERNAL=REQUIRED;jsoncpp
 __pkg_config_arguments_WEBKIT:INTERNAL=REQUIRED;webkitgtk-6.0
 __pkg_config_checked_CAIRO:INTERNAL=1
+__pkg_config_checked_GDKPIXBUF:INTERNAL=1
 __pkg_config_checked_GTK4:INTERNAL=1
 __pkg_config_checked_JSONCPP:INTERNAL=1
 __pkg_config_checked_WEBKIT:INTERNAL=1
 //ADVANCED property for variable: pkgcfg_lib_CAIRO_cairo
 pkgcfg_lib_CAIRO_cairo-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: pkgcfg_lib_GDKPIXBUF_gdk_pixbuf-2.0
+pkgcfg_lib_GDKPIXBUF_gdk_pixbuf-2.0-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: pkgcfg_lib_GDKPIXBUF_glib-2.0
+pkgcfg_lib_GDKPIXBUF_glib-2.0-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: pkgcfg_lib_GDKPIXBUF_gobject-2.0
+pkgcfg_lib_GDKPIXBUF_gobject-2.0-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: pkgcfg_lib_GTK4_cairo
 pkgcfg_lib_GTK4_cairo-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: pkgcfg_lib_GTK4_cairo-gobject

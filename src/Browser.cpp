@@ -170,25 +170,45 @@ static void screenshot_callback(GObject* source_object, GAsyncResult* res, gpoin
     ScreenshotData* data = static_cast<ScreenshotData*>(user_data);
     GError* error = NULL;
     
-    cairo_surface_t* surface = webkit_web_view_get_snapshot_finish(
+    // In newer WebKitGTK, this returns a GdkTexture
+    GdkTexture* texture = webkit_web_view_get_snapshot_finish(
         WEBKIT_WEB_VIEW(source_object), res, &error);
     
     if (error) {
         std::cerr << "Screenshot error: " << error->message << std::endl;
         g_error_free(error);
         data->success = false;
-    } else if (surface) {
-        // Save the surface to a PNG file
+    } else if (texture) {
+        int width = gdk_texture_get_width(texture);
+        int height = gdk_texture_get_height(texture);
+        
+        // Allocate buffer for pixel data
+        size_t stride = cairo_format_stride_for_width(CAIRO_FORMAT_ARGB32, width);
+        guchar* pixels = (guchar*)g_malloc(height * stride);
+        
+        // Download texture data
+        gdk_texture_download(texture, pixels, stride);
+        
+        // Create cairo surface from the pixel data
+        cairo_surface_t* surface = cairo_image_surface_create_for_data(
+            pixels, CAIRO_FORMAT_ARGB32, width, height, stride);
+        
+        // Save to PNG
         cairo_status_t status = cairo_surface_write_to_png(surface, data->filename.c_str());
-        if (status != CAIRO_STATUS_SUCCESS) {
+        
+        if (status == CAIRO_STATUS_SUCCESS) {
+            data->success = true;
+        } else {
             std::cerr << "Failed to write PNG: " << cairo_status_to_string(status) << std::endl;
             data->success = false;
-        } else {
-            data->success = true;
         }
+        
+        // Cleanup
         cairo_surface_destroy(surface);
+        g_free(pixels);
+        g_object_unref(texture);
     } else {
-        std::cerr << "No surface returned from snapshot" << std::endl;
+        std::cerr << "No texture returned from snapshot" << std::endl;
         data->success = false;
     }
     
