@@ -1366,6 +1366,25 @@ std::string Browser::getAttribute(const std::string& selector, const std::string
     return executeJavascriptSync(js_script);
 }
 
+bool Browser::setAttribute(const std::string& selector, const std::string& attribute, const std::string& value) {
+    std::string js_script = 
+        "(function() { "
+        "  try { "
+        "    var element = document.querySelector('" + selector + "'); "
+        "    if (element) { "
+        "      element.setAttribute('" + attribute + "', '" + value + "'); "
+        "      return true; "
+        "    } "
+        "    return false; "
+        "  } catch(e) { "
+        "    return false; "
+        "  } "
+        "})()";
+    
+    std::string result = executeJavascriptSync(js_script);
+    return result == "true";
+}
+
 // Viewport and user agent methods
 void Browser::setViewport(int width, int height) {
     gtk_window_set_default_size(GTK_WINDOW(window), width, height);

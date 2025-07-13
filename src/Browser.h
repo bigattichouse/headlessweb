@@ -155,6 +155,7 @@ public:
     bool uncheckElement(const std::string& selector);
     bool focusElement(const std::string& selector);
     std::string getAttribute(const std::string& selector, const std::string& attribute);
+    bool setAttribute(const std::string& selector, const std::string& attribute, const std::string& value);
     
     // Advanced operations
     bool executeActionSequence(const std::vector<Session::RecordedAction>& actions);

@@ -332,6 +332,11 @@ COMPLEX_JS='(function() {
 JS_RESULT=$(./hweb-poc --session "js_test" --js "$COMPLEX_JS" 2>/dev/null | tail -n 1)
 verify_contains "$JS_RESULT" "testInput" "Complex JavaScript execution"
 
+# Test attribute modification
+check_command "./hweb-poc --session 'js_test' --attr '#testInput' 'data-test' 'new-value'" "Set attribute"
+ATTR_VAL=$(./hweb-poc --session "js_test" --attr "#testInput" "data-test" 2>/dev/null | tail -n 1)
+verify_value "$ATTR_VAL" "new-value" "Attribute modification"
+
 check_command "./hweb-poc --session 'js_test' --end" "End JS test"
 
 # Test 9: Debug Mode

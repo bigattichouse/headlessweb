@@ -162,8 +162,13 @@ int main(int argc, char* argv[]) {
         } else if (args[i] == "--html" && i + 1 < args.size()) {
             commands.push_back({"html", args[++i], ""});
         } else if (args[i] == "--attr" && i + 2 < args.size()) {
-            commands.push_back({"attr", args[i+1], args[i+2]});
-            i += 2;
+            if (i + 3 < args.size() && args[i+3][0] != '-') {
+                commands.push_back({"set-attr", args[i+1], args[i+2] + " " + args[i+3]});
+                i += 3;
+            } else {
+                commands.push_back({"attr", args[i+1], args[i+2]});
+                i += 2;
+            }
         } else if (args[i] == "--screenshot") {
             std::string filename = (i + 1 < args.size() && args[i+1][0] != '-') ? args[++i] : "screenshot.png";
             commands.push_back({"screenshot", filename, ""});
@@ -544,6 +549,15 @@ int main(int argc, char* argv[]) {
             } else if (cmd.type == "attr") {
                 std::string value = browser.getAttribute(cmd.selector, cmd.value);
                 std::cout << value << std::endl;
+            } else if (cmd.type == "set-attr") {
+                size_t space_pos = cmd.value.find(' ');
+                std::string attribute = cmd.value.substr(0, space_pos);
+                std::string value = cmd.value.substr(space_pos + 1);
+                if (browser.setAttribute(cmd.selector, attribute, value)) {
+                    info_output("Set attribute '" + attribute + "' on " + cmd.selector);
+                } else {
+                    error_output("Failed to set attribute on " + cmd.selector);
+                }
             } else if (cmd.type == "screenshot") {
                 browser.takeScreenshot(cmd.selector);
                 info_output("Screenshot saved to " + cmd.selector);
