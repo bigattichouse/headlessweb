@@ -1,5 +1,4 @@
 #include "Browser.h"
-#include "WebKitCompat.h"
 #include <gtk/gtk.h>
 #include <webkit/webkit.h>
 #include <iostream>
@@ -51,10 +50,14 @@ Browser::Browser() : cookieManager(nullptr), main_loop(g_main_loop_new(NULL, FAL
     webkit_web_view_set_settings(webView, settings);
     
     // Get the network session for cookie management
-    cookieManager = WebKitCompat::getCookieManager(webView);
-    if (cookieManager) {
-        // Cookie persistence is handled automatically by modern WebKitGTK
-        debug_output("Cookie manager initialized with automatic persistence");
+    WebKitNetworkSession* session = webkit_web_view_get_network_session(webView);
+    if (session) {
+        cookieManager = webkit_network_session_get_cookie_manager(session);
+        
+        // Set persistent cookie storage
+        std::string cookieFile = sessionDataPath + "/cookies.txt";
+        // webkit_cookie_manager_set_persistent_storage(cookieManager, 
+            // cookieFile.c_str(), WEBKIT_COOKIE_PERSISTENT_STORAGE_TEXT);
     }
     
     window = gtk_window_new();

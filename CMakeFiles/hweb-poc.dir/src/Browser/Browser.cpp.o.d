@@ -318,11 +318,9 @@ CMakeFiles/hweb-poc.dir/src/Browser/Browser.cpp.o: \
  /usr/include/glib-2.0/glib/glib-autocleanups.h \
  /usr/include/c++/13/algorithm \
  /usr/include/c++/13/pstl/glue_algorithm_defs.h \
- /usr/include/gtk-4.0/gtk/gtk.h /usr/include/gtk-4.0/gtk/css/gtkcss.h \
- /usr/include/gtk-4.0/gdk/version/gdkversionmacros.h \
- /usr/include/gtk-4.0/gdk/version/gdk-visibility.h \
- /usr/include/gtk-4.0/gtk/css/gtkcssenums.h \
- /usr/include/gtk-4.0/gtk/css/gtkcssenumtypes.h \
+ /home/bigattichouse/workspace/headlessweb/src/Browser/WebKitCompat.h \
+ /usr/include/webkitgtk-6.0/webkit/webkit.h \
+ /usr/include/webkitgtk-6.0/webkit/WebKitApplicationInfo.h \
  /usr/include/glib-2.0/glib-object.h \
  /usr/include/glib-2.0/gobject/gbinding.h \
  /usr/include/glib-2.0/gobject/gobject.h \
@@ -346,9 +344,9 @@ CMakeFiles/hweb-poc.dir/src/Browser/Browser.cpp.o: \
  /usr/include/glib-2.0/gobject/gvaluearray.h \
  /usr/include/glib-2.0/gobject/gvaluetypes.h \
  /usr/include/glib-2.0/gobject/gobject-autocleanups.h \
- /usr/include/gtk-4.0/gtk/css/gtkcsserror.h \
- /usr/include/gtk-4.0/gtk/css/gtkcsslocation.h \
- /usr/include/gtk-4.0/gtk/css/gtkcsssection.h \
+ /usr/include/webkitgtk-6.0/webkit/WebKitDefines.h \
+ /usr/include/webkitgtk-6.0/webkit/WebKitAuthenticationRequest.h \
+ /usr/include/webkitgtk-6.0/webkit/WebKitCredential.h \
  /usr/include/glib-2.0/gio/gio.h /usr/include/glib-2.0/gio/giotypes.h \
  /usr/include/glib-2.0/gio/gioenums.h \
  /usr/include/glib-2.0/gio/gio-visibility.h \
@@ -505,6 +503,15 @@ CMakeFiles/hweb-poc.dir/src/Browser/Browser.cpp.o: \
  /usr/include/glib-2.0/gio/gzlibcompressor.h \
  /usr/include/glib-2.0/gio/gzlibdecompressor.h \
  /usr/include/glib-2.0/gio/gio-autocleanups.h \
+ /usr/include/webkitgtk-6.0/webkit/WebKitSecurityOrigin.h \
+ /usr/include/gtk-4.0/gtk/gtk.h /usr/include/gtk-4.0/gtk/css/gtkcss.h \
+ /usr/include/gtk-4.0/gdk/version/gdkversionmacros.h \
+ /usr/include/gtk-4.0/gdk/version/gdk-visibility.h \
+ /usr/include/gtk-4.0/gtk/css/gtkcssenums.h \
+ /usr/include/gtk-4.0/gtk/css/gtkcssenumtypes.h \
+ /usr/include/gtk-4.0/gtk/css/gtkcsserror.h \
+ /usr/include/gtk-4.0/gtk/css/gtkcsslocation.h \
+ /usr/include/gtk-4.0/gtk/css/gtkcsssection.h \
  /usr/include/gtk-4.0/gdk/gdk.h \
  /usr/include/gtk-4.0/gdk/gdkapplaunchcontext.h \
  /usr/include/gtk-4.0/gdk/gdktypes.h /usr/include/cairo/cairo.h \
@@ -947,12 +954,6 @@ CMakeFiles/hweb-poc.dir/src/Browser/Browser.cpp.o: \
  /usr/include/gtk-4.0/gtk/gtkwindowcontrols.h \
  /usr/include/gtk-4.0/gtk/gtkwindowgroup.h \
  /usr/include/gtk-4.0/gtk/gtkwindowhandle.h \
- /usr/include/webkitgtk-6.0/webkit/webkit.h \
- /usr/include/webkitgtk-6.0/webkit/WebKitApplicationInfo.h \
- /usr/include/webkitgtk-6.0/webkit/WebKitDefines.h \
- /usr/include/webkitgtk-6.0/webkit/WebKitAuthenticationRequest.h \
- /usr/include/webkitgtk-6.0/webkit/WebKitCredential.h \
- /usr/include/webkitgtk-6.0/webkit/WebKitSecurityOrigin.h \
  /usr/include/webkitgtk-6.0/webkit/WebKitAutomationSession.h \
  /usr/include/webkitgtk-6.0/webkit/WebKitBackForwardList.h \
  /usr/include/webkitgtk-6.0/webkit/WebKitBackForwardListItem.h \

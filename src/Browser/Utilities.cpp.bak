@@ -164,12 +164,12 @@ void Browser::initializeDataManager(const std::string& sessionName) {
     std::string sessionDir = sessionDataPath + "/" + sessionName;
     std::filesystem::create_directories(sessionDir);
     
-    // In modern WebKitGTK, cookie persistence is handled automatically
-    // by the WebKitWebsiteDataManager using the data directory
-    
+    // Update cookie storage location for this session
     if (cookieManager) {
-        debug_output("Data manager initialized for session: " + sessionName);
-        debug_output("Session data directory: " + sessionDir);
-        // Cookies will be automatically persisted by WebKit
+        std::string cookieFile = sessionDir + "/cookies.txt";
+        // webkit_cookie_manager_set_persistent_storage(cookieManager, 
+            // cookieFile.c_str(), WEBKIT_COOKIE_PERSISTENT_STORAGE_TEXT);
+        
+        debug_output("Initialized data manager for session: " + sessionName);
     }
 }
