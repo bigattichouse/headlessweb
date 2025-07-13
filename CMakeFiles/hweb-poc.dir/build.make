@@ -114,26 +114,146 @@ CMakeFiles/hweb-poc.dir/src/SessionManager.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/hweb-poc.dir/src/SessionManager.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bigattichouse/workspace/headlessweb/src/SessionManager.cpp -o CMakeFiles/hweb-poc.dir/src/SessionManager.cpp.s
 
-CMakeFiles/hweb-poc.dir/src/Browser.cpp.o: CMakeFiles/hweb-poc.dir/flags.make
-CMakeFiles/hweb-poc.dir/src/Browser.cpp.o: src/Browser.cpp
-CMakeFiles/hweb-poc.dir/src/Browser.cpp.o: CMakeFiles/hweb-poc.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/bigattichouse/workspace/headlessweb/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/hweb-poc.dir/src/Browser.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/hweb-poc.dir/src/Browser.cpp.o -MF CMakeFiles/hweb-poc.dir/src/Browser.cpp.o.d -o CMakeFiles/hweb-poc.dir/src/Browser.cpp.o -c /home/bigattichouse/workspace/headlessweb/src/Browser.cpp
+CMakeFiles/hweb-poc.dir/src/Browser/Browser.cpp.o: CMakeFiles/hweb-poc.dir/flags.make
+CMakeFiles/hweb-poc.dir/src/Browser/Browser.cpp.o: src/Browser/Browser.cpp
+CMakeFiles/hweb-poc.dir/src/Browser/Browser.cpp.o: CMakeFiles/hweb-poc.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/bigattichouse/workspace/headlessweb/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/hweb-poc.dir/src/Browser/Browser.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/hweb-poc.dir/src/Browser/Browser.cpp.o -MF CMakeFiles/hweb-poc.dir/src/Browser/Browser.cpp.o.d -o CMakeFiles/hweb-poc.dir/src/Browser/Browser.cpp.o -c /home/bigattichouse/workspace/headlessweb/src/Browser/Browser.cpp
 
-CMakeFiles/hweb-poc.dir/src/Browser.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/hweb-poc.dir/src/Browser.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bigattichouse/workspace/headlessweb/src/Browser.cpp > CMakeFiles/hweb-poc.dir/src/Browser.cpp.i
+CMakeFiles/hweb-poc.dir/src/Browser/Browser.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/hweb-poc.dir/src/Browser/Browser.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bigattichouse/workspace/headlessweb/src/Browser/Browser.cpp > CMakeFiles/hweb-poc.dir/src/Browser/Browser.cpp.i
 
-CMakeFiles/hweb-poc.dir/src/Browser.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/hweb-poc.dir/src/Browser.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bigattichouse/workspace/headlessweb/src/Browser.cpp -o CMakeFiles/hweb-poc.dir/src/Browser.cpp.s
+CMakeFiles/hweb-poc.dir/src/Browser/Browser.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/hweb-poc.dir/src/Browser/Browser.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bigattichouse/workspace/headlessweb/src/Browser/Browser.cpp -o CMakeFiles/hweb-poc.dir/src/Browser/Browser.cpp.s
+
+CMakeFiles/hweb-poc.dir/src/Browser/Core.cpp.o: CMakeFiles/hweb-poc.dir/flags.make
+CMakeFiles/hweb-poc.dir/src/Browser/Core.cpp.o: src/Browser/Core.cpp
+CMakeFiles/hweb-poc.dir/src/Browser/Core.cpp.o: CMakeFiles/hweb-poc.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/bigattichouse/workspace/headlessweb/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/hweb-poc.dir/src/Browser/Core.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/hweb-poc.dir/src/Browser/Core.cpp.o -MF CMakeFiles/hweb-poc.dir/src/Browser/Core.cpp.o.d -o CMakeFiles/hweb-poc.dir/src/Browser/Core.cpp.o -c /home/bigattichouse/workspace/headlessweb/src/Browser/Core.cpp
+
+CMakeFiles/hweb-poc.dir/src/Browser/Core.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/hweb-poc.dir/src/Browser/Core.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bigattichouse/workspace/headlessweb/src/Browser/Core.cpp > CMakeFiles/hweb-poc.dir/src/Browser/Core.cpp.i
+
+CMakeFiles/hweb-poc.dir/src/Browser/Core.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/hweb-poc.dir/src/Browser/Core.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bigattichouse/workspace/headlessweb/src/Browser/Core.cpp -o CMakeFiles/hweb-poc.dir/src/Browser/Core.cpp.s
+
+CMakeFiles/hweb-poc.dir/src/Browser/JavaScript.cpp.o: CMakeFiles/hweb-poc.dir/flags.make
+CMakeFiles/hweb-poc.dir/src/Browser/JavaScript.cpp.o: src/Browser/JavaScript.cpp
+CMakeFiles/hweb-poc.dir/src/Browser/JavaScript.cpp.o: CMakeFiles/hweb-poc.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/bigattichouse/workspace/headlessweb/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/hweb-poc.dir/src/Browser/JavaScript.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/hweb-poc.dir/src/Browser/JavaScript.cpp.o -MF CMakeFiles/hweb-poc.dir/src/Browser/JavaScript.cpp.o.d -o CMakeFiles/hweb-poc.dir/src/Browser/JavaScript.cpp.o -c /home/bigattichouse/workspace/headlessweb/src/Browser/JavaScript.cpp
+
+CMakeFiles/hweb-poc.dir/src/Browser/JavaScript.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/hweb-poc.dir/src/Browser/JavaScript.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bigattichouse/workspace/headlessweb/src/Browser/JavaScript.cpp > CMakeFiles/hweb-poc.dir/src/Browser/JavaScript.cpp.i
+
+CMakeFiles/hweb-poc.dir/src/Browser/JavaScript.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/hweb-poc.dir/src/Browser/JavaScript.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bigattichouse/workspace/headlessweb/src/Browser/JavaScript.cpp -o CMakeFiles/hweb-poc.dir/src/Browser/JavaScript.cpp.s
+
+CMakeFiles/hweb-poc.dir/src/Browser/Events.cpp.o: CMakeFiles/hweb-poc.dir/flags.make
+CMakeFiles/hweb-poc.dir/src/Browser/Events.cpp.o: src/Browser/Events.cpp
+CMakeFiles/hweb-poc.dir/src/Browser/Events.cpp.o: CMakeFiles/hweb-poc.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/bigattichouse/workspace/headlessweb/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/hweb-poc.dir/src/Browser/Events.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/hweb-poc.dir/src/Browser/Events.cpp.o -MF CMakeFiles/hweb-poc.dir/src/Browser/Events.cpp.o.d -o CMakeFiles/hweb-poc.dir/src/Browser/Events.cpp.o -c /home/bigattichouse/workspace/headlessweb/src/Browser/Events.cpp
+
+CMakeFiles/hweb-poc.dir/src/Browser/Events.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/hweb-poc.dir/src/Browser/Events.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bigattichouse/workspace/headlessweb/src/Browser/Events.cpp > CMakeFiles/hweb-poc.dir/src/Browser/Events.cpp.i
+
+CMakeFiles/hweb-poc.dir/src/Browser/Events.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/hweb-poc.dir/src/Browser/Events.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bigattichouse/workspace/headlessweb/src/Browser/Events.cpp -o CMakeFiles/hweb-poc.dir/src/Browser/Events.cpp.s
+
+CMakeFiles/hweb-poc.dir/src/Browser/DOM.cpp.o: CMakeFiles/hweb-poc.dir/flags.make
+CMakeFiles/hweb-poc.dir/src/Browser/DOM.cpp.o: src/Browser/DOM.cpp
+CMakeFiles/hweb-poc.dir/src/Browser/DOM.cpp.o: CMakeFiles/hweb-poc.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/bigattichouse/workspace/headlessweb/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/hweb-poc.dir/src/Browser/DOM.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/hweb-poc.dir/src/Browser/DOM.cpp.o -MF CMakeFiles/hweb-poc.dir/src/Browser/DOM.cpp.o.d -o CMakeFiles/hweb-poc.dir/src/Browser/DOM.cpp.o -c /home/bigattichouse/workspace/headlessweb/src/Browser/DOM.cpp
+
+CMakeFiles/hweb-poc.dir/src/Browser/DOM.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/hweb-poc.dir/src/Browser/DOM.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bigattichouse/workspace/headlessweb/src/Browser/DOM.cpp > CMakeFiles/hweb-poc.dir/src/Browser/DOM.cpp.i
+
+CMakeFiles/hweb-poc.dir/src/Browser/DOM.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/hweb-poc.dir/src/Browser/DOM.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bigattichouse/workspace/headlessweb/src/Browser/DOM.cpp -o CMakeFiles/hweb-poc.dir/src/Browser/DOM.cpp.s
+
+CMakeFiles/hweb-poc.dir/src/Browser/Storage.cpp.o: CMakeFiles/hweb-poc.dir/flags.make
+CMakeFiles/hweb-poc.dir/src/Browser/Storage.cpp.o: src/Browser/Storage.cpp
+CMakeFiles/hweb-poc.dir/src/Browser/Storage.cpp.o: CMakeFiles/hweb-poc.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/bigattichouse/workspace/headlessweb/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/hweb-poc.dir/src/Browser/Storage.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/hweb-poc.dir/src/Browser/Storage.cpp.o -MF CMakeFiles/hweb-poc.dir/src/Browser/Storage.cpp.o.d -o CMakeFiles/hweb-poc.dir/src/Browser/Storage.cpp.o -c /home/bigattichouse/workspace/headlessweb/src/Browser/Storage.cpp
+
+CMakeFiles/hweb-poc.dir/src/Browser/Storage.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/hweb-poc.dir/src/Browser/Storage.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bigattichouse/workspace/headlessweb/src/Browser/Storage.cpp > CMakeFiles/hweb-poc.dir/src/Browser/Storage.cpp.i
+
+CMakeFiles/hweb-poc.dir/src/Browser/Storage.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/hweb-poc.dir/src/Browser/Storage.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bigattichouse/workspace/headlessweb/src/Browser/Storage.cpp -o CMakeFiles/hweb-poc.dir/src/Browser/Storage.cpp.s
+
+CMakeFiles/hweb-poc.dir/src/Browser/Session.cpp.o: CMakeFiles/hweb-poc.dir/flags.make
+CMakeFiles/hweb-poc.dir/src/Browser/Session.cpp.o: src/Browser/Session.cpp
+CMakeFiles/hweb-poc.dir/src/Browser/Session.cpp.o: CMakeFiles/hweb-poc.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/bigattichouse/workspace/headlessweb/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/hweb-poc.dir/src/Browser/Session.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/hweb-poc.dir/src/Browser/Session.cpp.o -MF CMakeFiles/hweb-poc.dir/src/Browser/Session.cpp.o.d -o CMakeFiles/hweb-poc.dir/src/Browser/Session.cpp.o -c /home/bigattichouse/workspace/headlessweb/src/Browser/Session.cpp
+
+CMakeFiles/hweb-poc.dir/src/Browser/Session.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/hweb-poc.dir/src/Browser/Session.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bigattichouse/workspace/headlessweb/src/Browser/Session.cpp > CMakeFiles/hweb-poc.dir/src/Browser/Session.cpp.i
+
+CMakeFiles/hweb-poc.dir/src/Browser/Session.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/hweb-poc.dir/src/Browser/Session.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bigattichouse/workspace/headlessweb/src/Browser/Session.cpp -o CMakeFiles/hweb-poc.dir/src/Browser/Session.cpp.s
+
+CMakeFiles/hweb-poc.dir/src/Browser/Screenshot.cpp.o: CMakeFiles/hweb-poc.dir/flags.make
+CMakeFiles/hweb-poc.dir/src/Browser/Screenshot.cpp.o: src/Browser/Screenshot.cpp
+CMakeFiles/hweb-poc.dir/src/Browser/Screenshot.cpp.o: CMakeFiles/hweb-poc.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/bigattichouse/workspace/headlessweb/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/hweb-poc.dir/src/Browser/Screenshot.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/hweb-poc.dir/src/Browser/Screenshot.cpp.o -MF CMakeFiles/hweb-poc.dir/src/Browser/Screenshot.cpp.o.d -o CMakeFiles/hweb-poc.dir/src/Browser/Screenshot.cpp.o -c /home/bigattichouse/workspace/headlessweb/src/Browser/Screenshot.cpp
+
+CMakeFiles/hweb-poc.dir/src/Browser/Screenshot.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/hweb-poc.dir/src/Browser/Screenshot.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bigattichouse/workspace/headlessweb/src/Browser/Screenshot.cpp > CMakeFiles/hweb-poc.dir/src/Browser/Screenshot.cpp.i
+
+CMakeFiles/hweb-poc.dir/src/Browser/Screenshot.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/hweb-poc.dir/src/Browser/Screenshot.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bigattichouse/workspace/headlessweb/src/Browser/Screenshot.cpp -o CMakeFiles/hweb-poc.dir/src/Browser/Screenshot.cpp.s
+
+CMakeFiles/hweb-poc.dir/src/Browser/Utilities.cpp.o: CMakeFiles/hweb-poc.dir/flags.make
+CMakeFiles/hweb-poc.dir/src/Browser/Utilities.cpp.o: src/Browser/Utilities.cpp
+CMakeFiles/hweb-poc.dir/src/Browser/Utilities.cpp.o: CMakeFiles/hweb-poc.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/bigattichouse/workspace/headlessweb/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/hweb-poc.dir/src/Browser/Utilities.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/hweb-poc.dir/src/Browser/Utilities.cpp.o -MF CMakeFiles/hweb-poc.dir/src/Browser/Utilities.cpp.o.d -o CMakeFiles/hweb-poc.dir/src/Browser/Utilities.cpp.o -c /home/bigattichouse/workspace/headlessweb/src/Browser/Utilities.cpp
+
+CMakeFiles/hweb-poc.dir/src/Browser/Utilities.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/hweb-poc.dir/src/Browser/Utilities.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bigattichouse/workspace/headlessweb/src/Browser/Utilities.cpp > CMakeFiles/hweb-poc.dir/src/Browser/Utilities.cpp.i
+
+CMakeFiles/hweb-poc.dir/src/Browser/Utilities.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/hweb-poc.dir/src/Browser/Utilities.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bigattichouse/workspace/headlessweb/src/Browser/Utilities.cpp -o CMakeFiles/hweb-poc.dir/src/Browser/Utilities.cpp.s
 
 # Object files for target hweb-poc
 hweb__poc_OBJECTS = \
 "CMakeFiles/hweb-poc.dir/src/main.cpp.o" \
 "CMakeFiles/hweb-poc.dir/src/Session.cpp.o" \
 "CMakeFiles/hweb-poc.dir/src/SessionManager.cpp.o" \
-"CMakeFiles/hweb-poc.dir/src/Browser.cpp.o"
+"CMakeFiles/hweb-poc.dir/src/Browser/Browser.cpp.o" \
+"CMakeFiles/hweb-poc.dir/src/Browser/Core.cpp.o" \
+"CMakeFiles/hweb-poc.dir/src/Browser/JavaScript.cpp.o" \
+"CMakeFiles/hweb-poc.dir/src/Browser/Events.cpp.o" \
+"CMakeFiles/hweb-poc.dir/src/Browser/DOM.cpp.o" \
+"CMakeFiles/hweb-poc.dir/src/Browser/Storage.cpp.o" \
+"CMakeFiles/hweb-poc.dir/src/Browser/Session.cpp.o" \
+"CMakeFiles/hweb-poc.dir/src/Browser/Screenshot.cpp.o" \
+"CMakeFiles/hweb-poc.dir/src/Browser/Utilities.cpp.o"
 
 # External object files for target hweb-poc
 hweb__poc_EXTERNAL_OBJECTS =
@@ -141,11 +261,19 @@ hweb__poc_EXTERNAL_OBJECTS =
 hweb-poc: CMakeFiles/hweb-poc.dir/src/main.cpp.o
 hweb-poc: CMakeFiles/hweb-poc.dir/src/Session.cpp.o
 hweb-poc: CMakeFiles/hweb-poc.dir/src/SessionManager.cpp.o
-hweb-poc: CMakeFiles/hweb-poc.dir/src/Browser.cpp.o
+hweb-poc: CMakeFiles/hweb-poc.dir/src/Browser/Browser.cpp.o
+hweb-poc: CMakeFiles/hweb-poc.dir/src/Browser/Core.cpp.o
+hweb-poc: CMakeFiles/hweb-poc.dir/src/Browser/JavaScript.cpp.o
+hweb-poc: CMakeFiles/hweb-poc.dir/src/Browser/Events.cpp.o
+hweb-poc: CMakeFiles/hweb-poc.dir/src/Browser/DOM.cpp.o
+hweb-poc: CMakeFiles/hweb-poc.dir/src/Browser/Storage.cpp.o
+hweb-poc: CMakeFiles/hweb-poc.dir/src/Browser/Session.cpp.o
+hweb-poc: CMakeFiles/hweb-poc.dir/src/Browser/Screenshot.cpp.o
+hweb-poc: CMakeFiles/hweb-poc.dir/src/Browser/Utilities.cpp.o
 hweb-poc: CMakeFiles/hweb-poc.dir/build.make
 hweb-poc: CMakeFiles/hweb-poc.dir/compiler_depend.ts
 hweb-poc: CMakeFiles/hweb-poc.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/bigattichouse/workspace/headlessweb/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX executable hweb-poc"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/bigattichouse/workspace/headlessweb/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Linking CXX executable hweb-poc"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/hweb-poc.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

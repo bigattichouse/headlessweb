@@ -1,8 +1,8 @@
-CMakeFiles/hweb-poc.dir/src/Browser.cpp.o: \
- /home/bigattichouse/workspace/headlessweb/src/Browser.cpp \
+CMakeFiles/hweb-poc.dir/src/Browser/JavaScript.cpp.o: \
+ /home/bigattichouse/workspace/headlessweb/src/Browser/JavaScript.cpp \
  /usr/include/stdc-predef.h \
- /home/bigattichouse/workspace/headlessweb/src/Browser.h \
- /home/bigattichouse/workspace/headlessweb/src/Session.h \
+ /home/bigattichouse/workspace/headlessweb/src/Browser/Browser.h \
+ /home/bigattichouse/workspace/headlessweb/src/Browser/../Session.h \
  /usr/include/c++/13/string /usr/include/c++/13/bits/requires_hosted.h \
  /usr/include/x86_64-linux-gnu/c++/13/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/13/bits/os_defines.h \
@@ -193,7 +193,7 @@ CMakeFiles/hweb-poc.dir/src/Browser.cpp.o: \
  /usr/include/c++/13/bits/stl_deque.h /usr/include/c++/13/bits/deque.tcc \
  /usr/include/c++/13/stack /usr/include/c++/13/bits/stl_stack.h \
  /usr/include/jsoncpp/json/writer.h \
- /home/bigattichouse/workspace/headlessweb/src/Debug.h \
+ /home/bigattichouse/workspace/headlessweb/src/Browser/../Debug.h \
  /usr/include/c++/13/iostream /usr/include/c++/13/functional \
  /usr/include/c++/13/bits/std_function.h \
  /usr/include/c++/13/unordered_map \
@@ -1073,19 +1073,4 @@ CMakeFiles/hweb-poc.dir/src/Browser.cpp.o: \
  /usr/include/webkitgtk-6.0/webkit/WebKitVersion.h \
  /usr/include/webkitgtk-6.0/webkit/WebKitWebExtensionMatchPattern.h \
  /usr/include/webkitgtk-6.0/webkit/WebKitWebsiteDataAccessPermissionRequest.h \
- /usr/include/webkitgtk-6.0/webkit/WebKitAutocleanups.h \
- /usr/include/cairo/cairo.h /usr/include/c++/13/filesystem \
- /usr/include/c++/13/bits/fs_fwd.h /usr/include/c++/13/bits/chrono.h \
- /usr/include/c++/13/ratio /usr/include/c++/13/ctime \
- /usr/include/c++/13/bits/parse_numbers.h \
- /usr/include/c++/13/bits/fs_path.h /usr/include/c++/13/locale \
- /usr/include/c++/13/bits/locale_facets_nonio.h \
- /usr/include/x86_64-linux-gnu/c++/13/bits/time_members.h \
- /usr/include/x86_64-linux-gnu/c++/13/bits/messages_members.h \
- /usr/include/libintl.h /usr/include/c++/13/bits/codecvt.h \
- /usr/include/c++/13/bits/locale_facets_nonio.tcc \
- /usr/include/c++/13/bits/locale_conv.h /usr/include/c++/13/iomanip \
- /usr/include/c++/13/bits/quoted_string.h /usr/include/c++/13/codecvt \
- /usr/include/c++/13/bits/fs_dir.h /usr/include/c++/13/bits/fs_ops.h \
- /usr/include/c++/13/thread /usr/include/c++/13/bits/std_thread.h \
- /usr/include/c++/13/bits/this_thread_sleep.h /usr/include/c++/13/chrono
+ /usr/include/webkitgtk-6.0/webkit/WebKitAutocleanups.h

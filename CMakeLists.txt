@@ -1,68 +1,50 @@
-# Example CMakeLists.txt update for the refactored Browser class
+cmake_minimum_required(VERSION 3.10)
+project(hweb-poc)
 
-# Original Browser sources (remove Browser.cpp from here if it was listed)
-set(BROWSER_SOURCES
-    # Core browser files
-    Browser.cpp
-    BrowserCore.cpp
-    BrowserJavaScript.cpp
-    BrowserEvents.cpp
-    BrowserDOM.cpp
-    BrowserStorage.cpp
-    BrowserSession.cpp
-    BrowserScreenshot.cpp
-    BrowserUtilities.cpp
-    
-    # Other existing files
-    Session.cpp
-    Debug.cpp
-    # ... other source files ...
-)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# If you prefer to organize in a subdirectory
-# set(BROWSER_SOURCES
-#     browser/Browser.cpp
-#     browser/BrowserCore.cpp
-#     browser/BrowserJavaScript.cpp
-#     browser/BrowserEvents.cpp
-#     browser/BrowserDOM.cpp
-#     browser/BrowserStorage.cpp
-#     browser/BrowserSession.cpp
-#     browser/BrowserScreenshot.cpp
-#     browser/BrowserUtilities.cpp
-# )
-
-# Add to your executable or library
-add_executable(your_app 
-    main.cpp
-    ${BROWSER_SOURCES}
-    # ... other sources ...
-)
-
-# Or if building as a library
-# add_library(browser_lib STATIC ${BROWSER_SOURCES})
-# target_include_directories(browser_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-
-# Dependencies remain the same
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(GTK REQUIRED gtk4)
+pkg_check_modules(GTK4 REQUIRED gtk4)
 pkg_check_modules(WEBKIT REQUIRED webkitgtk-6.0)
 pkg_check_modules(JSONCPP REQUIRED jsoncpp)
+pkg_check_modules(CAIRO REQUIRED cairo)
+pkg_check_modules(GDKPIXBUF REQUIRED gdk-pixbuf-2.0)
 
-target_include_directories(your_app PRIVATE 
-    ${GTK_INCLUDE_DIRS}
-    ${WEBKIT_INCLUDE_DIRS}
-    ${JSONCPP_INCLUDE_DIRS}
+
+include_directories(${WEBKIT_INCLUDE_DIRS})
+include_directories(${JSONCPP_INCLUDE_DIRS})
+include_directories(${GDKPIXBUF_INCLUDE_DIRS})
+
+add_executable(hweb-poc
+    src/main.cpp
+    src/Session.cpp
+    src/SessionManager.cpp
+    src/Browser/Browser.cpp 
+    src/Browser/Core.cpp
+    src/Browser/JavaScript.cpp
+    src/Browser/Events.cpp
+    src/Browser/DOM.cpp
+    src/Browser/Storage.cpp
+    src/Browser/Session.cpp
+    src/Browser/Screenshot.cpp
+    src/Browser/Utilities.cpp
 )
 
-target_link_libraries(your_app 
-    ${GTK_LIBRARIES}
+# In the target_link_libraries section, add:
+target_link_libraries(hweb-poc 
+    ${GTK4_LIBRARIES}
     ${WEBKIT_LIBRARIES}
     ${JSONCPP_LIBRARIES}
+    ${CAIRO_LIBRARIES}
+    ${GDKPIXBUF_LIBRARIES}
 )
 
-# Compiler flags
-target_compile_options(your_app PRIVATE 
-    ${GTK_CFLAGS_OTHER}
-    ${WEBKIT_CFLAGS_OTHER}
+# In the target_include_directories section, add:
+target_include_directories(hweb-poc PRIVATE 
+    ${GTK4_INCLUDE_DIRS}
+    ${WEBKIT_INCLUDE_DIRS}
+    ${JSONCPP_INCLUDE_DIRS}
+    ${CAIRO_INCLUDE_DIRS}
+    ${GDKPIXBUF_INCLUDE_DIRS}
 )

@@ -129,29 +129,221 @@ hweb-poc/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/build
 .PHONY : hweb-poc/fast
 
-src/Browser.o: src/Browser.cpp.o
-.PHONY : src/Browser.o
+src/Browser/Browser.o: src/Browser/Browser.cpp.o
+.PHONY : src/Browser/Browser.o
 
 # target to build an object file
-src/Browser.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Browser.cpp.o
-.PHONY : src/Browser.cpp.o
+src/Browser/Browser.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Browser/Browser.cpp.o
+.PHONY : src/Browser/Browser.cpp.o
 
-src/Browser.i: src/Browser.cpp.i
-.PHONY : src/Browser.i
+src/Browser/Browser.i: src/Browser/Browser.cpp.i
+.PHONY : src/Browser/Browser.i
 
 # target to preprocess a source file
-src/Browser.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Browser.cpp.i
-.PHONY : src/Browser.cpp.i
+src/Browser/Browser.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Browser/Browser.cpp.i
+.PHONY : src/Browser/Browser.cpp.i
 
-src/Browser.s: src/Browser.cpp.s
-.PHONY : src/Browser.s
+src/Browser/Browser.s: src/Browser/Browser.cpp.s
+.PHONY : src/Browser/Browser.s
 
 # target to generate assembly for a file
-src/Browser.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Browser.cpp.s
-.PHONY : src/Browser.cpp.s
+src/Browser/Browser.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Browser/Browser.cpp.s
+.PHONY : src/Browser/Browser.cpp.s
+
+src/Browser/Core.o: src/Browser/Core.cpp.o
+.PHONY : src/Browser/Core.o
+
+# target to build an object file
+src/Browser/Core.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Browser/Core.cpp.o
+.PHONY : src/Browser/Core.cpp.o
+
+src/Browser/Core.i: src/Browser/Core.cpp.i
+.PHONY : src/Browser/Core.i
+
+# target to preprocess a source file
+src/Browser/Core.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Browser/Core.cpp.i
+.PHONY : src/Browser/Core.cpp.i
+
+src/Browser/Core.s: src/Browser/Core.cpp.s
+.PHONY : src/Browser/Core.s
+
+# target to generate assembly for a file
+src/Browser/Core.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Browser/Core.cpp.s
+.PHONY : src/Browser/Core.cpp.s
+
+src/Browser/DOM.o: src/Browser/DOM.cpp.o
+.PHONY : src/Browser/DOM.o
+
+# target to build an object file
+src/Browser/DOM.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Browser/DOM.cpp.o
+.PHONY : src/Browser/DOM.cpp.o
+
+src/Browser/DOM.i: src/Browser/DOM.cpp.i
+.PHONY : src/Browser/DOM.i
+
+# target to preprocess a source file
+src/Browser/DOM.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Browser/DOM.cpp.i
+.PHONY : src/Browser/DOM.cpp.i
+
+src/Browser/DOM.s: src/Browser/DOM.cpp.s
+.PHONY : src/Browser/DOM.s
+
+# target to generate assembly for a file
+src/Browser/DOM.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Browser/DOM.cpp.s
+.PHONY : src/Browser/DOM.cpp.s
+
+src/Browser/Events.o: src/Browser/Events.cpp.o
+.PHONY : src/Browser/Events.o
+
+# target to build an object file
+src/Browser/Events.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Browser/Events.cpp.o
+.PHONY : src/Browser/Events.cpp.o
+
+src/Browser/Events.i: src/Browser/Events.cpp.i
+.PHONY : src/Browser/Events.i
+
+# target to preprocess a source file
+src/Browser/Events.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Browser/Events.cpp.i
+.PHONY : src/Browser/Events.cpp.i
+
+src/Browser/Events.s: src/Browser/Events.cpp.s
+.PHONY : src/Browser/Events.s
+
+# target to generate assembly for a file
+src/Browser/Events.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Browser/Events.cpp.s
+.PHONY : src/Browser/Events.cpp.s
+
+src/Browser/JavaScript.o: src/Browser/JavaScript.cpp.o
+.PHONY : src/Browser/JavaScript.o
+
+# target to build an object file
+src/Browser/JavaScript.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Browser/JavaScript.cpp.o
+.PHONY : src/Browser/JavaScript.cpp.o
+
+src/Browser/JavaScript.i: src/Browser/JavaScript.cpp.i
+.PHONY : src/Browser/JavaScript.i
+
+# target to preprocess a source file
+src/Browser/JavaScript.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Browser/JavaScript.cpp.i
+.PHONY : src/Browser/JavaScript.cpp.i
+
+src/Browser/JavaScript.s: src/Browser/JavaScript.cpp.s
+.PHONY : src/Browser/JavaScript.s
+
+# target to generate assembly for a file
+src/Browser/JavaScript.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Browser/JavaScript.cpp.s
+.PHONY : src/Browser/JavaScript.cpp.s
+
+src/Browser/Screenshot.o: src/Browser/Screenshot.cpp.o
+.PHONY : src/Browser/Screenshot.o
+
+# target to build an object file
+src/Browser/Screenshot.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Browser/Screenshot.cpp.o
+.PHONY : src/Browser/Screenshot.cpp.o
+
+src/Browser/Screenshot.i: src/Browser/Screenshot.cpp.i
+.PHONY : src/Browser/Screenshot.i
+
+# target to preprocess a source file
+src/Browser/Screenshot.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Browser/Screenshot.cpp.i
+.PHONY : src/Browser/Screenshot.cpp.i
+
+src/Browser/Screenshot.s: src/Browser/Screenshot.cpp.s
+.PHONY : src/Browser/Screenshot.s
+
+# target to generate assembly for a file
+src/Browser/Screenshot.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Browser/Screenshot.cpp.s
+.PHONY : src/Browser/Screenshot.cpp.s
+
+src/Browser/Session.o: src/Browser/Session.cpp.o
+.PHONY : src/Browser/Session.o
+
+# target to build an object file
+src/Browser/Session.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Browser/Session.cpp.o
+.PHONY : src/Browser/Session.cpp.o
+
+src/Browser/Session.i: src/Browser/Session.cpp.i
+.PHONY : src/Browser/Session.i
+
+# target to preprocess a source file
+src/Browser/Session.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Browser/Session.cpp.i
+.PHONY : src/Browser/Session.cpp.i
+
+src/Browser/Session.s: src/Browser/Session.cpp.s
+.PHONY : src/Browser/Session.s
+
+# target to generate assembly for a file
+src/Browser/Session.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Browser/Session.cpp.s
+.PHONY : src/Browser/Session.cpp.s
+
+src/Browser/Storage.o: src/Browser/Storage.cpp.o
+.PHONY : src/Browser/Storage.o
+
+# target to build an object file
+src/Browser/Storage.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Browser/Storage.cpp.o
+.PHONY : src/Browser/Storage.cpp.o
+
+src/Browser/Storage.i: src/Browser/Storage.cpp.i
+.PHONY : src/Browser/Storage.i
+
+# target to preprocess a source file
+src/Browser/Storage.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Browser/Storage.cpp.i
+.PHONY : src/Browser/Storage.cpp.i
+
+src/Browser/Storage.s: src/Browser/Storage.cpp.s
+.PHONY : src/Browser/Storage.s
+
+# target to generate assembly for a file
+src/Browser/Storage.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Browser/Storage.cpp.s
+.PHONY : src/Browser/Storage.cpp.s
+
+src/Browser/Utilities.o: src/Browser/Utilities.cpp.o
+.PHONY : src/Browser/Utilities.o
+
+# target to build an object file
+src/Browser/Utilities.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Browser/Utilities.cpp.o
+.PHONY : src/Browser/Utilities.cpp.o
+
+src/Browser/Utilities.i: src/Browser/Utilities.cpp.i
+.PHONY : src/Browser/Utilities.i
+
+# target to preprocess a source file
+src/Browser/Utilities.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Browser/Utilities.cpp.i
+.PHONY : src/Browser/Utilities.cpp.i
+
+src/Browser/Utilities.s: src/Browser/Utilities.cpp.s
+.PHONY : src/Browser/Utilities.s
+
+# target to generate assembly for a file
+src/Browser/Utilities.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Browser/Utilities.cpp.s
+.PHONY : src/Browser/Utilities.cpp.s
 
 src/Session.o: src/Session.cpp.o
 .PHONY : src/Session.o
@@ -234,9 +426,33 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... hweb-poc"
-	@echo "... src/Browser.o"
-	@echo "... src/Browser.i"
-	@echo "... src/Browser.s"
+	@echo "... src/Browser/Browser.o"
+	@echo "... src/Browser/Browser.i"
+	@echo "... src/Browser/Browser.s"
+	@echo "... src/Browser/Core.o"
+	@echo "... src/Browser/Core.i"
+	@echo "... src/Browser/Core.s"
+	@echo "... src/Browser/DOM.o"
+	@echo "... src/Browser/DOM.i"
+	@echo "... src/Browser/DOM.s"
+	@echo "... src/Browser/Events.o"
+	@echo "... src/Browser/Events.i"
+	@echo "... src/Browser/Events.s"
+	@echo "... src/Browser/JavaScript.o"
+	@echo "... src/Browser/JavaScript.i"
+	@echo "... src/Browser/JavaScript.s"
+	@echo "... src/Browser/Screenshot.o"
+	@echo "... src/Browser/Screenshot.i"
+	@echo "... src/Browser/Screenshot.s"
+	@echo "... src/Browser/Session.o"
+	@echo "... src/Browser/Session.i"
+	@echo "... src/Browser/Session.s"
+	@echo "... src/Browser/Storage.o"
+	@echo "... src/Browser/Storage.i"
+	@echo "... src/Browser/Storage.s"
+	@echo "... src/Browser/Utilities.o"
+	@echo "... src/Browser/Utilities.i"
+	@echo "... src/Browser/Utilities.s"
 	@echo "... src/Session.o"
 	@echo "... src/Session.i"
 	@echo "... src/Session.s"

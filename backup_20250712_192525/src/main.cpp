@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <glib.h>
 #include "SessionManager.h"
-#include "Browser/Browser.h"
+#include "Browser.h"
 #include "Debug.h"
 
 struct Command {
