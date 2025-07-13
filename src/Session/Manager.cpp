@@ -1,4 +1,4 @@
-#include "SessionManager.h"
+#include "Manager.h"
 #include <fstream>
 #include <filesystem>
 #include <chrono>

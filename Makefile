@@ -345,53 +345,53 @@ src/Browser/Utilities.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Browser/Utilities.cpp.s
 .PHONY : src/Browser/Utilities.cpp.s
 
-src/Session.o: src/Session.cpp.o
-.PHONY : src/Session.o
+src/Session/Manager.o: src/Session/Manager.cpp.o
+.PHONY : src/Session/Manager.o
 
 # target to build an object file
-src/Session.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Session.cpp.o
-.PHONY : src/Session.cpp.o
+src/Session/Manager.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Session/Manager.cpp.o
+.PHONY : src/Session/Manager.cpp.o
 
-src/Session.i: src/Session.cpp.i
-.PHONY : src/Session.i
+src/Session/Manager.i: src/Session/Manager.cpp.i
+.PHONY : src/Session/Manager.i
 
 # target to preprocess a source file
-src/Session.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Session.cpp.i
-.PHONY : src/Session.cpp.i
+src/Session/Manager.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Session/Manager.cpp.i
+.PHONY : src/Session/Manager.cpp.i
 
-src/Session.s: src/Session.cpp.s
-.PHONY : src/Session.s
+src/Session/Manager.s: src/Session/Manager.cpp.s
+.PHONY : src/Session/Manager.s
 
 # target to generate assembly for a file
-src/Session.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Session.cpp.s
-.PHONY : src/Session.cpp.s
+src/Session/Manager.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Session/Manager.cpp.s
+.PHONY : src/Session/Manager.cpp.s
 
-src/SessionManager.o: src/SessionManager.cpp.o
-.PHONY : src/SessionManager.o
+src/Session/Session.o: src/Session/Session.cpp.o
+.PHONY : src/Session/Session.o
 
 # target to build an object file
-src/SessionManager.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/SessionManager.cpp.o
-.PHONY : src/SessionManager.cpp.o
+src/Session/Session.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Session/Session.cpp.o
+.PHONY : src/Session/Session.cpp.o
 
-src/SessionManager.i: src/SessionManager.cpp.i
-.PHONY : src/SessionManager.i
+src/Session/Session.i: src/Session/Session.cpp.i
+.PHONY : src/Session/Session.i
 
 # target to preprocess a source file
-src/SessionManager.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/SessionManager.cpp.i
-.PHONY : src/SessionManager.cpp.i
+src/Session/Session.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Session/Session.cpp.i
+.PHONY : src/Session/Session.cpp.i
 
-src/SessionManager.s: src/SessionManager.cpp.s
-.PHONY : src/SessionManager.s
+src/Session/Session.s: src/Session/Session.cpp.s
+.PHONY : src/Session/Session.s
 
 # target to generate assembly for a file
-src/SessionManager.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/SessionManager.cpp.s
-.PHONY : src/SessionManager.cpp.s
+src/Session/Session.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Session/Session.cpp.s
+.PHONY : src/Session/Session.cpp.s
 
 src/main.o: src/main.cpp.o
 .PHONY : src/main.o
@@ -453,12 +453,12 @@ help:
 	@echo "... src/Browser/Utilities.o"
 	@echo "... src/Browser/Utilities.i"
 	@echo "... src/Browser/Utilities.s"
-	@echo "... src/Session.o"
-	@echo "... src/Session.i"
-	@echo "... src/Session.s"
-	@echo "... src/SessionManager.o"
-	@echo "... src/SessionManager.i"
-	@echo "... src/SessionManager.s"
+	@echo "... src/Session/Manager.o"
+	@echo "... src/Session/Manager.i"
+	@echo "... src/Session/Manager.s"
+	@echo "... src/Session/Session.o"
+	@echo "... src/Session/Session.i"
+	@echo "... src/Session/Session.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"

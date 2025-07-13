@@ -1,7 +1,7 @@
-CMakeFiles/hweb-poc.dir/src/Session.cpp.o: \
- /home/bigattichouse/workspace/headlessweb/src/Session.cpp \
+CMakeFiles/hweb-poc.dir/src/Session/Session.cpp.o: \
+ /home/bigattichouse/workspace/headlessweb/src/Session/Session.cpp \
  /usr/include/stdc-predef.h \
- /home/bigattichouse/workspace/headlessweb/src/Session.h \
+ /home/bigattichouse/workspace/headlessweb/src/Session/Session.h \
  /usr/include/c++/13/string /usr/include/c++/13/bits/requires_hosted.h \
  /usr/include/x86_64-linux-gnu/c++/13/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/13/bits/os_defines.h \

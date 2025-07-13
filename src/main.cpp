@@ -4,7 +4,7 @@
 #include <cstdlib>
 #include <unistd.h>
 #include <glib.h>
-#include "SessionManager.h"
+#include "Session/Manager.h"
 #include "Browser/Browser.h"
 #include "Debug.h"
 

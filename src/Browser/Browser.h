@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Session.h"
+#include "../Session/Session.h"
 #include "../Debug.h"
 #include <string>
 #include <functional>

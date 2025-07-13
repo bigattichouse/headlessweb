@@ -17,8 +17,8 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/bigattichouse/workspace/headlessweb/src/Browser/Session.cpp" "CMakeFiles/hweb-poc.dir/src/Browser/Session.cpp.o" "gcc" "CMakeFiles/hweb-poc.dir/src/Browser/Session.cpp.o.d"
   "/home/bigattichouse/workspace/headlessweb/src/Browser/Storage.cpp" "CMakeFiles/hweb-poc.dir/src/Browser/Storage.cpp.o" "gcc" "CMakeFiles/hweb-poc.dir/src/Browser/Storage.cpp.o.d"
   "/home/bigattichouse/workspace/headlessweb/src/Browser/Utilities.cpp" "CMakeFiles/hweb-poc.dir/src/Browser/Utilities.cpp.o" "gcc" "CMakeFiles/hweb-poc.dir/src/Browser/Utilities.cpp.o.d"
-  "/home/bigattichouse/workspace/headlessweb/src/Session.cpp" "CMakeFiles/hweb-poc.dir/src/Session.cpp.o" "gcc" "CMakeFiles/hweb-poc.dir/src/Session.cpp.o.d"
-  "/home/bigattichouse/workspace/headlessweb/src/SessionManager.cpp" "CMakeFiles/hweb-poc.dir/src/SessionManager.cpp.o" "gcc" "CMakeFiles/hweb-poc.dir/src/SessionManager.cpp.o.d"
+  "/home/bigattichouse/workspace/headlessweb/src/Session/Manager.cpp" "CMakeFiles/hweb-poc.dir/src/Session/Manager.cpp.o" "gcc" "CMakeFiles/hweb-poc.dir/src/Session/Manager.cpp.o.d"
+  "/home/bigattichouse/workspace/headlessweb/src/Session/Session.cpp" "CMakeFiles/hweb-poc.dir/src/Session/Session.cpp.o" "gcc" "CMakeFiles/hweb-poc.dir/src/Session/Session.cpp.o.d"
   "/home/bigattichouse/workspace/headlessweb/src/main.cpp" "CMakeFiles/hweb-poc.dir/src/main.cpp.o" "gcc" "CMakeFiles/hweb-poc.dir/src/main.cpp.o.d"
   "" "hweb-poc" "gcc" "CMakeFiles/hweb-poc.dir/link.d"
   )

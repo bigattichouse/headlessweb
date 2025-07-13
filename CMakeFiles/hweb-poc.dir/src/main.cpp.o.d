@@ -265,8 +265,8 @@ CMakeFiles/hweb-poc.dir/src/main.cpp.o: \
  /usr/include/glib-2.0/glib/deprecated/grel.h \
  /usr/include/glib-2.0/glib/deprecated/gthread.h \
  /usr/include/glib-2.0/glib/glib-autocleanups.h \
- /home/bigattichouse/workspace/headlessweb/src/SessionManager.h \
- /home/bigattichouse/workspace/headlessweb/src/Session.h \
+ /home/bigattichouse/workspace/headlessweb/src/Session/Manager.h \
+ /home/bigattichouse/workspace/headlessweb/src/Session/../Session/Session.h \
  /usr/include/c++/13/map /usr/include/c++/13/bits/stl_tree.h \
  /usr/include/c++/13/ext/aligned_buffer.h \
  /usr/include/c++/13/bits/node_handle.h \

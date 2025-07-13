@@ -3,8 +3,8 @@ hweb-poc: \
   /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crti.o \
   /usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o \
   CMakeFiles/hweb-poc.dir/src/main.cpp.o \
-  CMakeFiles/hweb-poc.dir/src/Session.cpp.o \
-  CMakeFiles/hweb-poc.dir/src/SessionManager.cpp.o \
+  CMakeFiles/hweb-poc.dir/src/Session/Session.cpp.o \
+  CMakeFiles/hweb-poc.dir/src/Session/Manager.cpp.o \
   CMakeFiles/hweb-poc.dir/src/Browser/Browser.cpp.o \
   CMakeFiles/hweb-poc.dir/src/Browser/Core.cpp.o \
   CMakeFiles/hweb-poc.dir/src/Browser/JavaScript.cpp.o \
@@ -459,9 +459,9 @@ hweb-poc: \
 
 CMakeFiles/hweb-poc.dir/src/main.cpp.o:
 
-CMakeFiles/hweb-poc.dir/src/Session.cpp.o:
+CMakeFiles/hweb-poc.dir/src/Session/Session.cpp.o:
 
-CMakeFiles/hweb-poc.dir/src/SessionManager.cpp.o:
+CMakeFiles/hweb-poc.dir/src/Session/Manager.cpp.o:
 
 CMakeFiles/hweb-poc.dir/src/Browser/Browser.cpp.o:
 

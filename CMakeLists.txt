@@ -18,8 +18,8 @@ include_directories(${GDKPIXBUF_INCLUDE_DIRS})
 
 add_executable(hweb-poc
     src/main.cpp
-    src/Session.cpp
-    src/SessionManager.cpp
+    src/Session/Session.cpp
+    src/Session/Manager.cpp
     src/Browser/Browser.cpp 
     src/Browser/Core.cpp
     src/Browser/JavaScript.cpp

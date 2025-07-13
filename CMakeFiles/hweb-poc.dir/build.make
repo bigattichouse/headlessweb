@@ -86,33 +86,33 @@ CMakeFiles/hweb-poc.dir/src/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/hweb-poc.dir/src/main.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bigattichouse/workspace/headlessweb/src/main.cpp -o CMakeFiles/hweb-poc.dir/src/main.cpp.s
 
-CMakeFiles/hweb-poc.dir/src/Session.cpp.o: CMakeFiles/hweb-poc.dir/flags.make
-CMakeFiles/hweb-poc.dir/src/Session.cpp.o: src/Session.cpp
-CMakeFiles/hweb-poc.dir/src/Session.cpp.o: CMakeFiles/hweb-poc.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/bigattichouse/workspace/headlessweb/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/hweb-poc.dir/src/Session.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/hweb-poc.dir/src/Session.cpp.o -MF CMakeFiles/hweb-poc.dir/src/Session.cpp.o.d -o CMakeFiles/hweb-poc.dir/src/Session.cpp.o -c /home/bigattichouse/workspace/headlessweb/src/Session.cpp
+CMakeFiles/hweb-poc.dir/src/Session/Session.cpp.o: CMakeFiles/hweb-poc.dir/flags.make
+CMakeFiles/hweb-poc.dir/src/Session/Session.cpp.o: src/Session/Session.cpp
+CMakeFiles/hweb-poc.dir/src/Session/Session.cpp.o: CMakeFiles/hweb-poc.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/bigattichouse/workspace/headlessweb/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/hweb-poc.dir/src/Session/Session.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/hweb-poc.dir/src/Session/Session.cpp.o -MF CMakeFiles/hweb-poc.dir/src/Session/Session.cpp.o.d -o CMakeFiles/hweb-poc.dir/src/Session/Session.cpp.o -c /home/bigattichouse/workspace/headlessweb/src/Session/Session.cpp
 
-CMakeFiles/hweb-poc.dir/src/Session.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/hweb-poc.dir/src/Session.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bigattichouse/workspace/headlessweb/src/Session.cpp > CMakeFiles/hweb-poc.dir/src/Session.cpp.i
+CMakeFiles/hweb-poc.dir/src/Session/Session.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/hweb-poc.dir/src/Session/Session.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bigattichouse/workspace/headlessweb/src/Session/Session.cpp > CMakeFiles/hweb-poc.dir/src/Session/Session.cpp.i
 
-CMakeFiles/hweb-poc.dir/src/Session.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/hweb-poc.dir/src/Session.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bigattichouse/workspace/headlessweb/src/Session.cpp -o CMakeFiles/hweb-poc.dir/src/Session.cpp.s
+CMakeFiles/hweb-poc.dir/src/Session/Session.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/hweb-poc.dir/src/Session/Session.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bigattichouse/workspace/headlessweb/src/Session/Session.cpp -o CMakeFiles/hweb-poc.dir/src/Session/Session.cpp.s
 
-CMakeFiles/hweb-poc.dir/src/SessionManager.cpp.o: CMakeFiles/hweb-poc.dir/flags.make
-CMakeFiles/hweb-poc.dir/src/SessionManager.cpp.o: src/SessionManager.cpp
-CMakeFiles/hweb-poc.dir/src/SessionManager.cpp.o: CMakeFiles/hweb-poc.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/bigattichouse/workspace/headlessweb/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/hweb-poc.dir/src/SessionManager.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/hweb-poc.dir/src/SessionManager.cpp.o -MF CMakeFiles/hweb-poc.dir/src/SessionManager.cpp.o.d -o CMakeFiles/hweb-poc.dir/src/SessionManager.cpp.o -c /home/bigattichouse/workspace/headlessweb/src/SessionManager.cpp
+CMakeFiles/hweb-poc.dir/src/Session/Manager.cpp.o: CMakeFiles/hweb-poc.dir/flags.make
+CMakeFiles/hweb-poc.dir/src/Session/Manager.cpp.o: src/Session/Manager.cpp
+CMakeFiles/hweb-poc.dir/src/Session/Manager.cpp.o: CMakeFiles/hweb-poc.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/bigattichouse/workspace/headlessweb/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/hweb-poc.dir/src/Session/Manager.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/hweb-poc.dir/src/Session/Manager.cpp.o -MF CMakeFiles/hweb-poc.dir/src/Session/Manager.cpp.o.d -o CMakeFiles/hweb-poc.dir/src/Session/Manager.cpp.o -c /home/bigattichouse/workspace/headlessweb/src/Session/Manager.cpp
 
-CMakeFiles/hweb-poc.dir/src/SessionManager.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/hweb-poc.dir/src/SessionManager.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bigattichouse/workspace/headlessweb/src/SessionManager.cpp > CMakeFiles/hweb-poc.dir/src/SessionManager.cpp.i
+CMakeFiles/hweb-poc.dir/src/Session/Manager.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/hweb-poc.dir/src/Session/Manager.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bigattichouse/workspace/headlessweb/src/Session/Manager.cpp > CMakeFiles/hweb-poc.dir/src/Session/Manager.cpp.i
 
-CMakeFiles/hweb-poc.dir/src/SessionManager.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/hweb-poc.dir/src/SessionManager.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bigattichouse/workspace/headlessweb/src/SessionManager.cpp -o CMakeFiles/hweb-poc.dir/src/SessionManager.cpp.s
+CMakeFiles/hweb-poc.dir/src/Session/Manager.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/hweb-poc.dir/src/Session/Manager.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bigattichouse/workspace/headlessweb/src/Session/Manager.cpp -o CMakeFiles/hweb-poc.dir/src/Session/Manager.cpp.s
 
 CMakeFiles/hweb-poc.dir/src/Browser/Browser.cpp.o: CMakeFiles/hweb-poc.dir/flags.make
 CMakeFiles/hweb-poc.dir/src/Browser/Browser.cpp.o: src/Browser/Browser.cpp
@@ -243,8 +243,8 @@ CMakeFiles/hweb-poc.dir/src/Browser/Utilities.cpp.s: cmake_force
 # Object files for target hweb-poc
 hweb__poc_OBJECTS = \
 "CMakeFiles/hweb-poc.dir/src/main.cpp.o" \
-"CMakeFiles/hweb-poc.dir/src/Session.cpp.o" \
-"CMakeFiles/hweb-poc.dir/src/SessionManager.cpp.o" \
+"CMakeFiles/hweb-poc.dir/src/Session/Session.cpp.o" \
+"CMakeFiles/hweb-poc.dir/src/Session/Manager.cpp.o" \
 "CMakeFiles/hweb-poc.dir/src/Browser/Browser.cpp.o" \
 "CMakeFiles/hweb-poc.dir/src/Browser/Core.cpp.o" \
 "CMakeFiles/hweb-poc.dir/src/Browser/JavaScript.cpp.o" \
@@ -259,8 +259,8 @@ hweb__poc_OBJECTS = \
 hweb__poc_EXTERNAL_OBJECTS =
 
 hweb-poc: CMakeFiles/hweb-poc.dir/src/main.cpp.o
-hweb-poc: CMakeFiles/hweb-poc.dir/src/Session.cpp.o
-hweb-poc: CMakeFiles/hweb-poc.dir/src/SessionManager.cpp.o
+hweb-poc: CMakeFiles/hweb-poc.dir/src/Session/Session.cpp.o
+hweb-poc: CMakeFiles/hweb-poc.dir/src/Session/Manager.cpp.o
 hweb-poc: CMakeFiles/hweb-poc.dir/src/Browser/Browser.cpp.o
 hweb-poc: CMakeFiles/hweb-poc.dir/src/Browser/Core.cpp.o
 hweb-poc: CMakeFiles/hweb-poc.dir/src/Browser/JavaScript.cpp.o
