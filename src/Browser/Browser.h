@@ -80,6 +80,10 @@ public:
     bool isFileUrl(const std::string& url) const;
     bool validateFileUrl(const std::string& url) const;
 
+    // ========== Screenshot and Viewport ==========
+    std::pair<int, int> getViewport() const;
+    void ensureProperViewportForScreenshots();
+
     // ========== JavaScript Execution - BrowserJavaScript.cpp ==========
     void executeJavascript(const std::string& script, std::string* result = nullptr);
     bool waitForJavaScriptCompletion(int timeout_ms = 5000);

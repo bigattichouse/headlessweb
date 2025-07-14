@@ -57,11 +57,16 @@ Browser::Browser() : cookieManager(nullptr), main_loop(g_main_loop_new(NULL, FAL
         debug_output("Cookie manager initialized with automatic persistence");
     }
     
+    // Create window but keep it ALWAYS HIDDEN for headless operation
     window = gtk_window_new();
     gtk_window_set_child(GTK_WINDOW(window), GTK_WIDGET(webView));
     
-    // Set window to be offscreen for headless operation
+    // Set window to be offscreen/headless - NEVER show it
     gtk_widget_set_visible(window, FALSE);
+    
+    // Set reasonable default size for offscreen rendering
+    gtk_window_set_default_size(GTK_WINDOW(window), 1920, 1080);
+    gtk_widget_set_size_request(GTK_WIDGET(webView), 1920, 1080);
     
     // Store browser instance in the webView for callbacks
     g_object_set_data(G_OBJECT(webView), "browser-instance", this);

@@ -1,133 +1,302 @@
-# HeadlessWeb
+# HeadlessWeb 🌐
 
-HeadlessWeb is a command-line tool for automating and interacting with web pages without a graphical user interface. It allows you to write scripts that can navigate websites, interact with forms, execute JavaScript, and persist sessions (including cookies, local storage, and form state) for later use.
+**Automate any website from the command line.** HeadlessWeb lets you control web pages like a human would - click buttons, fill forms, take screenshots - but from scripts and terminal commands.
 
-This tool is ideal for:
+## Why HeadlessWeb?
 
-*   **Web Scraping:** Extracting data from websites.
-*   **Automated Testing:** Running tests against your web application in a CI/CD environment.
-*   **Task Automation:** Automating repetitive web-based tasks.
+Ever needed to:
+- **Check if your website is working** after a deployment?
+- **Fill out the same web form** dozens of times?
+- **Download files** from a site that requires logging in?
+- **Monitor a website** for changes or new content?
+- **Test your web app** automatically in your CI/CD pipeline?
+- **Take screenshots** of how your site looks on different pages?
 
-## Features
+HeadlessWeb makes all of this simple with human-readable commands that work exactly like using a real browser.
 
-*   **Session Management:** Start, stop, and list sessions. Session data is saved to disk and can be restored later.
-*   **Navigation:** Navigate to URLs, go back/forward, and reload pages.
-*   **Interaction:**
-    *   Type into input fields.
-    *   Click buttons and other elements.
-    *   Select options from dropdowns.
-    *   Check/uncheck checkboxes.
-*   **JavaScript Execution:** Execute arbitrary JavaScript on the page and get the result.
-*   **State Persistence:** Sessions save and restore:
-    *   Cookies
-    *   `localStorage`
-    *   Form field values
-    *   Scroll position
-*   **Screenshots:** Take screenshots of the visible part of the page or the full page.
-*   **Command Chaining:** Chain multiple commands together in a single execution for efficient scripting.
+## Quick Start
+
+### 1. Check if a website is up
+```bash
+# Navigate to a site and check the title
+./hweb-poc --session test --url https://example.com --js "document.title"
+# Output: "Example Domain"
+```
+
+### 2. Fill out a search form
+```bash
+# Search for something on DuckDuckGo
+./hweb-poc --session search \
+  --url https://duckduckgo.com \
+  --type "#search_form_input_homepage" "your search term" \
+  --click "#search_button_homepage"
+```
+
+### 3. Take a screenshot
+```bash
+# Capture what a webpage looks like
+./hweb-poc --session screenshot \
+  --url https://your-website.com \
+  --screenshot "homepage.png"
+```
+
+### 4. Login and save session
+```bash
+# Login once, then reuse the session (with cookies) later
+./hweb-poc --session mysite \
+  --url https://example.com/login \
+  --type "#username" "your-username" \
+  --type "#password" "your-password" \
+  --click "#login-button"
+
+# Later, use the same session (already logged in!)
+./hweb-poc --session mysite --url https://example.com/dashboard
+```
+
+## Common Tasks
+
+### 🔐 **Automated Login & Data Extraction**
+```bash
+# Login to a site and extract some data
+./hweb-poc --session worksite \
+  --url https://internal-tool.company.com \
+  --type "#email" "you@company.com" \
+  --type "#password" "your-password" \
+  --click "#login" \
+  --wait ".dashboard" \
+  --text ".stats-number"
+```
+
+### 📊 **Website Monitoring**
+```bash
+# Check if a specific element exists (useful for monitoring)
+./hweb-poc --session monitor \
+  --url https://your-app.com/status \
+  --exists ".error-message"
+# Returns: true/false
+```
+
+### 🧪 **Automated Testing**
+```bash
+# Test a user workflow end-to-end
+./hweb-poc --session test \
+  --url https://your-app.com \
+  --click "#sign-up-button" \
+  --type "#email" "test@example.com" \
+  --type "#password" "testpass123" \
+  --click "#submit" \
+  --wait ".welcome-message" \
+  --text ".welcome-message"
+```
+
+### 📸 **Visual Documentation**
+```bash
+# Take screenshots of different pages for documentation
+./hweb-poc --session docs \
+  --url https://your-app.com \
+  --screenshot "landing-page.png" \
+  --url https://your-app.com/features \
+  --screenshot "features-page.png" \
+  --url https://your-app.com/pricing \
+  --screenshot-full "pricing-full.png"
+```
+
+### 🔄 **Batch Processing**
+```bash
+# Process a list of URLs (great for testing or monitoring)
+for url in $(cat urls.txt); do
+  ./hweb-poc --session batch \
+    --url "$url" \
+    --screenshot "$(basename $url).png" \
+    --js "document.title" >> results.txt
+done
+```
+
+## Key Features
+
+### 💾 **Smart Session Management**
+Sessions automatically save everything:
+- **Cookies** (stay logged in)
+- **Form data** (remember what you typed)
+- **Local storage** (app preferences)
+- **Scroll position** (pick up where you left off)
+
+```bash
+# Start working on something
+./hweb-poc --session work --url https://app.com --type "#search" "important stuff"
+
+# Come back later - everything is exactly as you left it
+./hweb-poc --session work --text ".results"
+```
+
+### ⚡ **Command Chaining**
+Chain multiple actions in one command for speed:
+
+```bash
+# Do everything in one go
+./hweb-poc --session order \
+  --url https://store.com \
+  --click ".product" \
+  --select "#size" "Large" \
+  --select "#color" "Blue" \
+  --type "#quantity" "2" \
+  --click "#add-to-cart" \
+  --wait ".cart-success"
+```
+
+### 🎯 **Precise Element Selection**
+Use any CSS selector to target exactly what you want:
+
+```bash
+# By ID, class, attribute, or complex selectors
+--click "#submit-button"
+--type ".search-input"
+--select "[name='country']" "USA"
+--click "button:contains('Next')"
+--wait ".loading:not(.hidden)"
+```
+
+### 🔍 **Rich Data Extraction**
+Get text, HTML, attributes, or run custom JavaScript:
+
+```bash
+# Get different types of data
+./hweb-poc --session data \
+  --url https://news-site.com \
+  --text "h1" \                          # Get headline text
+  --attr "img" "src" \                   # Get image URL
+  --count ".article" \                   # Count articles
+  --html ".summary" \                    # Get full HTML
+  --js "window.location.href"            # Run custom JavaScript
+```
+
+## Advanced Usage
+
+### Custom Attributes
+Set and retrieve custom data attributes:
+```bash
+# Set custom attributes for tracking
+./hweb-poc --session app --attr "#element" "data-processed" "true"
+
+# Check custom attributes later
+./hweb-poc --session app --attr "#element" "data-processed"
+```
+
+### Form Automation
+Handle complex forms easily:
+```bash
+./hweb-poc --session form \
+  --url https://complex-form.com \
+  --type "#first-name" "John" \
+  --type "#last-name" "Doe" \
+  --select "#country" "United States" \
+  --check "#newsletter" \
+  --uncheck "#promotional-emails" \
+  --click "#submit"
+```
+
+### Error Handling
+Check if operations succeeded:
+```bash
+# Check if login was successful
+./hweb-poc --session login \
+  --url https://app.com/login \
+  --type "#username" "user" \
+  --type "#password" "pass" \
+  --click "#login"
+
+# Verify we're logged in
+if ./hweb-poc --session login --exists ".user-menu"; then
+  echo "Login successful!"
+else
+  echo "Login failed!"
+fi
+```
 
 ## Installation
 
-This project is built with C++ and uses CMake. You will need to install the following dependencies to build the `hweb-poc` executable.
-
-### Dependencies
-
-You will need a C++ compiler and the following development libraries:
-
-*   **GTK4:** A multi-platform toolkit for creating graphical user interfaces.
-*   **WebKitGTK (6.0):** The port of the WebKit rendering engine to the GTK platform.
-*   **jsoncpp:** A C++ library for interacting with JSON.
-*   **Cairo:** A 2D graphics library.
-*   **gdk-pixbuf:** A library for image loading and manipulation.
-
-On a Debian-based system (like Ubuntu), you can install these with:
-
+### Quick Install (Ubuntu/Debian)
 ```bash
+# Install dependencies
 sudo apt-get update
-sudo apt-get install -y build-essential cmake pkg-config libgtk-4-dev libwebkitgtk-6.0-dev libjsoncpp-dev libcairo2-dev libgdk-pixbuf2.0-dev
+sudo apt-get install -y build-essential cmake pkg-config \
+  libgtk-4-dev libwebkitgtk-6.0-dev libjsoncpp-dev \
+  libcairo2-dev libgdk-pixbuf2.0-dev
+
+# Build HeadlessWeb
+git clone <repository-url>
+cd headlessweb
+make clean && make
+
+# Ready to use!
+./hweb-poc --help
 ```
 
-### Building
+### Other Systems
+- **Dependencies:** GTK4, WebKitGTK 6.0, jsoncpp, Cairo, gdk-pixbuf
+- **Build:** Standard CMake build process
+- **Requirements:** Modern C++ compiler with C++17 support
 
-Once the dependencies are installed, you can build the project using CMake:
+## Session Management
 
+### Working with Sessions
 ```bash
-mkdir build
-cd build
-cmake ..
-make
+# List all your sessions
+./hweb-poc --list
+
+# Resume any session
+./hweb-poc --session old-session
+
+# Clean up when done
+./hweb-poc --session old-session --end
 ```
 
-This will create the `hweb-poc` executable in the `build` directory. For ease of use, you can copy it to a location in your `PATH`, or run it from the `build` directory. The rest of this README will assume the executable is in the current directory and aliased as `./hweb-poc`.
+### Session Persistence
+Sessions are automatically saved and include:
+- Current page URL
+- All cookies
+- LocalStorage data
+- Form field values
+- Custom attributes
+- Scroll positions
 
-## Usage
+This means you can close your terminal, restart your computer, and pick up exactly where you left off.
 
-The `hweb-poc` tool is controlled via command-line arguments. The core concept is the **session**, which represents a single browsing instance.
+## Tips & Tricks
 
-### Basic Commands
+### 🚀 **Performance Tips**
+- Use `--wait` to ensure elements load before interacting
+- Chain commands together instead of running separate processes
+- Reuse sessions instead of creating new ones
 
-*   `--session <name>`: Start a new session or resume an existing one.
-*   `--url <url>`: Navigate to a URL.
-*   `--end`: End the current session and save its state.
-*   `--list`: List all available sessions.
-*   `--debug`: Enable verbose debug output.
+### 🎯 **Selector Tips**
+- Use browser dev tools to find the right selectors
+- Prefer IDs (`#id`) when available for reliability
+- Use `:contains()` for text-based selection
+- Use attribute selectors for form elements: `[name="field"]`
 
-### Example: Starting a session and navigating
-
+### 🔧 **Debugging**
 ```bash
-# Start a new session named 'my_session' and go to example.com
-./hweb-poc --session my_session --url https://example.com
+# See what's happening under the hood
+./hweb-poc --debug --session test --url https://example.com
 
-# The session is now active. You can run more commands against it.
-# For example, get the page title:
-./hweb-poc --session my_session --js "document.title"
+# Take screenshots to see the current state
+./hweb-poc --session test --screenshot "debug.png"
 
-# End the session when you're done
-./hweb-poc --session my_session --end
+# Check if elements exist before using them
+./hweb-poc --session test --exists "#my-element"
 ```
 
-### Interacting with Pages
+## Examples & Use Cases
 
-You can interact with elements on the page using CSS selectors.
+Check out `comprehensive-test.sh` for a complete example that demonstrates all features, or visit our examples directory for specific use cases like:
 
-*   `--type <selector> <text>`: Type text into an element.
-*   `--click <selector>`: Click an element.
-*   `--select <selector> <value>`: Select an option in a `<select>` element.
-*   `--check <selector>`: Check a checkbox.
-*   `--uncheck <selector>`: Uncheck a checkbox.
-*   `--wait <selector>`: Wait for an element to exist before proceeding.
+- **E-commerce automation** (adding items to cart, checkout process)
+- **Social media posting** (automated content publishing)
+- **Data scraping** (extracting structured data from websites)
+- **Website monitoring** (checking for changes or errors)
+- **Visual regression testing** (screenshot comparisons)
 
-### Querying the Page
+---
 
-*   `--text <selector>`: Get the text content of an element.
-*   `--html <selector>`: Get the HTML content of an element.
-*   `--attr <selector> <attribute>`: Get the value of an attribute on an element.
-*   `--exists <selector>`: Check if an element exists.
-*   `--count <selector>`: Count how many elements match a selector.
-*   `--js <javascript>`: Execute JavaScript and get the return value.
-
-### Command Chaining
-
-For more complex scripts, you can chain multiple commands together in a single line. This is more efficient as it only loads the session once.
-
-```bash
-# In a single command: navigate, fill out a form, and click submit
-./hweb-poc --session search_session \
-    --url https://duckduckgo.com \
-    --wait "#search_form_input_homepage" \
-    --type "#search_form_input_homepage" "headless web automation" \
-    --click "#search_button_homepage"
-```
-
-### Screenshots
-
-*   `--screenshot [filename]`: Take a screenshot of the visible area. Defaults to `screenshot.png`.
-*   `--screenshot-full [filename]`: Take a screenshot of the entire page.
-
-### Comprehensive Test
-
-To see a wide variety of commands in action, you can run the comprehensive test script. This script will create a local HTML file and run a suite of tests against it, demonstrating most of the tool's features.
-
-```bash
-./comprehensive-test.sh
-```
+**Ready to automate the web?** Start with a simple command and build up to complex workflows. HeadlessWeb makes web automation accessible to everyone, from system administrators to developers to QA engineers.
