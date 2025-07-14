@@ -1,8 +1,8 @@
-# Proof of Concept: `hweb-poc`
+# Proof of Concept: `hweb`
 
 ## Goal
 
-The primary goal of this proof-of-concept (`hweb-poc`) was to demonstrate the core functionalities required for a headless web automation tool, specifically focusing on:
+The primary goal of this proof-of-concept (`hweb`) was to demonstrate the core functionalities required for a headless web automation tool, specifically focusing on:
 
 *   Loading a web page using WebKit.
 *   Saving and persisting a web session (cookies, current URL).
@@ -15,7 +15,7 @@ The initial plan involved developing a C++ command-line application using WebKit
 
 ## Development Journey & Challenges
 
-Developing `hweb-poc` presented several significant challenges, primarily due to the evolving APIs of WebKitGTK+ and GTK, and environmental considerations for headless execution.
+Developing `hweb` presented several significant challenges, primarily due to the evolving APIs of WebKitGTK+ and GTK, and environmental considerations for headless execution.
 
 ### 1. Initial Compilation Issues (Missing Dependencies)
 
@@ -85,7 +85,7 @@ Developing `hweb-poc` presented several significant challenges, primarily due to
 
 ## Final Working State & Limitations
 
-The `hweb-poc` application successfully demonstrates:
+The `hweb` application successfully demonstrates:
 
 *   Loading web pages using WebKitGTK+ 6.0 (GTK 4).
 *   Saving and loading session state (specifically the URL).

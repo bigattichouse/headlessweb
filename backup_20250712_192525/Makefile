@@ -117,24 +117,24 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named hweb-poc
+# Target rules for targets named hweb
 
 # Build rule for target.
-hweb-poc: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 hweb-poc
-.PHONY : hweb-poc
+hweb: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 hweb
+.PHONY : hweb
 
 # fast build rule for target.
-hweb-poc/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/build
-.PHONY : hweb-poc/fast
+hweb/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb.dir/build.make CMakeFiles/hweb.dir/build
+.PHONY : hweb/fast
 
 src/Browser.o: src/Browser.cpp.o
 .PHONY : src/Browser.o
 
 # target to build an object file
 src/Browser.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Browser.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb.dir/build.make CMakeFiles/hweb.dir/src/Browser.cpp.o
 .PHONY : src/Browser.cpp.o
 
 src/Browser.i: src/Browser.cpp.i
@@ -142,7 +142,7 @@ src/Browser.i: src/Browser.cpp.i
 
 # target to preprocess a source file
 src/Browser.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Browser.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb.dir/build.make CMakeFiles/hweb.dir/src/Browser.cpp.i
 .PHONY : src/Browser.cpp.i
 
 src/Browser.s: src/Browser.cpp.s
@@ -150,7 +150,7 @@ src/Browser.s: src/Browser.cpp.s
 
 # target to generate assembly for a file
 src/Browser.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Browser.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb.dir/build.make CMakeFiles/hweb.dir/src/Browser.cpp.s
 .PHONY : src/Browser.cpp.s
 
 src/Session.o: src/Session.cpp.o
@@ -158,7 +158,7 @@ src/Session.o: src/Session.cpp.o
 
 # target to build an object file
 src/Session.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Session.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb.dir/build.make CMakeFiles/hweb.dir/src/Session.cpp.o
 .PHONY : src/Session.cpp.o
 
 src/Session.i: src/Session.cpp.i
@@ -166,7 +166,7 @@ src/Session.i: src/Session.cpp.i
 
 # target to preprocess a source file
 src/Session.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Session.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb.dir/build.make CMakeFiles/hweb.dir/src/Session.cpp.i
 .PHONY : src/Session.cpp.i
 
 src/Session.s: src/Session.cpp.s
@@ -174,7 +174,7 @@ src/Session.s: src/Session.cpp.s
 
 # target to generate assembly for a file
 src/Session.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/Session.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb.dir/build.make CMakeFiles/hweb.dir/src/Session.cpp.s
 .PHONY : src/Session.cpp.s
 
 src/SessionManager.o: src/SessionManager.cpp.o
@@ -182,7 +182,7 @@ src/SessionManager.o: src/SessionManager.cpp.o
 
 # target to build an object file
 src/SessionManager.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/SessionManager.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb.dir/build.make CMakeFiles/hweb.dir/src/SessionManager.cpp.o
 .PHONY : src/SessionManager.cpp.o
 
 src/SessionManager.i: src/SessionManager.cpp.i
@@ -190,7 +190,7 @@ src/SessionManager.i: src/SessionManager.cpp.i
 
 # target to preprocess a source file
 src/SessionManager.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/SessionManager.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb.dir/build.make CMakeFiles/hweb.dir/src/SessionManager.cpp.i
 .PHONY : src/SessionManager.cpp.i
 
 src/SessionManager.s: src/SessionManager.cpp.s
@@ -198,7 +198,7 @@ src/SessionManager.s: src/SessionManager.cpp.s
 
 # target to generate assembly for a file
 src/SessionManager.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/SessionManager.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb.dir/build.make CMakeFiles/hweb.dir/src/SessionManager.cpp.s
 .PHONY : src/SessionManager.cpp.s
 
 src/main.o: src/main.cpp.o
@@ -206,7 +206,7 @@ src/main.o: src/main.cpp.o
 
 # target to build an object file
 src/main.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/main.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb.dir/build.make CMakeFiles/hweb.dir/src/main.cpp.o
 .PHONY : src/main.cpp.o
 
 src/main.i: src/main.cpp.i
@@ -214,7 +214,7 @@ src/main.i: src/main.cpp.i
 
 # target to preprocess a source file
 src/main.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/main.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb.dir/build.make CMakeFiles/hweb.dir/src/main.cpp.i
 .PHONY : src/main.cpp.i
 
 src/main.s: src/main.cpp.s
@@ -222,7 +222,7 @@ src/main.s: src/main.cpp.s
 
 # target to generate assembly for a file
 src/main.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb-poc.dir/build.make CMakeFiles/hweb-poc.dir/src/main.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb.dir/build.make CMakeFiles/hweb.dir/src/main.cpp.s
 .PHONY : src/main.cpp.s
 
 # Help Target
@@ -233,7 +233,7 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... hweb-poc"
+	@echo "... hweb"
 	@echo "... src/Browser.o"
 	@echo "... src/Browser.i"
 	@echo "... src/Browser.s"

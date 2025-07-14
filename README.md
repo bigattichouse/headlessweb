@@ -19,14 +19,14 @@ HeadlessWeb makes all of this simple with human-readable commands that work exac
 ### 1. Check if a website is up
 ```bash
 # Navigate to a site and check the title
-./hweb-poc --session test --url https://example.com --js "document.title"
+./hweb --session test --url https://example.com --js "document.title"
 # Output: "Example Domain"
 ```
 
 ### 2. Fill out a search form
 ```bash
 # Search for something on DuckDuckGo
-./hweb-poc --session search \
+./hweb --session search \
   --url https://duckduckgo.com \
   --type "#search_form_input_homepage" "your search term" \
   --click "#search_button_homepage"
@@ -35,7 +35,7 @@ HeadlessWeb makes all of this simple with human-readable commands that work exac
 ### 3. Take a screenshot
 ```bash
 # Capture what a webpage looks like
-./hweb-poc --session screenshot \
+./hweb --session screenshot \
   --url https://your-website.com \
   --screenshot "homepage.png"
 ```
@@ -43,14 +43,14 @@ HeadlessWeb makes all of this simple with human-readable commands that work exac
 ### 4. Login and save session
 ```bash
 # Login once, then reuse the session (with cookies) later
-./hweb-poc --session mysite \
+./hweb --session mysite \
   --url https://example.com/login \
   --type "#username" "your-username" \
   --type "#password" "your-password" \
   --click "#login-button"
 
 # Later, use the same session (already logged in!)
-./hweb-poc --session mysite --url https://example.com/dashboard
+./hweb --session mysite --url https://example.com/dashboard
 ```
 
 ## Common Tasks
@@ -58,7 +58,7 @@ HeadlessWeb makes all of this simple with human-readable commands that work exac
 ### 🔐 **Automated Login & Data Extraction**
 ```bash
 # Login to a site and extract some data
-./hweb-poc --session worksite \
+./hweb --session worksite \
   --url https://internal-tool.company.com \
   --type "#email" "you@company.com" \
   --type "#password" "your-password" \
@@ -70,7 +70,7 @@ HeadlessWeb makes all of this simple with human-readable commands that work exac
 ### 📊 **Website Monitoring**
 ```bash
 # Check if a specific element exists (useful for monitoring)
-./hweb-poc --session monitor \
+./hweb --session monitor \
   --url https://your-app.com/status \
   --exists ".error-message"
 # Returns: true/false
@@ -79,7 +79,7 @@ HeadlessWeb makes all of this simple with human-readable commands that work exac
 ### 🧪 **Automated Testing**
 ```bash
 # Test a user workflow end-to-end
-./hweb-poc --session test \
+./hweb --session test \
   --url https://your-app.com \
   --click "#sign-up-button" \
   --type "#email" "test@example.com" \
@@ -92,7 +92,7 @@ HeadlessWeb makes all of this simple with human-readable commands that work exac
 ### 📸 **Visual Documentation**
 ```bash
 # Take screenshots of different pages for documentation
-./hweb-poc --session docs \
+./hweb --session docs \
   --url https://your-app.com \
   --screenshot "landing-page.png" \
   --url https://your-app.com/features \
@@ -105,7 +105,7 @@ HeadlessWeb makes all of this simple with human-readable commands that work exac
 ```bash
 # Process a list of URLs (great for testing or monitoring)
 for url in $(cat urls.txt); do
-  ./hweb-poc --session batch \
+  ./hweb --session batch \
     --url "$url" \
     --screenshot "$(basename $url).png" \
     --js "document.title" >> results.txt
@@ -123,10 +123,10 @@ Sessions automatically save everything:
 
 ```bash
 # Start working on something
-./hweb-poc --session work --url https://app.com --type "#search" "important stuff"
+./hweb --session work --url https://app.com --type "#search" "important stuff"
 
 # Come back later - everything is exactly as you left it
-./hweb-poc --session work --text ".results"
+./hweb --session work --text ".results"
 ```
 
 ### ⚡ **Command Chaining**
@@ -134,7 +134,7 @@ Chain multiple actions in one command for speed:
 
 ```bash
 # Do everything in one go
-./hweb-poc --session order \
+./hweb --session order \
   --url https://store.com \
   --click ".product" \
   --select "#size" "Large" \
@@ -161,7 +161,7 @@ Get text, HTML, attributes, or run custom JavaScript:
 
 ```bash
 # Get different types of data
-./hweb-poc --session data \
+./hweb --session data \
   --url https://news-site.com \
   --text "h1" \                          # Get headline text
   --attr "img" "src" \                   # Get image URL
@@ -176,16 +176,16 @@ Get text, HTML, attributes, or run custom JavaScript:
 Set and retrieve custom data attributes:
 ```bash
 # Set custom attributes for tracking
-./hweb-poc --session app --attr "#element" "data-processed" "true"
+./hweb --session app --attr "#element" "data-processed" "true"
 
 # Check custom attributes later
-./hweb-poc --session app --attr "#element" "data-processed"
+./hweb --session app --attr "#element" "data-processed"
 ```
 
 ### Form Automation
 Handle complex forms easily:
 ```bash
-./hweb-poc --session form \
+./hweb --session form \
   --url https://complex-form.com \
   --type "#first-name" "John" \
   --type "#last-name" "Doe" \
@@ -199,14 +199,14 @@ Handle complex forms easily:
 Check if operations succeeded:
 ```bash
 # Check if login was successful
-./hweb-poc --session login \
+./hweb --session login \
   --url https://app.com/login \
   --type "#username" "user" \
   --type "#password" "pass" \
   --click "#login"
 
 # Verify we're logged in
-if ./hweb-poc --session login --exists ".user-menu"; then
+if ./hweb --session login --exists ".user-menu"; then
   echo "Login successful!"
 else
   echo "Login failed!"
@@ -229,7 +229,7 @@ cd headlessweb
 make clean && make
 
 # Ready to use!
-./hweb-poc --help
+./hweb --help
 ```
 
 ### Other Systems
@@ -242,13 +242,13 @@ make clean && make
 ### Working with Sessions
 ```bash
 # List all your sessions
-./hweb-poc --list
+./hweb --list
 
 # Resume any session
-./hweb-poc --session old-session
+./hweb --session old-session
 
 # Clean up when done
-./hweb-poc --session old-session --end
+./hweb --session old-session --end
 ```
 
 ### Session Persistence
@@ -278,13 +278,13 @@ This means you can close your terminal, restart your computer, and pick up exact
 ### 🔧 **Debugging**
 ```bash
 # See what's happening under the hood
-./hweb-poc --debug --session test --url https://example.com
+./hweb --debug --session test --url https://example.com
 
 # Take screenshots to see the current state
-./hweb-poc --session test --screenshot "debug.png"
+./hweb --session test --screenshot "debug.png"
 
 # Check if elements exist before using them
-./hweb-poc --session test --exists "#my-element"
+./hweb --session test --exists "#my-element"
 ```
 
 ## Examples & Use Cases

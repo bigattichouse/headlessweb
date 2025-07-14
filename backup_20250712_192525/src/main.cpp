@@ -25,7 +25,7 @@ void error_output(const std::string& message) {
 }
 
 void print_usage() {
-    std::cerr << "Usage: hweb-poc [options] [commands...]" << std::endl;
+    std::cerr << "Usage: hweb [options] [commands...]" << std::endl;
     std::cerr << "Options:" << std::endl;
     std::cerr << "  --session <n>        Use named session (default: 'default')" << std::endl;
     std::cerr << "  --url <url>          Navigate to URL" << std::endl;
@@ -188,7 +188,7 @@ int main(int argc, char* argv[]) {
     }
 
     std::string home = std::getenv("HOME");
-    SessionManager sessionManager(home + "/.hweb-poc/sessions");
+    SessionManager sessionManager(home + "/.hweb/sessions");
 
     // Handle list command
     if (listSessions) {

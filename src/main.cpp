@@ -6,6 +6,7 @@
 #include <glib.h>
 #include "Session/Manager.h"
 #include "Browser/Browser.h"
+#include "Assertion/Manager.h"
 #include "Debug.h"
 
 struct Command {
@@ -14,6 +15,9 @@ struct Command {
     std::string value;
     int timeout = 10000;
 };
+
+// Global assertion manager
+static std::unique_ptr<Assertion::Manager> assertionManager;
 
 // Helper functions for output control
 void info_output(const std::string& message) {
@@ -25,7 +29,7 @@ void error_output(const std::string& message) {
 }
 
 void print_usage() {
-    std::cerr << "Usage: hweb-poc [options] [commands...]" << std::endl;
+    std::cerr << "Usage: hweb [options] [commands...]" << std::endl;
     std::cerr << "Options:" << std::endl;
     std::cerr << "  --session <n>        Use named session (default: 'default')" << std::endl;
     std::cerr << "  --url <url>          Navigate to URL" << std::endl;
@@ -34,6 +38,20 @@ void print_usage() {
     std::cerr << "  --debug              Enable debug output" << std::endl;
     std::cerr << "  --user-agent <ua>    Set custom user agent" << std::endl;
     std::cerr << "  --width <px>         Set browser width (default: 1000)" << std::endl;
+    std::cerr << "  --json               Enable JSON output mode" << std::endl;
+    std::cerr << "  --silent             Silent mode (exit codes only)" << std::endl;
+    std::cerr << std::endl;
+    std::cerr << "Test Suite Management:" << std::endl;
+    std::cerr << "  --test-suite start <name>  Start test suite" << std::endl;
+    std::cerr << "  --test-suite end [format]  End test suite (format: text|json|junit)" << std::endl;
+    std::cerr << std::endl;
+    std::cerr << "Assertions:" << std::endl;
+    std::cerr << "  --assert-exists <sel> [true|false]     Assert element exists" << std::endl;
+    std::cerr << "  --assert-text <sel> <text>             Assert element text" << std::endl;
+    std::cerr << "  --assert-count <sel> <count>           Assert element count" << std::endl;
+    std::cerr << "  --assert-js <js> [true|false]          Assert JavaScript result" << std::endl;
+    std::cerr << "  --message <msg>                        Custom assertion message" << std::endl;
+    std::cerr << "  --timeout <ms>                         Assertion timeout" << std::endl;
     std::cerr << std::endl;
     std::cerr << "Commands (can be chained):" << std::endl;
     std::cerr << "  --type <selector> <text>     Type text into element" << std::endl;
@@ -64,6 +82,18 @@ void print_usage() {
     std::cerr << "  --record-start               Start recording actions" << std::endl;
     std::cerr << "  --record-stop                Stop recording actions" << std::endl;
     std::cerr << "  --replay <n>              Replay recorded actions" << std::endl;
+    std::cerr << std::endl;
+    std::cerr << "Assertion Operators:" << std::endl;
+    std::cerr << "  For --assert-count: >N, <N, >=N, <=N, !=N, ==N" << std::endl;
+    std::cerr << "  For --assert-text: contains:text, ~=regex, !=text" << std::endl;
+    std::cerr << std::endl;
+    std::cerr << "Examples:" << std::endl;
+    std::cerr << "  hweb --url example.com --assert-exists '.login-form'" << std::endl;
+    std::cerr << "  hweb --assert-text 'h1' 'Welcome' --json" << std::endl;
+    std::cerr << "  hweb --assert-count '.item' '>5' --silent" << std::endl;
+    std::cerr << "  hweb --test-suite start 'Login Tests' \\" << std::endl;
+    std::cerr << "           --url login.com --assert-exists '#username' \\" << std::endl;
+    std::cerr << "           --test-suite end json" << std::endl;
 }
 
 // Event-driven navigation waiting - replaces the polling wait_for_completion
@@ -96,9 +126,19 @@ int main(int argc, char* argv[]) {
     std::string sessionName, url;
     bool endSession = false;
     bool listSessions = false;
+    bool json_mode = false;
+    bool silent_mode = false;
     int browser_width = 1000;
     std::vector<Command> commands;
-
+    std::vector<Assertion::Command> assertions;
+    
+    // Initialize assertion manager
+    assertionManager = std::make_unique<Assertion::Manager>();
+    
+    // Current assertion being built
+    Assertion::Command current_assertion;
+    bool has_pending_assertion = false;
+    
     // Parse arguments
     for (size_t i = 0; i < args.size(); ++i) {
         if (args[i] == "--session" && i + 1 < args.size()) {
@@ -111,11 +151,122 @@ int main(int argc, char* argv[]) {
             listSessions = true;
         } else if (args[i] == "--debug") {
             g_debug = true;
+        } else if (args[i] == "--json") {
+            json_mode = true;
+        } else if (args[i] == "--silent") {
+            silent_mode = true;
         } else if (args[i] == "--width" && i + 1 < args.size()) {
             browser_width = std::stoi(args[++i]);
         } else if (args[i] == "--user-agent" && i + 1 < args.size()) {
             commands.push_back({"user-agent", "", args[++i]});
-        } else if (args[i] == "--type" && i + 2 < args.size()) {
+        } 
+        // Test Suite Management
+        else if (args[i] == "--test-suite" && i + 1 < args.size()) {
+            std::string action = args[++i];
+            if (action == "start" && i + 1 < args.size()) {
+                std::string suite_name = args[++i];
+                assertionManager->startSuite(suite_name);
+            } else if (action == "end") {
+                std::string format = "text";
+                if (i + 1 < args.size() && args[i + 1][0] != '-') {
+                    format = args[++i];
+                }
+                assertionManager->endSuite(json_mode, format);
+            }
+        }
+        // Assertion Commands
+        else if (args[i] == "--assert-exists" && i + 1 < args.size()) {
+            // Save any pending assertion first
+            if (has_pending_assertion) {
+                assertions.push_back(current_assertion);
+            }
+            
+            current_assertion = {};
+            current_assertion.type = "exists";
+            current_assertion.selector = args[++i];
+            current_assertion.expected_value = "true"; // Default
+            current_assertion.op = Assertion::ComparisonOperator::EQUALS;
+            current_assertion.json_output = json_mode;
+            current_assertion.silent = silent_mode;
+            current_assertion.case_sensitive = true;
+            current_assertion.timeout_ms = 5000; // Default timeout
+            has_pending_assertion = true;
+            
+            // Check for optional true/false value
+            if (i + 1 < args.size() && args[i + 1][0] != '-') {
+                current_assertion.expected_value = args[++i];
+            }
+        } else if (args[i] == "--assert-text" && i + 2 < args.size()) {
+            // Save any pending assertion first
+            if (has_pending_assertion) {
+                assertions.push_back(current_assertion);
+            }
+            
+            current_assertion = {};
+            current_assertion.type = "text";
+            current_assertion.selector = args[++i];
+            current_assertion.expected_value = args[++i];
+            current_assertion.op = Assertion::ComparisonOperator::EQUALS;
+            current_assertion.json_output = json_mode;
+            current_assertion.silent = silent_mode;
+            current_assertion.case_sensitive = true;
+            current_assertion.timeout_ms = 5000;
+            has_pending_assertion = true;
+        } else if (args[i] == "--assert-count" && i + 2 < args.size()) {
+            // Save any pending assertion first
+            if (has_pending_assertion) {
+                assertions.push_back(current_assertion);
+            }
+            
+            current_assertion = {};
+            current_assertion.type = "count";
+            current_assertion.selector = args[++i];
+            current_assertion.expected_value = args[++i];
+            current_assertion.op = Assertion::ComparisonOperator::EQUALS;
+            current_assertion.json_output = json_mode;
+            current_assertion.silent = silent_mode;
+            current_assertion.case_sensitive = true;
+            current_assertion.timeout_ms = 5000;
+            has_pending_assertion = true;
+        } else if (args[i] == "--assert-js" && i + 1 < args.size()) {
+            // Save any pending assertion first
+            if (has_pending_assertion) {
+                assertions.push_back(current_assertion);
+            }
+            
+            current_assertion = {};
+            current_assertion.type = "js";
+            current_assertion.selector = args[++i]; // JS expression
+            current_assertion.expected_value = "true"; // Default
+            current_assertion.op = Assertion::ComparisonOperator::EQUALS;
+            current_assertion.json_output = json_mode;
+            current_assertion.silent = silent_mode;
+            current_assertion.case_sensitive = true;
+            current_assertion.timeout_ms = 5000;
+            has_pending_assertion = true;
+            
+            // Check for optional true/false value
+            if (i + 1 < args.size() && args[i + 1][0] != '-') {
+                current_assertion.expected_value = args[++i];
+            }
+        } else if (args[i] == "--message" && i + 1 < args.size()) {
+            if (has_pending_assertion) {
+                current_assertion.custom_message = args[++i];
+            } else {
+                error_output("--message must follow an assertion command");
+                return 1;
+            }
+        } else if (args[i] == "--timeout" && i + 1 < args.size()) {
+            int timeout = std::stoi(args[++i]);
+            if (has_pending_assertion) {
+                current_assertion.timeout_ms = timeout;
+            } else {
+                error_output("--timeout must follow an assertion command");
+                return 1;
+            }
+        }
+        // Regular Commands
+        else if (args[i] == "--type" && i + 2 < args.size()) {
             commands.push_back({"type", args[i+1], args[i+2]});
             i += 2;
         } else if (args[i] == "--click" && i + 1 < args.size()) {
@@ -186,9 +337,18 @@ int main(int argc, char* argv[]) {
             commands.push_back({"replay", args[++i], ""});
         }
     }
-
+    
+    // Add any final pending assertion
+    if (has_pending_assertion) {
+        assertions.push_back(current_assertion);
+    }
+    
+    // Configure assertion manager
+    assertionManager->setSilentMode(silent_mode);
+    assertionManager->setJsonOutput(json_mode);
+    
     std::string home = std::getenv("HOME");
-    SessionManager sessionManager(home + "/.hweb-poc/sessions");
+    SessionManager sessionManager(home + "/.hweb/sessions");
 
     // Handle list command
     if (listSessions) {
@@ -213,7 +373,7 @@ int main(int argc, char* argv[]) {
     Session session = sessionManager.loadOrCreateSession(sessionName);
     
     // Create browser only if we need it
-    if (!url.empty() || !commands.empty() || !session.getCurrentUrl().empty()) {
+    if (!url.empty() || !commands.empty() || !assertions.empty() || !session.getCurrentUrl().empty()) {
         Browser browser;
         browser.setViewport(browser_width, 800); // Default height
         
@@ -227,19 +387,19 @@ int main(int argc, char* argv[]) {
             should_navigate = true;
             navigation_url = url;
             is_session_restore = false;
-        } else if (!session.getCurrentUrl().empty() && commands.empty()) {
+        } else if (!session.getCurrentUrl().empty() && commands.empty() && assertions.empty()) {
             // No URL provided, no commands, but session has URL - this is pure session restoration
             should_navigate = true;
             navigation_url = session.getCurrentUrl();
             is_session_restore = true;
             info_output("Restoring session URL: " + navigation_url);
-        } else if (session.getCurrentUrl().empty() && commands.empty()) {
+        } else if (session.getCurrentUrl().empty() && commands.empty() && assertions.empty()) {
             // No URL anywhere and no commands to run
             error_output("No URL in session. Use --url to navigate.");
             return 1;
         }
-        // If we have commands but no explicit URL, we'll use the session's current URL
-        else if (!session.getCurrentUrl().empty() && !commands.empty()) {
+        // If we have commands/assertions but no explicit URL, we'll use the session's current URL
+        else if (!session.getCurrentUrl().empty() && (!commands.empty() || !assertions.empty())) {
             should_navigate = true;
             navigation_url = session.getCurrentUrl();
             is_session_restore = true; // DO restore state when running commands on existing session
@@ -281,11 +441,16 @@ int main(int argc, char* argv[]) {
             }
         }
 
-        // Execute commands in sequence
+        // Execute commands and assertions in sequence
         int exit_code = 0;
         bool state_modified = false;  // Track if any command modified page state
         bool isHistoryNavigation = false;  // Track if we're doing back/forward navigation
         
+        // Combine commands and assertions into a single execution flow
+        size_t cmd_index = 0;
+        size_t assert_index = 0;
+        
+        // Execute commands first, then assertions
         for (const auto& cmd : commands) {
             bool navigation_expected = false;
             
@@ -308,6 +473,7 @@ int main(int argc, char* argv[]) {
                 session.recordAction(action);
             }
             
+            // Execute command (existing command execution logic)
             if (cmd.type == "store") {
                 session.setCustomVariable(cmd.selector, cmd.value);
                 info_output("Stored variable '" + cmd.selector + "'");
@@ -315,13 +481,11 @@ int main(int argc, char* argv[]) {
                 if (session.hasCustomVariable(cmd.selector)) {
                     std::cout << session.getCustomVariable(cmd.selector) << std::endl;
                 } else {
-                    // Return empty string instead of error for missing variables
                     std::cout << "" << std::endl;
                 }
             } else if (cmd.type == "back") {
-                isHistoryNavigation = true;  // Mark as history navigation
+                isHistoryNavigation = true;
                 if (session.canGoBack()) {
-                    // Get the target URL from session history
                     int targetIndex = session.getHistoryIndex() - 1;
                     const auto& history = session.getHistory();
                     
@@ -329,20 +493,13 @@ int main(int argc, char* argv[]) {
                         std::string targetUrl = history[targetIndex];
                         info_output("Navigating back to: " + targetUrl);
                         
-                        // Navigate to the URL directly instead of using browser.goBack()
                         browser.loadUri(targetUrl);
                         
-                        // Wait for navigation to complete
                         if (wait_for_navigation_complete(browser, 5000)) {
-                            // Update the history index and current URL
                             session.setHistoryIndex(targetIndex);
                             session.setCurrentUrl(targetUrl);
                             info_output("Navigated back");
-                            
-                            // Restore session state after navigation
                             browser.restoreSession(session);
-                            
-                            // IMPORTANT: Don't set navigation_expected to prevent duplicate history
                         } else {
                             error_output("Back navigation timeout");
                             exit_code = 1;
@@ -356,9 +513,8 @@ int main(int argc, char* argv[]) {
                     exit_code = 1;
                 }
             } else if (cmd.type == "forward") {
-                isHistoryNavigation = true;  // Mark as history navigation
+                isHistoryNavigation = true;
                 if (session.canGoForward()) {
-                    // Get the target URL from session history
                     int targetIndex = session.getHistoryIndex() + 1;
                     const auto& history = session.getHistory();
                     
@@ -366,20 +522,13 @@ int main(int argc, char* argv[]) {
                         std::string targetUrl = history[targetIndex];
                         info_output("Navigating forward to: " + targetUrl);
                         
-                        // Navigate to the URL directly instead of using browser.goForward()
                         browser.loadUri(targetUrl);
                         
-                        // Wait for navigation to complete
                         if (wait_for_navigation_complete(browser, 5000)) {
-                            // Update the history index and current URL
                             session.setHistoryIndex(targetIndex);
                             session.setCurrentUrl(targetUrl);
                             info_output("Navigated forward");
-                            
-                            // Restore session state after navigation
                             browser.restoreSession(session);
-                            
-                            // IMPORTANT: Don't set navigation_expected to prevent duplicate history
                         } else {
                             error_output("Forward navigation timeout");
                             exit_code = 1;
@@ -394,7 +543,6 @@ int main(int argc, char* argv[]) {
                 }
             } else if (cmd.type == "reload") {
                 browser.reload();
-                // Use event-driven navigation waiting for reload
                 if (wait_for_navigation_complete(browser, 5000)) {
                     info_output("Page reloaded");
                 } else {
@@ -405,21 +553,17 @@ int main(int argc, char* argv[]) {
                 session.setUserAgent(cmd.value);
                 info_output("Set user agent to: " + cmd.value);
             } else if (cmd.type == "type") {
-                // No need for page stabilization - the new fillInput method handles element waiting
                 if (browser.fillInput(cmd.selector, cmd.value)) {
                     info_output("Typed into " + cmd.selector);
                 } else {
                     error_output("Failed to type into " + cmd.selector);
-                    // Don't fail the whole script for form failures
                 }
             } else if (cmd.type == "click") {
-                // The new clickElement method handles element waiting and visibility
                 if (browser.clickElement(cmd.selector)) {
                     info_output("Clicked " + cmd.selector);
                     navigation_expected = true;
                 } else {
                     error_output("Failed to click " + cmd.selector);
-                    // Don't fail the whole script for click failures
                 }
             } else if (cmd.type == "submit") {
                 if (browser.submitForm(cmd.selector)) {
@@ -429,7 +573,6 @@ int main(int argc, char* argv[]) {
                     error_output("Failed to submit form " + cmd.selector);
                 }
             } else if (cmd.type == "select") {
-                // No page stabilization needed - let the event-driven method handle it
                 if (browser.selectOption(cmd.selector, cmd.value)) {
                     info_output("Selected '" + cmd.value + "' in " + cmd.selector);
                 } else {
@@ -454,7 +597,6 @@ int main(int argc, char* argv[]) {
                     error_output("Failed to focus " + cmd.selector);
                 }
             } else if (cmd.type == "wait") {
-                // Now uses event-driven waiting automatically
                 if (browser.waitForSelector(cmd.selector, cmd.timeout)) {
                     info_output("Element " + cmd.selector + " appeared");
                 } else {
@@ -462,14 +604,12 @@ int main(int argc, char* argv[]) {
                     exit_code = 1;
                 }
             } else if (cmd.type == "wait-nav") {
-                // Use event-driven navigation waiting
                 if (browser.waitForNavigation(cmd.timeout)) {
                     info_output("Navigation completed");
                 } else {
                     info_output("Navigation timeout or no navigation detected");
                 }
             } else if (cmd.type == "wait-ready") {
-                // Determine if it's a selector or JS expression
                 PageReadyCondition condition;
                 if (cmd.selector.find("return") != std::string::npos || 
                     cmd.selector.find("==") != std::string::npos ||
@@ -484,7 +624,6 @@ int main(int argc, char* argv[]) {
                 session.addReadyCondition(condition);
                 
                 if (condition.type == PageReadyCondition::SELECTOR) {
-                    // Now uses event-driven waiting automatically
                     if (browser.waitForSelector(cmd.selector, condition.timeout)) {
                         info_output("Ready condition met: " + cmd.selector);
                     } else {
@@ -492,7 +631,6 @@ int main(int argc, char* argv[]) {
                         exit_code = 1;
                     }
                 } else {
-                    // Now uses event-driven condition waiting automatically
                     if (browser.waitForJsCondition(cmd.selector, condition.timeout)) {
                         info_output("Ready condition met: " + cmd.selector);
                     } else {
@@ -503,7 +641,6 @@ int main(int argc, char* argv[]) {
             } else if (cmd.type == "text") {
                 std::string text = browser.getInnerText(cmd.selector);
                 if (text.empty()) {
-                    // Try to get any text from the page for debugging
                     std::string anyText = browser.executeJavascriptSyncSafe("(function() { try { return document.body ? document.body.innerText.substring(0, 100) : 'NO_BODY'; } catch(e) { return 'ERROR: ' + e.message; } })()");
                     if (anyText.find("NO_BODY") != std::string::npos || anyText.find("ERROR") != std::string::npos) {
                         std::cout << "NOT_FOUND" << std::endl;
@@ -524,13 +661,10 @@ int main(int argc, char* argv[]) {
             } else if (cmd.type == "js") {
                 std::string result;
                 browser.executeJavascript(cmd.value, &result);
-                // Use event-driven completion waiting
                 browser.waitForJavaScriptCompletion(5000);
                 
-                // Output ONLY the JavaScript result to stdout
                 std::cout << result << std::endl;
                 
-                // If the JS modified state (cookies, storage, etc), update session
                 if (cmd.value.find("cookie") != std::string::npos ||
                     cmd.value.find("Storage") != std::string::npos ||
                     cmd.value.find("scroll") != std::string::npos) {
@@ -575,7 +709,6 @@ int main(int argc, char* argv[]) {
                 session.setRecording(false);
                 info_output("Stopped recording. " + std::to_string(session.getRecordedActions().size()) + " actions recorded.");
             } else if (cmd.type == "replay") {
-                // Find recorded actions by name (for now, just use the current session's actions)
                 const auto& actions = session.getRecordedActions();
                 if (actions.empty()) {
                     error_output("No recorded actions to replay");
@@ -593,7 +726,6 @@ int main(int argc, char* argv[]) {
             
             // Handle navigation updates using event-driven detection
             if (navigation_expected && !isHistoryNavigation) {
-                // Use event-driven page stabilization
                 browser.waitForPageStabilization(2000);
                 std::string new_url = browser.getCurrentUrl();
                 if (new_url != session.getCurrentUrl() && !new_url.empty()) {
@@ -603,15 +735,23 @@ int main(int argc, char* argv[]) {
                 }
             }
         }
+        
+        // Execute assertions
+        for (const auto& assertion : assertions) {
+            Assertion::Result result = assertionManager->executeAssertion(browser, assertion);
+            
+            // Update exit code based on assertion results
+            if (result == Assertion::Result::FAIL || result == Assertion::Result::ERROR) {
+                exit_code = static_cast<int>(result);
+            }
+        }
 
         // Update session state with all browser state (defensive)
-        // Always update if state was modified or if we navigated
         if (state_modified || should_navigate) {
             try {
                 browser.updateSessionState(session);
             } catch (const std::exception& e) {
                 error_output("Warning: Failed to update session state: " + std::string(e.what()));
-                // Continue anyway, at least save what we can
             }
         }
         
@@ -619,7 +759,7 @@ int main(int argc, char* argv[]) {
         try {
             sessionManager.saveSession(session);
             
-            if (!commands.empty()) {
+            if (!commands.empty() || !assertions.empty()) {
                 info_output("Session '" + sessionName + "' saved.");
             }
         } catch (const std::exception& e) {
@@ -637,7 +777,7 @@ int main(int argc, char* argv[]) {
 
         return exit_code;
     } else {
-        // No URL and no commands - just output message
+        // No URL and no commands/assertions - just output message
         error_output("No URL in session. Use --url to navigate.");
         return 1;
     }
