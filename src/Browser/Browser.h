@@ -161,6 +161,10 @@ public:
     // Custom state
     Json::Value extractCustomState(const std::map<std::string, std::string>& extractors);
     void restoreCustomState(const std::map<std::string, Json::Value>& state);
+    
+    // Custom attributes management
+    std::string extractCustomAttributesScript();
+    void restoreCustomAttributesFromState(const Json::Value& attributesState);
 
     // ========== Screenshot Operations - BrowserScreenshot.cpp ==========
     void takeScreenshot(const std::string& filename);

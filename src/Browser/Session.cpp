@@ -124,6 +124,30 @@ void Browser::restoreSession(const Session& session) {
             std::cerr << "Warning: Failed to restore active elements: " << e.what() << std::endl;
         }
         
+        // *** NEW: Custom Attributes Restoration ***
+        try {
+            Json::Value customAttributesState = session.getExtractedState("customAttributes");
+            if (!customAttributesState.isNull()) {
+                restoreCustomAttributesFromState(customAttributesState);
+                wait(500);
+                debug_output("Restored custom attributes");
+            }
+        } catch (const std::exception& e) {
+            std::cerr << "Warning: Failed to restore custom attributes: " << e.what() << std::endl;
+        }
+        
+        // Custom state restoration - existing mechanism
+        try {
+            auto extractedState = session.getAllExtractedState();
+            if (!extractedState.empty()) {
+                restoreCustomState(extractedState);
+                wait(200);
+                debug_output("Restored custom state");
+            }
+        } catch (const std::exception& e) {
+            std::cerr << "Warning: Failed to restore custom state: " << e.what() << std::endl;
+        }
+        
         // Final wait for everything to settle
         wait(1000);
         debug_output("Session restoration complete");
@@ -243,7 +267,24 @@ void Browser::updateSessionState(Session& session) {
                 std::cerr << "Warning: Failed to extract scroll positions: " << e.what() << std::endl;
             }
             
-            // Custom state - skip for now to avoid issues
+            // *** NEW: Custom Attributes Extraction ***
+            try {
+                std::string customAttributesScript = extractCustomAttributesScript();
+                std::string attributesResult = executeJavascriptSync(customAttributesScript);
+                
+                if (!attributesResult.empty() && attributesResult != "undefined" && attributesResult != "{}") {
+                    Json::Value attributesJson;
+                    Json::Reader reader;
+                    if (reader.parse(attributesResult, attributesJson)) {
+                        session.setExtractedState("customAttributes", attributesJson);
+                        debug_output("Extracted custom attributes: " + attributesResult);
+                    }
+                }
+            } catch (const std::exception& e) {
+                std::cerr << "Warning: Failed to extract custom attributes: " << e.what() << std::endl;
+            }
+            
+            // Custom state - existing extractors
             try {
                 if (!session.getStateExtractors().empty()) {
                     auto customState = extractCustomState(session.getStateExtractors());
@@ -519,6 +560,90 @@ void Browser::restoreCustomState(const std::map<std::string, Json::Value>& state
             executeJavascriptSync(js);
         } catch (const std::exception& e) {
             std::cerr << "Warning: Failed to restore custom state '" << name << "': " << e.what() << std::endl;
+        }
+    }
+}
+
+// ========== NEW: Custom Attributes Management ==========
+
+std::string Browser::extractCustomAttributesScript() {
+    return R"(
+        (function() {
+            const elements = document.querySelectorAll('*');
+            const result = {};
+            
+            elements.forEach((el) => {
+                const customAttrs = {};
+                let hasCustomAttrs = false;
+                
+                // Look for data-* attributes and other non-standard attributes
+                for (let i = 0; i < el.attributes.length; i++) {
+                    const attr = el.attributes[i];
+                    const isStandardAttr = [
+                        'id', 'class', 'name', 'type', 'value', 'checked', 'selected', 
+                        'src', 'href', 'placeholder', 'title', 'alt', 'for', 'action',
+                        'method', 'target', 'rel', 'style', 'tabindex', 'role'
+                    ].includes(attr.name);
+                    
+                    if (attr.name.startsWith('data-') || !isStandardAttr) {
+                        customAttrs[attr.name] = attr.value;
+                        hasCustomAttrs = true;
+                    }
+                }
+                
+                if (hasCustomAttrs) {
+                    // Create a reliable selector
+                    let selector = '';
+                    if (el.id) {
+                        selector = '#' + el.id;
+                    } else if (el.name) {
+                        selector = '[name="' + el.name + '"]';
+                    } else {
+                        // Use tag + nth-child as fallback
+                        const parent = el.parentNode;
+                        if (parent) {
+                            const index = Array.from(parent.children).indexOf(el) + 1;
+                            selector = el.tagName.toLowerCase() + ':nth-child(' + index + ')';
+                        } else {
+                            selector = el.tagName.toLowerCase();
+                        }
+                    }
+                    
+                    result[selector] = customAttrs;
+                }
+            });
+            
+            return JSON.stringify(result);
+        })()
+    )";
+}
+
+void Browser::restoreCustomAttributesFromState(const Json::Value& attributesState) {
+    if (!attributesState.isObject()) {
+        return;
+    }
+    
+    for (const auto& selector : attributesState.getMemberNames()) {
+        const Json::Value& attributes = attributesState[selector];
+        if (!attributes.isObject()) {
+            continue;
+        }
+        
+        try {
+            for (const auto& attrName : attributes.getMemberNames()) {
+                std::string attrValue = attributes[attrName].asString();
+                
+                // Use the existing setAttribute method which we know works
+                if (setAttribute(selector, attrName, attrValue)) {
+                    debug_output("Restored attribute: " + selector + "[" + attrName + "] = " + attrValue);
+                } else {
+                    debug_output("Failed to restore attribute: " + selector + "[" + attrName + "]");
+                }
+                
+                wait(50); // Small delay between attribute restorations
+            }
+        } catch (const std::exception& e) {
+            std::cerr << "Error restoring attributes for " << selector << ": " << e.what() << std::endl;
         }
     }
 }

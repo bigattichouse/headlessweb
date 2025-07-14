@@ -425,11 +425,31 @@ std::string Browser::getFirstNonEmptyText(const std::string& selector) {
 // ========== Attribute Methods ==========
 
 std::string Browser::getAttribute(const std::string& selector, const std::string& attribute) {
+    // Escape the selector
+    std::string escaped_selector = selector;
+    size_t pos = 0;
+    while ((pos = escaped_selector.find("'", pos)) != std::string::npos) {
+        escaped_selector.replace(pos, 1, "\\'");
+        pos += 2;
+    }
+    
+    // Escape the attribute name
+    std::string escaped_attribute = attribute;
+    pos = 0;
+    while ((pos = escaped_attribute.find("'", pos)) != std::string::npos) {
+        escaped_attribute.replace(pos, 1, "\\'");
+        pos += 2;
+    }
+    
     std::string js_script = 
         "(function() { "
         "  try { "
-        "    var element = document.querySelector('" + selector + "'); "
-        "    return element ? (element.getAttribute('" + attribute + "') || '') : ''; "
+        "    var element = document.querySelector('" + escaped_selector + "'); "
+        "    if (element) { "
+        "      var attr = element.getAttribute('" + escaped_attribute + "'); "
+        "      return attr !== null ? attr : ''; "
+        "    } "
+        "    return ''; "
         "  } catch(e) { "
         "    return ''; "
         "  } "
@@ -437,22 +457,122 @@ std::string Browser::getAttribute(const std::string& selector, const std::string
     
     return executeJavascriptSync(js_script);
 }
-
 bool Browser::setAttribute(const std::string& selector, const std::string& attribute, const std::string& value) {
+    // Small delay to ensure element is ready
+    wait(100);
+    
+    // Escape the selector - this was missing!
+    std::string escaped_selector = selector;
+    size_t pos = 0;
+    while ((pos = escaped_selector.find("'", pos)) != std::string::npos) {
+        escaped_selector.replace(pos, 1, "\\'");
+        pos += 2;
+    }
+    
+    // Escape the attribute name
+    std::string escaped_attribute = attribute;
+    pos = 0;
+    while ((pos = escaped_attribute.find("'", pos)) != std::string::npos) {
+        escaped_attribute.replace(pos, 1, "\\'");
+        pos += 2;
+    }
+    
+    // Escape the value - improved escaping
+    std::string escaped_value = value;
+    pos = 0;
+    // Escape backslashes first to avoid double-escaping
+    while ((pos = escaped_value.find("\\", pos)) != std::string::npos) {
+        escaped_value.replace(pos, 1, "\\\\");
+        pos += 2;
+    }
+    // Then escape quotes
+    pos = 0;
+    while ((pos = escaped_value.find("'", pos)) != std::string::npos) {
+        escaped_value.replace(pos, 1, "\\'");
+        pos += 2;
+    }
+    
+    debug_output("Setting attribute '" + attribute + "' to '" + value + "' on selector '" + selector + "'");
+    
     std::string js_script = 
         "(function() { "
         "  try { "
-        "    var element = document.querySelector('" + selector + "'); "
+        "    var element = document.querySelector('" + escaped_selector + "'); "
         "    if (element) { "
-        "      element.setAttribute('" + attribute + "', '" + value + "'); "
-        "      return true; "
+        "      element.setAttribute('" + escaped_attribute + "', '" + escaped_value + "'); "
+        "      return 'success'; "
         "    } "
-        "    return false; "
+        "    return 'element_not_found'; "
         "  } catch(e) { "
-        "    return false; "
+        "    return 'error: ' + e.message; "
         "  } "
         "})()";
     
+    debug_output("Generated JavaScript: " + js_script);
+    
     std::string result = executeJavascriptSync(js_script);
-    return result == "true";
+    debug_output("JavaScript result: " + result);
+    
+    // Check if the initial execution succeeded
+    if (result == "success") {
+        wait(200); // Allow time for the attribute to be processed
+        
+        // Verify the attribute was actually set using same escaping
+        std::string verifyJs = 
+            "(function() { "
+            "  try { "
+            "    var element = document.querySelector('" + escaped_selector + "'); "
+            "    if (element) { "
+            "      var attr = element.getAttribute('" + escaped_attribute + "'); "
+            "      return attr !== null ? attr : 'null_attribute'; "
+            "    } "
+            "    return 'element_not_found'; "
+            "  } catch(e) { "
+            "    return 'verify_error: ' + e.message; "
+            "  } "
+            "})()";
+        
+        std::string actualValue = executeJavascriptSync(verifyJs);
+        debug_output("Verification result: " + actualValue);
+        
+        if (actualValue == escaped_value || actualValue == value) {
+            debug_output("Attribute verification SUCCESS");
+            return true;
+        } else {
+            debug_output("Warning: Attribute verification failed. Expected: '" + value + "', Got: '" + actualValue + "'");
+            
+            // Try alternative method with forced DOM update
+            std::string altJs = 
+                "(function() { "
+                "  try { "
+                "    var el = document.querySelector('" + escaped_selector + "'); "
+                "    if (el) { "
+                "      el.setAttribute('" + escaped_attribute + "', '" + escaped_value + "'); "
+                "      // Force DOM update "
+                "      el.offsetHeight; "
+                "      // Double-check it was set "
+                "      var check = el.getAttribute('" + escaped_attribute + "'); "
+                "      return check !== null ? 'retry_success:' + check : 'retry_failed'; "
+                "    } "
+                "    return 'retry_no_element'; "
+                "  } catch(e) { "
+                "    return 'retry_error: ' + e.message; "
+                "  } "
+                "})()";
+            
+            std::string retryResult = executeJavascriptSync(altJs);
+            debug_output("Retry result: " + retryResult);
+            
+            if (retryResult.find("retry_success:") == 0) {
+                // Extract the actual value after "retry_success:"
+                std::string retryValue = retryResult.substr(14);
+                wait(200); // Additional wait after retry
+                return (retryValue == escaped_value || retryValue == value);
+            }
+            return false;
+        }
+    } else {
+        debug_output("setAttribute failed with result: " + result);
+        return false;
+    }
 }
