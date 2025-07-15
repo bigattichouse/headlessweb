@@ -19,30 +19,11 @@ add_executable(hweb
     src/main.cpp
     src/Session/Session.cpp
     src/Session/Manager.cpp
-    src/Browser/Browser.cpp 
-    src/Browser/Core.cpp
-    src/Browser/JavaScript.cpp
-    src/Browser/Events.cpp
-    src/Browser/DOM.cpp
-    src/Browser/Storage.cpp
-    src/Browser/Session.cpp
-    src/Browser/Screenshot.cpp
-    src/Browser/Utilities.cpp
-    src/Browser/Wait.cpp
-    src/Assertion/Manager.cpp  
-    src/Assertion/Manager.h  
-    src/Assertion/OutputFormatter.cpp  
-    src/Assertion/OutputFormatter.h  
-    src/Assertion/Types.h
-    src/FileOps/DownloadManager.h
-    src/FileOps/DownloadManager.cpp
-    src/FileOps/PathUtils.cpp
-    src/FileOps/PathUtils.h
-    src/FileOps/Types.cpp
-    src/FileOps/Types.h
-    src/FileOps/UploadManager.cpp
-    src/FileOps/UploadManager.h
 )
+
+add_subdirectory(src/Browser)
+add_subdirectory(src/Assertion)
+add_subdirectory(src/FileOps)
 
 target_link_libraries(hweb 
     ${GTK4_LIBRARIES}

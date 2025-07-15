@@ -42,6 +42,9 @@ set(CMAKE_MAKEFILE_DEPENDS
   "CMakeFiles/4.0.3/CMakeCXXCompiler.cmake"
   "CMakeFiles/4.0.3/CMakeSystem.cmake"
   "CMakeLists.txt"
+  "src/Assertion/CMakeLists.txt"
+  "src/Browser/CMakeLists.txt"
+  "src/FileOps/CMakeLists.txt"
   )
 
 # The corresponding makefile is:
@@ -53,6 +56,9 @@ set(CMAKE_MAKEFILE_OUTPUTS
 # Byproducts of CMake generate step:
 set(CMAKE_MAKEFILE_PRODUCTS
   "CMakeFiles/CMakeDirectoryInformation.cmake"
+  "src/Browser/CMakeFiles/CMakeDirectoryInformation.cmake"
+  "src/Assertion/CMakeFiles/CMakeDirectoryInformation.cmake"
+  "src/FileOps/CMakeFiles/CMakeDirectoryInformation.cmake"
   )
 
 # Dependency information for all targets:

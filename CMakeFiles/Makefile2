@@ -64,19 +64,87 @@ CMAKE_BINARY_DIR = /home/bigattichouse/workspace/headlessweb
 
 # The main recursive "all" target.
 all: CMakeFiles/hweb.dir/all
+all: src/Browser/all
+all: src/Assertion/all
+all: src/FileOps/all
 .PHONY : all
 
 # The main recursive "codegen" target.
 codegen: CMakeFiles/hweb.dir/codegen
+codegen: src/Browser/codegen
+codegen: src/Assertion/codegen
+codegen: src/FileOps/codegen
 .PHONY : codegen
 
 # The main recursive "preinstall" target.
-preinstall:
+preinstall: src/Browser/preinstall
+preinstall: src/Assertion/preinstall
+preinstall: src/FileOps/preinstall
 .PHONY : preinstall
 
 # The main recursive "clean" target.
 clean: CMakeFiles/hweb.dir/clean
+clean: src/Browser/clean
+clean: src/Assertion/clean
+clean: src/FileOps/clean
 .PHONY : clean
+
+#=============================================================================
+# Directory level rules for directory src/Assertion
+
+# Recursive "all" directory target.
+src/Assertion/all:
+.PHONY : src/Assertion/all
+
+# Recursive "codegen" directory target.
+src/Assertion/codegen:
+.PHONY : src/Assertion/codegen
+
+# Recursive "preinstall" directory target.
+src/Assertion/preinstall:
+.PHONY : src/Assertion/preinstall
+
+# Recursive "clean" directory target.
+src/Assertion/clean:
+.PHONY : src/Assertion/clean
+
+#=============================================================================
+# Directory level rules for directory src/Browser
+
+# Recursive "all" directory target.
+src/Browser/all:
+.PHONY : src/Browser/all
+
+# Recursive "codegen" directory target.
+src/Browser/codegen:
+.PHONY : src/Browser/codegen
+
+# Recursive "preinstall" directory target.
+src/Browser/preinstall:
+.PHONY : src/Browser/preinstall
+
+# Recursive "clean" directory target.
+src/Browser/clean:
+.PHONY : src/Browser/clean
+
+#=============================================================================
+# Directory level rules for directory src/FileOps
+
+# Recursive "all" directory target.
+src/FileOps/all:
+.PHONY : src/FileOps/all
+
+# Recursive "codegen" directory target.
+src/FileOps/codegen:
+.PHONY : src/FileOps/codegen
+
+# Recursive "preinstall" directory target.
+src/FileOps/preinstall:
+.PHONY : src/FileOps/preinstall
+
+# Recursive "clean" directory target.
+src/FileOps/clean:
+.PHONY : src/FileOps/clean
 
 #=============================================================================
 # Target rules for target CMakeFiles/hweb.dir

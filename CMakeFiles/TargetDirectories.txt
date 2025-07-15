@@ -1,3 +1,9 @@
 /home/bigattichouse/workspace/headlessweb/CMakeFiles/hweb.dir
 /home/bigattichouse/workspace/headlessweb/CMakeFiles/edit_cache.dir
 /home/bigattichouse/workspace/headlessweb/CMakeFiles/rebuild_cache.dir
+/home/bigattichouse/workspace/headlessweb/src/Browser/CMakeFiles/edit_cache.dir
+/home/bigattichouse/workspace/headlessweb/src/Browser/CMakeFiles/rebuild_cache.dir
+/home/bigattichouse/workspace/headlessweb/src/Assertion/CMakeFiles/edit_cache.dir
+/home/bigattichouse/workspace/headlessweb/src/Assertion/CMakeFiles/rebuild_cache.dir
+/home/bigattichouse/workspace/headlessweb/src/FileOps/CMakeFiles/edit_cache.dir
+/home/bigattichouse/workspace/headlessweb/src/FileOps/CMakeFiles/rebuild_cache.dir

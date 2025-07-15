@@ -118,10 +118,10 @@ namespace FileOps {
         std::vector<bool> pattern_found(patterns.size(), false);
         std::vector<std::string> found_files(patterns.size());
         
-        auto start_time = std::chrono::steady_clock::now();
+                auto start_time = std::chrono::system_clock::now();
         auto timeout = std::chrono::milliseconds(timeout_ms);
         
-        while (std::chrono::steady_clock::now() - start_time < timeout) {
+        while (std::chrono::system_clock::now() - start_time < timeout) {
             for (size_t i = 0; i < patterns.size(); ++i) {
                 if (!pattern_found[i]) {
                     auto matching_files = findMatchingFiles(dir, patterns[i]);
@@ -291,7 +291,7 @@ namespace FileOps {
         }
         
         std::atomic<bool> found_file{false};
-        auto start_time = std::chrono::steady_clock::now();
+                auto start_time = std::chrono::system_clock::now();
         auto timeout = std::chrono::milliseconds(timeout_ms);
         
         auto watcher_thread = std::thread([this, &found_file, file_found_callback, pattern]() {
@@ -306,7 +306,7 @@ namespace FileOps {
         });
         
         // Wait for file to be found or timeout
-        while (!found_file && (std::chrono::steady_clock::now() - start_time < timeout)) {
+        while (!found_file && (std::chrono::system_clock::now() - start_time < timeout)) {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
         
@@ -342,10 +342,10 @@ namespace FileOps {
         
         debug_output("Waiting for download completion: " + filepath);
         
-        auto start_time = std::chrono::steady_clock::now();
+        auto start_time = std::chrono::system_clock::now();
         auto timeout = std::chrono::milliseconds(timeout_ms);
         
-        while (std::chrono::steady_clock::now() - start_time < timeout) {
+        while (std::chrono::system_clock::now() - start_time < timeout) {
             // Check if file exists and is readable
             if (!PathUtils::exists(filepath) || !PathUtils::isReadable(filepath)) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(200));
@@ -374,7 +374,7 @@ namespace FileOps {
                 DownloadProgress progress;
                 progress.filepath = filepath;
                 progress.current_size = PathUtils::getFileSize(filepath);
-                progress.start_time = start_time + std::chrono::steady_clock::now().time_since_epoch();
+                progress.start_time = start_time + std::chrono::system_clock::now().time_since_epoch();
                 progress.last_update = std::chrono::system_clock::now();
                 progress.is_complete = false;
                 
@@ -436,16 +436,16 @@ namespace FileOps {
         }
         
         size_t initial_size = PathUtils::getFileSize(filepath);
-        auto start_time = std::chrono::steady_clock::now();
+                auto start_time = std::chrono::system_clock::now();
         
-        while (std::chrono::steady_clock::now() - start_time < stability_duration) {
+        while (std::chrono::system_clock::now() - start_time < stability_duration) {
             std::this_thread::sleep_for(std::chrono::milliseconds(200));
             
             size_t current_size = PathUtils::getFileSize(filepath);
             if (current_size != initial_size) {
                 // Size changed, restart stability check
                 initial_size = current_size;
-                start_time = std::chrono::steady_clock::now();
+                start_time = std::chrono::system_clock::now();
             }
         }
         
@@ -521,10 +521,10 @@ namespace FileOps {
         int timeout_ms,
         std::function<void(const std::string&)> file_found_callback) {
         
-        auto start_time = std::chrono::steady_clock::now();
+                auto start_time = std::chrono::system_clock::now();
         auto timeout = std::chrono::milliseconds(timeout_ms);
         
-        while (std::chrono::steady_clock::now() - start_time < timeout) {
+        while (std::chrono::system_clock::now() - start_time < timeout) {
             auto matching_files = findMatchingFiles(directory, pattern);
             for (const auto& filepath : matching_files) {
                 if (!isBrowserTempFile(filepath)) {
@@ -566,13 +566,13 @@ namespace FileOps {
         std::string filename = PathUtils::getFileName(temp_filepath);
         
         // Remove common browser temp extensions
-        if (filename.ends_with(".crdownload")) {
+        if (filename.size() >= 11 && filename.substr(filename.size() - 11) == ".crdownload") {
             return temp_filepath.substr(0, temp_filepath.length() - 11);
         }
-        if (filename.ends_with(".part")) {
+        if (filename.size() >= 5 && filename.substr(filename.size() - 5) == ".part") {
             return temp_filepath.substr(0, temp_filepath.length() - 5);
         }
-        if (filename.ends_with(".download")) {
+        if (filename.size() >= 9 && filename.substr(filename.size() - 9) == ".download") {
             return temp_filepath.substr(0, temp_filepath.length() - 9);
         }
         
@@ -583,11 +583,11 @@ namespace FileOps {
         std::string filename = PathUtils::getFileName(filepath);
         
         // Check for common browser temporary file extensions
-        return filename.ends_with(".crdownload") ||  // Chrome
-               filename.ends_with(".part") ||        // Firefox
-               filename.ends_with(".download") ||    // Safari
-               filename.ends_with(".tmp") ||         // Generic temp
-               filename.starts_with("~");            // Generic temp prefix
+        return (filename.size() >= 11 && filename.substr(filename.size() - 11) == ".crdownload") ||  // Chrome
+               (filename.size() >= 5 && filename.substr(filename.size() - 5) == ".part") ||        // Firefox
+               (filename.size() >= 9 && filename.substr(filename.size() - 9) == ".download") ||    // Safari
+               (filename.size() >= 4 && filename.substr(filename.size() - 4) == ".tmp") ||         // Generic temp
+               (!filename.empty() && filename[0] == '~');            // Generic temp prefix
     }
     
     bool DownloadManager::waitForBrowserWriteCompletion(const std::string& filepath, int timeout_ms) {

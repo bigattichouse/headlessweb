@@ -1,4 +1,5 @@
 #include "PathUtils.h"
+#include <cstring>
 #include <filesystem>
 #include <regex>
 #include <algorithm>

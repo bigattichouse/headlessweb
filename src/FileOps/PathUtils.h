@@ -236,7 +236,7 @@ namespace FileOps {
          */
         static std::string escapeForShell(const std::string& path);
         
-    private:
+    public:
         // ========== Internal Helper Methods ==========
         
         /**
