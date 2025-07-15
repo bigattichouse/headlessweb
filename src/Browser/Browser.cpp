@@ -85,3 +85,6 @@ Browser::~Browser() {
         g_main_loop_unref(main_loop);
     }
 }
+
+
+

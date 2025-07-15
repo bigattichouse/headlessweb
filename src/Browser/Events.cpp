@@ -580,3 +580,5 @@ bool Browser::waitForElementWithContent(const std::string& selector, int timeout
     
     return waitForConditionEvent(condition, timeout_ms / 2);
 }
+
+

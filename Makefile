@@ -393,6 +393,126 @@ src/Browser/Utilities.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb.dir/build.make CMakeFiles/hweb.dir/src/Browser/Utilities.cpp.s
 .PHONY : src/Browser/Utilities.cpp.s
 
+src/Browser/Wait.o: src/Browser/Wait.cpp.o
+.PHONY : src/Browser/Wait.o
+
+# target to build an object file
+src/Browser/Wait.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb.dir/build.make CMakeFiles/hweb.dir/src/Browser/Wait.cpp.o
+.PHONY : src/Browser/Wait.cpp.o
+
+src/Browser/Wait.i: src/Browser/Wait.cpp.i
+.PHONY : src/Browser/Wait.i
+
+# target to preprocess a source file
+src/Browser/Wait.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb.dir/build.make CMakeFiles/hweb.dir/src/Browser/Wait.cpp.i
+.PHONY : src/Browser/Wait.cpp.i
+
+src/Browser/Wait.s: src/Browser/Wait.cpp.s
+.PHONY : src/Browser/Wait.s
+
+# target to generate assembly for a file
+src/Browser/Wait.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb.dir/build.make CMakeFiles/hweb.dir/src/Browser/Wait.cpp.s
+.PHONY : src/Browser/Wait.cpp.s
+
+src/FileOps/DownloadManager.o: src/FileOps/DownloadManager.cpp.o
+.PHONY : src/FileOps/DownloadManager.o
+
+# target to build an object file
+src/FileOps/DownloadManager.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb.dir/build.make CMakeFiles/hweb.dir/src/FileOps/DownloadManager.cpp.o
+.PHONY : src/FileOps/DownloadManager.cpp.o
+
+src/FileOps/DownloadManager.i: src/FileOps/DownloadManager.cpp.i
+.PHONY : src/FileOps/DownloadManager.i
+
+# target to preprocess a source file
+src/FileOps/DownloadManager.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb.dir/build.make CMakeFiles/hweb.dir/src/FileOps/DownloadManager.cpp.i
+.PHONY : src/FileOps/DownloadManager.cpp.i
+
+src/FileOps/DownloadManager.s: src/FileOps/DownloadManager.cpp.s
+.PHONY : src/FileOps/DownloadManager.s
+
+# target to generate assembly for a file
+src/FileOps/DownloadManager.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb.dir/build.make CMakeFiles/hweb.dir/src/FileOps/DownloadManager.cpp.s
+.PHONY : src/FileOps/DownloadManager.cpp.s
+
+src/FileOps/PathUtils.o: src/FileOps/PathUtils.cpp.o
+.PHONY : src/FileOps/PathUtils.o
+
+# target to build an object file
+src/FileOps/PathUtils.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb.dir/build.make CMakeFiles/hweb.dir/src/FileOps/PathUtils.cpp.o
+.PHONY : src/FileOps/PathUtils.cpp.o
+
+src/FileOps/PathUtils.i: src/FileOps/PathUtils.cpp.i
+.PHONY : src/FileOps/PathUtils.i
+
+# target to preprocess a source file
+src/FileOps/PathUtils.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb.dir/build.make CMakeFiles/hweb.dir/src/FileOps/PathUtils.cpp.i
+.PHONY : src/FileOps/PathUtils.cpp.i
+
+src/FileOps/PathUtils.s: src/FileOps/PathUtils.cpp.s
+.PHONY : src/FileOps/PathUtils.s
+
+# target to generate assembly for a file
+src/FileOps/PathUtils.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb.dir/build.make CMakeFiles/hweb.dir/src/FileOps/PathUtils.cpp.s
+.PHONY : src/FileOps/PathUtils.cpp.s
+
+src/FileOps/Types.o: src/FileOps/Types.cpp.o
+.PHONY : src/FileOps/Types.o
+
+# target to build an object file
+src/FileOps/Types.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb.dir/build.make CMakeFiles/hweb.dir/src/FileOps/Types.cpp.o
+.PHONY : src/FileOps/Types.cpp.o
+
+src/FileOps/Types.i: src/FileOps/Types.cpp.i
+.PHONY : src/FileOps/Types.i
+
+# target to preprocess a source file
+src/FileOps/Types.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb.dir/build.make CMakeFiles/hweb.dir/src/FileOps/Types.cpp.i
+.PHONY : src/FileOps/Types.cpp.i
+
+src/FileOps/Types.s: src/FileOps/Types.cpp.s
+.PHONY : src/FileOps/Types.s
+
+# target to generate assembly for a file
+src/FileOps/Types.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb.dir/build.make CMakeFiles/hweb.dir/src/FileOps/Types.cpp.s
+.PHONY : src/FileOps/Types.cpp.s
+
+src/FileOps/UploadManager.o: src/FileOps/UploadManager.cpp.o
+.PHONY : src/FileOps/UploadManager.o
+
+# target to build an object file
+src/FileOps/UploadManager.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb.dir/build.make CMakeFiles/hweb.dir/src/FileOps/UploadManager.cpp.o
+.PHONY : src/FileOps/UploadManager.cpp.o
+
+src/FileOps/UploadManager.i: src/FileOps/UploadManager.cpp.i
+.PHONY : src/FileOps/UploadManager.i
+
+# target to preprocess a source file
+src/FileOps/UploadManager.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb.dir/build.make CMakeFiles/hweb.dir/src/FileOps/UploadManager.cpp.i
+.PHONY : src/FileOps/UploadManager.cpp.i
+
+src/FileOps/UploadManager.s: src/FileOps/UploadManager.cpp.s
+.PHONY : src/FileOps/UploadManager.s
+
+# target to generate assembly for a file
+src/FileOps/UploadManager.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb.dir/build.make CMakeFiles/hweb.dir/src/FileOps/UploadManager.cpp.s
+.PHONY : src/FileOps/UploadManager.cpp.s
+
 src/Session/Manager.o: src/Session/Manager.cpp.o
 .PHONY : src/Session/Manager.o
 
@@ -507,6 +627,21 @@ help:
 	@echo "... src/Browser/Utilities.o"
 	@echo "... src/Browser/Utilities.i"
 	@echo "... src/Browser/Utilities.s"
+	@echo "... src/Browser/Wait.o"
+	@echo "... src/Browser/Wait.i"
+	@echo "... src/Browser/Wait.s"
+	@echo "... src/FileOps/DownloadManager.o"
+	@echo "... src/FileOps/DownloadManager.i"
+	@echo "... src/FileOps/DownloadManager.s"
+	@echo "... src/FileOps/PathUtils.o"
+	@echo "... src/FileOps/PathUtils.i"
+	@echo "... src/FileOps/PathUtils.s"
+	@echo "... src/FileOps/Types.o"
+	@echo "... src/FileOps/Types.i"
+	@echo "... src/FileOps/Types.s"
+	@echo "... src/FileOps/UploadManager.o"
+	@echo "... src/FileOps/UploadManager.i"
+	@echo "... src/FileOps/UploadManager.s"
 	@echo "... src/Session/Manager.o"
 	@echo "... src/Session/Manager.i"
 	@echo "... src/Session/Manager.s"

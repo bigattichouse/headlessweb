@@ -184,6 +184,21 @@ public:
     std::pair<int, int> getScrollPosition();
     void initializeDataManager(const std::string& sessionName);
 
+
+    // ========== Advanced Waiting Methods ==========
+    bool waitForTextAdvanced(const std::string& text, int timeout_ms, bool case_sensitive = false, bool exact_match = false);
+    bool waitForNetworkIdle(int idle_time_ms, int timeout_ms);
+    bool waitForNetworkRequest(const std::string& url_pattern, int timeout_ms);
+    bool waitForElementVisible(const std::string& selector, int timeout_ms);
+    bool waitForElementCount(const std::string& selector, const std::string& operator_str, int expected_count, int timeout_ms);
+    bool waitForAttribute(const std::string& selector, const std::string& attribute, const std::string& expected_value, int timeout_ms);
+    bool waitForUrlChange(const std::string& pattern, int timeout_ms);
+    bool waitForTitleChange(const std::string& pattern, int timeout_ms);
+    bool waitForSPANavigation(const std::string& route, int timeout_ms);
+    bool waitForFrameworkReady(const std::string& framework, int timeout_ms);
+    bool waitForDOMChange(const std::string& selector, int timeout_ms);
+    bool waitForContentChange(const std::string& selector, const std::string& property, int timeout_ms);
+
 protected:
     WebKitCookieManager* cookieManager;
     std::string sessionDataPath;

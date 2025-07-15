@@ -28,12 +28,20 @@ add_executable(hweb
     src/Browser/Session.cpp
     src/Browser/Screenshot.cpp
     src/Browser/Utilities.cpp
+    src/Browser/Wait.cpp
     src/Assertion/Manager.cpp  
     src/Assertion/Manager.h  
     src/Assertion/OutputFormatter.cpp  
     src/Assertion/OutputFormatter.h  
     src/Assertion/Types.h
-
+    src/FileOps/DownloadManager.h
+    src/FileOps/DownloadManager.cpp
+    src/FileOps/PathUtils.cpp
+    src/FileOps/PathUtils.h
+    src/FileOps/Types.cpp
+    src/FileOps/Types.h
+    src/FileOps/UploadManager.cpp
+    src/FileOps/UploadManager.h
 )
 
 target_link_libraries(hweb 
