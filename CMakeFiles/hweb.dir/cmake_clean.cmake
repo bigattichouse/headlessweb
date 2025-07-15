@@ -36,8 +36,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/hweb.dir/src/Session/Manager.cpp.o.d"
   "CMakeFiles/hweb.dir/src/Session/Session.cpp.o"
   "CMakeFiles/hweb.dir/src/Session/Session.cpp.o.d"
-  "CMakeFiles/hweb.dir/src/main.cpp.o"
-  "CMakeFiles/hweb.dir/src/main.cpp.o.d"
+  "CMakeFiles/hweb.dir/src/hweb.cpp.o"
+  "CMakeFiles/hweb.dir/src/hweb.cpp.o.d"
   "hweb"
   "hweb.pdb"
 )

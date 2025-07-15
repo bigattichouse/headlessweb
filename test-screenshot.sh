@@ -74,7 +74,7 @@ echo ""
 
 # Test 1: Basic visible area screenshot
 echo "Test 1: Basic visible area screenshot"
-./hweb-poc --session screenshot_test --url "file://$TEST_FILE" --screenshot test_visible.png
+./hweb --session screenshot_test --url "file://$TEST_FILE" --screenshot test_visible.png
 
 if [[ -f "test_visible.png" ]]; then
     SIZE=$(stat -f%z "test_visible.png" 2>/dev/null || stat -c%s "test_visible.png" 2>/dev/null || echo "0")
@@ -86,7 +86,7 @@ echo ""
 
 # Test 2: Screenshot with default filename
 echo "Test 2: Screenshot with default filename"
-./hweb-poc --session screenshot_test --screenshot
+./hweb --session screenshot_test --screenshot
 
 if [[ -f "screenshot.png" ]]; then
     echo "✓ Default screenshot created: screenshot.png"
@@ -98,7 +98,7 @@ echo ""
 
 # Test 3: Full page screenshot
 echo "Test 3: Full page screenshot"
-./hweb-poc --session screenshot_test --screenshot-full test_fullpage.png
+./hweb --session screenshot_test --screenshot-full test_fullpage.png
 
 if [[ -f "test_fullpage.png" ]]; then
     SIZE=$(stat -f%z "test_fullpage.png" 2>/dev/null || stat -c%s "test_fullpage.png" 2>/dev/null || echo "0")
@@ -118,8 +118,8 @@ echo ""
 
 # Test 4: Screenshot with scroll position
 echo "Test 4: Screenshot after scrolling"
-./hweb-poc --session screenshot_test --js "window.scrollTo(0, 800); 'scrolled'"
-./hweb-poc --session screenshot_test --screenshot test_scrolled.png
+./hweb --session screenshot_test --js "window.scrollTo(0, 800); 'scrolled'"
+./hweb --session screenshot_test --screenshot test_scrolled.png
 
 if [[ -f "test_scrolled.png" ]]; then
     echo "✓ Screenshot after scroll created: test_scrolled.png"
@@ -130,7 +130,7 @@ echo ""
 
 # Test 5: Screenshot of remote site
 echo "Test 5: Screenshot of remote website"
-./hweb-poc --session screenshot_remote --url "https://example.com" --wait "h1" --screenshot test_remote.png
+./hweb --session screenshot_remote --url "https://example.com" --wait "h1" --screenshot test_remote.png
 
 if [[ -f "test_remote.png" ]]; then
     echo "✓ Remote website screenshot created: test_remote.png"
@@ -142,7 +142,7 @@ echo ""
 # Test 6: Screenshot in subdirectory
 echo "Test 6: Screenshot in subdirectory"
 mkdir -p screenshots
-./hweb-poc --session screenshot_test --screenshot screenshots/test_subdir.png
+./hweb --session screenshot_test --screenshot screenshots/test_subdir.png
 
 if [[ -f "screenshots/test_subdir.png" ]]; then
     echo "✓ Screenshot in subdirectory created: screenshots/test_subdir.png"
@@ -153,7 +153,7 @@ echo ""
 
 # Test 7: Error handling - invalid path
 echo "Test 7: Error handling for invalid path"
-if ./hweb-poc --session screenshot_test --screenshot /invalid/path/screenshot.png 2>&1 | grep -q "Error"; then
+if ./hweb --session screenshot_test --screenshot /invalid/path/screenshot.png 2>&1 | grep -q "Error"; then
     echo "✓ Invalid path error handled correctly"
 else
     echo "✗ Invalid path error not handled properly"
@@ -162,7 +162,7 @@ echo ""
 
 # Test 8: Screenshot as part of command chain
 echo "Test 8: Screenshot in command chain"
-./hweb-poc --session screenshot_chain \
+./hweb --session screenshot_chain \
     --url "file://$TEST_FILE" \
     --wait "h1" \
     --js "document.body.style.background = 'lightblue'" \
@@ -178,9 +178,9 @@ echo ""
 
 # Cleanup
 echo "=== Cleanup ==="
-./hweb-poc --session screenshot_test --end
-./hweb-poc --session screenshot_remote --end
-./hweb-poc --session screenshot_chain --end
+./hweb --session screenshot_test --end
+./hweb --session screenshot_remote --end
+./hweb --session screenshot_chain --end
 
 # Show created files
 echo ""

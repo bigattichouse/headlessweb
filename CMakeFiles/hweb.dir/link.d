@@ -2,7 +2,7 @@ hweb: \
   /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o \
   /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crti.o \
   /usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o \
-  CMakeFiles/hweb.dir/src/main.cpp.o \
+  CMakeFiles/hweb.dir/src/hweb.cpp.o \
   CMakeFiles/hweb.dir/src/Session/Session.cpp.o \
   CMakeFiles/hweb.dir/src/Session/Manager.cpp.o \
   CMakeFiles/hweb.dir/src/Browser/Browser.cpp.o \
@@ -464,7 +464,7 @@ hweb: \
 
 /usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o:
 
-CMakeFiles/hweb.dir/src/main.cpp.o:
+CMakeFiles/hweb.dir/src/hweb.cpp.o:
 
 CMakeFiles/hweb.dir/src/Session/Session.cpp.o:
 

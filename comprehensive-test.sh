@@ -3,11 +3,11 @@
 set -e
 
 echo "=== HeadlessWeb Comprehensive Test Suite ==="
-echo "Testing all functionality of hweb-poc"
+echo "Testing all functionality of hweb"
 echo ""
 
 # Configuration
-SESSION_DIR="$HOME/.hweb-poc/sessions"
+SESSION_DIR="$HOME/.hweb/sessions"
 LOCAL_TEST_FILE="/tmp/hweb_test.html"
 REMOTE_TEST_URL="https://example.com"
 SEARCH_TEST_URL="https://limitless-adventures.com"
@@ -115,17 +115,17 @@ create_test_html
 # Test 1: Basic Navigation and Session Creation
 echo "=== Test 1: Basic Navigation and Session Creation ==="
 
-check_command "./hweb-poc --session 'basic_test' --url 'file://$LOCAL_TEST_FILE'" "Navigate to local file"
+check_command "./hweb --session 'basic_test' --url 'file://$LOCAL_TEST_FILE'" "Navigate to local file"
 
-DOM_CHECK=$(./hweb-poc --session "basic_test" --text "#testDiv" 2>/dev/null | tail -n 1)
+DOM_CHECK=$(./hweb --session "basic_test" --text "#testDiv" 2>/dev/null | tail -n 1)
 verify_value "$DOM_CHECK" "This is a test div." "Local file DOM access"
 
-check_command "./hweb-poc --session 'basic_test' --end" "End basic session"
+check_command "./hweb --session 'basic_test' --end" "End basic session"
 
 # Test 2: Command Chaining
 echo "=== Test 2: Command Chaining ==="
 
-check_command "./hweb-poc --session 'chain_test' \
+check_command "./hweb --session 'chain_test' \
     --url 'file://$LOCAL_TEST_FILE' \
     --wait 'h1' \
     --type '#testInput' 'chained value' \
@@ -134,13 +134,13 @@ check_command "./hweb-poc --session 'chain_test' \
     --js 'window.scrollTo(0, 500); \"done\"'" "Command chaining"
 
 # Verify chained commands worked
-INPUT_VAL=$(./hweb-poc --session "chain_test" --js "document.querySelector('#testInput').value" 2>/dev/null | tail -n 1)
+INPUT_VAL=$(./hweb --session "chain_test" --js "document.querySelector('#testInput').value" 2>/dev/null | tail -n 1)
 verify_value "$INPUT_VAL" "chained value" "Chained input value"
 
-SELECT_VAL=$(./hweb-poc --session "chain_test" --js "document.querySelector('#testSelect').value" 2>/dev/null | tail -n 1)
+SELECT_VAL=$(./hweb --session "chain_test" --js "document.querySelector('#testSelect').value" 2>/dev/null | tail -n 1)
 verify_value "$SELECT_VAL" "option2" "Chained select value"
 
-check_command "./hweb-poc --session 'chain_test' --end" "End chain test session"
+check_command "./hweb --session 'chain_test' --end" "End chain test session"
 
 # Test 3: Full State Persistence (Local File)
 echo "=== Test 3: Full State Persistence (Local File) ==="
@@ -148,33 +148,33 @@ echo "=== Test 3: Full State Persistence (Local File) ==="
 SESSION_NAME="state_test"
 
 # Set all types of state
-check_command "./hweb-poc --session '$SESSION_NAME' --url 'file://$LOCAL_TEST_FILE'" "Initial navigation"
+check_command "./hweb --session '$SESSION_NAME' --url 'file://$LOCAL_TEST_FILE'" "Initial navigation"
 
 echo "Setting comprehensive state..."
 
 # Cookies
-check_command "./hweb-poc --session '$SESSION_NAME' --js \"document.cookie = 'testCookie=stateValue; path=/'; 'Cookie set';\"" "Set cookie"
+check_command "./hweb --session '$SESSION_NAME' --js \"document.cookie = 'testCookie=stateValue; path=/'; 'Cookie set';\"" "Set cookie"
 
 # localStorage
-check_command "./hweb-poc --session '$SESSION_NAME' --js \"localStorage.setItem('key1', 'value1'); localStorage.setItem('key2', 'value2'); 'Storage set';\"" "Set localStorage"
+check_command "./hweb --session '$SESSION_NAME' --js \"localStorage.setItem('key1', 'value1'); localStorage.setItem('key2', 'value2'); 'Storage set';\"" "Set localStorage"
 
 # Form state
-check_command "./hweb-poc --session '$SESSION_NAME' --type '#testInput' 'persistedValue'" "Set input"
-check_command "./hweb-poc --session '$SESSION_NAME' --type '#testTextarea' 'persistedText'" "Set textarea"
-check_command "./hweb-poc --session '$SESSION_NAME' --select '#testSelect' 'option3'" "Set select"
-check_command "./hweb-poc --session '$SESSION_NAME' --check '#testCheckbox'" "Check checkbox"
+check_command "./hweb --session '$SESSION_NAME' --type '#testInput' 'persistedValue'" "Set input"
+check_command "./hweb --session '$SESSION_NAME' --type '#testTextarea' 'persistedText'" "Set textarea"
+check_command "./hweb --session '$SESSION_NAME' --select '#testSelect' 'option3'" "Set select"
+check_command "./hweb --session '$SESSION_NAME' --check '#testCheckbox'" "Check checkbox"
 
 # Scroll position
-check_command "./hweb-poc --session '$SESSION_NAME' --js \"window.scrollTo(0, 1000); 'Scrolled';\"" "Set scroll"
+check_command "./hweb --session '$SESSION_NAME' --js \"window.scrollTo(0, 1000); 'Scrolled';\"" "Set scroll"
 
 # User agent
-check_command "./hweb-poc --session '$SESSION_NAME' --user-agent 'TestAgent/1.0'" "Set user agent"
+check_command "./hweb --session '$SESSION_NAME' --user-agent 'TestAgent/1.0'" "Set user agent"
 
 # Custom variables
-check_command "./hweb-poc --session '$SESSION_NAME' --store 'customVar' 'customValue'" "Store custom variable"
+check_command "./hweb --session '$SESSION_NAME' --store 'customVar' 'customValue'" "Store custom variable"
 
 # End session to save state
-check_command "./hweb-poc --session '$SESSION_NAME' --end" "Save session state"
+check_command "./hweb --session '$SESSION_NAME' --end" "Save session state"
 
 # Verify session file exists
 SESSION_FILE="$SESSION_DIR/${SESSION_NAME}.json"
@@ -188,28 +188,28 @@ echo ""
 
 # Restore session and verify
 echo "Restoring session..."
-check_command "./hweb-poc --session '$SESSION_NAME'" "Restore session"
+check_command "./hweb --session '$SESSION_NAME'" "Restore session"
 
 # Verify all state
-COOKIE_RESTORED=$(./hweb-poc --session "$SESSION_NAME" --js "document.cookie.split('; ').find(c => c.startsWith('testCookie=')); document.cookie.includes('testCookie=stateValue') ? 'found' : 'not found'" 2>/dev/null | tail -n 1)
+COOKIE_RESTORED=$(./hweb --session "$SESSION_NAME" --js "document.cookie.split('; ').find(c => c.startsWith('testCookie=')); document.cookie.includes('testCookie=stateValue') ? 'found' : 'not found'" 2>/dev/null | tail -n 1)
 verify_value "$COOKIE_RESTORED" "found" "Cookie restoration"
 
-LOCAL_STORAGE=$(./hweb-poc --session "$SESSION_NAME" --js "localStorage.getItem('key1') + '|' + localStorage.getItem('key2')" 2>/dev/null | tail -n 1)
+LOCAL_STORAGE=$(./hweb --session "$SESSION_NAME" --js "localStorage.getItem('key1') + '|' + localStorage.getItem('key2')" 2>/dev/null | tail -n 1)
 verify_value "$LOCAL_STORAGE" "value1|value2" "localStorage restoration"
 
-FORM_INPUT=$(./hweb-poc --session "$SESSION_NAME" --js "document.querySelector('#testInput').value" 2>/dev/null | tail -n 1)
+FORM_INPUT=$(./hweb --session "$SESSION_NAME" --js "document.querySelector('#testInput').value" 2>/dev/null | tail -n 1)
 verify_value "$FORM_INPUT" "persistedValue" "Form input restoration"
 
-FORM_TEXTAREA=$(./hweb-poc --session "$SESSION_NAME" --js "document.querySelector('#testTextarea').value" 2>/dev/null | tail -n 1)
+FORM_TEXTAREA=$(./hweb --session "$SESSION_NAME" --js "document.querySelector('#testTextarea').value" 2>/dev/null | tail -n 1)
 verify_value "$FORM_TEXTAREA" "persistedText" "Form textarea restoration"
 
-FORM_SELECT=$(./hweb-poc --session "$SESSION_NAME" --js "document.querySelector('#testSelect').value" 2>/dev/null | tail -n 1)
+FORM_SELECT=$(./hweb --session "$SESSION_NAME" --js "document.querySelector('#testSelect').value" 2>/dev/null | tail -n 1)
 verify_value "$FORM_SELECT" "option3" "Form select restoration"
 
-FORM_CHECKBOX=$(./hweb-poc --session "$SESSION_NAME" --js "document.querySelector('#testCheckbox').checked" 2>/dev/null | tail -n 1)
+FORM_CHECKBOX=$(./hweb --session "$SESSION_NAME" --js "document.querySelector('#testCheckbox').checked" 2>/dev/null | tail -n 1)
 verify_value "$FORM_CHECKBOX" "true" "Form checkbox restoration"
 
-SCROLL_POS=$(./hweb-poc --session "$SESSION_NAME" --js "window.pageYOffset" 2>/dev/null | tail -n 1)
+SCROLL_POS=$(./hweb --session "$SESSION_NAME" --js "window.pageYOffset" 2>/dev/null | tail -n 1)
 if (( $(echo "$SCROLL_POS > 900" | bc -l) )); then
     echo -e "${GREEN}✓ PASS${NC}: Scroll position restored ($SCROLL_POS > 900)"
 else
@@ -217,34 +217,34 @@ else
 fi
 echo ""
 
-USER_AGENT=$(./hweb-poc --session "$SESSION_NAME" --js "navigator.userAgent" 2>/dev/null | tail -n 1)
+USER_AGENT=$(./hweb --session "$SESSION_NAME" --js "navigator.userAgent" 2>/dev/null | tail -n 1)
 verify_contains "$USER_AGENT" "TestAgent/1.0" "User agent restoration"
 
-CUSTOM_VAR=$(./hweb-poc --session "$SESSION_NAME" --get "customVar" 2>/dev/null | tail -n 1)
+CUSTOM_VAR=$(./hweb --session "$SESSION_NAME" --get "customVar" 2>/dev/null | tail -n 1)
 verify_value "$CUSTOM_VAR" "customValue" "Custom variable restoration"
 
-check_command "./hweb-poc --session '$SESSION_NAME' --end" "End state test"
+check_command "./hweb --session '$SESSION_NAME' --end" "End state test"
 
 # Test 4: Remote Website Navigation
 echo "=== Test 4: Remote Website Navigation ==="
 
-check_command "./hweb-poc --session 'remote_test' --url '$REMOTE_TEST_URL'" "Navigate to remote site"
+check_command "./hweb --session 'remote_test' --url '$REMOTE_TEST_URL'" "Navigate to remote site"
 
-TITLE=$(./hweb-poc --session "remote_test" --js "document.title" 2>/dev/null | tail -n 1)
+TITLE=$(./hweb --session "remote_test" --js "document.title" 2>/dev/null | tail -n 1)
 verify_contains "$TITLE" "Example" "Remote site title"
 
 # Test navigation without session restoration
 echo "Testing navigation without restoration..."
-check_command "./hweb-poc --session 'fresh_nav' --url '$REMOTE_TEST_URL' --js 'document.title'" "Navigate and execute JS"
+check_command "./hweb --session 'fresh_nav' --url '$REMOTE_TEST_URL' --js 'document.title'" "Navigate and execute JS"
 
-check_command "./hweb-poc --session 'remote_test' --end" "End remote test"
-check_command "./hweb-poc --session 'fresh_nav' --end" "End fresh nav test"
+check_command "./hweb --session 'remote_test' --end" "End remote test"
+check_command "./hweb --session 'fresh_nav' --end" "End fresh nav test"
 
 # Test 5: Form Interaction and Smart Search
 echo "=== Test 5: Form Interaction and Smart Search ==="
 
 # Test regular form interaction
-check_command "./hweb-poc --session 'form_test' \
+check_command "./hweb --session 'form_test' \
     --url '$SEARCH_TEST_URL' \
     --wait 'form' \
     --type 'input[name=search]' 'monster' \
@@ -252,98 +252,98 @@ check_command "./hweb-poc --session 'form_test' \
 
 # Check if navigation occurred
 sleep 2
-FORM_URL=$(./hweb-poc --session "form_test" --js "window.location.href" 2>/dev/null | tail -n 1)
+FORM_URL=$(./hweb --session "form_test" --js "window.location.href" 2>/dev/null | tail -n 1)
 echo "URL after form submission: $FORM_URL"
 
-check_command "./hweb-poc --session 'form_test' --end" "End form test"
+check_command "./hweb --session 'form_test' --end" "End form test"
 
 # Test smart search command
 echo "Testing smart search command..."
-check_command "./hweb-poc --session 'search_test' \
+check_command "./hweb --session 'search_test' \
     --url '$SEARCH_TEST_URL' \
     --search 'dragon'" "Smart search command"
 
-SEARCH_URL=$(./hweb-poc --session "search_test" --js "window.location.href" 2>/dev/null | tail -n 1)
+SEARCH_URL=$(./hweb --session "search_test" --js "window.location.href" 2>/dev/null | tail -n 1)
 echo "URL after search: $SEARCH_URL"
 
-check_command "./hweb-poc --session 'search_test' --end" "End search test"
+check_command "./hweb --session 'search_test' --end" "End search test"
 
 # Test 6: Error Handling
 echo "=== Test 6: Error Handling ==="
 
 # Test invalid selector
-if ./hweb-poc --session "error_test" --url "file://$LOCAL_TEST_FILE" --type "#nonexistent" "value" 2>&1 | grep -q "Failed"; then
+if ./hweb --session "error_test" --url "file://$LOCAL_TEST_FILE" --type "#nonexistent" "value" 2>&1 | grep -q "Failed"; then
     echo -e "${GREEN}✓ PASS${NC}: Invalid selector handled correctly"
 else
     echo -e "${RED}✗ FAIL${NC}: Invalid selector not handled properly"
 fi
 
 # Test invalid URL
-if ./hweb-poc --session "error_test" --url "invalid://url" 2>&1 | grep -q -E "(Failed|Error|Invalid)"; then
+if ./hweb --session "error_test" --url "invalid://url" 2>&1 | grep -q -E "(Failed|Error|Invalid)"; then
     echo -e "${GREEN}✓ PASS${NC}: Invalid URL handled correctly"
 else
     echo -e "${RED}✗ FAIL${NC}: Invalid URL not handled properly"
 fi
 
-check_command "./hweb-poc --session 'error_test' --end" "Clean up error test"
+check_command "./hweb --session 'error_test' --end" "Clean up error test"
 
 # Test 7: Session Management
 echo "=== Test 7: Session Management ==="
 
 # Create multiple sessions
-check_command "./hweb-poc --session 'session1' --url 'file://$LOCAL_TEST_FILE' --store 'name' 'session1'" "Create session1"
-check_command "./hweb-poc --session 'session2' --url '$REMOTE_TEST_URL' --store 'name' 'session2'" "Create session2"
-check_command "./hweb-poc --session 'session3' --url 'file://$LOCAL_TEST_FILE' --store 'name' 'session3'" "Create session3"
+check_command "./hweb --session 'session1' --url 'file://$LOCAL_TEST_FILE' --store 'name' 'session1'" "Create session1"
+check_command "./hweb --session 'session2' --url '$REMOTE_TEST_URL' --store 'name' 'session2'" "Create session2"
+check_command "./hweb --session 'session3' --url 'file://$LOCAL_TEST_FILE' --store 'name' 'session3'" "Create session3"
 
 # List sessions
 echo "Listing all sessions..."
-./hweb-poc --list
+./hweb --list
 
 # Verify session isolation
-VAR1=$(./hweb-poc --session "session1" --get "name" 2>/dev/null | tail -n 1)
-VAR2=$(./hweb-poc --session "session2" --get "name" 2>/dev/null | tail -n 1)
-VAR3=$(./hweb-poc --session "session3" --get "name" 2>/dev/null | tail -n 1)
+VAR1=$(./hweb --session "session1" --get "name" 2>/dev/null | tail -n 1)
+VAR2=$(./hweb --session "session2" --get "name" 2>/dev/null | tail -n 1)
+VAR3=$(./hweb --session "session3" --get "name" 2>/dev/null | tail -n 1)
 
 verify_value "$VAR1" "session1" "Session 1 isolation"
 verify_value "$VAR2" "session2" "Session 2 isolation"
 verify_value "$VAR3" "session3" "Session 3 isolation"
 
 # Clean up sessions
-check_command "./hweb-poc --session 'session1' --end" "End session1"
-check_command "./hweb-poc --session 'session2' --end" "End session2"
-check_command "./hweb-poc --session 'session3' --end" "End session3"
+check_command "./hweb --session 'session1' --end" "End session1"
+check_command "./hweb --session 'session2' --end" "End session2"
+check_command "./hweb --session 'session3' --end" "End session3"
 
 # Test 8: Advanced JavaScript and DOM Queries
 echo "=== Test 8: Advanced JavaScript and DOM Queries ==="
 
-check_command "./hweb-poc --session 'js_test' --url 'file://$LOCAL_TEST_FILE'" "Setup JS test"
+check_command "./hweb --session 'js_test' --url 'file://$LOCAL_TEST_FILE'" "Setup JS test"
 
 # Test various DOM queries
-check_command "./hweb-poc --session 'js_test' --exists 'h1'" "Element exists"
-check_command "./hweb-poc --session 'js_test' --count 'input'" "Count elements"
-check_command "./hweb-poc --session 'js_test' --html '#testDiv'" "Get HTML"
-check_command "./hweb-poc --session 'js_test' --attr '#testInput' 'name'" "Get attribute"
+check_command "./hweb --session 'js_test' --exists 'h1'" "Element exists"
+check_command "./hweb --session 'js_test' --count 'input'" "Count elements"
+check_command "./hweb --session 'js_test' --html '#testDiv'" "Get HTML"
+check_command "./hweb --session 'js_test' --attr '#testInput' 'name'" "Get attribute"
 
 # Test complex JavaScript
 COMPLEX_JS='(function() {
     var inputs = document.querySelectorAll("input[type=text]");
     return Array.from(inputs).map(i => i.id).join(",");
 })()'
-JS_RESULT=$(./hweb-poc --session "js_test" --js "$COMPLEX_JS" 2>/dev/null | tail -n 1)
+JS_RESULT=$(./hweb --session "js_test" --js "$COMPLEX_JS" 2>/dev/null | tail -n 1)
 verify_contains "$JS_RESULT" "testInput" "Complex JavaScript execution"
 
 # Test attribute modification
-check_command "./hweb-poc --session 'js_test' --attr '#testInput' 'data-test' 'new-value'" "Set attribute"
-ATTR_VAL=$(./hweb-poc --session "js_test" --attr "#testInput" "data-test" 2>/dev/null | tail -n 1)
+check_command "./hweb --session 'js_test' --attr '#testInput' 'data-test' 'new-value'" "Set attribute"
+ATTR_VAL=$(./hweb --session "js_test" --attr "#testInput" "data-test" 2>/dev/null | tail -n 1)
 verify_value "$ATTR_VAL" "new-value" "Attribute modification"
 
-check_command "./hweb-poc --session 'js_test' --end" "End JS test"
+check_command "./hweb --session 'js_test' --end" "End JS test"
 
 # Test 9: Debug Mode
 echo "=== Test 9: Debug Mode ==="
 
 echo "Testing without debug flag (should be quiet)..."
-OUTPUT=$(./hweb-poc --session "debug_test" --url "file://$LOCAL_TEST_FILE" 2>&1)
+OUTPUT=$(./hweb --session "debug_test" --url "file://$LOCAL_TEST_FILE" 2>&1)
 if echo "$OUTPUT" | grep -q "Debug:"; then
     echo -e "${RED}✗ FAIL${NC}: Debug output shown without --debug flag"
 else
@@ -351,43 +351,43 @@ else
 fi
 
 echo "Testing with debug flag (should show debug info)..."
-OUTPUT=$(./hweb-poc --debug --session "debug_test" --url "file://$LOCAL_TEST_FILE" 2>&1)
+OUTPUT=$(./hweb --debug --session "debug_test" --url "file://$LOCAL_TEST_FILE" 2>&1)
 if echo "$OUTPUT" | grep -q "Debug:"; then
     echo -e "${GREEN}✓ PASS${NC}: Debug output shown with --debug flag"
 else
     echo -e "${RED}✗ FAIL${NC}: No debug output with --debug flag"
 fi
 
-check_command "./hweb-poc --session 'debug_test' --end" "End debug test"
+check_command "./hweb --session 'debug_test' --end" "End debug test"
 
 # Test 10: Navigation Commands
 echo "=== Test 10: Navigation Commands ==="
 
-check_command "./hweb-poc --session 'nav_test' --url '$REMOTE_TEST_URL'" "Initial navigation"
-check_command "./hweb-poc --session 'nav_test' --url 'https://www.iana.org/domains/example'" "Navigate to second page"
+check_command "./hweb --session 'nav_test' --url '$REMOTE_TEST_URL'" "Initial navigation"
+check_command "./hweb --session 'nav_test' --url 'https://www.iana.org/domains/example'" "Navigate to second page"
 
 # Test back navigation
-check_command "./hweb-poc --session 'nav_test' --back" "Navigate back"
-URL_AFTER_BACK=$(./hweb-poc --session "nav_test" --js "window.location.href" 2>/dev/null | tail -n 1)
+check_command "./hweb --session 'nav_test' --back" "Navigate back"
+URL_AFTER_BACK=$(./hweb --session "nav_test" --js "window.location.href" 2>/dev/null | tail -n 1)
 verify_contains "$URL_AFTER_BACK" "example.com" "Back navigation"
 
 # Test forward navigation
-check_command "./hweb-poc --session 'nav_test' --forward" "Navigate forward"
-URL_AFTER_FORWARD=$(./hweb-poc --session "nav_test" --js "window.location.href" 2>/dev/null | tail -n 1)
+check_command "./hweb --session 'nav_test' --forward" "Navigate forward"
+URL_AFTER_FORWARD=$(./hweb --session "nav_test" --js "window.location.href" 2>/dev/null | tail -n 1)
 verify_contains "$URL_AFTER_FORWARD" "iana.org" "Forward navigation"
 
 # Test reload
-check_command "./hweb-poc --session 'nav_test' --reload" "Reload page"
+check_command "./hweb --session 'nav_test' --reload" "Reload page"
 
-check_command "./hweb-poc --session 'nav_test' --end" "End navigation test"
+check_command "./hweb --session 'nav_test' --end" "End navigation test"
 
 # Test 11: Screenshot Functionality
 echo "=== Test 11: Screenshot Functionality ==="
 
-check_command "./hweb-poc --session 'screenshot_test' --url 'file://$LOCAL_TEST_FILE' --width 1000" "Setup for screenshot"
+check_command "./hweb --session 'screenshot_test' --url 'file://$LOCAL_TEST_FILE' --width 1000" "Setup for screenshot"
 
 # Test visible area screenshot
-check_command "./hweb-poc --session 'screenshot_test' --screenshot 'test_visible.png'" "Visible area screenshot"
+check_command "./hweb --session 'screenshot_test' --screenshot 'test_visible.png'" "Visible area screenshot"
 if [[ -f "test_visible.png" ]]; then
     echo -e "${GREEN}✓ SUCCESS${NC}: Screenshot file created"
     rm -f test_visible.png
@@ -396,7 +396,7 @@ else
 fi
 
 # Test full page screenshot
-check_command "./hweb-poc --session 'screenshot_test' --screenshot-full 'test_full.png'" "Full page screenshot"
+check_command "./hweb --session 'screenshot_test' --screenshot-full 'test_full.png'" "Full page screenshot"
 if [[ -f "test_full.png" ]]; then
     echo -e "${GREEN}✓ SUCCESS${NC}: Full page screenshot file created"
     rm -f test_full.png
@@ -405,7 +405,7 @@ else
 fi
 
 # Test default filename
-check_command "./hweb-poc --session 'screenshot_test' --screenshot" "Screenshot with default filename"
+check_command "./hweb --session 'screenshot_test' --screenshot" "Screenshot with default filename"
 if [[ -f "screenshot.png" ]]; then
     echo -e "${GREEN}✓ SUCCESS${NC}: Default screenshot created"
     rm -f screenshot.png
@@ -413,7 +413,7 @@ else
     echo -e "${RED}✗ FAIL${NC}: Default screenshot not created"
 fi
 
-check_command "./hweb-poc --session 'screenshot_test' --end" "End screenshot test"
+check_command "./hweb --session 'screenshot_test' --end" "End screenshot test"
 
 # Final cleanup
 echo "=== Final Cleanup ==="

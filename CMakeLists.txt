@@ -16,7 +16,7 @@ include_directories(${JSONCPP_INCLUDE_DIRS})
 include_directories(${GDKPIXBUF_INCLUDE_DIRS})
 
 add_executable(hweb
-    src/main.cpp
+    src/hweb.cpp
     src/Session/Session.cpp
     src/Session/Manager.cpp
 )

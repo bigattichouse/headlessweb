@@ -561,29 +561,29 @@ src/Session/Session.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb.dir/build.make CMakeFiles/hweb.dir/src/Session/Session.cpp.s
 .PHONY : src/Session/Session.cpp.s
 
-src/main.o: src/main.cpp.o
-.PHONY : src/main.o
+src/hweb.o: src/hweb.cpp.o
+.PHONY : src/hweb.o
 
 # target to build an object file
-src/main.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb.dir/build.make CMakeFiles/hweb.dir/src/main.cpp.o
-.PHONY : src/main.cpp.o
+src/hweb.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb.dir/build.make CMakeFiles/hweb.dir/src/hweb.cpp.o
+.PHONY : src/hweb.cpp.o
 
-src/main.i: src/main.cpp.i
-.PHONY : src/main.i
+src/hweb.i: src/hweb.cpp.i
+.PHONY : src/hweb.i
 
 # target to preprocess a source file
-src/main.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb.dir/build.make CMakeFiles/hweb.dir/src/main.cpp.i
-.PHONY : src/main.cpp.i
+src/hweb.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb.dir/build.make CMakeFiles/hweb.dir/src/hweb.cpp.i
+.PHONY : src/hweb.cpp.i
 
-src/main.s: src/main.cpp.s
-.PHONY : src/main.s
+src/hweb.s: src/hweb.cpp.s
+.PHONY : src/hweb.s
 
 # target to generate assembly for a file
-src/main.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb.dir/build.make CMakeFiles/hweb.dir/src/main.cpp.s
-.PHONY : src/main.cpp.s
+src/hweb.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb.dir/build.make CMakeFiles/hweb.dir/src/hweb.cpp.s
+.PHONY : src/hweb.cpp.s
 
 # Help Target
 help:
@@ -648,9 +648,9 @@ help:
 	@echo "... src/Session/Session.o"
 	@echo "... src/Session/Session.i"
 	@echo "... src/Session/Session.s"
-	@echo "... src/main.o"
-	@echo "... src/main.i"
-	@echo "... src/main.s"
+	@echo "... src/hweb.o"
+	@echo "... src/hweb.i"
+	@echo "... src/hweb.s"
 .PHONY : help
 
 
