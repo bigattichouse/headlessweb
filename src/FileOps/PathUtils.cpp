@@ -27,20 +27,23 @@ namespace FileOps {
             return path;
         }
         
+        std::string normalized;
+        
         try {
             std::filesystem::path fs_path(path);
-            return fs_path.lexically_normal().string();
+            normalized = fs_path.lexically_normal().string();
         } catch (const std::exception& e) {
             // Fallback for invalid paths
-            std::string normalized = path;
-            
-            // Replace backslashes with forward slashes on non-Windows
-            #ifndef _WIN32
-                std::replace(normalized.begin(), normalized.end(), '\\', '/');
-            #endif
-            
-            return normalized;
+            normalized = path;
         }
+        
+        // Always replace backslashes with forward slashes on non-Windows systems
+        // This ensures cross-platform consistency
+        #ifndef _WIN32
+            std::replace(normalized.begin(), normalized.end(), '\\', '/');
+        #endif
+        
+        return normalized;
     }
     
     std::string PathUtils::toAbsolutePath(const std::string& path) {

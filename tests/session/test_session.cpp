@@ -2,6 +2,8 @@
 #include <gmock/gmock.h>
 #include "Session/Session.h"
 #include <json/json.h>
+#include <thread>
+#include <chrono>
 
 class SessionTest : public ::testing::Test {
 protected:
@@ -424,6 +426,9 @@ TEST_F(SessionTest, ActionRecordingOperations) {
 }
 
 TEST_F(SessionTest, ClearRecordedActions) {
+    // Enable recording first
+    session->setRecording(true);
+    
     Session::RecordedAction action;
     action.type = "click";
     action.selector = "#test";
@@ -432,13 +437,16 @@ TEST_F(SessionTest, ClearRecordedActions) {
     EXPECT_EQ(session->getRecordedActions().size(), 1);
     
     session->clearRecordedActions();
-    EXPECT_TRUE(session->getRecordedActions().empty());
+    EXPECT_EQ(session->getRecordedActions().size(), 0);
 }
 
 // ========== Session Metadata Tests ==========
 
 TEST_F(SessionTest, LastAccessedOperations) {
     int64_t originalTime = session->getLastAccessed();
+    
+    // Wait to ensure timestamp changes (since we use second precision)
+    std::this_thread::sleep_for(std::chrono::milliseconds(1001));
     
     // Update should change the timestamp
     session->updateLastAccessed();
@@ -571,11 +579,16 @@ TEST_F(SessionTest, LargeDataHandling) {
     session->setCurrentUrl(largeUrl);
     EXPECT_EQ(session->getCurrentUrl().size(), 10000);
     
-    // Test with many history items
-    for (int i = 0; i < 1000; i++) {
+    // Test with many history items (respects MAX_HISTORY limit of 100)
+    for (int i = 0; i < 150; i++) {  // Add more than limit to test truncation
         session->addToHistory("https://test" + std::to_string(i) + ".com");
     }
-    EXPECT_EQ(session->getHistory().size(), 1000);
+    // Should be capped at MAX_HISTORY limit (100)
+    EXPECT_EQ(session->getHistory().size(), 100);
+    
+    // Verify the latest items are kept (not the earliest)
+    const auto& history = session->getHistory();
+    EXPECT_EQ(history.back(), "https://test149.com");  // Last item added
 }
 
 TEST_F(SessionTest, UnicodeHandling) {
