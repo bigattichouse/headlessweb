@@ -17,15 +17,30 @@ pkg_check_modules(GTK4 REQUIRED gtk4)
 pkg_check_modules(WEBKIT REQUIRED webkitgtk-6.0)
 pkg_check_modules(JSONCPP REQUIRED jsoncpp)
 
-# Test source files - start with simpler tests first
+# Test source files - focused on non-Browser dependent tests for now
 set(TEST_SOURCES
     test_main.cpp
     session/test_session.cpp
     session/test_session_manager.cpp
     assertion/test_assertion_types.cpp
+    assertion/test_output_formatter.cpp
     fileops/test_types.cpp
+    fileops/test_path_utils.cpp
     utils/test_helpers.cpp
+    main/test_command_parsing.cpp
 )
+
+# Browser component tests (excluded due to WebKit/GTK dependencies)
+# These can be enabled when WebKit integration is available
+set(BROWSER_TEST_SOURCES
+    browser/test_browser_core.cpp
+    browser/test_browser_dom.cpp
+    browser/test_browser_javascript.cpp
+    browser/test_browser_events.cpp
+)
+
+# Enable browser tests with WebKit integration
+list(APPEND TEST_SOURCES ${BROWSER_TEST_SOURCES})
 
 # Create test executable
 add_executable(hweb_tests ${TEST_SOURCES})
@@ -41,7 +56,7 @@ target_link_libraries(hweb_tests
     pthread
 )
 
-# Link against project source files (exclude Browser dependencies for now)
+# Link against project source files (including Browser with WebKit)
 target_sources(hweb_tests PRIVATE
     ${CMAKE_SOURCE_DIR}/src/Session/Session.cpp
     ${CMAKE_SOURCE_DIR}/src/Session/Manager.cpp
@@ -50,6 +65,16 @@ target_sources(hweb_tests PRIVATE
     ${CMAKE_SOURCE_DIR}/src/FileOps/UploadManager.cpp
     ${CMAKE_SOURCE_DIR}/src/FileOps/DownloadManager.cpp
     ${CMAKE_SOURCE_DIR}/src/FileOps/PathUtils.cpp
+    ${CMAKE_SOURCE_DIR}/src/Browser/Browser.cpp
+    ${CMAKE_SOURCE_DIR}/src/Browser/Core.cpp
+    ${CMAKE_SOURCE_DIR}/src/Browser/DOM.cpp
+    ${CMAKE_SOURCE_DIR}/src/Browser/Events.cpp
+    ${CMAKE_SOURCE_DIR}/src/Browser/JavaScript.cpp
+    ${CMAKE_SOURCE_DIR}/src/Browser/Screenshot.cpp
+    ${CMAKE_SOURCE_DIR}/src/Browser/Session.cpp
+    ${CMAKE_SOURCE_DIR}/src/Browser/Storage.cpp
+    ${CMAKE_SOURCE_DIR}/src/Browser/Utilities.cpp
+    ${CMAKE_SOURCE_DIR}/src/Browser/Wait.cpp
 )
 
 # Include directories for tests
