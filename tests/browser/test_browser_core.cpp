@@ -58,14 +58,23 @@ TEST_F(BrowserCoreTest, ValidateHttpUrls) {
 TEST_F(BrowserCoreTest, ValidateFileUrls) {
     Browser browser;
     
-    // Test valid file URLs
-    EXPECT_TRUE(browser.validateUrl("file:///path/to/file.html"));
-    EXPECT_TRUE(browser.validateUrl("file://localhost/path/to/file.html"));
+    // Create actual test files for validation
+    std::filesystem::path test_html = temp_dir->createFile("test.html", "<html><body>Test</body></html>");
+    std::filesystem::path test_htm = temp_dir->createFile("test.htm", "<html><body>HTM Test</body></html>");
+    std::filesystem::path test_xhtml = temp_dir->createFile("test.xhtml", "<html><body>XHTML Test</body></html>");
     
-    // Create actual test file for validation
-    std::filesystem::path test_file = temp_dir->createFile("test.html", "<html><body>Test</body></html>");
-    std::string file_url = "file://" + test_file.string();
-    EXPECT_TRUE(browser.validateUrl(file_url));
+    // Test valid file URLs with real files
+    std::string file_url_html = "file://" + test_html.string();
+    std::string file_url_htm = "file://" + test_htm.string();
+    std::string file_url_xhtml = "file://" + test_xhtml.string();
+    
+    EXPECT_TRUE(browser.validateUrl(file_url_html));
+    EXPECT_TRUE(browser.validateUrl(file_url_htm));
+    EXPECT_TRUE(browser.validateUrl(file_url_xhtml));
+    
+    // Test that non-existent files are rejected for security
+    EXPECT_FALSE(browser.validateUrl("file:///path/to/nonexistent.html"));
+    EXPECT_FALSE(browser.validateUrl("file://localhost/path/to/nonexistent.html"));
 }
 
 TEST_F(BrowserCoreTest, RejectInvalidUrls) {

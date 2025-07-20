@@ -3,6 +3,10 @@
 #include <webkit/webkit.h>
 #include <stdexcept>
 #include <iostream>
+#include <filesystem>
+#include <vector>
+#include <algorithm>
+#include <cctype>
 
 // External debug flag
 extern bool g_debug;
@@ -10,31 +14,9 @@ extern bool g_debug;
 // ========== Navigation Methods ==========
 
 void Browser::loadUri(const std::string& uri) {
-    // Validate URL format before attempting to load
-    if (uri.empty()) {
-        throw std::invalid_argument("Error: Empty URL provided");
-    }
-    
-    // Basic URL validation
-    if (uri.find("://") == std::string::npos) {
-        throw std::invalid_argument("Error: Invalid URL format (missing protocol): " + uri);
-    }
-    
-    // Check for clearly invalid protocols
-    std::string protocol = uri.substr(0, uri.find("://"));
-    if (protocol != "http" && protocol != "https" && protocol != "file" && protocol != "ftp") {
-        // Allow some other common protocols but warn about unknown ones
-        if (protocol != "data" && protocol != "about" && protocol != "javascript") {
-            throw std::invalid_argument("Error: Invalid URL protocol '" + protocol + "': " + uri);
-        }
-    }
-    
-    // Additional validation for file URLs
-    if (protocol == "file") {
-        std::string path = uri.substr(7); // Remove "file://"
-        if (path.empty()) {
-            throw std::invalid_argument("Error: Invalid file URL (empty path): " + uri);
-        }
+    // Use our comprehensive URL validation
+    if (!validateUrl(uri)) {
+        throw std::invalid_argument("Error: Invalid or unsafe URL: " + uri);
     }
     
     debug_output("Loading URI: " + uri);
@@ -70,17 +52,66 @@ bool Browser::validateUrl(const std::string& url) const {
         return false;
     }
     
-    // Check for protocol
-    if (url.find("://") == std::string::npos) {
+    // Check for minimum URL length
+    if (url.length() < 10) { // Minimum: "http://a.b"
+        return false;
+    }
+    
+    // Check for protocol separator
+    size_t protocol_pos = url.find("://");
+    if (protocol_pos == std::string::npos) {
         return false;
     }
     
     // Extract and validate protocol
-    std::string protocol = url.substr(0, url.find("://"));
-    if (protocol != "http" && protocol != "https" && protocol != "file" && 
-        protocol != "ftp" && protocol != "data" && protocol != "about" && 
-        protocol != "javascript") {
-        return false;
+    std::string protocol = url.substr(0, protocol_pos);
+    
+    // Only allow safe protocols - reject dangerous ones
+    if (protocol != "http" && protocol != "https" && protocol != "file") {
+        return false; // Reject ftp, javascript, data, etc.
+    }
+    
+    // Validate what comes after the protocol
+    std::string remainder = url.substr(protocol_pos + 3);
+    if (remainder.empty()) {
+        return false; // Reject malformed URLs like "http://"
+    }
+    
+    // Check for dangerous characters
+    if (url.find('\0') != std::string::npos || 
+        url.find('\x01') != std::string::npos || 
+        url.find('\x02') != std::string::npos) {
+        return false; // Reject binary data
+    }
+    
+    // Additional validation for HTTP/HTTPS URLs
+    if (protocol == "http" || protocol == "https") {
+        // Must have host part after ://
+        if (remainder.length() < 2) { // Minimum: "ab"
+            return false;
+        }
+        
+        // Check for valid domain characters in basic host part
+        size_t path_start = remainder.find('/');
+        std::string host_part = (path_start != std::string::npos) ? 
+                               remainder.substr(0, path_start) : remainder;
+        
+        // Reject obvious malformed hosts
+        if (host_part.empty() || host_part == "." || host_part.find("..") != std::string::npos) {
+            return false;
+        }
+        
+        // Reject non-ASCII domains for security (would need IDN validation)
+        for (char c : host_part) {
+            if (static_cast<unsigned char>(c) > 127) {
+                return false;
+            }
+        }
+    }
+    
+    // Special file URL validation
+    if (protocol == "file") {
+        return validateFileUrl(url);
     }
     
     return true;
@@ -97,7 +128,76 @@ bool Browser::validateFileUrl(const std::string& url) const {
     
     // Extract path after file://
     std::string path = url.substr(7);
-    return !path.empty();
+    if (path.empty()) {
+        return false;
+    }
+    
+    // Security checks: reject dangerous system paths
+    std::vector<std::string> dangerous_paths = {
+        "/etc/",
+        "/proc/",
+        "/sys/",
+        "/dev/",
+        "/root/",
+        "/usr/bin/",
+        "/usr/sbin/",
+        "/sbin/",
+        "/bin/",
+        "C:/Windows/",
+        "C:/Program Files/",
+        "C:/Users/Administrator/",
+        "C:/System32/"
+    };
+    
+    for (const auto& dangerous : dangerous_paths) {
+        if (path.find(dangerous) == 0) {
+            return false;
+        }
+    }
+    
+    // Check for path traversal attempts
+    if (path.find("../") != std::string::npos || 
+        path.find("..\\") != std::string::npos ||
+        path.find("/..") != std::string::npos ||
+        path.find("\\..") != std::string::npos) {
+        return false;
+    }
+    
+    // Check for null bytes and other dangerous characters
+    if (path.find('\0') != std::string::npos ||
+        path.find('\x01') != std::string::npos ||
+        path.find('\x02') != std::string::npos) {
+        return false;
+    }
+    
+    // Only allow HTML and related file extensions for file URLs
+    if (path.find('.') != std::string::npos) {
+        std::string extension;
+        size_t last_dot = path.find_last_of('.');
+        if (last_dot != std::string::npos) {
+            extension = path.substr(last_dot + 1);
+            
+            // Convert to lowercase for comparison
+            std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
+            
+            // Only allow safe web-related extensions
+            if (extension != "html" && extension != "htm" && extension != "xhtml") {
+                return false;
+            }
+        }
+    }
+    
+    // Check if file actually exists and is readable
+    try {
+        std::filesystem::path file_path(path);
+        if (!std::filesystem::exists(file_path) || !std::filesystem::is_regular_file(file_path)) {
+            return false;
+        }
+    } catch (const std::exception&) {
+        return false;
+    }
+    
+    return true;
 }
 
 // ========== Viewport and User Agent Methods ==========
