@@ -133,7 +133,7 @@ namespace FileOps {
     
     double DownloadProgress::getProgressPercent() const {
         if (expected_size == 0) {
-            return -1.0; // Unknown progress
+            return 0.0; // Unknown progress - return 0% 
         }
         
         return (static_cast<double>(current_size) / expected_size) * 100.0;
@@ -290,14 +290,39 @@ namespace FileOps {
         }
         
         // Basic JavaScript validation
+        // Check for balanced parentheses, brackets, and braces
         int paren_count = 0;
+        int bracket_count = 0;
+        int brace_count = 0;
+        
         for (char c : js) {
-            if (c == '(') paren_count++;
-            else if (c == ')') paren_count--;
-            if (paren_count < 0) return false;
+            switch (c) {
+                case '(': paren_count++; break;
+                case ')': paren_count--; break;
+                case '[': bracket_count++; break;
+                case ']': bracket_count--; break;
+                case '{': brace_count++; break;
+                case '}': brace_count--; break;
+            }
+            
+            // Early exit if counts go negative
+            if (paren_count < 0 || bracket_count < 0 || brace_count < 0) {
+                return false;
+            }
         }
         
-        return paren_count == 0;
+        // All counts should be zero for balanced expression
+        if (paren_count != 0 || bracket_count != 0 || brace_count != 0) {
+            return false;
+        }
+        
+        // Additional heuristics for obviously invalid patterns
+        // Check for double braces that are likely invalid
+        if (js.find("{{") != std::string::npos || js.find("}}") != std::string::npos) {
+            return false;
+        }
+        
+        return true;
     }
     
     bool isValidPattern(const std::string& pattern) {

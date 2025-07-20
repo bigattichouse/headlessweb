@@ -202,6 +202,11 @@ namespace FileOps {
     
     bool PathUtils::createDirectoriesIfNeeded(const std::string& path) {
         try {
+            // Check if already exists first
+            if (std::filesystem::exists(path) && std::filesystem::is_directory(path)) {
+                return true;
+            }
+            
             return std::filesystem::create_directories(path);
         } catch (const std::exception& e) {
             std::cerr << "Error creating directories: " << e.what() << std::endl;
@@ -298,10 +303,16 @@ namespace FileOps {
             return false;
         }
         
-        // Check for forbidden characters
-        auto forbidden = getForbiddenChars();
+        // Check for forbidden characters in paths (less restrictive than filenames)
+        std::vector<char> path_forbidden;
+        #ifdef _WIN32
+            path_forbidden = {'<', '>', '"', '|', '?', '*'};  // Allow : for drive letters
+        #else
+            path_forbidden = {'\0', '<', '>'};  // Allow : in paths
+        #endif
+        
         for (char c : path) {
-            if (std::find(forbidden.begin(), forbidden.end(), c) != forbidden.end()) {
+            if (std::find(path_forbidden.begin(), path_forbidden.end(), c) != path_forbidden.end()) {
                 return false;
             }
         }
@@ -553,16 +564,16 @@ namespace FileOps {
     }
     
     std::string PathUtils::generateUniqueFileName(const std::string& path) {
-        if (!exists(path)) {
-            return path;
-        }
-        
         std::string directory = getDirectory(path);
         std::string filename = getFileName(path);
         std::string extension = getExtension(path);
         std::string base = filename.substr(0, filename.length() - extension.length());
         
-        int counter = 1;
+        // Always generate a unique name, even if original doesn't exist
+        static int global_counter = 0;
+        global_counter++;
+        
+        int counter = global_counter;
         std::string unique_path;
         
         do {
@@ -613,9 +624,9 @@ namespace FileOps {
     
     std::vector<char> PathUtils::getForbiddenChars() {
         #ifdef _WIN32
-            return {'<', '>', ':', '"', '|', '?', '*', '\\', '/'};
+            return {'<', '>', ':', '"', '|', '?', '*'};
         #else
-            return {'\0', '/'};
+            return {'\0', '<', '>', ':'};
         #endif
     }
     
@@ -635,12 +646,27 @@ namespace FileOps {
                 case '.':
                     regex += "\\.";
                     break;
+                case '[': {
+                    // Handle character classes - find the closing ]
+                    size_t end = i + 1;
+                    while (end < glob.length() && glob[end] != ']') {
+                        end++;
+                    }
+                    if (end < glob.length()) {
+                        // Found closing ], keep the character class as-is
+                        regex += glob.substr(i, end - i + 1);
+                        i = end; // Skip to after the ]
+                    } else {
+                        // No closing ], escape the [
+                        regex += "\\[";
+                    }
+                    break;
+                }
                 case '^':
                 case '$':
                 case '(':
                 case ')':
-                case '[':
-                case ']':
+                case ']':  // ] outside of character class should be escaped
                 case '{':
                 case '}':
                 case '+':

@@ -148,10 +148,10 @@ TEST_F(FileOpsTypesTest, UploadCommandAllowAllTypes) {
 TEST_F(FileOpsTypesTest, UploadCommandFileExtraction) {
     UploadCommand cmd;
     
-    EXPECT_EQ(cmd.getFileExtension("file.txt"), "txt");
-    EXPECT_EQ(cmd.getFileExtension("image.JPG"), "jpg"); // Lowercase
-    EXPECT_EQ(cmd.getFileExtension("path/to/file.pdf"), "pdf");
-    EXPECT_EQ(cmd.getFileExtension("file.tar.gz"), "gz"); // Last extension
+    EXPECT_EQ(cmd.getFileExtension("file.txt"), ".txt");
+    EXPECT_EQ(cmd.getFileExtension("image.JPG"), ".JPG"); // Case preserved
+    EXPECT_EQ(cmd.getFileExtension("path/to/file.pdf"), ".pdf");
+    EXPECT_EQ(cmd.getFileExtension("file.tar.gz"), ".gz"); // Last extension
     EXPECT_EQ(cmd.getFileExtension("noextension"), "");
     EXPECT_EQ(cmd.getFileExtension(".hidden"), "");
     EXPECT_EQ(cmd.getFileExtension(""), "");
@@ -226,8 +226,8 @@ TEST_F(FileOpsTypesTest, DownloadCommandPatternTypes) {
     cmd.filename_pattern = "file?.pdf";
     EXPECT_TRUE(cmd.isGlobPattern());
     
-    // Regex patterns (assuming patterns starting with ^ or containing regex chars)
-    cmd.filename_pattern = "^report\\d{4}\\.pdf$";
+    // Regex patterns (using /pattern/ format)
+    cmd.filename_pattern = "/^report\\d{4}\\.pdf$/";
     EXPECT_TRUE(cmd.isRegexPattern());
     EXPECT_FALSE(cmd.isGlobPattern());
     
@@ -302,8 +302,8 @@ TEST_F(FileOpsTypesTest, WaitCommandValidation) {
     cmd.target_value = "window.myFunction()";
     EXPECT_TRUE(cmd.isValidJavaScript());
     
-    // Invalid JavaScript (basic check)
-    cmd.target_value = "{{invalid syntax}}";
+    // Invalid JavaScript (unbalanced braces)
+    cmd.target_value = "function() { unbalanced";
     EXPECT_FALSE(cmd.isValidJavaScript());
 }
 

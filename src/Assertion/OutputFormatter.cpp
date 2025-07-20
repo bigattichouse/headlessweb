@@ -170,11 +170,11 @@ Json::Value OutputFormatter::testResultToJson(const TestResult& result) {
 
 Json::Value OutputFormatter::suiteResultToJson(const SuiteResult& suite) {
     Json::Value json;
-    json["suite"] = suite.suite_name;
-    json["total"] = suite.total_tests;
-    json["passed"] = suite.passed_tests;
-    json["failed"] = suite.failed_tests;
-    json["errors"] = suite.error_tests;
+    json["suite_name"] = suite.suite_name;
+    json["total_tests"] = suite.total_tests;
+    json["passed_tests"] = suite.passed_tests;
+    json["failed_tests"] = suite.failed_tests;
+    json["error_tests"] = suite.error_tests;
     
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
         suite.end_time - suite.start_time);
@@ -184,7 +184,7 @@ Json::Value OutputFormatter::suiteResultToJson(const SuiteResult& suite) {
     for (const auto& result : suite.test_results) {
         tests.append(testResultToJson(result));
     }
-    json["tests"] = tests;
+    json["test_results"] = tests;
     
     return json;
 }
