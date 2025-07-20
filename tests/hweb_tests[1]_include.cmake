@@ -1,0 +1,5 @@
+if(EXISTS "/home/bigattichouse/workspace/headlessweb/tests/hweb_tests[1]_tests.cmake")
+  include("/home/bigattichouse/workspace/headlessweb/tests/hweb_tests[1]_tests.cmake")
+else()
+  add_test(hweb_tests_NOT_BUILT hweb_tests_NOT_BUILT)
+endif()

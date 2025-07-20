@@ -25,6 +25,13 @@ add_subdirectory(src/Browser)
 add_subdirectory(src/Assertion)
 add_subdirectory(src/FileOps)
 
+# Add tests subdirectory (optional, only if building tests)
+option(BUILD_TESTS "Build unit tests" ON)
+if(BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(tests)
+endif()
+
 target_link_libraries(hweb 
     ${GTK4_LIBRARIES}
     ${WEBKIT_LIBRARIES}
