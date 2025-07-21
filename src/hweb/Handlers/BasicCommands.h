@@ -19,6 +19,7 @@ private:
     int handle_data_extraction_command(Browser& browser, const Command& cmd);
     int handle_session_command(Session& session, const Command& cmd);
     int handle_history_navigation(Browser& browser, Session& session, const Command& cmd);
+    int handle_special_command(Browser& browser, Session& session, const Command& cmd);
     
     bool wait_for_navigation_complete(Browser& browser, int timeout_ms);
 };

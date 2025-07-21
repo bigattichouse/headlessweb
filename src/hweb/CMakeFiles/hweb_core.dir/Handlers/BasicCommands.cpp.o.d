@@ -325,4 +325,8 @@ src/hweb/CMakeFiles/hweb_core.dir/Handlers/BasicCommands.cpp.o: \
  /usr/include/glib-2.0/glib/glib-autocleanups.h \
  /usr/include/c++/13/algorithm \
  /usr/include/c++/13/pstl/glue_algorithm_defs.h \
- /home/bigattichouse/workspace/headlessweb/src/hweb/Handlers/../Output.h
+ /home/bigattichouse/workspace/headlessweb/src/hweb/Handlers/../Output.h \
+ /usr/include/c++/13/fstream /usr/include/c++/13/bits/codecvt.h \
+ /usr/include/x86_64-linux-gnu/c++/13/bits/basic_file.h \
+ /usr/include/x86_64-linux-gnu/c++/13/bits/c++io.h \
+ /usr/include/c++/13/bits/fstream.tcc

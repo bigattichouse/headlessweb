@@ -236,27 +236,75 @@ void ConfigParser::parse_test_suite_command(const std::vector<std::string>& args
 
 void ConfigParser::parse_advanced_wait_command(const std::vector<std::string>& args, size_t& i, 
                                               HWebConfig& config) {
-    // Advanced waiting commands implementation would go here
-    // This is a simplified version - full implementation would handle all wait-* commands
     Command cmd;
     cmd.type = args[i].substr(2); // Remove "--" prefix
     cmd.timeout = 10000;
     
     if (args[i] == "--wait-text-advanced" && i + 1 < args.size()) {
+        cmd.selector = "";
         cmd.value = args[++i];
+        cmd.timeout = 10000;
     } else if (args[i] == "--wait-network-idle") {
+        cmd.selector = "";
         cmd.value = "500";
+        cmd.timeout = 30000;
         if (i + 1 < args.size() && args[i + 1][0] != '-') {
             cmd.value = args[++i];
         }
+    } else if (args[i] == "--wait-network-request" && i + 1 < args.size()) {
+        cmd.selector = "";
+        cmd.value = args[++i];
+        cmd.timeout = 15000;
+    } else if (args[i] == "--wait-element-visible" && i + 1 < args.size()) {
+        cmd.selector = args[++i];
+        cmd.value = "";
+        cmd.timeout = 10000;
+    } else if (args[i] == "--wait-element-count" && i + 3 < args.size()) {
+        cmd.selector = args[++i];
+        cmd.value = args[++i] + " " + args[++i];
+        cmd.timeout = 10000;
+    } else if (args[i] == "--wait-attribute" && i + 3 < args.size()) {
+        cmd.selector = args[++i];
+        cmd.value = args[++i] + " " + args[++i];
+        cmd.timeout = 10000;
+    } else if (args[i] == "--wait-url-change" && i + 1 < args.size()) {
+        cmd.selector = "";
+        cmd.value = args[++i];
+        cmd.timeout = 10000;
+    } else if (args[i] == "--wait-title-change" && i + 1 < args.size()) {
+        cmd.selector = "";
+        cmd.value = args[++i];
+        cmd.timeout = 10000;
+    } else if (args[i] == "--wait-spa-navigation") {
+        cmd.selector = "";
+        cmd.value = "";
+        cmd.timeout = 10000;
+        if (i + 1 < args.size() && args[i + 1][0] != '-') {
+            cmd.value = args[++i];
+        }
+    } else if (args[i] == "--wait-framework-ready") {
+        cmd.selector = "";
+        cmd.value = "auto";
+        cmd.timeout = 15000;
+        if (i + 1 < args.size() && args[i + 1][0] != '-') {
+            cmd.value = args[++i];
+        }
+    } else if (args[i] == "--wait-dom-change" && i + 1 < args.size()) {
+        cmd.selector = args[++i];
+        cmd.value = "";
+        cmd.timeout = 10000;
+    } else if (args[i] == "--wait-content-change" && i + 2 < args.size()) {
+        cmd.selector = args[++i];
+        cmd.value = args[++i];
+        cmd.timeout = 10000;
     }
-    // Add other wait commands as needed
     
     config.commands.push_back(cmd);
 }
 
 void ConfigParser::parse_regular_command(const std::vector<std::string>& args, size_t& i, 
                                         HWebConfig& config) {
+    // Form interaction commands
     if (args[i] == "--type" && i + 2 < args.size()) {
         config.commands.push_back({"type", args[i+1], args[i+2]});
         i += 2;
@@ -265,14 +313,92 @@ void ConfigParser::parse_regular_command(const std::vector<std::string>& args, s
     } else if (args[i] == "--submit") {
         std::string form_sel = (i + 1 < args.size() && args[i+1][0] != '-') ? args[++i] : "form";
         config.commands.push_back({"submit", form_sel, ""});
-    } else if (args[i] == "--wait" && i + 1 < args.size()) {
+    } else if (args[i] == "--select" && i + 2 < args.size()) {
+        config.commands.push_back({"select", args[i+1], args[i+2]});
+        i += 2;
+    } else if (args[i] == "--check" && i + 1 < args.size()) {
+        config.commands.push_back({"check", args[++i], ""});
+    } else if (args[i] == "--uncheck" && i + 1 < args.size()) {
+        config.commands.push_back({"uncheck", args[++i], ""});
+    } else if (args[i] == "--focus" && i + 1 < args.size()) {
+        config.commands.push_back({"focus", args[++i], ""});
+    }
+    
+    // Navigation commands
+    else if (args[i] == "--back") {
+        config.commands.push_back({"back", "", ""});
+    } else if (args[i] == "--forward") {
+        config.commands.push_back({"forward", "", ""});
+    } else if (args[i] == "--reload") {
+        config.commands.push_back({"reload", "", ""});
+    }
+    
+    // Data extraction commands
+    else if (args[i] == "--text" && i + 1 < args.size()) {
+        config.commands.push_back({"text", args[++i], ""});
+    } else if (args[i] == "--html" && i + 1 < args.size()) {
+        config.commands.push_back({"html", args[++i], ""});
+    } else if (args[i] == "--attr" && i + 2 < args.size()) {
+        if (i + 3 < args.size() && args[i+3][0] != '-') {
+            config.commands.push_back({"set-attr", args[i+1], args[i+2] + " " + args[i+3]});
+            i += 3;
+        } else {
+            config.commands.push_back({"attr", args[i+1], args[i+2]});
+            i += 2;
+        }
+    } else if (args[i] == "--exists" && i + 1 < args.size()) {
+        config.commands.push_back({"exists", args[++i], ""});
+    } else if (args[i] == "--count" && i + 1 < args.size()) {
+        config.commands.push_back({"count", args[++i], ""});
+    }
+    
+    // JavaScript and search commands
+    else if (args[i] == "--js" && i + 1 < args.size()) {
+        config.commands.push_back({"js", "", args[++i]});
+    } else if (args[i] == "--search" && i + 1 < args.size()) {
+        config.commands.push_back({"search", "", args[++i]});
+    }
+    
+    // Data storage commands
+    else if (args[i] == "--store" && i + 2 < args.size()) {
+        config.commands.push_back({"store", args[i+1], args[i+2]});
+        i += 2;
+    } else if (args[i] == "--get" && i + 1 < args.size()) {
+        config.commands.push_back({"get", args[++i], ""});
+    }
+    
+    // Screenshot commands
+    else if (args[i] == "--screenshot") {
+        std::string filename = (i + 1 < args.size() && args[i+1][0] != '-') ? args[++i] : "screenshot.png";
+        config.commands.push_back({"screenshot", filename, ""});
+    } else if (args[i] == "--screenshot-full") {
+        std::string filename = (i + 1 < args.size() && args[i+1][0] != '-') ? args[++i] : "screenshot-full.png";
+        config.commands.push_back({"screenshot-full", filename, ""});
+    }
+    
+    // Recording/replay commands
+    else if (args[i] == "--record-start") {
+        config.commands.push_back({"record-start", "", ""});
+    } else if (args[i] == "--record-stop") {
+        config.commands.push_back({"record-stop", "", ""});
+    } else if (args[i] == "--replay" && i + 1 < args.size()) {
+        config.commands.push_back({"replay", args[++i], ""});
+    }
+    
+    // Extract command
+    else if (args[i] == "--extract" && i + 2 < args.size()) {
+        config.commands.push_back({"extract", args[i+1], args[i+2]});
+        i += 2;
+    }
+    
+    // Basic waiting commands
+    else if (args[i] == "--wait" && i + 1 < args.size()) {
         config.commands.push_back({"wait", args[++i], ""});
     } else if (args[i] == "--wait-nav") {
         config.commands.push_back({"wait-nav", "", ""});
     } else if (args[i] == "--wait-ready" && i + 1 < args.size()) {
         config.commands.push_back({"wait-ready", args[++i], ""});
     }
-    // Add other regular commands as needed
 }
 
 void ConfigParser::validate_config(const HWebConfig& config) {

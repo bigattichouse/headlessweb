@@ -1,6 +1,7 @@
 #include "BasicCommands.h"
 #include "../Output.h"
 #include <iostream>
+#include <fstream>
 
 namespace HWeb {
 
@@ -39,13 +40,12 @@ int BasicCommandHandler::handle_command(Browser& browser, Session& session, cons
         return handle_data_extraction_command(browser, cmd);
     }
     
-    // Other commands
+    // Special commands
     if (cmd.type == "wait" || cmd.type == "wait-nav" || cmd.type == "wait-ready" ||
         cmd.type == "search" || cmd.type == "screenshot" || cmd.type == "screenshot-full" ||
         cmd.type == "extract" || cmd.type == "record-start" || cmd.type == "record-stop" ||
-        cmd.type == "replay") {
-        // Handle these commands directly
-        return handle_interaction_command(browser, cmd);
+        cmd.type == "replay" || cmd.type == "set-attr") {
+        return handle_special_command(browser, session, cmd);
     }
     
     return 0;
@@ -220,6 +220,118 @@ int BasicCommandHandler::handle_data_extraction_command(Browser& browser, const 
         return 0;
     } catch (const std::exception& e) {
         Output::error("Data extraction failed: " + std::string(e.what()));
+        return 1;
+    }
+}
+
+int BasicCommandHandler::handle_special_command(Browser& browser, Session& session, const Command& cmd) {
+    try {
+        if (cmd.type == "wait") {
+            if (browser.waitForSelector(cmd.selector, cmd.timeout)) {
+                Output::info("Element found: " + cmd.selector);
+                return 0;
+            } else {
+                Output::error("Element not found: " + cmd.selector);
+                return 1;
+            }
+        } else if (cmd.type == "wait-nav") {
+            if (wait_for_navigation_complete(browser, 10000)) {
+                Output::info("Navigation completed");
+                return 0;
+            } else {
+                Output::error("Navigation timeout");
+                return 1;
+            }
+        } else if (cmd.type == "wait-ready") {
+            // Check if it's a selector or JavaScript condition
+            if (cmd.selector.find("(") != std::string::npos || cmd.selector.find("function") != std::string::npos) {
+                // JavaScript condition
+                std::string js = "return " + cmd.selector;
+                if (browser.waitForJsCondition(js, cmd.timeout)) {
+                    Output::info("Ready condition met");
+                    return 0;
+                } else {
+                    Output::error("Ready condition timeout");
+                    return 1;
+                }
+            } else {
+                // Element selector
+                if (browser.waitForSelector(cmd.selector, cmd.timeout)) {
+                    Output::info("Element ready: " + cmd.selector);
+                    return 0;
+                } else {
+                    Output::error("Element not ready: " + cmd.selector);
+                    return 1;
+                }
+            }
+        } else if (cmd.type == "search") {
+            browser.searchForm(cmd.value);
+            Output::info("Searched for: " + cmd.value);
+            return 0;
+        } else if (cmd.type == "screenshot") {
+            browser.takeScreenshot(cmd.selector);
+            Output::info("Screenshot saved: " + cmd.selector);
+            return 0;
+        } else if (cmd.type == "screenshot-full") {
+            browser.takeFullPageScreenshot(cmd.selector);
+            Output::info("Full page screenshot saved: " + cmd.selector);
+            return 0;
+        } else if (cmd.type == "set-attr") {
+            // Parse "attribute value" from cmd.value
+            size_t space_pos = cmd.value.find(' ');
+            if (space_pos != std::string::npos) {
+                std::string attribute = cmd.value.substr(0, space_pos);
+                std::string value = cmd.value.substr(space_pos + 1);
+                browser.setAttribute(cmd.selector, attribute, value);
+                Output::info("Set attribute " + attribute + " to " + value + " on " + cmd.selector);
+                return 0;
+            } else {
+                Output::error("Invalid attribute format. Use: --attr selector attribute value");
+                return 1;
+            }
+        } else if (cmd.type == "extract") {
+            // Extract data and save to file
+            std::string data = browser.executeJavascriptSync(cmd.value);
+            // Save data to file specified in cmd.selector
+            std::ofstream file(cmd.selector);
+            if (file.is_open()) {
+                file << data;
+                file.close();
+                Output::info("Data extracted to: " + cmd.selector);
+                return 0;
+            } else {
+                Output::error("Failed to write to file: " + cmd.selector);
+                return 1;
+            }
+        } else if (cmd.type == "record-start") {
+            session.setRecording(true);
+            Output::info("Recording started");
+            return 0;
+        } else if (cmd.type == "record-stop") {
+            session.setRecording(false);
+            Output::info("Recording stopped");
+            return 0;
+        } else if (cmd.type == "replay") {
+            // Replay recorded actions from session
+            const auto& actions = session.getRecordedActions();
+            for (const auto& action : actions) {
+                if (action.type == "click") {
+                    browser.clickElement(action.selector);
+                } else if (action.type == "type") {
+                    browser.fillInput(action.selector, action.value);
+                } else if (action.type == "submit") {
+                    browser.submitForm(action.selector);
+                }
+                // Add delay between actions
+                browser.wait(action.delay);
+            }
+            Output::info("Replayed " + std::to_string(actions.size()) + " actions");
+            return 0;
+        }
+        
+        return 0;
+    } catch (const std::exception& e) {
+        Output::error("Special command failed: " + std::string(e.what()));
         return 1;
     }
 }
