@@ -23,6 +23,9 @@ The tests are organized by feature area for easy maintenance and selective execu
 |------|---------|
 | `test_helpers.sh` | Shared helper functions, color codes, test utilities |
 | `comprehensive_test.sh` | Main test runner that executes all modules |
+| `analyze_test_coverage.sh` | Analysis tool for test coverage assessment |
+| `identify_test_gaps.sh` | Analysis tool for identifying testing gaps |
+| `analysis_tools.sh` | Combined analysis utilities (existing) |
 | `README.md` | This documentation file |
 
 ## Usage
@@ -30,30 +33,30 @@ The tests are organized by feature area for easy maintenance and selective execu
 ### Run All Tests
 ```bash
 # Execute the complete test suite
-./sh_test/comprehensive_test.sh
+./script_test/comprehensive_test.sh
 ```
 
 ### Run Individual Test Modules
 ```bash
 # Run specific feature tests
-./sh_test/test_navigation.sh
-./sh_test/test_screenshot.sh
-./sh_test/test_assertions.sh
-./sh_test/test_forms.sh
-./sh_test/test_javascript.sh
-./sh_test/test_sessions.sh
+./script_test/test_navigation.sh
+./script_test/test_screenshot.sh
+./script_test/test_assertions.sh
+./script_test/test_forms.sh
+./script_test/test_javascript.sh
+./script_test/test_sessions.sh
 ```
 
 ### Run with Options
 ```bash
 # Show help and available options
-./sh_test/comprehensive_test.sh --help
+./script_test/comprehensive_test.sh --help
 
 # List all available test modules
-./sh_test/comprehensive_test.sh --list
+./script_test/comprehensive_test.sh --list
 
 # Run only a specific module
-./sh_test/comprehensive_test.sh --module test_forms.sh
+./script_test/comprehensive_test.sh --module test_forms.sh
 ```
 
 ## Test Features
@@ -148,7 +151,7 @@ The shell tests can be integrated into continuous integration pipelines:
 # Basic CI integration
 cd /path/to/headlessweb
 make clean && make
-./sh_test/comprehensive_test.sh
+./script_test/comprehensive_test.sh
 ```
 
 ### Exit Codes

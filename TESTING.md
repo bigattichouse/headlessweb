@@ -12,13 +12,13 @@ HeadlessWeb uses a multi-layered testing approach:
 - **Focus**: Component isolation, method validation, edge cases
 - **Execution**: `make test` or `./hweb_tests`
 
-### 2. Shell Integration Tests (`sh_test/`)
+### 2. Shell Integration Tests (`script_test/`)
 - **Framework**: Bash scripts with custom test helpers
 - **Coverage**: 250+ end-to-end test scenarios  
 - **Focus**: Real-world usage, CLI interface, feature integration
-- **Execution**: `./sh_test/comprehensive_test.sh`
+- **Execution**: `./script_test/comprehensive_test.sh`
 
-### 3. Analysis Tools (`sh_test/analysis_tools.sh`)
+### 3. Analysis Tools (`script_test/analysis_tools.sh`)
 - **Coverage Analysis**: Identify untested components
 - **Gap Analysis**: Prioritize testing improvements
 - **Recommendations**: Actionable testing improvements
@@ -31,21 +31,21 @@ HeadlessWeb uses a multi-layered testing approach:
 make test
 
 # Integration tests  
-./sh_test/comprehensive_test.sh
+./script_test/comprehensive_test.sh
 
 # Both (recommended for full validation)
-make test && ./sh_test/comprehensive_test.sh
+make test && ./script_test/comprehensive_test.sh
 ```
 
 ### Run Specific Test Categories
 ```bash
 # Individual shell test modules
-./sh_test/test_navigation.sh     # Navigation and sessions
-./sh_test/test_screenshot.sh     # Screenshot functionality
-./sh_test/test_assertions.sh     # Assertion system
-./sh_test/test_forms.sh          # Form interactions
-./sh_test/test_javascript.sh     # JavaScript execution
-./sh_test/test_sessions.sh       # Session management
+./script_test/test_navigation.sh     # Navigation and sessions
+./script_test/test_screenshot.sh     # Screenshot functionality
+./script_test/test_assertions.sh     # Assertion system
+./script_test/test_forms.sh          # Form interactions
+./script_test/test_javascript.sh     # JavaScript execution
+./script_test/test_sessions.sh       # Session management
 
 # Individual unit test suites
 ./hweb_tests --gtest_filter="ConfigParserTest*"
@@ -72,9 +72,9 @@ tests/
 └── integration/                # Cross-component tests
 ```
 
-### Shell Test Structure (`sh_test/`)
+### Shell Test Structure (`script_test/`)
 ```
-sh_test/
+script_test/
 ├── README.md                   # Detailed documentation
 ├── test_helpers.sh            # Shared utilities
 ├── comprehensive_test.sh      # Main test runner
@@ -119,12 +119,12 @@ make test
 make test
 
 # Full validation  
-make test && ./sh_test/comprehensive_test.sh
+make test && ./script_test/comprehensive_test.sh
 ```
 
 ### Adding New Features
 1. **Write unit tests** for the component (`tests/`)
-2. **Add integration tests** for the feature (`sh_test/`)
+2. **Add integration tests** for the feature (`script_test/`)
 3. **Update existing tests** if interfaces change
 4. **Run analysis tools** to identify coverage gaps
 
@@ -160,10 +160,10 @@ echo "3. Unit tests..."
 make test
 
 echo "4. Integration tests..."
-./sh_test/comprehensive_test.sh
+./script_test/comprehensive_test.sh
 
 echo "5. Analysis..."
-./sh_test/analysis_tools.sh coverage
+./script_test/analysis_tools.sh coverage
 
 echo "All tests completed successfully!"
 ```
@@ -190,7 +190,7 @@ gdb --args ./hweb_tests --gtest_filter="FailingTest*"
 ### Shell Test Debugging  
 ```bash
 # Run with bash debugging
-bash -x ./sh_test/test_navigation.sh
+bash -x ./script_test/test_navigation.sh
 
 # Run individual test functions
 # Edit the script to call specific functions
@@ -215,28 +215,28 @@ bash -x ./sh_test/test_navigation.sh
 ### Performance Benchmarks
 ```bash
 # Time individual test modules
-time ./sh_test/test_forms.sh
+time ./script_test/test_forms.sh
 time ./hweb_tests --gtest_filter="BrowserCoreTest*"
 
 # Profile test execution
-./sh_test/comprehensive_test.sh 2>&1 | tee test_log.txt
+./script_test/comprehensive_test.sh 2>&1 | tee test_log.txt
 ```
 
 ## Legacy Test Migration
 
 ### Original Scripts Status
-- `comprehensive-test.sh` → Replaced by `sh_test/comprehensive_test.sh`
-- `test-assertions.sh` → Replaced by `sh_test/test_assertions.sh`  
-- `test-screenshot.sh` → Replaced by `sh_test/test_screenshot.sh`
-- `analyze_test_coverage.sh` → Available via `sh_test/analysis_tools.sh coverage`
-- `identify_test_gaps.sh` → Available via `sh_test/analysis_tools.sh gaps`
+- `comprehensive-test.sh` → Replaced by `script_test/comprehensive_test.sh`
+- `test-assertions.sh` → Replaced by `script_test/test_assertions.sh`  
+- `test-screenshot.sh` → Replaced by `script_test/test_screenshot.sh`
+- `analyze_test_coverage.sh` → Available via `script_test/analysis_tools.sh coverage`
+- `identify_test_gaps.sh` → Available via `script_test/analysis_tools.sh gaps`
 
 ### Access Legacy Tests
 ```bash
 # Run original scripts for comparison
-./sh_test/run_legacy_tests.sh comprehensive
-./sh_test/run_legacy_tests.sh assertions
-./sh_test/run_legacy_tests.sh screenshots
+./script_test/run_legacy_tests.sh comprehensive
+./script_test/run_legacy_tests.sh assertions
+./script_test/run_legacy_tests.sh screenshots
 ```
 
 ## Contributing
