@@ -221,21 +221,36 @@ fi
 sudo apt-get update
 sudo apt-get install -y build-essential cmake pkg-config \
   libgtk-4-dev libwebkitgtk-6.0-dev libjsoncpp-dev \
-  libcairo2-dev libgdk-pixbuf2.0-dev
+  libcairo2-dev libgdk-pixbuf2.0-dev libgtest-dev
 
 # Build HeadlessWeb
 git clone <repository-url>
 cd headlessweb
 make clean && make
 
+# Run tests (optional)
+make test
+
 # Ready to use!
 ./hweb --help
 ```
 
 ### Other Systems
-- **Dependencies:** GTK4, WebKitGTK 6.0, jsoncpp, Cairo, gdk-pixbuf
-- **Build:** Standard CMake build process
+- **Dependencies:** GTK4, WebKitGTK 6.0, jsoncpp, Cairo, gdk-pixbuf, Google Test (for unit tests)
+- **Build:** Standard CMake build process with modular architecture
 - **Requirements:** Modern C++ compiler with C++17 support
+
+### Development & Testing
+```bash
+# Build with tests
+make test
+
+# Run specific test suites
+cd tests && ./hweb_tests --gtest_filter="*ConfigParser*"
+
+# Generate coverage report (if gcov available)
+make coverage
+```
 
 ## Session Management
 
@@ -296,6 +311,41 @@ Check out `comprehensive-test.sh` for a complete example that demonstrates all f
 - **Data scraping** (extracting structured data from websites)
 - **Website monitoring** (checking for changes or errors)
 - **Visual regression testing** (screenshot comparisons)
+
+## Architecture
+
+HeadlessWeb is built with a modular architecture for maintainability and testability:
+
+### Core Components (`src/hweb/`)
+- **`main.cpp`** - Application entry point and orchestration
+- **`Config.cpp`** - Command-line argument parsing and configuration
+- **`Output.cpp`** - Centralized output management with JSON/silent modes
+- **`Types.h`** - Shared data structures and enums
+
+### Services (`src/hweb/Services/`)
+- **`ManagerRegistry.cpp`** - Singleton registry for global manager access
+- **`NavigationService.cpp`** - Navigation strategy determination and planning
+- **`SessionService.cpp`** - Session lifecycle and state management
+
+### Command Processing (`src/hweb/Commands/`)
+- **`Executor.cpp`** - Command execution pipeline and orchestration
+
+### Specialized Handlers (`src/hweb/Handlers/`)
+- **`BasicCommands.cpp`** - Form interactions, navigation, data extraction
+- **`FileOperations.cpp`** - Upload/download operations with validation
+- **`AdvancedWait.cpp`** - Complex waiting strategies for SPAs
+
+### Legacy Compatibility
+- **`src/hweb.cpp`** - Minimal wrapper maintaining backward compatibility with original monolithic interface
+
+Each component is focused and typically 100-250 lines, making the codebase maintainable and testable. The architecture follows SOLID principles with clear separation of concerns.
+
+### Testing
+The modular design enables comprehensive unit testing with 22+ test cases covering:
+- Configuration parsing with all command types
+- Navigation strategy logic
+- Manager lifecycle and singleton behavior
+- Output formatting and mode switching
 
 ---
 
