@@ -46,8 +46,16 @@ set(BROWSER_TEST_SOURCES
     browser/test_browser_session.cpp
 )
 
+# Integration test sources
+set(INTEGRATION_TEST_SOURCES
+    integration/test_browser_fileops_integration.cpp
+)
+
 # Enable browser tests with WebKit integration
 list(APPEND TEST_SOURCES ${BROWSER_TEST_SOURCES})
+
+# Enable integration tests
+list(APPEND TEST_SOURCES ${INTEGRATION_TEST_SOURCES})
 
 # Create test executable
 add_executable(hweb_tests ${TEST_SOURCES})
