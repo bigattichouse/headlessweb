@@ -26,6 +26,8 @@ set(TEST_SOURCES
     assertion/test_output_formatter.cpp
     fileops/test_types.cpp
     fileops/test_path_utils.cpp
+    fileops/test_upload_manager.cpp
+    # fileops/test_download_manager.cpp
     utils/test_helpers.cpp
     main/test_command_parsing.cpp
 )
@@ -37,6 +39,10 @@ set(BROWSER_TEST_SOURCES
     browser/test_browser_dom.cpp
     browser/test_browser_javascript.cpp
     browser/test_browser_events.cpp
+    browser/test_browser_storage.cpp
+    browser/test_browser_utilities.cpp
+    browser/test_browser_wait.cpp
+    browser/test_browser_main.cpp
 )
 
 # Enable browser tests with WebKit integration
