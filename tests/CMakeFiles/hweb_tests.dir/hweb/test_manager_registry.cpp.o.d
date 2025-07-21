@@ -1,4 +1,4 @@
-tests/CMakeFiles/hweb_tests.dir/hweb/test_manager_registry.cpp.o: \
+CMakeFiles/hweb_tests.dir/hweb/test_manager_registry.cpp.o: \
  /home/bigattichouse/workspace/headlessweb/tests/hweb/test_manager_registry.cpp \
  /usr/include/stdc-predef.h /usr/include/gtest/gtest.h \
  /usr/include/c++/13/cstddef \

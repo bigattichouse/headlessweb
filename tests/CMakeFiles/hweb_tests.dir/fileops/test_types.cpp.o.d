@@ -1,4 +1,4 @@
-tests/CMakeFiles/hweb_tests.dir/fileops/test_types.cpp.o: \
+CMakeFiles/hweb_tests.dir/fileops/test_types.cpp.o: \
  /home/bigattichouse/workspace/headlessweb/tests/fileops/test_types.cpp \
  /usr/include/stdc-predef.h /usr/include/gtest/gtest.h \
  /usr/include/c++/13/cstddef \
@@ -274,7 +274,7 @@ tests/CMakeFiles/hweb_tests.dir/fileops/test_types.cpp.o: \
  /usr/include/gtest/gtest-test-part.h \
  /usr/include/gtest/gtest-typed-test.h \
  /usr/include/gtest/gtest_pred_impl.h /usr/include/gtest/gtest_prod.h \
- /home/bigattichouse/workspace/headlessweb/src/FileOps/Types.h \
+ /home/bigattichouse/workspace/headlessweb/tests/../src/FileOps/Types.h \
  /usr/include/c++/13/chrono /usr/include/c++/13/filesystem \
  /usr/include/c++/13/bits/fs_fwd.h /usr/include/c++/13/bits/fs_path.h \
  /usr/include/c++/13/codecvt /usr/include/c++/13/bits/fs_dir.h \

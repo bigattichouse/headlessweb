@@ -68,7 +68,7 @@ include CMakeFiles/run_tests.dir/progress.make
 
 CMakeFiles/run_tests: hweb_tests
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=/home/bigattichouse/workspace/headlessweb/tests/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Running unit tests"
-	tests/hweb_tests
+	./hweb_tests
 
 CMakeFiles/run_tests.dir/codegen:
 .PHONY : CMakeFiles/run_tests.dir/codegen

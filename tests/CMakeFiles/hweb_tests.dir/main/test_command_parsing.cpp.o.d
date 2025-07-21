@@ -1,4 +1,4 @@
-tests/CMakeFiles/hweb_tests.dir/main/test_command_parsing.cpp.o: \
+CMakeFiles/hweb_tests.dir/main/test_command_parsing.cpp.o: \
  /home/bigattichouse/workspace/headlessweb/tests/main/test_command_parsing.cpp \
  /usr/include/stdc-predef.h /usr/include/gtest/gtest.h \
  /usr/include/c++/13/cstddef \

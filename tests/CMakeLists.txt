@@ -9,7 +9,7 @@ include(GoogleTest)
 enable_testing()
 
 # Include directories
-include_directories(${CMAKE_SOURCE_DIR}/src)
+include_directories(../src)
 
 # Find required packages (same as main project)
 find_package(PkgConfig REQUIRED)
@@ -34,6 +34,7 @@ set(TEST_SOURCES
     hweb/test_config_parser.cpp
     hweb/test_manager_registry.cpp
     hweb/test_navigation_service.cpp
+    hweb/test_service_architecture_coordination.cpp
 )
 
 # Browser component tests (excluded due to WebKit/GTK dependencies)
@@ -48,11 +49,13 @@ set(BROWSER_TEST_SOURCES
     browser/test_browser_wait.cpp
     browser/test_browser_main.cpp
     browser/test_browser_session.cpp
+    browser/test_browser_advanced_form_operations.cpp
 )
 
 # Integration test sources
 set(INTEGRATION_TEST_SOURCES
     integration/test_browser_fileops_integration.cpp
+    integration/test_complex_workflow_chains.cpp
 )
 
 # Enable browser tests with WebKit integration
@@ -78,23 +81,24 @@ target_link_libraries(hweb_tests
 
 # Link against project source files (including Browser with WebKit)
 target_sources(hweb_tests PRIVATE
-    ${CMAKE_SOURCE_DIR}/src/Session/Session.cpp
-    ${CMAKE_SOURCE_DIR}/src/Session/Manager.cpp
-    ${CMAKE_SOURCE_DIR}/src/Assertion/OutputFormatter.cpp
-    ${CMAKE_SOURCE_DIR}/src/FileOps/Types.cpp
-    ${CMAKE_SOURCE_DIR}/src/FileOps/UploadManager.cpp
-    ${CMAKE_SOURCE_DIR}/src/FileOps/DownloadManager.cpp
-    ${CMAKE_SOURCE_DIR}/src/FileOps/PathUtils.cpp
-    ${CMAKE_SOURCE_DIR}/src/Browser/Browser.cpp
-    ${CMAKE_SOURCE_DIR}/src/Browser/Core.cpp
-    ${CMAKE_SOURCE_DIR}/src/Browser/DOM.cpp
-    ${CMAKE_SOURCE_DIR}/src/Browser/Events.cpp
-    ${CMAKE_SOURCE_DIR}/src/Browser/JavaScript.cpp
-    ${CMAKE_SOURCE_DIR}/src/Browser/Screenshot.cpp
-    ${CMAKE_SOURCE_DIR}/src/Browser/Session.cpp
-    ${CMAKE_SOURCE_DIR}/src/Browser/Storage.cpp
-    ${CMAKE_SOURCE_DIR}/src/Browser/Utilities.cpp
-    ${CMAKE_SOURCE_DIR}/src/Browser/Wait.cpp
+    ../src/Session/Session.cpp
+    ../src/Session/Manager.cpp
+    ../src/Assertion/Manager.cpp
+    ../src/Assertion/OutputFormatter.cpp
+    ../src/FileOps/Types.cpp
+    ../src/FileOps/UploadManager.cpp
+    ../src/FileOps/DownloadManager.cpp
+    ../src/FileOps/PathUtils.cpp
+    ../src/Browser/Browser.cpp
+    ../src/Browser/Core.cpp
+    ../src/Browser/DOM.cpp
+    ../src/Browser/Events.cpp
+    ../src/Browser/JavaScript.cpp
+    ../src/Browser/Screenshot.cpp
+    ../src/Browser/Session.cpp
+    ../src/Browser/Storage.cpp
+    ../src/Browser/Utilities.cpp
+    ../src/Browser/Wait.cpp
 )
 
 # Include directories for tests
@@ -102,8 +106,8 @@ target_include_directories(hweb_tests PRIVATE
     ${GTK4_INCLUDE_DIRS}
     ${WEBKIT_INCLUDE_DIRS}
     ${JSONCPP_INCLUDE_DIRS}
-    ${CMAKE_SOURCE_DIR}/src
-    ${CMAKE_CURRENT_SOURCE_DIR}
+    ../src
+    .
 )
 
 # Compiler flags
@@ -117,7 +121,7 @@ gtest_discover_tests(hweb_tests)
 
 # Custom test target
 add_custom_target(run_tests
-    COMMAND ${CMAKE_BINARY_DIR}/tests/hweb_tests
+    COMMAND ./hweb_tests
     DEPENDS hweb_tests
     COMMENT "Running unit tests"
 )

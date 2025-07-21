@@ -1,4 +1,4 @@
-tests/CMakeFiles/hweb_tests.dir/fileops/test_upload_manager.cpp.o: \
+CMakeFiles/hweb_tests.dir/fileops/test_upload_manager.cpp.o: \
  /home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp \
  /usr/include/stdc-predef.h /usr/include/gtest/gtest.h \
  /usr/include/c++/13/cstddef \
@@ -274,15 +274,15 @@ tests/CMakeFiles/hweb_tests.dir/fileops/test_upload_manager.cpp.o: \
  /usr/include/gtest/gtest-test-part.h \
  /usr/include/gtest/gtest-typed-test.h \
  /usr/include/gtest/gtest_pred_impl.h /usr/include/gtest/gtest_prod.h \
- /home/bigattichouse/workspace/headlessweb/src/FileOps/UploadManager.h \
- /home/bigattichouse/workspace/headlessweb/src/FileOps/Types.h \
+ /home/bigattichouse/workspace/headlessweb/tests/../src/FileOps/UploadManager.h \
+ /home/bigattichouse/workspace/headlessweb/tests/../src/FileOps/Types.h \
  /usr/include/c++/13/chrono \
- /home/bigattichouse/workspace/headlessweb/src/FileOps/PathUtils.h \
+ /home/bigattichouse/workspace/headlessweb/tests/../src/FileOps/PathUtils.h \
  /usr/include/c++/13/filesystem /usr/include/c++/13/bits/fs_fwd.h \
  /usr/include/c++/13/bits/fs_path.h /usr/include/c++/13/codecvt \
  /usr/include/c++/13/bits/fs_dir.h /usr/include/c++/13/bits/fs_ops.h \
- /home/bigattichouse/workspace/headlessweb/src/FileOps/../Browser/Browser.h \
- /home/bigattichouse/workspace/headlessweb/src/FileOps/../Browser/../Session/Session.h \
+ /home/bigattichouse/workspace/headlessweb/tests/../src/FileOps/../Browser/Browser.h \
+ /home/bigattichouse/workspace/headlessweb/tests/../src/FileOps/../Browser/../Session/Session.h \
  /usr/include/jsoncpp/json/json.h /usr/include/jsoncpp/json/config.h \
  /usr/include/jsoncpp/json/allocator.h /usr/include/c++/13/cstring \
  /usr/include/jsoncpp/json/version.h \
@@ -292,7 +292,7 @@ tests/CMakeFiles/hweb_tests.dir/fileops/test_upload_manager.cpp.o: \
  /usr/include/c++/13/bits/stl_deque.h /usr/include/c++/13/bits/deque.tcc \
  /usr/include/c++/13/stack /usr/include/c++/13/bits/stl_stack.h \
  /usr/include/jsoncpp/json/writer.h \
- /home/bigattichouse/workspace/headlessweb/src/FileOps/../Browser/../Debug.h \
+ /home/bigattichouse/workspace/headlessweb/tests/../src/FileOps/../Browser/../Debug.h \
  /usr/include/glib-2.0/glib.h /usr/include/glib-2.0/glib/galloca.h \
  /usr/include/glib-2.0/glib/gtypes.h \
  /usr/lib/x86_64-linux-gnu/glib-2.0/include/glibconfig.h \

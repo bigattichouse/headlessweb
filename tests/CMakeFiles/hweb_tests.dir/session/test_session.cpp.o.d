@@ -1,4 +1,4 @@
-tests/CMakeFiles/hweb_tests.dir/session/test_session.cpp.o: \
+CMakeFiles/hweb_tests.dir/session/test_session.cpp.o: \
  /home/bigattichouse/workspace/headlessweb/tests/session/test_session.cpp \
  /usr/include/stdc-predef.h /usr/include/gtest/gtest.h \
  /usr/include/c++/13/cstddef \
@@ -319,7 +319,7 @@ tests/CMakeFiles/hweb_tests.dir/session/test_session.cpp.o: \
  /usr/include/gmock/internal/custom/gmock-generated-actions.h \
  /usr/include/gmock/gmock-more-matchers.h \
  /usr/include/gmock/gmock-nice-strict.h \
- /home/bigattichouse/workspace/headlessweb/src/Session/Session.h \
+ /home/bigattichouse/workspace/headlessweb/tests/../src/Session/Session.h \
  /usr/include/jsoncpp/json/json.h /usr/include/jsoncpp/json/config.h \
  /usr/include/jsoncpp/json/allocator.h /usr/include/c++/13/cstring \
  /usr/include/jsoncpp/json/version.h \
