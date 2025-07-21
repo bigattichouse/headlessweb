@@ -207,7 +207,7 @@ protected:
             </html>
         )";
         
-        browser_->loadHTML(ecommerce_html);
+        browser_->loadUri("data:text/html;charset=utf-8," + ecommerce_html);
         std::this_thread::sleep_for(std::chrono::milliseconds(800));
     }
     
@@ -237,16 +237,16 @@ TEST_F(ComplexWorkflowChainsTest, ECommerceWorkflow_BrowseToCheckout) {
     EXPECT_TRUE(initial_assertions);
     
     // Step 2: Search for products
-    browser_->type("#search-input", "laptop");
+    browser_->fillInput("#search-input", "laptop");
     std::this_thread::sleep_for(std::chrono::milliseconds(300));
     
     // Verify search functionality
     EXPECT_TRUE(browser_->isElementVisible(".product[data-id='1']")); // Laptop should be visible
     
     // Step 3: Add items to cart
-    browser_->click(".product[data-id='1'] button"); // Add laptop
+    browser_->clickElement(".product[data-id='1'] button"); // Add laptop
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
-    browser_->click(".product[data-id='2'] button"); // Add mouse
+    browser_->clickElement(".product[data-id='2'] button"); // Add mouse
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
     
     // Verify cart updates
@@ -255,7 +255,7 @@ TEST_F(ComplexWorkflowChainsTest, ECommerceWorkflow_BrowseToCheckout) {
     
     // Step 4: Proceed to checkout
     EXPECT_TRUE(browser_->isElementVisible("#checkout-btn"));
-    browser_->click("#checkout-btn");
+    browser_->clickElement("#checkout-btn");
     std::this_thread::sleep_for(std::chrono::milliseconds(300));
     
     // Verify checkout form appears
@@ -263,13 +263,13 @@ TEST_F(ComplexWorkflowChainsTest, ECommerceWorkflow_BrowseToCheckout) {
     EXPECT_FALSE(browser_->isElementVisible("#product-list"));
     
     // Step 5: Fill checkout form
-    browser_->type("#customer_name", "Test Customer");
-    browser_->type("#customer_email", "test@customer.com");
-    browser_->type("#customer_address", "123 Test Street, Test City, TC 12345");
+    browser_->fillInput("#customer_name", "Test Customer");
+    browser_->fillInput("#customer_email", "test@customer.com");
+    browser_->fillInput("#customer_address", "123 Test Street, Test City, TC 12345");
     browser_->selectOption("#payment_method", "credit");
     
     // Step 6: Complete order
-    browser_->click("button[onclick='processCheckout()']");
+    browser_->clickElement("button[onclick='processCheckout()']");
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
     
     // Verify order confirmation
@@ -286,8 +286,8 @@ TEST_F(ComplexWorkflowChainsTest, ECommerceWorkflow_WithSessionPersistence) {
     Session ecommerce_session;
     ecommerce_session.setUrl("data:text/html,ecommerce-test");
     
-    browser_->click(".product[data-id='1'] button"); // Add laptop
-    browser_->click(".product[data-id='3'] button"); // Add keyboard
+    browser_->clickElement(".product[data-id='1'] button"); // Add laptop
+    browser_->clickElement(".product[data-id='3'] button"); // Add keyboard
     std::this_thread::sleep_for(std::chrono::milliseconds(300));
     
     // Step 2: Save session state
@@ -302,15 +302,15 @@ TEST_F(ComplexWorkflowChainsTest, ECommerceWorkflow_WithSessionPersistence) {
     // In real implementation, session restoration would reload localStorage
     
     // Step 5: Continue with checkout process
-    browser_->click("#checkout-btn");
+    browser_->clickElement("#checkout-btn");
     std::this_thread::sleep_for(std::chrono::milliseconds(300));
     
-    browser_->type("#customer_name", "Returning Customer");
-    browser_->type("#customer_email", "returning@customer.com");
-    browser_->type("#customer_address", "456 Return Ave");
+    browser_->fillInput("#customer_name", "Returning Customer");
+    browser_->fillInput("#customer_email", "returning@customer.com");
+    browser_->fillInput("#customer_address", "456 Return Ave");
     browser_->selectOption("#payment_method", "paypal");
     
-    browser_->click("button[onclick='processCheckout()']");
+    browser_->clickElement("button[onclick='processCheckout()']");
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
     
     // Verify successful completion
@@ -342,13 +342,13 @@ TEST_F(ComplexWorkflowChainsTest, MultiPageNavigation_WithFormData) {
         </body></html>
     )";
     
-    browser_->loadHTML(page1_html);
+    browser_->loadUri("data:text/html;charset=utf-8," + page1_html);
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
     
     // Step 2: Fill form and navigate
-    browser_->type("#username", "testuser");
-    browser_->type("#email", "test@example.com");
-    browser_->click("button[onclick='goToPage2()']");
+    browser_->fillInput("#username", "testuser");
+    browser_->fillInput("#email", "test@example.com");
+    browser_->clickElement("button[onclick='goToPage2()']");
     std::this_thread::sleep_for(std::chrono::milliseconds(300));
     
     // Step 3: Save session at this point
@@ -399,13 +399,13 @@ TEST_F(ComplexWorkflowChainsTest, MultiPageNavigation_WithFormData) {
         </body></html>
     )";
     
-    browser_->loadHTML(page2_html);
+    browser_->loadUri("data:text/html;charset=utf-8," + page2_html);
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
     
     // Step 5: Complete profile form
-    browser_->type("#fullname", "Test User Full Name");
-    browser_->type("#bio", "This is a test user bio for workflow testing.");
-    browser_->click("button[onclick='completeProfile()']");
+    browser_->fillInput("#fullname", "Test User Full Name");
+    browser_->fillInput("#bio", "This is a test user bio for workflow testing.");
+    browser_->clickElement("button[onclick='completeProfile()']");
     std::this_thread::sleep_for(std::chrono::milliseconds(300));
     
     // Step 6: Verify completion
@@ -494,7 +494,7 @@ TEST_F(ComplexWorkflowChainsTest, FileOperationWorkflow_UploadProcessDownload) {
         </body></html>
     )";
     
-    browser_->loadHTML(file_processor_html);
+    browser_->loadUri("data:text/html;charset=utf-8," + file_processor_html);
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
     
     // Step 3: Upload file simulation (in real scenario, would use actual file upload)
@@ -504,7 +504,7 @@ TEST_F(ComplexWorkflowChainsTest, FileOperationWorkflow_UploadProcessDownload) {
     
     // Simulate file selection and processing
     browser_->executeJS("document.getElementById('file-input').setAttribute('data-file', 'test_document.txt');");
-    browser_->click("button[onclick='processFile()']");
+    browser_->clickElement("button[onclick='processFile()']");
     
     // Step 4: Wait for processing to complete
     std::this_thread::sleep_for(std::chrono::milliseconds(3000)); // Wait for progress animation
@@ -575,7 +575,7 @@ TEST_F(ComplexWorkflowChainsTest, ScreenshotSessionAssertionWorkflow) {
         </html>
     )";
     
-    browser_->loadHTML(visual_test_html);
+    browser_->loadUri("data:text/html;charset=utf-8," + visual_test_html);
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
     
     // Step 2: Create session and take initial screenshot
@@ -600,7 +600,7 @@ TEST_F(ComplexWorkflowChainsTest, ScreenshotSessionAssertionWorkflow) {
     EXPECT_TRUE(session_saved);
     
     // Step 5: Trigger changes
-    browser_->click("button[onclick='changeElements()']");
+    browser_->clickElement("button[onclick='changeElements()']");
     std::this_thread::sleep_for(std::chrono::milliseconds(1000)); // Wait for transitions
     
     // Step 6: Take screenshot after changes
@@ -635,7 +635,7 @@ TEST_F(ComplexWorkflowChainsTest, ErrorRecoveryWorkflow_NavigationFailureRecover
     Session recovery_session;
     
     std::string stable_html = "<html><body><h1>Stable Page</h1><input id='test-input' value='stable'></body></html>";
-    browser_->loadHTML(stable_html);
+    browser_->loadUri("data:text/html;charset=utf-8," + stable_html);
     std::this_thread::sleep_for(std::chrono::milliseconds(300));
     
     browser_->updateSessionData(recovery_session);
@@ -654,7 +654,7 @@ TEST_F(ComplexWorkflowChainsTest, ErrorRecoveryWorkflow_NavigationFailureRecover
         
         if (loaded_session) {
             // In real implementation, would restore browser to session state
-            browser_->loadHTML(stable_html); // Simulate recovery
+            browser_->loadUri("data:text/html;charset=utf-8," + stable_html); // Simulate recovery
             std::this_thread::sleep_for(std::chrono::milliseconds(300));
         }
     }
@@ -665,7 +665,7 @@ TEST_F(ComplexWorkflowChainsTest, ErrorRecoveryWorkflow_NavigationFailureRecover
     EXPECT_EQ(recovered_value, "stable");
     
     // Step 5: Continue with valid workflow after recovery
-    browser_->type("#test-input", "recovered and continuing");
+    browser_->fillInput("#test-input", "recovered and continuing");
     
     assertion_manager_->addAssertion("element-value", "#test-input", "recovered and continuing", "equals");
     bool recovery_assertion = assertion_manager_->executeAssertions(*browser_);
@@ -702,7 +702,7 @@ TEST_F(ComplexWorkflowChainsTest, PerformanceStressWorkflow_RapidOperations) {
         </body></html>
     )";
     
-    browser_->loadHTML(stress_test_html);
+    browser_->loadUri("data:text/html;charset=utf-8," + stress_test_html);
     std::this_thread::sleep_for(std::chrono::milliseconds(300));
     
     // Step 2: Perform rapid operations
@@ -710,7 +710,7 @@ TEST_F(ComplexWorkflowChainsTest, PerformanceStressWorkflow_RapidOperations) {
     
     const int num_operations = 50;
     for (int i = 0; i < num_operations; i++) {
-        browser_->click("#increment-btn");
+        browser_->clickElement("#increment-btn");
         
         // Add assertions periodically
         if (i % 10 == 0) {

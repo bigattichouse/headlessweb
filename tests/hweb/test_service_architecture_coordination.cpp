@@ -83,7 +83,7 @@ protected:
             </html>
         )";
         
-        browser_->loadHTML(test_html);
+        browser_->loadUri("data:text/html;charset=utf-8," + test_html);
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 
@@ -157,8 +157,8 @@ TEST_F(ServiceArchitectureCoordinationTest, SessionService_BrowserStateIntegrati
     EXPECT_FALSE(test_session.getUrl().empty());
     
     // Modify browser state
-    browser_->type("#test-input", "modified_value");
-    browser_->uncheck("#test-checkbox");
+    browser_->fillInput("#test-input", "modified_value");
+    browser_->uncheckElement("#test-checkbox");
     browser_->selectOption("#test-select", "option2");
     
     // Update session with current browser state
@@ -207,12 +207,12 @@ TEST_F(ServiceArchitectureCoordinationTest, SessionService_MultiSessionIsolation
     Session session2 = session_service_->initialize_session("session2");
     
     // Modify browser state for session1
-    browser_->type("#test-input", "session1_value");
+    browser_->fillInput("#test-input", "session1_value");
     session_service_->update_session_state(*browser_, session1);
     
     // Clear and modify for session2
-    browser_->clearField("#test-input");
-    browser_->type("#test-input", "session2_value");
+    browser_->clearInput("#test-input");
+    browser_->fillInput("#test-input", "session2_value");
     session_service_->update_session_state(*browser_, session2);
     
     // Save both sessions
@@ -323,7 +323,7 @@ TEST_F(ServiceArchitectureCoordinationTest, CrossService_RecoveryMechanisms) {
     
     // Create session and establish initial state
     Session recovery_session = session_service_->initialize_session("recovery_test");
-    browser_->type("#test-input", "recovery_value");
+    browser_->fillInput("#test-input", "recovery_value");
     session_service_->update_session_state(*browser_, recovery_session);
     
     // Simulate browser failure/reset
@@ -382,7 +382,7 @@ TEST_F(ServiceArchitectureCoordinationTest, ResourceManagement_ConcurrentAccess)
     EXPECT_TRUE(nav_started);
     
     // Update session state while navigation might be in progress
-    browser_->type("#test-input", "concurrent_value");
+    browser_->fillInput("#test-input", "concurrent_value");
     EXPECT_NO_THROW(session_service_->update_session_state(*browser_, concurrent_session));
     
     // Wait for navigation to complete
@@ -418,7 +418,7 @@ TEST_F(ServiceArchitectureCoordinationTest, ServiceIntegration_CompleteWorkflow)
     
     // Step 3: Interact with page content
     std::this_thread::sleep_for(std::chrono::milliseconds(500)); // Allow page load
-    browser_->type("#workflow-input", "modified-workflow-data");
+    browser_->fillInput("#workflow-input", "modified-workflow-data");
     
     // Step 4: Use ManagerRegistry services for assertions
     auto& assertion_manager = HWeb::ManagerRegistry::get_assertion_manager();
