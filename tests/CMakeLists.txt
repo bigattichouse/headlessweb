@@ -30,6 +30,10 @@ set(TEST_SOURCES
     # fileops/test_download_manager.cpp
     utils/test_helpers.cpp
     main/test_command_parsing.cpp
+    hweb/test_output.cpp
+    hweb/test_config_parser.cpp
+    hweb/test_manager_registry.cpp
+    hweb/test_navigation_service.cpp
 )
 
 # Browser component tests (excluded due to WebKit/GTK dependencies)
@@ -62,6 +66,7 @@ add_executable(hweb_tests ${TEST_SOURCES})
 
 # Link libraries
 target_link_libraries(hweb_tests
+    hweb_core
     GTest::gtest
     GTest::gmock
     GTest::gtest_main

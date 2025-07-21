@@ -384,6 +384,7 @@ hweb: CMakeFiles/hweb.dir/src/FileOps/Types.cpp.o
 hweb: CMakeFiles/hweb.dir/src/FileOps/UploadManager.cpp.o
 hweb: CMakeFiles/hweb.dir/build.make
 hweb: CMakeFiles/hweb.dir/compiler_depend.ts
+hweb: src/hweb/libhweb_core.a
 hweb: CMakeFiles/hweb.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/bigattichouse/workspace/headlessweb/CMakeFiles --progress-num=$(CMAKE_PROGRESS_20) "Linking CXX executable hweb"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/hweb.dir/link.txt --verbose=$(VERBOSE)

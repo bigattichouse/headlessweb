@@ -328,4 +328,6 @@ tests/CMakeFiles/hweb_tests.dir/session/test_session.cpp.o: \
  /usr/include/jsoncpp/json/value.h /usr/include/c++/13/deque \
  /usr/include/c++/13/bits/stl_deque.h /usr/include/c++/13/bits/deque.tcc \
  /usr/include/c++/13/stack /usr/include/c++/13/bits/stl_stack.h \
- /usr/include/jsoncpp/json/writer.h
+ /usr/include/jsoncpp/json/writer.h /usr/include/c++/13/thread \
+ /usr/include/c++/13/bits/std_thread.h \
+ /usr/include/c++/13/bits/this_thread_sleep.h /usr/include/c++/13/chrono

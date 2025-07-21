@@ -67,6 +67,8 @@ all: CMakeFiles/hweb.dir/all
 all: src/Browser/all
 all: src/Assertion/all
 all: src/FileOps/all
+all: src/hweb/all
+all: tests/all
 .PHONY : all
 
 # The main recursive "codegen" target.
@@ -74,12 +76,16 @@ codegen: CMakeFiles/hweb.dir/codegen
 codegen: src/Browser/codegen
 codegen: src/Assertion/codegen
 codegen: src/FileOps/codegen
+codegen: src/hweb/codegen
+codegen: tests/codegen
 .PHONY : codegen
 
 # The main recursive "preinstall" target.
 preinstall: src/Browser/preinstall
 preinstall: src/Assertion/preinstall
 preinstall: src/FileOps/preinstall
+preinstall: src/hweb/preinstall
+preinstall: tests/preinstall
 .PHONY : preinstall
 
 # The main recursive "clean" target.
@@ -87,6 +93,8 @@ clean: CMakeFiles/hweb.dir/clean
 clean: src/Browser/clean
 clean: src/Assertion/clean
 clean: src/FileOps/clean
+clean: src/hweb/clean
+clean: tests/clean
 .PHONY : clean
 
 #=============================================================================
@@ -147,18 +155,58 @@ src/FileOps/clean:
 .PHONY : src/FileOps/clean
 
 #=============================================================================
+# Directory level rules for directory src/hweb
+
+# Recursive "all" directory target.
+src/hweb/all: src/hweb/CMakeFiles/hweb_core.dir/all
+.PHONY : src/hweb/all
+
+# Recursive "codegen" directory target.
+src/hweb/codegen: src/hweb/CMakeFiles/hweb_core.dir/codegen
+.PHONY : src/hweb/codegen
+
+# Recursive "preinstall" directory target.
+src/hweb/preinstall:
+.PHONY : src/hweb/preinstall
+
+# Recursive "clean" directory target.
+src/hweb/clean: src/hweb/CMakeFiles/hweb_core.dir/clean
+.PHONY : src/hweb/clean
+
+#=============================================================================
+# Directory level rules for directory tests
+
+# Recursive "all" directory target.
+tests/all: tests/CMakeFiles/hweb_tests.dir/all
+.PHONY : tests/all
+
+# Recursive "codegen" directory target.
+tests/codegen: tests/CMakeFiles/hweb_tests.dir/codegen
+.PHONY : tests/codegen
+
+# Recursive "preinstall" directory target.
+tests/preinstall:
+.PHONY : tests/preinstall
+
+# Recursive "clean" directory target.
+tests/clean: tests/CMakeFiles/hweb_tests.dir/clean
+tests/clean: tests/CMakeFiles/run_tests.dir/clean
+tests/clean: tests/CMakeFiles/coverage.dir/clean
+.PHONY : tests/clean
+
+#=============================================================================
 # Target rules for target CMakeFiles/hweb.dir
 
 # All Build rule for target.
-CMakeFiles/hweb.dir/all:
+CMakeFiles/hweb.dir/all: src/hweb/CMakeFiles/hweb_core.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb.dir/build.make CMakeFiles/hweb.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb.dir/build.make CMakeFiles/hweb.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/bigattichouse/workspace/headlessweb/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20 "Built target hweb"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/bigattichouse/workspace/headlessweb/CMakeFiles --progress-num=2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21 "Built target hweb"
 .PHONY : CMakeFiles/hweb.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/hweb.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/bigattichouse/workspace/headlessweb/CMakeFiles 20
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/bigattichouse/workspace/headlessweb/CMakeFiles 38
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/hweb.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/bigattichouse/workspace/headlessweb/CMakeFiles 0
 .PHONY : CMakeFiles/hweb.dir/rule
@@ -170,13 +218,141 @@ hweb: CMakeFiles/hweb.dir/rule
 # codegen rule for target.
 CMakeFiles/hweb.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb.dir/build.make CMakeFiles/hweb.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/bigattichouse/workspace/headlessweb/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20 "Finished codegen for target hweb"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/bigattichouse/workspace/headlessweb/CMakeFiles --progress-num=2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21 "Finished codegen for target hweb"
 .PHONY : CMakeFiles/hweb.dir/codegen
 
 # clean rule for target.
 CMakeFiles/hweb.dir/clean:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb.dir/build.make CMakeFiles/hweb.dir/clean
 .PHONY : CMakeFiles/hweb.dir/clean
+
+#=============================================================================
+# Target rules for target src/hweb/CMakeFiles/hweb_core.dir
+
+# All Build rule for target.
+src/hweb/CMakeFiles/hweb_core.dir/all:
+	$(MAKE) $(MAKESILENT) -f src/hweb/CMakeFiles/hweb_core.dir/build.make src/hweb/CMakeFiles/hweb_core.dir/depend
+	$(MAKE) $(MAKESILENT) -f src/hweb/CMakeFiles/hweb_core.dir/build.make src/hweb/CMakeFiles/hweb_core.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/bigattichouse/workspace/headlessweb/CMakeFiles --progress-num=22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39 "Built target hweb_core"
+.PHONY : src/hweb/CMakeFiles/hweb_core.dir/all
+
+# Build rule for subdir invocation for target.
+src/hweb/CMakeFiles/hweb_core.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/bigattichouse/workspace/headlessweb/CMakeFiles 18
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/hweb/CMakeFiles/hweb_core.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/bigattichouse/workspace/headlessweb/CMakeFiles 0
+.PHONY : src/hweb/CMakeFiles/hweb_core.dir/rule
+
+# Convenience name for target.
+hweb_core: src/hweb/CMakeFiles/hweb_core.dir/rule
+.PHONY : hweb_core
+
+# codegen rule for target.
+src/hweb/CMakeFiles/hweb_core.dir/codegen:
+	$(MAKE) $(MAKESILENT) -f src/hweb/CMakeFiles/hweb_core.dir/build.make src/hweb/CMakeFiles/hweb_core.dir/codegen
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/bigattichouse/workspace/headlessweb/CMakeFiles --progress-num=22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39 "Finished codegen for target hweb_core"
+.PHONY : src/hweb/CMakeFiles/hweb_core.dir/codegen
+
+# clean rule for target.
+src/hweb/CMakeFiles/hweb_core.dir/clean:
+	$(MAKE) $(MAKESILENT) -f src/hweb/CMakeFiles/hweb_core.dir/build.make src/hweb/CMakeFiles/hweb_core.dir/clean
+.PHONY : src/hweb/CMakeFiles/hweb_core.dir/clean
+
+#=============================================================================
+# Target rules for target tests/CMakeFiles/hweb_tests.dir
+
+# All Build rule for target.
+tests/CMakeFiles/hweb_tests.dir/all: src/hweb/CMakeFiles/hweb_core.dir/all
+	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/hweb_tests.dir/build.make tests/CMakeFiles/hweb_tests.dir/depend
+	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/hweb_tests.dir/build.make tests/CMakeFiles/hweb_tests.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/bigattichouse/workspace/headlessweb/CMakeFiles --progress-num=40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81 "Built target hweb_tests"
+.PHONY : tests/CMakeFiles/hweb_tests.dir/all
+
+# Build rule for subdir invocation for target.
+tests/CMakeFiles/hweb_tests.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/bigattichouse/workspace/headlessweb/CMakeFiles 60
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tests/CMakeFiles/hweb_tests.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/bigattichouse/workspace/headlessweb/CMakeFiles 0
+.PHONY : tests/CMakeFiles/hweb_tests.dir/rule
+
+# Convenience name for target.
+hweb_tests: tests/CMakeFiles/hweb_tests.dir/rule
+.PHONY : hweb_tests
+
+# codegen rule for target.
+tests/CMakeFiles/hweb_tests.dir/codegen:
+	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/hweb_tests.dir/build.make tests/CMakeFiles/hweb_tests.dir/codegen
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/bigattichouse/workspace/headlessweb/CMakeFiles --progress-num=40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81 "Finished codegen for target hweb_tests"
+.PHONY : tests/CMakeFiles/hweb_tests.dir/codegen
+
+# clean rule for target.
+tests/CMakeFiles/hweb_tests.dir/clean:
+	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/hweb_tests.dir/build.make tests/CMakeFiles/hweb_tests.dir/clean
+.PHONY : tests/CMakeFiles/hweb_tests.dir/clean
+
+#=============================================================================
+# Target rules for target tests/CMakeFiles/run_tests.dir
+
+# All Build rule for target.
+tests/CMakeFiles/run_tests.dir/all: tests/CMakeFiles/hweb_tests.dir/all
+	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/run_tests.dir/build.make tests/CMakeFiles/run_tests.dir/depend
+	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/run_tests.dir/build.make tests/CMakeFiles/run_tests.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/bigattichouse/workspace/headlessweb/CMakeFiles --progress-num=82 "Built target run_tests"
+.PHONY : tests/CMakeFiles/run_tests.dir/all
+
+# Build rule for subdir invocation for target.
+tests/CMakeFiles/run_tests.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/bigattichouse/workspace/headlessweb/CMakeFiles 61
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tests/CMakeFiles/run_tests.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/bigattichouse/workspace/headlessweb/CMakeFiles 0
+.PHONY : tests/CMakeFiles/run_tests.dir/rule
+
+# Convenience name for target.
+run_tests: tests/CMakeFiles/run_tests.dir/rule
+.PHONY : run_tests
+
+# codegen rule for target.
+tests/CMakeFiles/run_tests.dir/codegen: tests/CMakeFiles/hweb_tests.dir/all
+	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/run_tests.dir/build.make tests/CMakeFiles/run_tests.dir/codegen
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/bigattichouse/workspace/headlessweb/CMakeFiles --progress-num=82 "Finished codegen for target run_tests"
+.PHONY : tests/CMakeFiles/run_tests.dir/codegen
+
+# clean rule for target.
+tests/CMakeFiles/run_tests.dir/clean:
+	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/run_tests.dir/build.make tests/CMakeFiles/run_tests.dir/clean
+.PHONY : tests/CMakeFiles/run_tests.dir/clean
+
+#=============================================================================
+# Target rules for target tests/CMakeFiles/coverage.dir
+
+# All Build rule for target.
+tests/CMakeFiles/coverage.dir/all: tests/CMakeFiles/hweb_tests.dir/all
+	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/coverage.dir/build.make tests/CMakeFiles/coverage.dir/depend
+	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/coverage.dir/build.make tests/CMakeFiles/coverage.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/bigattichouse/workspace/headlessweb/CMakeFiles --progress-num=1 "Built target coverage"
+.PHONY : tests/CMakeFiles/coverage.dir/all
+
+# Build rule for subdir invocation for target.
+tests/CMakeFiles/coverage.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/bigattichouse/workspace/headlessweb/CMakeFiles 61
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tests/CMakeFiles/coverage.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/bigattichouse/workspace/headlessweb/CMakeFiles 0
+.PHONY : tests/CMakeFiles/coverage.dir/rule
+
+# Convenience name for target.
+coverage: tests/CMakeFiles/coverage.dir/rule
+.PHONY : coverage
+
+# codegen rule for target.
+tests/CMakeFiles/coverage.dir/codegen: tests/CMakeFiles/hweb_tests.dir/all
+	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/coverage.dir/build.make tests/CMakeFiles/coverage.dir/codegen
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/bigattichouse/workspace/headlessweb/CMakeFiles --progress-num=1 "Finished codegen for target coverage"
+.PHONY : tests/CMakeFiles/coverage.dir/codegen
+
+# clean rule for target.
+tests/CMakeFiles/coverage.dir/clean:
+	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/coverage.dir/build.make tests/CMakeFiles/coverage.dir/clean
+.PHONY : tests/CMakeFiles/coverage.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

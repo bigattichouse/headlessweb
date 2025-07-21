@@ -356,6 +356,174 @@ Services/SessionService.cpp.s:
 	cd /home/bigattichouse/workspace/headlessweb && $(MAKE) $(MAKESILENT) -f src/hweb/CMakeFiles/hweb_core.dir/build.make src/hweb/CMakeFiles/hweb_core.dir/Services/SessionService.cpp.s
 .PHONY : Services/SessionService.cpp.s
 
+__/Assertion/Manager.o: __/Assertion/Manager.cpp.o
+.PHONY : __/Assertion/Manager.o
+
+# target to build an object file
+__/Assertion/Manager.cpp.o:
+	cd /home/bigattichouse/workspace/headlessweb && $(MAKE) $(MAKESILENT) -f src/hweb/CMakeFiles/hweb_core.dir/build.make src/hweb/CMakeFiles/hweb_core.dir/__/Assertion/Manager.cpp.o
+.PHONY : __/Assertion/Manager.cpp.o
+
+__/Assertion/Manager.i: __/Assertion/Manager.cpp.i
+.PHONY : __/Assertion/Manager.i
+
+# target to preprocess a source file
+__/Assertion/Manager.cpp.i:
+	cd /home/bigattichouse/workspace/headlessweb && $(MAKE) $(MAKESILENT) -f src/hweb/CMakeFiles/hweb_core.dir/build.make src/hweb/CMakeFiles/hweb_core.dir/__/Assertion/Manager.cpp.i
+.PHONY : __/Assertion/Manager.cpp.i
+
+__/Assertion/Manager.s: __/Assertion/Manager.cpp.s
+.PHONY : __/Assertion/Manager.s
+
+# target to generate assembly for a file
+__/Assertion/Manager.cpp.s:
+	cd /home/bigattichouse/workspace/headlessweb && $(MAKE) $(MAKESILENT) -f src/hweb/CMakeFiles/hweb_core.dir/build.make src/hweb/CMakeFiles/hweb_core.dir/__/Assertion/Manager.cpp.s
+.PHONY : __/Assertion/Manager.cpp.s
+
+__/FileOps/DownloadManager.o: __/FileOps/DownloadManager.cpp.o
+.PHONY : __/FileOps/DownloadManager.o
+
+# target to build an object file
+__/FileOps/DownloadManager.cpp.o:
+	cd /home/bigattichouse/workspace/headlessweb && $(MAKE) $(MAKESILENT) -f src/hweb/CMakeFiles/hweb_core.dir/build.make src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/DownloadManager.cpp.o
+.PHONY : __/FileOps/DownloadManager.cpp.o
+
+__/FileOps/DownloadManager.i: __/FileOps/DownloadManager.cpp.i
+.PHONY : __/FileOps/DownloadManager.i
+
+# target to preprocess a source file
+__/FileOps/DownloadManager.cpp.i:
+	cd /home/bigattichouse/workspace/headlessweb && $(MAKE) $(MAKESILENT) -f src/hweb/CMakeFiles/hweb_core.dir/build.make src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/DownloadManager.cpp.i
+.PHONY : __/FileOps/DownloadManager.cpp.i
+
+__/FileOps/DownloadManager.s: __/FileOps/DownloadManager.cpp.s
+.PHONY : __/FileOps/DownloadManager.s
+
+# target to generate assembly for a file
+__/FileOps/DownloadManager.cpp.s:
+	cd /home/bigattichouse/workspace/headlessweb && $(MAKE) $(MAKESILENT) -f src/hweb/CMakeFiles/hweb_core.dir/build.make src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/DownloadManager.cpp.s
+.PHONY : __/FileOps/DownloadManager.cpp.s
+
+__/FileOps/PathUtils.o: __/FileOps/PathUtils.cpp.o
+.PHONY : __/FileOps/PathUtils.o
+
+# target to build an object file
+__/FileOps/PathUtils.cpp.o:
+	cd /home/bigattichouse/workspace/headlessweb && $(MAKE) $(MAKESILENT) -f src/hweb/CMakeFiles/hweb_core.dir/build.make src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/PathUtils.cpp.o
+.PHONY : __/FileOps/PathUtils.cpp.o
+
+__/FileOps/PathUtils.i: __/FileOps/PathUtils.cpp.i
+.PHONY : __/FileOps/PathUtils.i
+
+# target to preprocess a source file
+__/FileOps/PathUtils.cpp.i:
+	cd /home/bigattichouse/workspace/headlessweb && $(MAKE) $(MAKESILENT) -f src/hweb/CMakeFiles/hweb_core.dir/build.make src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/PathUtils.cpp.i
+.PHONY : __/FileOps/PathUtils.cpp.i
+
+__/FileOps/PathUtils.s: __/FileOps/PathUtils.cpp.s
+.PHONY : __/FileOps/PathUtils.s
+
+# target to generate assembly for a file
+__/FileOps/PathUtils.cpp.s:
+	cd /home/bigattichouse/workspace/headlessweb && $(MAKE) $(MAKESILENT) -f src/hweb/CMakeFiles/hweb_core.dir/build.make src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/PathUtils.cpp.s
+.PHONY : __/FileOps/PathUtils.cpp.s
+
+__/FileOps/Types.o: __/FileOps/Types.cpp.o
+.PHONY : __/FileOps/Types.o
+
+# target to build an object file
+__/FileOps/Types.cpp.o:
+	cd /home/bigattichouse/workspace/headlessweb && $(MAKE) $(MAKESILENT) -f src/hweb/CMakeFiles/hweb_core.dir/build.make src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/Types.cpp.o
+.PHONY : __/FileOps/Types.cpp.o
+
+__/FileOps/Types.i: __/FileOps/Types.cpp.i
+.PHONY : __/FileOps/Types.i
+
+# target to preprocess a source file
+__/FileOps/Types.cpp.i:
+	cd /home/bigattichouse/workspace/headlessweb && $(MAKE) $(MAKESILENT) -f src/hweb/CMakeFiles/hweb_core.dir/build.make src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/Types.cpp.i
+.PHONY : __/FileOps/Types.cpp.i
+
+__/FileOps/Types.s: __/FileOps/Types.cpp.s
+.PHONY : __/FileOps/Types.s
+
+# target to generate assembly for a file
+__/FileOps/Types.cpp.s:
+	cd /home/bigattichouse/workspace/headlessweb && $(MAKE) $(MAKESILENT) -f src/hweb/CMakeFiles/hweb_core.dir/build.make src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/Types.cpp.s
+.PHONY : __/FileOps/Types.cpp.s
+
+__/FileOps/UploadManager.o: __/FileOps/UploadManager.cpp.o
+.PHONY : __/FileOps/UploadManager.o
+
+# target to build an object file
+__/FileOps/UploadManager.cpp.o:
+	cd /home/bigattichouse/workspace/headlessweb && $(MAKE) $(MAKESILENT) -f src/hweb/CMakeFiles/hweb_core.dir/build.make src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/UploadManager.cpp.o
+.PHONY : __/FileOps/UploadManager.cpp.o
+
+__/FileOps/UploadManager.i: __/FileOps/UploadManager.cpp.i
+.PHONY : __/FileOps/UploadManager.i
+
+# target to preprocess a source file
+__/FileOps/UploadManager.cpp.i:
+	cd /home/bigattichouse/workspace/headlessweb && $(MAKE) $(MAKESILENT) -f src/hweb/CMakeFiles/hweb_core.dir/build.make src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/UploadManager.cpp.i
+.PHONY : __/FileOps/UploadManager.cpp.i
+
+__/FileOps/UploadManager.s: __/FileOps/UploadManager.cpp.s
+.PHONY : __/FileOps/UploadManager.s
+
+# target to generate assembly for a file
+__/FileOps/UploadManager.cpp.s:
+	cd /home/bigattichouse/workspace/headlessweb && $(MAKE) $(MAKESILENT) -f src/hweb/CMakeFiles/hweb_core.dir/build.make src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/UploadManager.cpp.s
+.PHONY : __/FileOps/UploadManager.cpp.s
+
+__/Session/Manager.o: __/Session/Manager.cpp.o
+.PHONY : __/Session/Manager.o
+
+# target to build an object file
+__/Session/Manager.cpp.o:
+	cd /home/bigattichouse/workspace/headlessweb && $(MAKE) $(MAKESILENT) -f src/hweb/CMakeFiles/hweb_core.dir/build.make src/hweb/CMakeFiles/hweb_core.dir/__/Session/Manager.cpp.o
+.PHONY : __/Session/Manager.cpp.o
+
+__/Session/Manager.i: __/Session/Manager.cpp.i
+.PHONY : __/Session/Manager.i
+
+# target to preprocess a source file
+__/Session/Manager.cpp.i:
+	cd /home/bigattichouse/workspace/headlessweb && $(MAKE) $(MAKESILENT) -f src/hweb/CMakeFiles/hweb_core.dir/build.make src/hweb/CMakeFiles/hweb_core.dir/__/Session/Manager.cpp.i
+.PHONY : __/Session/Manager.cpp.i
+
+__/Session/Manager.s: __/Session/Manager.cpp.s
+.PHONY : __/Session/Manager.s
+
+# target to generate assembly for a file
+__/Session/Manager.cpp.s:
+	cd /home/bigattichouse/workspace/headlessweb && $(MAKE) $(MAKESILENT) -f src/hweb/CMakeFiles/hweb_core.dir/build.make src/hweb/CMakeFiles/hweb_core.dir/__/Session/Manager.cpp.s
+.PHONY : __/Session/Manager.cpp.s
+
+__/Session/Session.o: __/Session/Session.cpp.o
+.PHONY : __/Session/Session.o
+
+# target to build an object file
+__/Session/Session.cpp.o:
+	cd /home/bigattichouse/workspace/headlessweb && $(MAKE) $(MAKESILENT) -f src/hweb/CMakeFiles/hweb_core.dir/build.make src/hweb/CMakeFiles/hweb_core.dir/__/Session/Session.cpp.o
+.PHONY : __/Session/Session.cpp.o
+
+__/Session/Session.i: __/Session/Session.cpp.i
+.PHONY : __/Session/Session.i
+
+# target to preprocess a source file
+__/Session/Session.cpp.i:
+	cd /home/bigattichouse/workspace/headlessweb && $(MAKE) $(MAKESILENT) -f src/hweb/CMakeFiles/hweb_core.dir/build.make src/hweb/CMakeFiles/hweb_core.dir/__/Session/Session.cpp.i
+.PHONY : __/Session/Session.cpp.i
+
+__/Session/Session.s: __/Session/Session.cpp.s
+.PHONY : __/Session/Session.s
+
+# target to generate assembly for a file
+__/Session/Session.cpp.s:
+	cd /home/bigattichouse/workspace/headlessweb && $(MAKE) $(MAKESILENT) -f src/hweb/CMakeFiles/hweb_core.dir/build.make src/hweb/CMakeFiles/hweb_core.dir/__/Session/Session.cpp.s
+.PHONY : __/Session/Session.cpp.s
+
 main.o: main.cpp.o
 .PHONY : main.o
 
@@ -417,6 +585,27 @@ help:
 	@echo "... Services/SessionService.o"
 	@echo "... Services/SessionService.i"
 	@echo "... Services/SessionService.s"
+	@echo "... __/Assertion/Manager.o"
+	@echo "... __/Assertion/Manager.i"
+	@echo "... __/Assertion/Manager.s"
+	@echo "... __/FileOps/DownloadManager.o"
+	@echo "... __/FileOps/DownloadManager.i"
+	@echo "... __/FileOps/DownloadManager.s"
+	@echo "... __/FileOps/PathUtils.o"
+	@echo "... __/FileOps/PathUtils.i"
+	@echo "... __/FileOps/PathUtils.s"
+	@echo "... __/FileOps/Types.o"
+	@echo "... __/FileOps/Types.i"
+	@echo "... __/FileOps/Types.s"
+	@echo "... __/FileOps/UploadManager.o"
+	@echo "... __/FileOps/UploadManager.i"
+	@echo "... __/FileOps/UploadManager.s"
+	@echo "... __/Session/Manager.o"
+	@echo "... __/Session/Manager.i"
+	@echo "... __/Session/Manager.s"
+	@echo "... __/Session/Session.o"
+	@echo "... __/Session/Session.i"
+	@echo "... __/Session/Session.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

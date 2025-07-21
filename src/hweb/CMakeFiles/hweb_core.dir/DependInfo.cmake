@@ -17,6 +17,13 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/bigattichouse/workspace/headlessweb/src/hweb/Services/ManagerRegistry.cpp" "src/hweb/CMakeFiles/hweb_core.dir/Services/ManagerRegistry.cpp.o" "gcc" "src/hweb/CMakeFiles/hweb_core.dir/Services/ManagerRegistry.cpp.o.d"
   "/home/bigattichouse/workspace/headlessweb/src/hweb/Services/NavigationService.cpp" "src/hweb/CMakeFiles/hweb_core.dir/Services/NavigationService.cpp.o" "gcc" "src/hweb/CMakeFiles/hweb_core.dir/Services/NavigationService.cpp.o.d"
   "/home/bigattichouse/workspace/headlessweb/src/hweb/Services/SessionService.cpp" "src/hweb/CMakeFiles/hweb_core.dir/Services/SessionService.cpp.o" "gcc" "src/hweb/CMakeFiles/hweb_core.dir/Services/SessionService.cpp.o.d"
+  "/home/bigattichouse/workspace/headlessweb/src/Assertion/Manager.cpp" "src/hweb/CMakeFiles/hweb_core.dir/__/Assertion/Manager.cpp.o" "gcc" "src/hweb/CMakeFiles/hweb_core.dir/__/Assertion/Manager.cpp.o.d"
+  "/home/bigattichouse/workspace/headlessweb/src/FileOps/DownloadManager.cpp" "src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/DownloadManager.cpp.o" "gcc" "src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/DownloadManager.cpp.o.d"
+  "/home/bigattichouse/workspace/headlessweb/src/FileOps/PathUtils.cpp" "src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/PathUtils.cpp.o" "gcc" "src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/PathUtils.cpp.o.d"
+  "/home/bigattichouse/workspace/headlessweb/src/FileOps/Types.cpp" "src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/Types.cpp.o" "gcc" "src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/Types.cpp.o.d"
+  "/home/bigattichouse/workspace/headlessweb/src/FileOps/UploadManager.cpp" "src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/UploadManager.cpp.o" "gcc" "src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/UploadManager.cpp.o.d"
+  "/home/bigattichouse/workspace/headlessweb/src/Session/Manager.cpp" "src/hweb/CMakeFiles/hweb_core.dir/__/Session/Manager.cpp.o" "gcc" "src/hweb/CMakeFiles/hweb_core.dir/__/Session/Manager.cpp.o.d"
+  "/home/bigattichouse/workspace/headlessweb/src/Session/Session.cpp" "src/hweb/CMakeFiles/hweb_core.dir/__/Session/Session.cpp.o" "gcc" "src/hweb/CMakeFiles/hweb_core.dir/__/Session/Session.cpp.o.d"
   "/home/bigattichouse/workspace/headlessweb/src/hweb/main.cpp" "src/hweb/CMakeFiles/hweb_core.dir/main.cpp.o" "gcc" "src/hweb/CMakeFiles/hweb_core.dir/main.cpp.o.d"
   )
 

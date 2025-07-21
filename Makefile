@@ -65,6 +65,16 @@ CMAKE_BINARY_DIR = /home/bigattichouse/workspace/headlessweb
 #=============================================================================
 # Targets provided globally by CMake.
 
+# Special rule for the target test
+test:
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Running tests..."
+	.venv/lib/python3.12/site-packages/cmake/data/bin/ctest $(ARGS)
+.PHONY : test
+
+# Special rule for the target test
+test/fast: test
+.PHONY : test/fast
+
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "No interactive CMake dialog available..."
@@ -128,6 +138,58 @@ hweb: cmake_check_build_system
 hweb/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/hweb.dir/build.make CMakeFiles/hweb.dir/build
 .PHONY : hweb/fast
+
+#=============================================================================
+# Target rules for targets named hweb_core
+
+# Build rule for target.
+hweb_core: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 hweb_core
+.PHONY : hweb_core
+
+# fast build rule for target.
+hweb_core/fast:
+	$(MAKE) $(MAKESILENT) -f src/hweb/CMakeFiles/hweb_core.dir/build.make src/hweb/CMakeFiles/hweb_core.dir/build
+.PHONY : hweb_core/fast
+
+#=============================================================================
+# Target rules for targets named hweb_tests
+
+# Build rule for target.
+hweb_tests: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 hweb_tests
+.PHONY : hweb_tests
+
+# fast build rule for target.
+hweb_tests/fast:
+	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/hweb_tests.dir/build.make tests/CMakeFiles/hweb_tests.dir/build
+.PHONY : hweb_tests/fast
+
+#=============================================================================
+# Target rules for targets named run_tests
+
+# Build rule for target.
+run_tests: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 run_tests
+.PHONY : run_tests
+
+# fast build rule for target.
+run_tests/fast:
+	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/run_tests.dir/build.make tests/CMakeFiles/run_tests.dir/build
+.PHONY : run_tests/fast
+
+#=============================================================================
+# Target rules for targets named coverage
+
+# Build rule for target.
+coverage: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 coverage
+.PHONY : coverage
+
+# fast build rule for target.
+coverage/fast:
+	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/coverage.dir/build.make tests/CMakeFiles/coverage.dir/build
+.PHONY : coverage/fast
 
 src/Assertion/Manager.o: src/Assertion/Manager.cpp.o
 .PHONY : src/Assertion/Manager.o
@@ -593,7 +655,12 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... test"
+	@echo "... coverage"
+	@echo "... run_tests"
 	@echo "... hweb"
+	@echo "... hweb_core"
+	@echo "... hweb_tests"
 	@echo "... src/Assertion/Manager.o"
 	@echo "... src/Assertion/Manager.i"
 	@echo "... src/Assertion/Manager.s"

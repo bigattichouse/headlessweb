@@ -261,11 +261,15 @@ void ConfigParser::parse_advanced_wait_command(const std::vector<std::string>& a
         cmd.timeout = 10000;
     } else if (args[i] == "--wait-element-count" && i + 3 < args.size()) {
         cmd.selector = args[++i];
-        cmd.value = args[++i] + " " + args[++i];
+        std::string operator_str = args[++i];
+        std::string count_str = args[++i];
+        cmd.value = operator_str + " " + count_str;
         cmd.timeout = 10000;
     } else if (args[i] == "--wait-attribute" && i + 3 < args.size()) {
         cmd.selector = args[++i];
-        cmd.value = args[++i] + " " + args[++i];
+        std::string attribute = args[++i];
+        std::string expected_value = args[++i];
+        cmd.value = attribute + " " + expected_value;
         cmd.timeout = 10000;
     } else if (args[i] == "--wait-url-change" && i + 1 < args.size()) {
         cmd.selector = "";

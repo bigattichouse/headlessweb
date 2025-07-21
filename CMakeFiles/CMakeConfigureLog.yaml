@@ -564,3 +564,44 @@ events:
       Running the CXX compiler's linker: "/usr/bin/ld" "-v"
       GNU ld (GNU Binutils for Ubuntu) 2.42
 ...
+
+---
+events:
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - ".venv/lib/python3.12/site-packages/cmake/data/share/cmake-4.0/Modules/Internal/CheckSourceCompiles.cmake:104 (try_compile)"
+      - ".venv/lib/python3.12/site-packages/cmake/data/share/cmake-4.0/Modules/CheckCSourceCompiles.cmake:58 (cmake_check_source_compiles)"
+      - ".venv/lib/python3.12/site-packages/cmake/data/share/cmake-4.0/Modules/FindThreads.cmake:97 (check_c_source_compiles)"
+      - ".venv/lib/python3.12/site-packages/cmake/data/share/cmake-4.0/Modules/FindThreads.cmake:163 (_threads_check_libc)"
+      - ".venv/lib/python3.12/site-packages/cmake/data/share/cmake-4.0/Modules/CMakeFindDependencyMacro.cmake:78 (find_package)"
+      - "/usr/lib/x86_64-linux-gnu/cmake/GTest/GTestConfig.cmake:39 (find_dependency)"
+      - ".venv/lib/python3.12/site-packages/cmake/data/share/cmake-4.0/Modules/FindGTest.cmake:197 (find_package)"
+      - "tests/CMakeLists.txt:5 (find_package)"
+    directories:
+      source: "/home/bigattichouse/workspace/headlessweb/CMakeFiles/CMakeScratch/TryCompile-jyZGKi"
+      binary: "/home/bigattichouse/workspace/headlessweb/CMakeFiles/CMakeScratch/TryCompile-jyZGKi"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "CMAKE_HAVE_LIBC_PTHREAD"
+      cached: true
+      stdout: |
+        Change Dir: '/home/bigattichouse/workspace/headlessweb/CMakeFiles/CMakeScratch/TryCompile-jyZGKi'
+        
+        Run Build Command(s): /home/bigattichouse/workspace/headlessweb/.venv/lib/python3.12/site-packages/cmake/data/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_05132/fast
+        gmake[1]: Entering directory '/home/bigattichouse/workspace/headlessweb/CMakeFiles/CMakeScratch/TryCompile-jyZGKi'
+        /usr/bin/gmake  -f CMakeFiles/cmTC_05132.dir/build.make CMakeFiles/cmTC_05132.dir/build
+        gmake[2]: Entering directory '/home/bigattichouse/workspace/headlessweb/CMakeFiles/CMakeScratch/TryCompile-jyZGKi'
+        Building C object CMakeFiles/cmTC_05132.dir/src.c.o
+        /usr/bin/cc -DCMAKE_HAVE_LIBC_PTHREAD   -o CMakeFiles/cmTC_05132.dir/src.c.o -c /home/bigattichouse/workspace/headlessweb/CMakeFiles/CMakeScratch/TryCompile-jyZGKi/src.c
+        Linking C executable cmTC_05132
+        /home/bigattichouse/workspace/headlessweb/.venv/lib/python3.12/site-packages/cmake/data/bin/cmake -E cmake_link_script CMakeFiles/cmTC_05132.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_05132.dir/src.c.o -o cmTC_05132
+        gmake[2]: Leaving directory '/home/bigattichouse/workspace/headlessweb/CMakeFiles/CMakeScratch/TryCompile-jyZGKi'
+        gmake[1]: Leaving directory '/home/bigattichouse/workspace/headlessweb/CMakeFiles/CMakeScratch/TryCompile-jyZGKi'
+        
+      exitCode: 0
+...

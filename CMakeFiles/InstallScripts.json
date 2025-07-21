@@ -4,7 +4,9 @@
 		"/home/bigattichouse/workspace/headlessweb/cmake_install.cmake",
 		"/home/bigattichouse/workspace/headlessweb/src/Browser/cmake_install.cmake",
 		"/home/bigattichouse/workspace/headlessweb/src/Assertion/cmake_install.cmake",
-		"/home/bigattichouse/workspace/headlessweb/src/FileOps/cmake_install.cmake"
+		"/home/bigattichouse/workspace/headlessweb/src/FileOps/cmake_install.cmake",
+		"/home/bigattichouse/workspace/headlessweb/src/hweb/cmake_install.cmake",
+		"/home/bigattichouse/workspace/headlessweb/tests/cmake_install.cmake"
 	],
 	"Parallel" : false
 }

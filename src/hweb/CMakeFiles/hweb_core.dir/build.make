@@ -212,6 +212,104 @@ src/hweb/CMakeFiles/hweb_core.dir/Services/SessionService.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/hweb_core.dir/Services/SessionService.cpp.s"
 	cd /home/bigattichouse/workspace/headlessweb/src/hweb && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bigattichouse/workspace/headlessweb/src/hweb/Services/SessionService.cpp -o CMakeFiles/hweb_core.dir/Services/SessionService.cpp.s
 
+src/hweb/CMakeFiles/hweb_core.dir/__/Assertion/Manager.cpp.o: src/hweb/CMakeFiles/hweb_core.dir/flags.make
+src/hweb/CMakeFiles/hweb_core.dir/__/Assertion/Manager.cpp.o: src/Assertion/Manager.cpp
+src/hweb/CMakeFiles/hweb_core.dir/__/Assertion/Manager.cpp.o: src/hweb/CMakeFiles/hweb_core.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/bigattichouse/workspace/headlessweb/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object src/hweb/CMakeFiles/hweb_core.dir/__/Assertion/Manager.cpp.o"
+	cd /home/bigattichouse/workspace/headlessweb/src/hweb && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/hweb/CMakeFiles/hweb_core.dir/__/Assertion/Manager.cpp.o -MF CMakeFiles/hweb_core.dir/__/Assertion/Manager.cpp.o.d -o CMakeFiles/hweb_core.dir/__/Assertion/Manager.cpp.o -c /home/bigattichouse/workspace/headlessweb/src/Assertion/Manager.cpp
+
+src/hweb/CMakeFiles/hweb_core.dir/__/Assertion/Manager.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/hweb_core.dir/__/Assertion/Manager.cpp.i"
+	cd /home/bigattichouse/workspace/headlessweb/src/hweb && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bigattichouse/workspace/headlessweb/src/Assertion/Manager.cpp > CMakeFiles/hweb_core.dir/__/Assertion/Manager.cpp.i
+
+src/hweb/CMakeFiles/hweb_core.dir/__/Assertion/Manager.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/hweb_core.dir/__/Assertion/Manager.cpp.s"
+	cd /home/bigattichouse/workspace/headlessweb/src/hweb && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bigattichouse/workspace/headlessweb/src/Assertion/Manager.cpp -o CMakeFiles/hweb_core.dir/__/Assertion/Manager.cpp.s
+
+src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/UploadManager.cpp.o: src/hweb/CMakeFiles/hweb_core.dir/flags.make
+src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/UploadManager.cpp.o: src/FileOps/UploadManager.cpp
+src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/UploadManager.cpp.o: src/hweb/CMakeFiles/hweb_core.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/bigattichouse/workspace/headlessweb/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/UploadManager.cpp.o"
+	cd /home/bigattichouse/workspace/headlessweb/src/hweb && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/UploadManager.cpp.o -MF CMakeFiles/hweb_core.dir/__/FileOps/UploadManager.cpp.o.d -o CMakeFiles/hweb_core.dir/__/FileOps/UploadManager.cpp.o -c /home/bigattichouse/workspace/headlessweb/src/FileOps/UploadManager.cpp
+
+src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/UploadManager.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/hweb_core.dir/__/FileOps/UploadManager.cpp.i"
+	cd /home/bigattichouse/workspace/headlessweb/src/hweb && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bigattichouse/workspace/headlessweb/src/FileOps/UploadManager.cpp > CMakeFiles/hweb_core.dir/__/FileOps/UploadManager.cpp.i
+
+src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/UploadManager.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/hweb_core.dir/__/FileOps/UploadManager.cpp.s"
+	cd /home/bigattichouse/workspace/headlessweb/src/hweb && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bigattichouse/workspace/headlessweb/src/FileOps/UploadManager.cpp -o CMakeFiles/hweb_core.dir/__/FileOps/UploadManager.cpp.s
+
+src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/DownloadManager.cpp.o: src/hweb/CMakeFiles/hweb_core.dir/flags.make
+src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/DownloadManager.cpp.o: src/FileOps/DownloadManager.cpp
+src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/DownloadManager.cpp.o: src/hweb/CMakeFiles/hweb_core.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/bigattichouse/workspace/headlessweb/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/DownloadManager.cpp.o"
+	cd /home/bigattichouse/workspace/headlessweb/src/hweb && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/DownloadManager.cpp.o -MF CMakeFiles/hweb_core.dir/__/FileOps/DownloadManager.cpp.o.d -o CMakeFiles/hweb_core.dir/__/FileOps/DownloadManager.cpp.o -c /home/bigattichouse/workspace/headlessweb/src/FileOps/DownloadManager.cpp
+
+src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/DownloadManager.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/hweb_core.dir/__/FileOps/DownloadManager.cpp.i"
+	cd /home/bigattichouse/workspace/headlessweb/src/hweb && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bigattichouse/workspace/headlessweb/src/FileOps/DownloadManager.cpp > CMakeFiles/hweb_core.dir/__/FileOps/DownloadManager.cpp.i
+
+src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/DownloadManager.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/hweb_core.dir/__/FileOps/DownloadManager.cpp.s"
+	cd /home/bigattichouse/workspace/headlessweb/src/hweb && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bigattichouse/workspace/headlessweb/src/FileOps/DownloadManager.cpp -o CMakeFiles/hweb_core.dir/__/FileOps/DownloadManager.cpp.s
+
+src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/Types.cpp.o: src/hweb/CMakeFiles/hweb_core.dir/flags.make
+src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/Types.cpp.o: src/FileOps/Types.cpp
+src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/Types.cpp.o: src/hweb/CMakeFiles/hweb_core.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/bigattichouse/workspace/headlessweb/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/Types.cpp.o"
+	cd /home/bigattichouse/workspace/headlessweb/src/hweb && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/Types.cpp.o -MF CMakeFiles/hweb_core.dir/__/FileOps/Types.cpp.o.d -o CMakeFiles/hweb_core.dir/__/FileOps/Types.cpp.o -c /home/bigattichouse/workspace/headlessweb/src/FileOps/Types.cpp
+
+src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/Types.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/hweb_core.dir/__/FileOps/Types.cpp.i"
+	cd /home/bigattichouse/workspace/headlessweb/src/hweb && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bigattichouse/workspace/headlessweb/src/FileOps/Types.cpp > CMakeFiles/hweb_core.dir/__/FileOps/Types.cpp.i
+
+src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/Types.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/hweb_core.dir/__/FileOps/Types.cpp.s"
+	cd /home/bigattichouse/workspace/headlessweb/src/hweb && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bigattichouse/workspace/headlessweb/src/FileOps/Types.cpp -o CMakeFiles/hweb_core.dir/__/FileOps/Types.cpp.s
+
+src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/PathUtils.cpp.o: src/hweb/CMakeFiles/hweb_core.dir/flags.make
+src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/PathUtils.cpp.o: src/FileOps/PathUtils.cpp
+src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/PathUtils.cpp.o: src/hweb/CMakeFiles/hweb_core.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/bigattichouse/workspace/headlessweb/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Building CXX object src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/PathUtils.cpp.o"
+	cd /home/bigattichouse/workspace/headlessweb/src/hweb && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/PathUtils.cpp.o -MF CMakeFiles/hweb_core.dir/__/FileOps/PathUtils.cpp.o.d -o CMakeFiles/hweb_core.dir/__/FileOps/PathUtils.cpp.o -c /home/bigattichouse/workspace/headlessweb/src/FileOps/PathUtils.cpp
+
+src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/PathUtils.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/hweb_core.dir/__/FileOps/PathUtils.cpp.i"
+	cd /home/bigattichouse/workspace/headlessweb/src/hweb && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bigattichouse/workspace/headlessweb/src/FileOps/PathUtils.cpp > CMakeFiles/hweb_core.dir/__/FileOps/PathUtils.cpp.i
+
+src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/PathUtils.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/hweb_core.dir/__/FileOps/PathUtils.cpp.s"
+	cd /home/bigattichouse/workspace/headlessweb/src/hweb && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bigattichouse/workspace/headlessweb/src/FileOps/PathUtils.cpp -o CMakeFiles/hweb_core.dir/__/FileOps/PathUtils.cpp.s
+
+src/hweb/CMakeFiles/hweb_core.dir/__/Session/Session.cpp.o: src/hweb/CMakeFiles/hweb_core.dir/flags.make
+src/hweb/CMakeFiles/hweb_core.dir/__/Session/Session.cpp.o: src/Session/Session.cpp
+src/hweb/CMakeFiles/hweb_core.dir/__/Session/Session.cpp.o: src/hweb/CMakeFiles/hweb_core.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/bigattichouse/workspace/headlessweb/CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Building CXX object src/hweb/CMakeFiles/hweb_core.dir/__/Session/Session.cpp.o"
+	cd /home/bigattichouse/workspace/headlessweb/src/hweb && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/hweb/CMakeFiles/hweb_core.dir/__/Session/Session.cpp.o -MF CMakeFiles/hweb_core.dir/__/Session/Session.cpp.o.d -o CMakeFiles/hweb_core.dir/__/Session/Session.cpp.o -c /home/bigattichouse/workspace/headlessweb/src/Session/Session.cpp
+
+src/hweb/CMakeFiles/hweb_core.dir/__/Session/Session.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/hweb_core.dir/__/Session/Session.cpp.i"
+	cd /home/bigattichouse/workspace/headlessweb/src/hweb && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bigattichouse/workspace/headlessweb/src/Session/Session.cpp > CMakeFiles/hweb_core.dir/__/Session/Session.cpp.i
+
+src/hweb/CMakeFiles/hweb_core.dir/__/Session/Session.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/hweb_core.dir/__/Session/Session.cpp.s"
+	cd /home/bigattichouse/workspace/headlessweb/src/hweb && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bigattichouse/workspace/headlessweb/src/Session/Session.cpp -o CMakeFiles/hweb_core.dir/__/Session/Session.cpp.s
+
+src/hweb/CMakeFiles/hweb_core.dir/__/Session/Manager.cpp.o: src/hweb/CMakeFiles/hweb_core.dir/flags.make
+src/hweb/CMakeFiles/hweb_core.dir/__/Session/Manager.cpp.o: src/Session/Manager.cpp
+src/hweb/CMakeFiles/hweb_core.dir/__/Session/Manager.cpp.o: src/hweb/CMakeFiles/hweb_core.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/bigattichouse/workspace/headlessweb/CMakeFiles --progress-num=$(CMAKE_PROGRESS_17) "Building CXX object src/hweb/CMakeFiles/hweb_core.dir/__/Session/Manager.cpp.o"
+	cd /home/bigattichouse/workspace/headlessweb/src/hweb && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/hweb/CMakeFiles/hweb_core.dir/__/Session/Manager.cpp.o -MF CMakeFiles/hweb_core.dir/__/Session/Manager.cpp.o.d -o CMakeFiles/hweb_core.dir/__/Session/Manager.cpp.o -c /home/bigattichouse/workspace/headlessweb/src/Session/Manager.cpp
+
+src/hweb/CMakeFiles/hweb_core.dir/__/Session/Manager.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/hweb_core.dir/__/Session/Manager.cpp.i"
+	cd /home/bigattichouse/workspace/headlessweb/src/hweb && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bigattichouse/workspace/headlessweb/src/Session/Manager.cpp > CMakeFiles/hweb_core.dir/__/Session/Manager.cpp.i
+
+src/hweb/CMakeFiles/hweb_core.dir/__/Session/Manager.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/hweb_core.dir/__/Session/Manager.cpp.s"
+	cd /home/bigattichouse/workspace/headlessweb/src/hweb && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bigattichouse/workspace/headlessweb/src/Session/Manager.cpp -o CMakeFiles/hweb_core.dir/__/Session/Manager.cpp.s
+
 # Object files for target hweb_core
 hweb_core_OBJECTS = \
 "CMakeFiles/hweb_core.dir/Output.cpp.o" \
@@ -223,7 +321,14 @@ hweb_core_OBJECTS = \
 "CMakeFiles/hweb_core.dir/Handlers/BasicCommands.cpp.o" \
 "CMakeFiles/hweb_core.dir/Services/ManagerRegistry.cpp.o" \
 "CMakeFiles/hweb_core.dir/Services/NavigationService.cpp.o" \
-"CMakeFiles/hweb_core.dir/Services/SessionService.cpp.o"
+"CMakeFiles/hweb_core.dir/Services/SessionService.cpp.o" \
+"CMakeFiles/hweb_core.dir/__/Assertion/Manager.cpp.o" \
+"CMakeFiles/hweb_core.dir/__/FileOps/UploadManager.cpp.o" \
+"CMakeFiles/hweb_core.dir/__/FileOps/DownloadManager.cpp.o" \
+"CMakeFiles/hweb_core.dir/__/FileOps/Types.cpp.o" \
+"CMakeFiles/hweb_core.dir/__/FileOps/PathUtils.cpp.o" \
+"CMakeFiles/hweb_core.dir/__/Session/Session.cpp.o" \
+"CMakeFiles/hweb_core.dir/__/Session/Manager.cpp.o"
 
 # External object files for target hweb_core
 hweb_core_EXTERNAL_OBJECTS =
@@ -238,9 +343,16 @@ src/hweb/libhweb_core.a: src/hweb/CMakeFiles/hweb_core.dir/Handlers/BasicCommand
 src/hweb/libhweb_core.a: src/hweb/CMakeFiles/hweb_core.dir/Services/ManagerRegistry.cpp.o
 src/hweb/libhweb_core.a: src/hweb/CMakeFiles/hweb_core.dir/Services/NavigationService.cpp.o
 src/hweb/libhweb_core.a: src/hweb/CMakeFiles/hweb_core.dir/Services/SessionService.cpp.o
+src/hweb/libhweb_core.a: src/hweb/CMakeFiles/hweb_core.dir/__/Assertion/Manager.cpp.o
+src/hweb/libhweb_core.a: src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/UploadManager.cpp.o
+src/hweb/libhweb_core.a: src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/DownloadManager.cpp.o
+src/hweb/libhweb_core.a: src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/Types.cpp.o
+src/hweb/libhweb_core.a: src/hweb/CMakeFiles/hweb_core.dir/__/FileOps/PathUtils.cpp.o
+src/hweb/libhweb_core.a: src/hweb/CMakeFiles/hweb_core.dir/__/Session/Session.cpp.o
+src/hweb/libhweb_core.a: src/hweb/CMakeFiles/hweb_core.dir/__/Session/Manager.cpp.o
 src/hweb/libhweb_core.a: src/hweb/CMakeFiles/hweb_core.dir/build.make
 src/hweb/libhweb_core.a: src/hweb/CMakeFiles/hweb_core.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/bigattichouse/workspace/headlessweb/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Linking CXX static library libhweb_core.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/bigattichouse/workspace/headlessweb/CMakeFiles --progress-num=$(CMAKE_PROGRESS_18) "Linking CXX static library libhweb_core.a"
 	cd /home/bigattichouse/workspace/headlessweb/src/hweb && $(CMAKE_COMMAND) -P CMakeFiles/hweb_core.dir/cmake_clean_target.cmake
 	cd /home/bigattichouse/workspace/headlessweb/src/hweb && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/hweb_core.dir/link.txt --verbose=$(VERBOSE)
 

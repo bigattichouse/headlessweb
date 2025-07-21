@@ -21,6 +21,7 @@ hweb: \
   CMakeFiles/hweb.dir/src/FileOps/PathUtils.cpp.o \
   CMakeFiles/hweb.dir/src/FileOps/Types.cpp.o \
   CMakeFiles/hweb.dir/src/FileOps/UploadManager.cpp.o \
+  src/hweb/libhweb_core.a \
   /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/libgtk-4.so \
   /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/libpangocairo-1.0.so \
   /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/libpango-1.0.so \
@@ -501,6 +502,8 @@ CMakeFiles/hweb.dir/src/FileOps/PathUtils.cpp.o:
 CMakeFiles/hweb.dir/src/FileOps/Types.cpp.o:
 
 CMakeFiles/hweb.dir/src/FileOps/UploadManager.cpp.o:
+
+src/hweb/libhweb_core.a:
 
 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/libgtk-4.so:
 

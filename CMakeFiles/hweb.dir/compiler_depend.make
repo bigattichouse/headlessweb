@@ -1896,6 +1896,8 @@ CMakeFiles/hweb.dir/src/Browser/Core.cpp.o: src/Browser/Core.cpp \
   /usr/include/c++/13/bits/basic_string.tcc \
   /usr/include/c++/13/bits/char_traits.h \
   /usr/include/c++/13/bits/charconv.h \
+  /usr/include/c++/13/bits/chrono.h \
+  /usr/include/c++/13/bits/codecvt.h \
   /usr/include/c++/13/bits/concept_check.h \
   /usr/include/c++/13/bits/cpp_type_traits.h \
   /usr/include/c++/13/bits/cxxabi_forced.h \
@@ -1906,6 +1908,10 @@ CMakeFiles/hweb.dir/src/Browser/Core.cpp.o: src/Browser/Core.cpp \
   /usr/include/c++/13/bits/exception.h \
   /usr/include/c++/13/bits/exception_defines.h \
   /usr/include/c++/13/bits/exception_ptr.h \
+  /usr/include/c++/13/bits/fs_dir.h \
+  /usr/include/c++/13/bits/fs_fwd.h \
+  /usr/include/c++/13/bits/fs_ops.h \
+  /usr/include/c++/13/bits/fs_path.h \
   /usr/include/c++/13/bits/functexcept.h \
   /usr/include/c++/13/bits/functional_hash.h \
   /usr/include/c++/13/bits/hash_bytes.h \
@@ -1916,8 +1922,11 @@ CMakeFiles/hweb.dir/src/Browser/Core.cpp.o: src/Browser/Core.cpp \
   /usr/include/c++/13/bits/istream.tcc \
   /usr/include/c++/13/bits/locale_classes.h \
   /usr/include/c++/13/bits/locale_classes.tcc \
+  /usr/include/c++/13/bits/locale_conv.h \
   /usr/include/c++/13/bits/locale_facets.h \
   /usr/include/c++/13/bits/locale_facets.tcc \
+  /usr/include/c++/13/bits/locale_facets_nonio.h \
+  /usr/include/c++/13/bits/locale_facets_nonio.tcc \
   /usr/include/c++/13/bits/localefwd.h \
   /usr/include/c++/13/bits/memory_resource.h \
   /usr/include/c++/13/bits/memoryfwd.h \
@@ -1927,9 +1936,11 @@ CMakeFiles/hweb.dir/src/Browser/Core.cpp.o: src/Browser/Core.cpp \
   /usr/include/c++/13/bits/node_handle.h \
   /usr/include/c++/13/bits/ostream.tcc \
   /usr/include/c++/13/bits/ostream_insert.h \
+  /usr/include/c++/13/bits/parse_numbers.h \
   /usr/include/c++/13/bits/postypes.h \
   /usr/include/c++/13/bits/predefined_ops.h \
   /usr/include/c++/13/bits/ptr_traits.h \
+  /usr/include/c++/13/bits/quoted_string.h \
   /usr/include/c++/13/bits/range_access.h \
   /usr/include/c++/13/bits/refwrap.h \
   /usr/include/c++/13/bits/requires_hosted.h \
@@ -1976,12 +1987,14 @@ CMakeFiles/hweb.dir/src/Browser/Core.cpp.o: src/Browser/Core.cpp \
   /usr/include/c++/13/cerrno \
   /usr/include/c++/13/clocale \
   /usr/include/c++/13/cmath \
+  /usr/include/c++/13/codecvt \
   /usr/include/c++/13/compare \
   /usr/include/c++/13/cstddef \
   /usr/include/c++/13/cstdint \
   /usr/include/c++/13/cstdio \
   /usr/include/c++/13/cstdlib \
   /usr/include/c++/13/cstring \
+  /usr/include/c++/13/ctime \
   /usr/include/c++/13/cwchar \
   /usr/include/c++/13/cwctype \
   /usr/include/c++/13/debug/assertions.h \
@@ -1995,13 +2008,16 @@ CMakeFiles/hweb.dir/src/Browser/Core.cpp.o: src/Browser/Core.cpp \
   /usr/include/c++/13/ext/numeric_traits.h \
   /usr/include/c++/13/ext/string_conversions.h \
   /usr/include/c++/13/ext/type_traits.h \
+  /usr/include/c++/13/filesystem \
   /usr/include/c++/13/functional \
   /usr/include/c++/13/initializer_list \
+  /usr/include/c++/13/iomanip \
   /usr/include/c++/13/ios \
   /usr/include/c++/13/iosfwd \
   /usr/include/c++/13/iostream \
   /usr/include/c++/13/istream \
   /usr/include/c++/13/limits \
+  /usr/include/c++/13/locale \
   /usr/include/c++/13/map \
   /usr/include/c++/13/math.h \
   /usr/include/c++/13/memory \
@@ -2011,6 +2027,7 @@ CMakeFiles/hweb.dir/src/Browser/Core.cpp.o: src/Browser/Core.cpp \
   /usr/include/c++/13/pstl/glue_algorithm_defs.h \
   /usr/include/c++/13/pstl/glue_memory_defs.h \
   /usr/include/c++/13/pstl/pstl_config.h \
+  /usr/include/c++/13/ratio \
   /usr/include/c++/13/set \
   /usr/include/c++/13/sstream \
   /usr/include/c++/13/stack \
@@ -2727,6 +2744,7 @@ CMakeFiles/hweb.dir/src/Browser/Core.cpp.o: src/Browser/Core.cpp \
   /usr/include/jsoncpp/json/value.h \
   /usr/include/jsoncpp/json/version.h \
   /usr/include/jsoncpp/json/writer.h \
+  /usr/include/libintl.h \
   /usr/include/libsoup-3.0/libsoup/soup-auth-domain-basic.h \
   /usr/include/libsoup-3.0/libsoup/soup-auth-domain-digest.h \
   /usr/include/libsoup-3.0/libsoup/soup-auth-domain.h \
@@ -3016,7 +3034,9 @@ CMakeFiles/hweb.dir/src/Browser/Core.cpp.o: src/Browser/Core.cpp \
   /usr/include/x86_64-linux-gnu/c++/13/bits/error_constants.h \
   /usr/include/x86_64-linux-gnu/c++/13/bits/gthr-default.h \
   /usr/include/x86_64-linux-gnu/c++/13/bits/gthr.h \
+  /usr/include/x86_64-linux-gnu/c++/13/bits/messages_members.h \
   /usr/include/x86_64-linux-gnu/c++/13/bits/os_defines.h \
+  /usr/include/x86_64-linux-gnu/c++/13/bits/time_members.h \
   /usr/include/x86_64-linux-gnu/gnu/stubs-64.h \
   /usr/include/x86_64-linux-gnu/gnu/stubs.h \
   /usr/include/x86_64-linux-gnu/sys/cdefs.h \
@@ -10067,6 +10087,7 @@ CMakeFiles/hweb.dir/src/FileOps/UploadManager.cpp.o: src/FileOps/UploadManager.c
   /usr/include/c++/13/bits/fs_fwd.h \
   /usr/include/c++/13/bits/fs_ops.h \
   /usr/include/c++/13/bits/fs_path.h \
+  /usr/include/c++/13/bits/fstream.tcc \
   /usr/include/c++/13/bits/functexcept.h \
   /usr/include/c++/13/bits/functional_hash.h \
   /usr/include/c++/13/bits/hash_bytes.h \
@@ -10098,6 +10119,18 @@ CMakeFiles/hweb.dir/src/FileOps/UploadManager.cpp.o: src/FileOps/UploadManager.c
   /usr/include/c++/13/bits/quoted_string.h \
   /usr/include/c++/13/bits/range_access.h \
   /usr/include/c++/13/bits/refwrap.h \
+  /usr/include/c++/13/bits/regex.h \
+  /usr/include/c++/13/bits/regex.tcc \
+  /usr/include/c++/13/bits/regex_automaton.h \
+  /usr/include/c++/13/bits/regex_automaton.tcc \
+  /usr/include/c++/13/bits/regex_compiler.h \
+  /usr/include/c++/13/bits/regex_compiler.tcc \
+  /usr/include/c++/13/bits/regex_constants.h \
+  /usr/include/c++/13/bits/regex_error.h \
+  /usr/include/c++/13/bits/regex_executor.h \
+  /usr/include/c++/13/bits/regex_executor.tcc \
+  /usr/include/c++/13/bits/regex_scanner.h \
+  /usr/include/c++/13/bits/regex_scanner.tcc \
   /usr/include/c++/13/bits/requires_hosted.h \
   /usr/include/c++/13/bits/shared_ptr.h \
   /usr/include/c++/13/bits/shared_ptr_atomic.h \
@@ -10137,6 +10170,7 @@ CMakeFiles/hweb.dir/src/FileOps/UploadManager.cpp.o: src/FileOps/UploadManager.c
   /usr/include/c++/13/bits/uses_allocator_args.h \
   /usr/include/c++/13/bits/utility.h \
   /usr/include/c++/13/bits/vector.tcc \
+  /usr/include/c++/13/bitset \
   /usr/include/c++/13/cctype \
   /usr/include/c++/13/cerrno \
   /usr/include/c++/13/chrono \
@@ -10163,6 +10197,7 @@ CMakeFiles/hweb.dir/src/FileOps/UploadManager.cpp.o: src/FileOps/UploadManager.c
   /usr/include/c++/13/ext/string_conversions.h \
   /usr/include/c++/13/ext/type_traits.h \
   /usr/include/c++/13/filesystem \
+  /usr/include/c++/13/fstream \
   /usr/include/c++/13/functional \
   /usr/include/c++/13/initializer_list \
   /usr/include/c++/13/iomanip \
@@ -10181,6 +10216,7 @@ CMakeFiles/hweb.dir/src/FileOps/UploadManager.cpp.o: src/FileOps/UploadManager.c
   /usr/include/c++/13/pstl/glue_memory_defs.h \
   /usr/include/c++/13/pstl/pstl_config.h \
   /usr/include/c++/13/ratio \
+  /usr/include/c++/13/regex \
   /usr/include/c++/13/set \
   /usr/include/c++/13/sstream \
   /usr/include/c++/13/stack \
@@ -10408,8 +10444,10 @@ CMakeFiles/hweb.dir/src/FileOps/UploadManager.cpp.o: src/FileOps/UploadManager.c
   /usr/include/x86_64-linux-gnu/bits/wordsize.h \
   /usr/include/x86_64-linux-gnu/bits/xopen_lim.h \
   /usr/include/x86_64-linux-gnu/c++/13/bits/atomic_word.h \
+  /usr/include/x86_64-linux-gnu/c++/13/bits/basic_file.h \
   /usr/include/x86_64-linux-gnu/c++/13/bits/c++allocator.h \
   /usr/include/x86_64-linux-gnu/c++/13/bits/c++config.h \
+  /usr/include/x86_64-linux-gnu/c++/13/bits/c++io.h \
   /usr/include/x86_64-linux-gnu/c++/13/bits/c++locale.h \
   /usr/include/x86_64-linux-gnu/c++/13/bits/cpu_defines.h \
   /usr/include/x86_64-linux-gnu/c++/13/bits/ctype_base.h \
@@ -10963,6 +11001,9 @@ CMakeFiles/hweb.dir/src/Session/Session.cpp.o: src/Session/Session.cpp \
   /usr/lib/gcc/x86_64-linux-gnu/13/include/stddef.h \
   /usr/lib/gcc/x86_64-linux-gnu/13/include/stdint.h
 
+CMakeFiles/hweb.dir/src/hweb.cpp.o: src/hweb.cpp \
+  /usr/include/stdc-predef.h
+
 hweb: /lib/i386-linux-gnu/libGL.so.1 \
   /lib/i386-linux-gnu/libGLX.so.0 \
   /lib/i386-linux-gnu/libGLdispatch.so.0 \
@@ -11366,10 +11407,13 @@ hweb: /lib/i386-linux-gnu/libGL.so.1 \
   CMakeFiles/hweb.dir/src/FileOps/UploadManager.cpp.o \
   CMakeFiles/hweb.dir/src/Session/Manager.cpp.o \
   CMakeFiles/hweb.dir/src/Session/Session.cpp.o \
-  CMakeFiles/hweb.dir/src/main.cpp.o
+  CMakeFiles/hweb.dir/src/hweb.cpp.o \
+  src/hweb/libhweb_core.a
 
 
-CMakeFiles/hweb.dir/src/main.cpp.o:
+src/hweb/libhweb_core.a:
+
+CMakeFiles/hweb.dir/src/hweb.cpp.o:
 
 CMakeFiles/hweb.dir/src/Session/Manager.cpp.o:
 
@@ -11846,6 +11890,8 @@ CMakeFiles/hweb.dir/src/Browser/Events.cpp.o:
 /lib/i386-linux-gnu/libGLX.so.0:
 
 /lib/i386-linux-gnu/libGL.so.1:
+
+src/hweb.cpp:
 
 /usr/include/c++/13/optional:
 

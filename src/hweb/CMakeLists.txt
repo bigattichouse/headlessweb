@@ -31,6 +31,17 @@ target_link_libraries(hweb_core
     ${GDKPIXBUF_LIBRARIES}
 )
 
+# Link against project component libraries
+target_sources(hweb_core PRIVATE
+    ../Assertion/Manager.cpp
+    ../FileOps/UploadManager.cpp
+    ../FileOps/DownloadManager.cpp
+    ../FileOps/Types.cpp
+    ../FileOps/PathUtils.cpp
+    ../Session/Session.cpp
+    ../Session/Manager.cpp
+)
+
 target_include_directories(hweb_core PRIVATE 
     ${GTK4_INCLUDE_DIRS}
     ${WEBKIT_INCLUDE_DIRS}

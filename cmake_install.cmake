@@ -47,6 +47,8 @@ if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   include("/home/bigattichouse/workspace/headlessweb/src/Browser/cmake_install.cmake")
   include("/home/bigattichouse/workspace/headlessweb/src/Assertion/cmake_install.cmake")
   include("/home/bigattichouse/workspace/headlessweb/src/FileOps/cmake_install.cmake")
+  include("/home/bigattichouse/workspace/headlessweb/src/hweb/cmake_install.cmake")
+  include("/home/bigattichouse/workspace/headlessweb/tests/cmake_install.cmake")
 
 endif()
 
