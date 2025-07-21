@@ -43,6 +43,7 @@ set(BROWSER_TEST_SOURCES
     browser/test_browser_utilities.cpp
     browser/test_browser_wait.cpp
     browser/test_browser_main.cpp
+    browser/test_browser_session.cpp
 )
 
 # Enable browser tests with WebKit integration
