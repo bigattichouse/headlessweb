@@ -24,6 +24,7 @@ add_executable(hweb
 add_subdirectory(src/Browser)
 add_subdirectory(src/Assertion)
 add_subdirectory(src/FileOps)
+add_subdirectory(src/hweb)
 
 # Add tests subdirectory (optional, only if building tests)
 option(BUILD_TESTS "Build unit tests" ON)
@@ -33,6 +34,7 @@ if(BUILD_TESTS)
 endif()
 
 target_link_libraries(hweb 
+    hweb_core
     ${GTK4_LIBRARIES}
     ${WEBKIT_LIBRARIES}
     ${JSONCPP_LIBRARIES}

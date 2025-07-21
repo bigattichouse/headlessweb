@@ -1,0 +1,29 @@
+file(REMOVE_RECURSE
+  "CMakeFiles/hweb_core.dir/Commands/Executor.cpp.o"
+  "CMakeFiles/hweb_core.dir/Commands/Executor.cpp.o.d"
+  "CMakeFiles/hweb_core.dir/Config.cpp.o"
+  "CMakeFiles/hweb_core.dir/Config.cpp.o.d"
+  "CMakeFiles/hweb_core.dir/Handlers/AdvancedWait.cpp.o"
+  "CMakeFiles/hweb_core.dir/Handlers/AdvancedWait.cpp.o.d"
+  "CMakeFiles/hweb_core.dir/Handlers/BasicCommands.cpp.o"
+  "CMakeFiles/hweb_core.dir/Handlers/BasicCommands.cpp.o.d"
+  "CMakeFiles/hweb_core.dir/Handlers/FileOperations.cpp.o"
+  "CMakeFiles/hweb_core.dir/Handlers/FileOperations.cpp.o.d"
+  "CMakeFiles/hweb_core.dir/Output.cpp.o"
+  "CMakeFiles/hweb_core.dir/Output.cpp.o.d"
+  "CMakeFiles/hweb_core.dir/Services/ManagerRegistry.cpp.o"
+  "CMakeFiles/hweb_core.dir/Services/ManagerRegistry.cpp.o.d"
+  "CMakeFiles/hweb_core.dir/Services/NavigationService.cpp.o"
+  "CMakeFiles/hweb_core.dir/Services/NavigationService.cpp.o.d"
+  "CMakeFiles/hweb_core.dir/Services/SessionService.cpp.o"
+  "CMakeFiles/hweb_core.dir/Services/SessionService.cpp.o.d"
+  "CMakeFiles/hweb_core.dir/main.cpp.o"
+  "CMakeFiles/hweb_core.dir/main.cpp.o.d"
+  "libhweb_core.a"
+  "libhweb_core.pdb"
+)
+
+# Per-language clean rules from dependency scanning.
+foreach(lang CXX)
+  include(CMakeFiles/hweb_core.dir/cmake_clean_${lang}.cmake OPTIONAL)
+endforeach()
