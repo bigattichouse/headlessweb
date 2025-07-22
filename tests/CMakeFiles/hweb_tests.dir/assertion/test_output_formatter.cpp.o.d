@@ -1,4 +1,4 @@
-CMakeFiles/hweb_tests.dir/assertion/test_output_formatter.cpp.o: \
+tests/CMakeFiles/hweb_tests.dir/assertion/test_output_formatter.cpp.o: \
  /home/bigattichouse/workspace/headlessweb/tests/assertion/test_output_formatter.cpp \
  /usr/include/stdc-predef.h /usr/include/gtest/gtest.h \
  /usr/include/c++/13/cstddef \

@@ -74,17 +74,17 @@ test_session_creation() {
     create_session_test_html
     
     # Test session creation with URL
-    check_command "./hweb --session 'test_session_1' --url 'file://$TEST_FILE'" "Create session with URL"
+    check_command "$HWEB_EXECUTABLE --session 'test_session_1' --url 'file://$TEST_FILE'" "Create session with URL"
     
     # Verify session can access the page
-    PAGE_TITLE=$(./hweb --session "test_session_1" --js "document.title" 2>/dev/null | tail -n 1)
+    PAGE_TITLE=$($HWEB_EXECUTABLE --session "test_session_1" --js "document.title" 2>/dev/null | tail -n 1)
     verify_value "$PAGE_TITLE" "Session Test Page" "Session page access"
     
     # Store some data in the session
-    check_command "./hweb --session 'test_session_1' --store 'test_key' 'test_value'" "Store data in session"
+    check_command "$HWEB_EXECUTABLE --session 'test_session_1' --store 'test_key' 'test_value'" "Store data in session"
     
     # Verify stored data
-    STORED_VALUE=$(./hweb --session "test_session_1" --get "test_key" 2>/dev/null | tail -n 1)
+    STORED_VALUE=$($HWEB_EXECUTABLE --session "test_session_1" --get "test_key" 2>/dev/null | tail -n 1)
     verify_value "$STORED_VALUE" "test_value" "Session data storage"
     
     echo ""
@@ -95,22 +95,22 @@ test_session_persistence() {
     echo "=== Test: Session Persistence ==="
     
     # Modify form state
-    check_command "./hweb --session 'test_session_1' --type '#persistent-input' 'modified_value'" "Modify input field"
-    check_command "./hweb --session 'test_session_1' --type '#persistent-textarea' 'modified textarea'" "Modify textarea"
-    check_command "./hweb --session 'test_session_1' --select '#persistent-select' 'option3'" "Modify select"
-    check_command "./hweb --session 'test_session_1' --uncheck '#persistent-checkbox'" "Uncheck checkbox"
+    check_command "$HWEB_EXECUTABLE --session 'test_session_1' --type '#persistent-input' 'modified_value'" "Modify input field"
+    check_command "$HWEB_EXECUTABLE --session 'test_session_1' --type '#persistent-textarea' 'modified textarea'" "Modify textarea"
+    check_command "$HWEB_EXECUTABLE --session 'test_session_1' --select '#persistent-select' 'option3'" "Modify select"
+    check_command "$HWEB_EXECUTABLE --session 'test_session_1' --uncheck '#persistent-checkbox'" "Uncheck checkbox"
     
     # Set scroll position
-    check_command "./hweb --session 'test_session_1' --js 'window.scrollTo(0, 1000); \"scrolled\"'" "Set scroll position"
+    check_command "$HWEB_EXECUTABLE --session 'test_session_1' --js 'window.scrollTo(0, 1000); \"scrolled\"'" "Set scroll position"
     
     # Set localStorage
-    check_command "./hweb --session 'test_session_1' --js 'localStorage.setItem(\"session_persistent\", \"persistent_data\"); \"localStorage set\"'" "Set localStorage"
+    check_command "$HWEB_EXECUTABLE --session 'test_session_1' --js 'localStorage.setItem(\"session_persistent\", \"persistent_data\"); \"localStorage set\"'" "Set localStorage"
     
     # Set cookies
-    check_command "./hweb --session 'test_session_1' --js 'document.cookie = \"session_test=persistent_cookie; path=/\"; \"cookie set\"'" "Set cookie"
+    check_command "$HWEB_EXECUTABLE --session 'test_session_1' --js 'document.cookie = \"session_test=persistent_cookie; path=/\"; \"cookie set\"'" "Set cookie"
     
     # End session to save state
-    check_command "./hweb --session 'test_session_1' --end" "End session to save state"
+    check_command "$HWEB_EXECUTABLE --session 'test_session_1' --end" "End session to save state"
     
     echo ""
 }
@@ -120,35 +120,35 @@ test_session_restoration() {
     echo "=== Test: Session Restoration ==="
     
     # Restore the session
-    check_command "./hweb --session 'test_session_1'" "Restore session"
+    check_command "$HWEB_EXECUTABLE --session 'test_session_1'" "Restore session"
     
     # Verify URL restoration
-    RESTORED_URL=$(./hweb --session "test_session_1" --js "window.location.href" 2>/dev/null | tail -n 1)
+    RESTORED_URL=$($HWEB_EXECUTABLE --session "test_session_1" --js "window.location.href" 2>/dev/null | tail -n 1)
     verify_contains "$RESTORED_URL" "$TEST_FILE" "URL restoration"
     
     # Verify form state restoration
-    RESTORED_INPUT=$(./hweb --session "test_session_1" --js "document.getElementById('persistent-input').value" 2>/dev/null | tail -n 1)
+    RESTORED_INPUT=$($HWEB_EXECUTABLE --session "test_session_1" --js "document.getElementById('persistent-input').value" 2>/dev/null | tail -n 1)
     verify_value "$RESTORED_INPUT" "modified_value" "Input field restoration"
     
-    RESTORED_TEXTAREA=$(./hweb --session "test_session_1" --js "document.getElementById('persistent-textarea').value" 2>/dev/null | tail -n 1)
+    RESTORED_TEXTAREA=$($HWEB_EXECUTABLE --session "test_session_1" --js "document.getElementById('persistent-textarea').value" 2>/dev/null | tail -n 1)
     verify_value "$RESTORED_TEXTAREA" "modified textarea" "Textarea restoration"
     
-    RESTORED_SELECT=$(./hweb --session "test_session_1" --js "document.getElementById('persistent-select').value" 2>/dev/null | tail -n 1)
+    RESTORED_SELECT=$($HWEB_EXECUTABLE --session "test_session_1" --js "document.getElementById('persistent-select').value" 2>/dev/null | tail -n 1)
     verify_value "$RESTORED_SELECT" "option3" "Select restoration"
     
-    RESTORED_CHECKBOX=$(./hweb --session "test_session_1" --js "document.getElementById('persistent-checkbox').checked" 2>/dev/null | tail -n 1)
+    RESTORED_CHECKBOX=$($HWEB_EXECUTABLE --session "test_session_1" --js "document.getElementById('persistent-checkbox').checked" 2>/dev/null | tail -n 1)
     verify_value "$RESTORED_CHECKBOX" "false" "Checkbox restoration"
     
     # Verify localStorage restoration
-    RESTORED_LOCALSTORAGE=$(./hweb --session "test_session_1" --js "localStorage.getItem('session_persistent')" 2>/dev/null | tail -n 1)
+    RESTORED_LOCALSTORAGE=$($HWEB_EXECUTABLE --session "test_session_1" --js "localStorage.getItem('session_persistent')" 2>/dev/null | tail -n 1)
     verify_value "$RESTORED_LOCALSTORAGE" "persistent_data" "localStorage restoration"
     
     # Verify cookie restoration
-    RESTORED_COOKIE=$(./hweb --session "test_session_1" --js "document.cookie.includes('session_test=persistent_cookie')" 2>/dev/null | tail -n 1)
+    RESTORED_COOKIE=$($HWEB_EXECUTABLE --session "test_session_1" --js "document.cookie.includes('session_test=persistent_cookie')" 2>/dev/null | tail -n 1)
     verify_value "$RESTORED_COOKIE" "true" "Cookie restoration"
     
     # Verify scroll position restoration (approximate check)
-    SCROLL_POS=$(./hweb --session "test_session_1" --js "window.pageYOffset" 2>/dev/null | tail -n 1)
+    SCROLL_POS=$($HWEB_EXECUTABLE --session "test_session_1" --js "window.pageYOffset" 2>/dev/null | tail -n 1)
     if (( $(echo "$SCROLL_POS > 900" | bc -l 2>/dev/null || echo "0") )); then
         echo -e "${GREEN}✓ PASS${NC}: Scroll position restored ($SCROLL_POS > 900)"
     else
@@ -156,7 +156,7 @@ test_session_restoration() {
     fi
     
     # Verify custom session data
-    RESTORED_CUSTOM=$(./hweb --session "test_session_1" --get "test_key" 2>/dev/null | tail -n 1)
+    RESTORED_CUSTOM=$($HWEB_EXECUTABLE --session "test_session_1" --get "test_key" 2>/dev/null | tail -n 1)
     verify_value "$RESTORED_CUSTOM" "test_value" "Custom session data restoration"
     
     echo ""
@@ -167,42 +167,42 @@ test_session_isolation() {
     echo "=== Test: Session Isolation ==="
     
     # Create multiple sessions with different data
-    check_command "./hweb --session 'session_a' --url 'file://$TEST_FILE' --store 'session_name' 'session_a'" "Create session A"
-    check_command "./hweb --session 'session_b' --url 'file://$TEST_FILE' --store 'session_name' 'session_b'" "Create session B"
-    check_command "./hweb --session 'session_c' --url 'file://$TEST_FILE' --store 'session_name' 'session_c'" "Create session C"
+    check_command "$HWEB_EXECUTABLE --session 'session_a' --url 'file://$TEST_FILE' --store 'session_name' 'session_a'" "Create session A"
+    check_command "$HWEB_EXECUTABLE --session 'session_b' --url 'file://$TEST_FILE' --store 'session_name' 'session_b'" "Create session B"
+    check_command "$HWEB_EXECUTABLE --session 'session_c' --url 'file://$TEST_FILE' --store 'session_name' 'session_c'" "Create session C"
     
     # Modify different data in each session
-    check_command "./hweb --session 'session_a' --type '#persistent-input' 'value_a'" "Set unique data in session A"
-    check_command "./hweb --session 'session_b' --type '#persistent-input' 'value_b'" "Set unique data in session B"  
-    check_command "./hweb --session 'session_c' --type '#persistent-input' 'value_c'" "Set unique data in session C"
+    check_command "$HWEB_EXECUTABLE --session 'session_a' --type '#persistent-input' 'value_a'" "Set unique data in session A"
+    check_command "$HWEB_EXECUTABLE --session 'session_b' --type '#persistent-input' 'value_b'" "Set unique data in session B"  
+    check_command "$HWEB_EXECUTABLE --session 'session_c' --type '#persistent-input' 'value_c'" "Set unique data in session C"
     
     # Set different localStorage in each session
-    check_command "./hweb --session 'session_a' --js 'localStorage.setItem(\"unique\", \"data_a\"); \"set\"'" "Set localStorage in session A"
-    check_command "./hweb --session 'session_b' --js 'localStorage.setItem(\"unique\", \"data_b\"); \"set\"'" "Set localStorage in session B"
-    check_command "./hweb --session 'session_c' --js 'localStorage.setItem(\"unique\", \"data_c\"); \"set\"'" "Set localStorage in session C"
+    check_command "$HWEB_EXECUTABLE --session 'session_a' --js 'localStorage.setItem(\"unique\", \"data_a\"); \"set\"'" "Set localStorage in session A"
+    check_command "$HWEB_EXECUTABLE --session 'session_b' --js 'localStorage.setItem(\"unique\", \"data_b\"); \"set\"'" "Set localStorage in session B"
+    check_command "$HWEB_EXECUTABLE --session 'session_c' --js 'localStorage.setItem(\"unique\", \"data_c\"); \"set\"'" "Set localStorage in session C"
     
     # Verify session isolation
-    SESSION_A_NAME=$(./hweb --session "session_a" --get "session_name" 2>/dev/null | tail -n 1)
-    SESSION_B_NAME=$(./hweb --session "session_b" --get "session_name" 2>/dev/null | tail -n 1)
-    SESSION_C_NAME=$(./hweb --session "session_c" --get "session_name" 2>/dev/null | tail -n 1)
+    SESSION_A_NAME=$($HWEB_EXECUTABLE --session "session_a" --get "session_name" 2>/dev/null | tail -n 1)
+    SESSION_B_NAME=$($HWEB_EXECUTABLE --session "session_b" --get "session_name" 2>/dev/null | tail -n 1)
+    SESSION_C_NAME=$($HWEB_EXECUTABLE --session "session_c" --get "session_name" 2>/dev/null | tail -n 1)
     
     verify_value "$SESSION_A_NAME" "session_a" "Session A isolation"
     verify_value "$SESSION_B_NAME" "session_b" "Session B isolation"
     verify_value "$SESSION_C_NAME" "session_c" "Session C isolation"
     
     # Verify form field isolation
-    FIELD_A=$(./hweb --session "session_a" --js "document.getElementById('persistent-input').value" 2>/dev/null | tail -n 1)
-    FIELD_B=$(./hweb --session "session_b" --js "document.getElementById('persistent-input').value" 2>/dev/null | tail -n 1)
-    FIELD_C=$(./hweb --session "session_c" --js "document.getElementById('persistent-input').value" 2>/dev/null | tail -n 1)
+    FIELD_A=$($HWEB_EXECUTABLE --session "session_a" --js "document.getElementById('persistent-input').value" 2>/dev/null | tail -n 1)
+    FIELD_B=$($HWEB_EXECUTABLE --session "session_b" --js "document.getElementById('persistent-input').value" 2>/dev/null | tail -n 1)
+    FIELD_C=$($HWEB_EXECUTABLE --session "session_c" --js "document.getElementById('persistent-input').value" 2>/dev/null | tail -n 1)
     
     verify_value "$FIELD_A" "value_a" "Form field isolation A"
     verify_value "$FIELD_B" "value_b" "Form field isolation B"  
     verify_value "$FIELD_C" "value_c" "Form field isolation C"
     
     # Verify localStorage isolation
-    STORAGE_A=$(./hweb --session "session_a" --js "localStorage.getItem('unique')" 2>/dev/null | tail -n 1)
-    STORAGE_B=$(./hweb --session "session_b" --js "localStorage.getItem('unique')" 2>/dev/null | tail -n 1)
-    STORAGE_C=$(./hweb --session "session_c" --js "localStorage.getItem('unique')" 2>/dev/null | tail -n 1)
+    STORAGE_A=$($HWEB_EXECUTABLE --session "session_a" --js "localStorage.getItem('unique')" 2>/dev/null | tail -n 1)
+    STORAGE_B=$($HWEB_EXECUTABLE --session "session_b" --js "localStorage.getItem('unique')" 2>/dev/null | tail -n 1)
+    STORAGE_C=$($HWEB_EXECUTABLE --session "session_c" --js "localStorage.getItem('unique')" 2>/dev/null | tail -n 1)
     
     verify_value "$STORAGE_A" "data_a" "localStorage isolation A"
     verify_value "$STORAGE_B" "data_b" "localStorage isolation B"
@@ -217,10 +217,10 @@ test_session_listing() {
     
     # List sessions and check output
     echo "Current sessions:"
-    ./hweb --list
+    $HWEB_EXECUTABLE --list
     
     # Verify that our test sessions appear in the list
-    SESSION_LIST=$(./hweb --list 2>/dev/null)
+    SESSION_LIST=$($HWEB_EXECUTABLE --list 2>/dev/null)
     
     if echo "$SESSION_LIST" | grep -q "session_a"; then
         echo -e "${GREEN}✓ PASS${NC}: Session A appears in list"
@@ -242,17 +242,17 @@ test_session_continuation() {
     echo "=== Test: Session Continuation ==="
     
     # Start session and navigate to a page
-    check_command "./hweb --session 'continuation_test' --url 'file://$TEST_FILE'" "Start continuation test session"
+    check_command "$HWEB_EXECUTABLE --session 'continuation_test' --url 'file://$TEST_FILE'" "Start continuation test session"
     
     # Execute commands without specifying URL (should continue with current page)
-    check_command "./hweb --session 'continuation_test' --type '#persistent-input' 'continued_session'" "Continue session without URL"
+    check_command "$HWEB_EXECUTABLE --session 'continuation_test' --type '#persistent-input' 'continued_session'" "Continue session without URL"
     
     # Verify the command worked on the existing page
-    CONTINUED_VALUE=$(./hweb --session "continuation_test" --js "document.getElementById('persistent-input').value" 2>/dev/null | tail -n 1)
+    CONTINUED_VALUE=$($HWEB_EXECUTABLE --session "continuation_test" --js "document.getElementById('persistent-input').value" 2>/dev/null | tail -n 1)
     verify_value "$CONTINUED_VALUE" "continued_session" "Session continuation"
     
     # Test command chaining in continued session
-    check_command "./hweb --session 'continuation_test' \
+    check_command "$HWEB_EXECUTABLE --session 'continuation_test' \
         --type '#persistent-textarea' 'chained operation' \
         --select '#persistent-select' 'option1' \
         --js 'document.title'" "Chained commands in continued session"
@@ -265,13 +265,13 @@ test_session_cleanup() {
     echo "=== Test: Session Cleanup ==="
     
     # End specific sessions
-    check_command "./hweb --session 'session_a' --end" "End session A"
-    check_command "./hweb --session 'session_b' --end" "End session B"
-    check_command "./hweb --session 'session_c' --end" "End session C"
-    check_command "./hweb --session 'continuation_test' --end" "End continuation test session"
+    check_command "$HWEB_EXECUTABLE --session 'session_a' --end" "End session A"
+    check_command "$HWEB_EXECUTABLE --session 'session_b' --end" "End session B"
+    check_command "$HWEB_EXECUTABLE --session 'session_c' --end" "End session C"
+    check_command "$HWEB_EXECUTABLE --session 'continuation_test' --end" "End continuation test session"
     
     # Verify sessions are removed from list
-    SESSION_LIST_AFTER=$(./hweb --list 2>/dev/null)
+    SESSION_LIST_AFTER=$($HWEB_EXECUTABLE --list 2>/dev/null)
     
     if echo "$SESSION_LIST_AFTER" | grep -q "session_a"; then
         echo -e "${RED}✗ FAIL${NC}: Session A still appears in list after cleanup"
@@ -287,11 +287,11 @@ test_session_errors() {
     echo "=== Test: Session Error Handling ==="
     
     # Test accessing non-existent session data
-    NONEXISTENT_DATA=$(./hweb --session "test_session_1" --get "nonexistent_key" 2>/dev/null | tail -n 1)
+    NONEXISTENT_DATA=$($HWEB_EXECUTABLE --session "test_session_1" --get "nonexistent_key" 2>/dev/null | tail -n 1)
     verify_value "$NONEXISTENT_DATA" "" "Non-existent session data handling"
     
     # Test invalid session name characters (if any restrictions)
-    if ./hweb --session 'invalid-session-name!' --url 'file://$TEST_FILE' 2>&1 | grep -q -E "(Error|Invalid)"; then
+    if $HWEB_EXECUTABLE --session 'invalid-session-name!' --url 'file://$TEST_FILE' 2>&1 | grep -q -E "(Error|Invalid)"; then
         echo -e "${GREEN}✓ PASS${NC}: Invalid session name handled (if restricted)"
     else
         echo -e "${YELLOW}? INFO${NC}: Session name validation may be permissive"
@@ -305,17 +305,17 @@ test_session_url_changes() {
     echo "=== Test: Session URL Changes ==="
     
     # Create session with initial URL
-    check_command "./hweb --session 'url_change_test' --url 'file://$TEST_FILE'" "Create session with initial URL"
+    check_command "$HWEB_EXECUTABLE --session 'url_change_test' --url 'file://$TEST_FILE'" "Create session with initial URL"
     
     # Store some data
-    check_command "./hweb --session 'url_change_test' --store 'initial_page' 'test_file'" "Store data for initial page"
+    check_command "$HWEB_EXECUTABLE --session 'url_change_test' --store 'initial_page' 'test_file'" "Store data for initial page"
     
     # Navigate to different URL and store different data
-    check_command "./hweb --session 'url_change_test' --url 'https://example.com' --store 'second_page' 'example_com'" "Navigate to different URL"
+    check_command "$HWEB_EXECUTABLE --session 'url_change_test' --url 'https://example.com' --store 'second_page' 'example_com'" "Navigate to different URL"
     
     # Verify both data items persist
-    INITIAL_DATA=$(./hweb --session "url_change_test" --get "initial_page" 2>/dev/null | tail -n 1)
-    SECOND_DATA=$(./hweb --session "url_change_test" --get "second_page" 2>/dev/null | tail -n 1)
+    INITIAL_DATA=$($HWEB_EXECUTABLE --session "url_change_test" --get "initial_page" 2>/dev/null | tail -n 1)
+    SECOND_DATA=$($HWEB_EXECUTABLE --session "url_change_test" --get "second_page" 2>/dev/null | tail -n 1)
     
     verify_value "$INITIAL_DATA" "test_file" "Initial page data persistence"
     verify_value "$SECOND_DATA" "example_com" "Second page data persistence"
@@ -328,13 +328,13 @@ cleanup_sessions() {
     echo "=== Session Test Cleanup ==="
     
     # Clean up all test sessions
-    ./hweb --session 'test_session_1' --end >/dev/null 2>&1 || true
-    ./hweb --session 'session_a' --end >/dev/null 2>&1 || true
-    ./hweb --session 'session_b' --end >/dev/null 2>&1 || true
-    ./hweb --session 'session_c' --end >/dev/null 2>&1 || true
-    ./hweb --session 'continuation_test' --end >/dev/null 2>&1 || true
-    ./hweb --session 'url_change_test' --end >/dev/null 2>&1 || true
-    ./hweb --session 'invalid-session-name!' --end >/dev/null 2>&1 || true
+    $HWEB_EXECUTABLE --session 'test_session_1' --end >/dev/null 2>&1 || true
+    $HWEB_EXECUTABLE --session 'session_a' --end >/dev/null 2>&1 || true
+    $HWEB_EXECUTABLE --session 'session_b' --end >/dev/null 2>&1 || true
+    $HWEB_EXECUTABLE --session 'session_c' --end >/dev/null 2>&1 || true
+    $HWEB_EXECUTABLE --session 'continuation_test' --end >/dev/null 2>&1 || true
+    $HWEB_EXECUTABLE --session 'url_change_test' --end >/dev/null 2>&1 || true
+    $HWEB_EXECUTABLE --session 'invalid-session-name!' --end >/dev/null 2>&1 || true
     
     rm -f "$TEST_FILE"
     echo "Session test cleanup completed"

@@ -36,7 +36,7 @@ protected:
     
     // Helper to load complex multi-step form
     void loadComplexFormPage() {
-        std::string complex_html = R"(
+        std::string complex_html = R"HTMLDELIM(
             <!DOCTYPE html>
             <html>
             <head>
@@ -222,7 +222,7 @@ protected:
                 </script>
             </body>
             </html>
-        )";
+        )HTMLDELIM";
         
         browser_->loadUri("data:text/html;charset=utf-8," + complex_html);
         std::this_thread::sleep_for(std::chrono::milliseconds(800));
@@ -331,14 +331,16 @@ TEST_F(BrowserAdvancedFormOperationsTest, ConditionalFieldLogic_CountryStateLogi
     EXPECT_TRUE(browser_->elementExists("#state-field"));
     
     // Verify US states are populated
-    bool has_california = browser_->hasOption("#state", "ca");
+    // Check if California option exists by trying to select it
+    bool has_california = browser_->selectOption("#state", "ca");
     EXPECT_TRUE(has_california);
     
     // Select Canada - different states should appear
     browser_->selectOption("#country", "ca");
     std::this_thread::sleep_for(std::chrono::milliseconds(300));
     
-    bool has_ontario = browser_->hasOption("#state", "on");
+    // Check if Ontario option exists by trying to select it
+    bool has_ontario = browser_->selectOption("#state", "on");
     EXPECT_TRUE(has_ontario);
     
     // Select UK - state field should disappear
@@ -593,7 +595,7 @@ TEST_F(BrowserAdvancedFormOperationsTest, ComplexValidation_EmailFormat) {
     };
     
     for (const auto& invalid_email : invalid_emails) {
-        browser_->fillInput("#email");
+        browser_->fillInput("#email", "");
         browser_->fillInput("#email", invalid_email);
         
         browser_->clickElement("#step1-next");
@@ -605,7 +607,7 @@ TEST_F(BrowserAdvancedFormOperationsTest, ComplexValidation_EmailFormat) {
     }
     
     // Test valid email
-    browser_->fillInput("#email");
+    browser_->fillInput("#email", "");
     browser_->fillInput("#email", "valid@domain.com");
     
     browser_->clickElement("#step1-next");

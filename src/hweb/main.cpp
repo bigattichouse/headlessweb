@@ -51,6 +51,13 @@ int run_application(const HWebConfig& config) {
         return sessionService.handle_session_list() ? 0 : 1;
     }
     
+    // Handle help
+    if (config.showHelp) {
+        ConfigParser parser;
+        parser.print_usage();
+        return 0;
+    }
+    
     // Determine session name
     std::string sessionName = config.sessionName.empty() ? "default" : config.sessionName;
     
@@ -108,7 +115,7 @@ int run_application(const HWebConfig& config) {
     }
     
     // Save session
-    if (!config.commands.empty() || !config.assertions.empty() || state_modified) {
+    if (!config.commands.empty() || !config.assertions.empty() || state_modified || navigationPlan.should_navigate) {
         if (!sessionService.save_session_safely(session, sessionName)) {
             exit_code = 1;
         }

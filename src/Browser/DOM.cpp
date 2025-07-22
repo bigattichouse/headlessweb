@@ -1,6 +1,8 @@
 #include "Browser.h"
 #include <iostream>
 #include <string>
+#include <thread>
+#include <chrono>
 
 // External debug flag
 extern bool g_debug;
@@ -389,17 +391,45 @@ std::string Browser::getElementHtml(const std::string& selector) {
 }
 
 std::string Browser::getInnerText(const std::string& selector) {
+    // Escape single quotes in selector for JavaScript
+    std::string escaped_selector = selector;
+    size_t pos = 0;
+    while ((pos = escaped_selector.find("'", pos)) != std::string::npos) {
+        escaped_selector.replace(pos, 1, "\\'");
+        pos += 2;
+    }
+    
     std::string js_script = 
         "(function() { "
-        "  try { "
-        "    var element = document.querySelector('" + selector + "'); "
-        "    return element ? element.innerText || element.textContent || '' : ''; "
-        "  } catch(e) { "
-        "    return ''; "
-        "  } "
+        "try { "
+        "if (document.readyState === 'loading') { "
+        "return 'DOCUMENT_LOADING'; "
+        "} "
+        "var element = document.querySelector('" + escaped_selector + "'); "
+        "if (!element) { "
+        "return 'ELEMENT_NOT_FOUND'; "
+        "} "
+        "var text = element.innerText || element.textContent || ''; "
+        "return text.trim(); "
+        "} catch(e) { "
+        "return 'JS_ERROR: ' + e.message; "
+        "} "
         "})()";
     
-    return executeJavascriptSync(js_script);
+    std::string result = executeJavascriptSync(js_script);
+    
+    // Handle special return values
+    if (result == "DOCUMENT_LOADING") {
+        // Wait a bit and retry once
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        result = executeJavascriptSync(js_script);
+    }
+    
+    if (result == "ELEMENT_NOT_FOUND" || result.substr(0, 9) == "JS_ERROR:") {
+        return ""; // Return empty string for compatibility
+    }
+    
+    return result;
 }
 
 std::string Browser::getFirstNonEmptyText(const std::string& selector) {

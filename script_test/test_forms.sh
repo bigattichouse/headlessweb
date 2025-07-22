@@ -161,23 +161,23 @@ test_basic_input() {
     create_form_test_html
     
     # Setup session
-    ./hweb --session 'form-test' --url "file://$TEST_FILE" >/dev/null 2>&1
+    $HWEB_EXECUTABLE --session 'form-test' --url "file://$TEST_FILE" >/dev/null 2>&1
     
     # Test text input
-    check_command "./hweb --session 'form-test' --type '#username' 'testuser'" "Type into text input"
+    check_command "$HWEB_EXECUTABLE --session 'form-test' --type '#username' 'testuser'" "Type into text input"
     
     # Verify input value
-    USERNAME_VAL=$(./hweb --session "form-test" --js "document.getElementById('username').value" 2>/dev/null | tail -n 1)
+    USERNAME_VAL=$($HWEB_EXECUTABLE --session "form-test" --js "document.getElementById('username').value" 2>/dev/null | tail -n 1)
     verify_value "$USERNAME_VAL" "testuser" "Text input value"
     
     # Test email input
-    check_command "./hweb --session 'form-test' --type '#email' 'test@example.com'" "Type into email input"
+    check_command "$HWEB_EXECUTABLE --session 'form-test' --type '#email' 'test@example.com'" "Type into email input"
     
     # Test password input
-    check_command "./hweb --session 'form-test' --type '#password' 'secretpass'" "Type into password input"
+    check_command "$HWEB_EXECUTABLE --session 'form-test' --type '#password' 'secretpass'" "Type into password input"
     
     # Test textarea
-    check_command "./hweb --session 'form-test' --type '#comments' 'This is a test comment'" "Type into textarea"
+    check_command "$HWEB_EXECUTABLE --session 'form-test' --type '#comments' 'This is a test comment'" "Type into textarea"
     
     echo ""
 }
@@ -187,16 +187,16 @@ test_select_dropdowns() {
     echo "=== Test: Select Dropdowns ==="
     
     # Test single select
-    check_command "./hweb --session 'form-test' --select '#country' 'us'" "Select country option"
+    check_command "$HWEB_EXECUTABLE --session 'form-test' --select '#country' 'us'" "Select country option"
     
     # Verify selection
-    COUNTRY_VAL=$(./hweb --session "form-test" --js "document.getElementById('country').value" 2>/dev/null | tail -n 1)
+    COUNTRY_VAL=$($HWEB_EXECUTABLE --session "form-test" --js "document.getElementById('country').value" 2>/dev/null | tail -n 1)
     verify_value "$COUNTRY_VAL" "us" "Country selection value"
     
     # Test different country
-    check_command "./hweb --session 'form-test' --select '#country' 'ca'" "Select Canada"
+    check_command "$HWEB_EXECUTABLE --session 'form-test' --select '#country' 'ca'" "Select Canada"
     
-    COUNTRY_VAL2=$(./hweb --session "form-test" --js "document.getElementById('country').value" 2>/dev/null | tail -n 1)
+    COUNTRY_VAL2=$($HWEB_EXECUTABLE --session "form-test" --js "document.getElementById('country').value" 2>/dev/null | tail -n 1)
     verify_value "$COUNTRY_VAL2" "ca" "Updated country selection"
     
     echo ""
@@ -207,26 +207,26 @@ test_checkboxes_radios() {
     echo "=== Test: Checkboxes and Radio Buttons ==="
     
     # Test checkbox checking
-    check_command "./hweb --session 'form-test' --check '#newsletter'" "Check newsletter checkbox"
+    check_command "$HWEB_EXECUTABLE --session 'form-test' --check '#newsletter'" "Check newsletter checkbox"
     
     # Verify checkbox state
-    NEWSLETTER_CHECKED=$(./hweb --session "form-test" --js "document.getElementById('newsletter').checked" 2>/dev/null | tail -n 1)
+    NEWSLETTER_CHECKED=$($HWEB_EXECUTABLE --session "form-test" --js "document.getElementById('newsletter').checked" 2>/dev/null | tail -n 1)
     verify_value "$NEWSLETTER_CHECKED" "true" "Newsletter checkbox checked"
     
     # Test checkbox unchecking
-    check_command "./hweb --session 'form-test' --uncheck '#newsletter'" "Uncheck newsletter checkbox"
+    check_command "$HWEB_EXECUTABLE --session 'form-test' --uncheck '#newsletter'" "Uncheck newsletter checkbox"
     
-    NEWSLETTER_UNCHECKED=$(./hweb --session "form-test" --js "document.getElementById('newsletter').checked" 2>/dev/null | tail -n 1)
+    NEWSLETTER_UNCHECKED=$($HWEB_EXECUTABLE --session "form-test" --js "document.getElementById('newsletter').checked" 2>/dev/null | tail -n 1)
     verify_value "$NEWSLETTER_UNCHECKED" "false" "Newsletter checkbox unchecked"
     
     # Test multiple checkboxes
-    check_command "./hweb --session 'form-test' --check '#newsletter'" "Check newsletter"
-    check_command "./hweb --session 'form-test' --check '#terms'" "Check terms"
+    check_command "$HWEB_EXECUTABLE --session 'form-test' --check '#newsletter'" "Check newsletter"
+    check_command "$HWEB_EXECUTABLE --session 'form-test' --check '#terms'" "Check terms"
     
     # Test radio button selection
-    check_command "./hweb --session 'form-test' --click '#male'" "Select male radio"
+    check_command "$HWEB_EXECUTABLE --session 'form-test' --click '#male'" "Select male radio"
     
-    MALE_SELECTED=$(./hweb --session "form-test" --js "document.getElementById('male').checked" 2>/dev/null | tail -n 1)
+    MALE_SELECTED=$($HWEB_EXECUTABLE --session "form-test" --js "document.getElementById('male').checked" 2>/dev/null | tail -n 1)
     verify_value "$MALE_SELECTED" "true" "Male radio button selected"
     
     echo ""
@@ -237,14 +237,14 @@ test_form_focus() {
     echo "=== Test: Form Focus and Navigation ==="
     
     # Test focusing on elements
-    check_command "./hweb --session 'form-test' --focus '#email'" "Focus on email field"
+    check_command "$HWEB_EXECUTABLE --session 'form-test' --focus '#email'" "Focus on email field"
     
     # Verify focus (check if element is active)
-    FOCUSED_ELEMENT=$(./hweb --session "form-test" --js "document.activeElement.id" 2>/dev/null | tail -n 1)
+    FOCUSED_ELEMENT=$($HWEB_EXECUTABLE --session "form-test" --js "document.activeElement.id" 2>/dev/null | tail -n 1)
     verify_value "$FOCUSED_ELEMENT" "email" "Email field focused"
     
     # Test tab navigation simulation
-    check_command "./hweb --session 'form-test' --focus '#password'" "Focus on password field"
+    check_command "$HWEB_EXECUTABLE --session 'form-test' --focus '#password'" "Focus on password field"
     
     echo ""
 }
@@ -254,16 +254,16 @@ test_form_submission() {
     echo "=== Test: Form Submission ==="
     
     # Fill out form completely
-    check_command "./hweb --session 'form-test' --type '#username' 'formtester'" "Fill username"
-    check_command "./hweb --session 'form-test' --type '#email' 'form@test.com'" "Fill email"
-    check_command "./hweb --session 'form-test' --select '#country' 'us'" "Select country"
-    check_command "./hweb --session 'form-test' --check '#terms'" "Accept terms"
+    check_command "$HWEB_EXECUTABLE --session 'form-test' --type '#username' 'formtester'" "Fill username"
+    check_command "$HWEB_EXECUTABLE --session 'form-test' --type '#email' 'form@test.com'" "Fill email"
+    check_command "$HWEB_EXECUTABLE --session 'form-test' --select '#country' 'us'" "Select country"
+    check_command "$HWEB_EXECUTABLE --session 'form-test' --check '#terms'" "Accept terms"
     
     # Submit form
-    check_command "./hweb --session 'form-test' --click '#submit-btn'" "Submit form"
+    check_command "$HWEB_EXECUTABLE --session 'form-test' --click '#submit-btn'" "Submit form"
     
     # Check form submission result (our test page prevents actual submission)
-    FORM_STATUS=$(./hweb --session "form-test" --text "#form-status" 2>/dev/null | tail -n 1)
+    FORM_STATUS=$($HWEB_EXECUTABLE --session "form-test" --text "#form-status" 2>/dev/null | tail -n 1)
     verify_value "$FORM_STATUS" "Form submitted" "Form submission status"
     
     echo ""
@@ -274,20 +274,20 @@ test_form_validation() {
     echo "=== Test: Form Validation ==="
     
     # Clear form and test validation
-    check_command "./hweb --session 'form-test' --click '#reset-btn'" "Reset form"
+    check_command "$HWEB_EXECUTABLE --session 'form-test' --click '#reset-btn'" "Reset form"
     
     # Submit empty form (should trigger validation)
-    check_command "./hweb --session 'form-test' --click '#submit-btn'" "Submit empty form"
+    check_command "$HWEB_EXECUTABLE --session 'form-test' --click '#submit-btn'" "Submit empty form"
     
-    VALIDATION_RESULT=$(./hweb --session "form-test" --text "#validation-result" 2>/dev/null | tail -n 1)
+    VALIDATION_RESULT=$($HWEB_EXECUTABLE --session "form-test" --text "#validation-result" 2>/dev/null | tail -n 1)
     verify_value "$VALIDATION_RESULT" "Invalid" "Form validation for empty form"
     
     # Fill required fields and test again
-    check_command "./hweb --session 'form-test' --type '#username' 'validuser'" "Fill required username"
-    check_command "./hweb --session 'form-test' --type '#email' 'valid@email.com'" "Fill required email"
-    check_command "./hweb --session 'form-test' --click '#submit-btn'" "Submit valid form"
+    check_command "$HWEB_EXECUTABLE --session 'form-test' --type '#username' 'validuser'" "Fill required username"
+    check_command "$HWEB_EXECUTABLE --session 'form-test' --type '#email' 'valid@email.com'" "Fill required email"
+    check_command "$HWEB_EXECUTABLE --session 'form-test' --click '#submit-btn'" "Submit valid form"
     
-    VALID_RESULT=$(./hweb --session "form-test" --text "#validation-result" 2>/dev/null | tail -n 1)
+    VALID_RESULT=$($HWEB_EXECUTABLE --session "form-test" --text "#validation-result" 2>/dev/null | tail -n 1)
     verify_value "$VALID_RESULT" "Valid" "Form validation for valid form"
     
     echo ""
@@ -298,7 +298,7 @@ test_complex_interactions() {
     echo "=== Test: Complex Form Interactions ==="
     
     # Test chained form operations
-    check_command "./hweb --session 'form-chain' \
+    check_command "$HWEB_EXECUTABLE --session 'form-chain' \
         --url 'file://$TEST_FILE' \
         --type '#username' 'chainuser' \
         --type '#email' 'chain@test.com' \
@@ -309,13 +309,13 @@ test_complex_interactions() {
         --type '#comments' 'Chained form operations test'" "Chained form operations"
     
     # Verify all chained operations
-    CHAIN_USERNAME=$(./hweb --session "form-chain" --js "document.getElementById('username').value" 2>/dev/null | tail -n 1)
+    CHAIN_USERNAME=$($HWEB_EXECUTABLE --session "form-chain" --js "document.getElementById('username').value" 2>/dev/null | tail -n 1)
     verify_value "$CHAIN_USERNAME" "chainuser" "Chained username"
     
-    CHAIN_COUNTRY=$(./hweb --session "form-chain" --js "document.getElementById('country').value" 2>/dev/null | tail -n 1)
+    CHAIN_COUNTRY=$($HWEB_EXECUTABLE --session "form-chain" --js "document.getElementById('country').value" 2>/dev/null | tail -n 1)
     verify_value "$CHAIN_COUNTRY" "ca" "Chained country selection"
     
-    CHAIN_NEWSLETTER=$(./hweb --session "form-chain" --js "document.getElementById('newsletter').checked" 2>/dev/null | tail -n 1)
+    CHAIN_NEWSLETTER=$($HWEB_EXECUTABLE --session "form-chain" --js "document.getElementById('newsletter').checked" 2>/dev/null | tail -n 1)
     verify_value "$CHAIN_NEWSLETTER" "true" "Chained newsletter checkbox"
     
     echo ""
@@ -326,7 +326,7 @@ test_form_persistence() {
     echo "=== Test: Form State Persistence ==="
     
     # Fill form and save session
-    check_command "./hweb --session 'form-persist' \
+    check_command "$HWEB_EXECUTABLE --session 'form-persist' \
         --url 'file://$TEST_FILE' \
         --type '#username' 'persistent' \
         --type '#email' 'persist@test.com' \
@@ -334,18 +334,18 @@ test_form_persistence() {
         --check '#terms'" "Fill form for persistence test"
     
     # End session to save state
-    check_command "./hweb --session 'form-persist' --end" "Save form session"
+    check_command "$HWEB_EXECUTABLE --session 'form-persist' --end" "Save form session"
     
     # Restore session and verify form state
-    check_command "./hweb --session 'form-persist'" "Restore form session"
+    check_command "$HWEB_EXECUTABLE --session 'form-persist'" "Restore form session"
     
-    PERSIST_USERNAME=$(./hweb --session "form-persist" --js "document.getElementById('username').value" 2>/dev/null | tail -n 1)
+    PERSIST_USERNAME=$($HWEB_EXECUTABLE --session "form-persist" --js "document.getElementById('username').value" 2>/dev/null | tail -n 1)
     verify_value "$PERSIST_USERNAME" "persistent" "Persistent username"
     
-    PERSIST_COUNTRY=$(./hweb --session "form-persist" --js "document.getElementById('country').value" 2>/dev/null | tail -n 1)
+    PERSIST_COUNTRY=$($HWEB_EXECUTABLE --session "form-persist" --js "document.getElementById('country').value" 2>/dev/null | tail -n 1)
     verify_value "$PERSIST_COUNTRY" "uk" "Persistent country selection"
     
-    PERSIST_TERMS=$(./hweb --session "form-persist" --js "document.getElementById('terms').checked" 2>/dev/null | tail -n 1)
+    PERSIST_TERMS=$($HWEB_EXECUTABLE --session "form-persist" --js "document.getElementById('terms').checked" 2>/dev/null | tail -n 1)
     verify_value "$PERSIST_TERMS" "true" "Persistent terms checkbox"
     
     echo ""
@@ -356,14 +356,14 @@ test_form_errors() {
     echo "=== Test: Form Error Handling ==="
     
     # Test invalid selector
-    if ./hweb --session 'form-test' --type '#nonexistent-field' 'value' 2>&1 | grep -q "Failed"; then
+    if $HWEB_EXECUTABLE --session 'form-test' --type '#nonexistent-field' 'value' 2>&1 | grep -q "Failed"; then
         echo -e "${GREEN}✓ PASS${NC}: Invalid form field selector handled"
     else
         echo -e "${RED}✗ FAIL${NC}: Invalid form field selector not handled"
     fi
     
     # Test invalid select option
-    if ./hweb --session 'form-test' --select '#country' 'invalid-option' 2>&1 | grep -q -E "(Failed|Error|not found)"; then
+    if $HWEB_EXECUTABLE --session 'form-test' --select '#country' 'invalid-option' 2>&1 | grep -q -E "(Failed|Error|not found)"; then
         echo -e "${GREEN}✓ PASS${NC}: Invalid select option handled"
     else
         echo -e "${YELLOW}? INFO${NC}: Invalid select option handling may need verification"
@@ -375,9 +375,9 @@ test_form_errors() {
 # Cleanup function
 cleanup_forms() {
     echo "=== Form Test Cleanup ==="
-    ./hweb --session 'form-test' --end >/dev/null 2>&1 || true
-    ./hweb --session 'form-chain' --end >/dev/null 2>&1 || true
-    ./hweb --session 'form-persist' --end >/dev/null 2>&1 || true
+    $HWEB_EXECUTABLE --session 'form-test' --end >/dev/null 2>&1 || true
+    $HWEB_EXECUTABLE --session 'form-chain' --end >/dev/null 2>&1 || true
+    $HWEB_EXECUTABLE --session 'form-persist' --end >/dev/null 2>&1 || true
     rm -f "$TEST_FILE"
     echo "Form test files cleaned up"
     echo ""

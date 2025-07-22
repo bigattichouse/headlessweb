@@ -26,6 +26,7 @@ struct HWebConfig {
     std::string url;
     bool endSession = false;
     bool listSessions = false;
+    bool showHelp = false;
     bool json_mode = false;
     bool silent_mode = false;
     int browser_width = 1000;
@@ -38,6 +39,7 @@ enum class NavigationStrategy {
     NEW_URL,
     SESSION_RESTORE,
     CONTINUE_SESSION,
+    SESSION_ONLY,
     NO_NAVIGATION
 };
 

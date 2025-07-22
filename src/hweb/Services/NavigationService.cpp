@@ -37,6 +37,18 @@ NavigationStrategy NavigationService::determine_navigation_strategy(const HWebCo
         return NavigationStrategy::SESSION_RESTORE;
     } else if (!session.getCurrentUrl().empty() && (!config.commands.empty() || !config.assertions.empty())) {
         return NavigationStrategy::CONTINUE_SESSION;
+    } else if (session.getCurrentUrl().empty() && !config.commands.empty()) {
+        // Check if all commands are session-only (don't require navigation)
+        bool all_session_only = true;
+        for (const auto& cmd : config.commands) {
+            if (cmd.type != "store" && cmd.type != "get") {
+                all_session_only = false;
+                break;
+            }
+        }
+        if (all_session_only) {
+            return NavigationStrategy::SESSION_ONLY;
+        }
     }
     
     return NavigationStrategy::NO_NAVIGATION;
@@ -65,6 +77,12 @@ NavigationService::NavigationPlan NavigationService::create_navigation_plan(cons
             plan.is_session_restore = true;
             break;
             
+        case NavigationStrategy::SESSION_ONLY:
+            plan.should_navigate = false;
+            plan.navigation_url = "";
+            plan.is_session_restore = false;
+            break;
+            
         case NavigationStrategy::NO_NAVIGATION:
         default:
             plan.should_navigate = false;
@@ -78,7 +96,8 @@ NavigationService::NavigationPlan NavigationService::create_navigation_plan(cons
 
 bool NavigationService::execute_navigation_plan(Browser& browser, Session& session, const NavigationPlan& plan) {
     if (!plan.should_navigate) {
-        if (session.getCurrentUrl().empty()) {
+        // Only require URL for non-SESSION_ONLY strategies
+        if (plan.strategy != NavigationStrategy::SESSION_ONLY && session.getCurrentUrl().empty()) {
             Output::error("No URL in session. Use --url to navigate.");
             return false;
         }

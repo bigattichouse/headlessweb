@@ -11,6 +11,7 @@ NC='\033[0m' # No Color
 
 # Configuration
 SESSION_DIR="$HOME/.hweb/sessions"
+HWEB_EXECUTABLE="../hweb"
 
 # Test execution helpers
 check_command() {

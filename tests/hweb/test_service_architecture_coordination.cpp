@@ -106,7 +106,8 @@ TEST_F(ServiceArchitectureCoordinationTest, ManagerRegistry_InitializationAndAcc
     
     // Verify managers are functional (basic operations)
     EXPECT_NO_THROW(assertion_manager.clearResults());
-    EXPECT_NO_THROW(upload_manager.getUploadDirectory());
+    // UploadManager doesn't have getUploadDirectory method, test basic functionality instead
+    EXPECT_NO_THROW(upload_manager.setDefaultTimeout(30000));
     EXPECT_NO_THROW(download_manager.getDownloadDirectory());
 }
 
@@ -134,12 +135,22 @@ TEST_F(ServiceArchitectureCoordinationTest, ManagerRegistry_CrossServiceCoordina
     // Test coordination between assertion manager and browser state
     auto& assertion_manager = HWeb::ManagerRegistry::get_assertion_manager();
     
-    // Add some assertions that would use browser state
-    assertion_manager.addAssertion("element-exists", "#test-input", "", "");
-    assertion_manager.addAssertion("element-value", "#test-input", "initial_value", "equals");
+    // Create assertion commands and execute them
+    Assertion::Command exists_cmd;
+    exists_cmd.type = "element-exists";
+    exists_cmd.selector = "#test-input";
     
-    // Execute assertions using browser
-    bool assertions_passed = assertion_manager.executeAssertions(*browser_);
+    Assertion::Command value_cmd;
+    value_cmd.type = "element-value";
+    value_cmd.selector = "#test-input";
+    value_cmd.expected_value = "initial_value";
+    value_cmd.op = Assertion::ComparisonOperator::EQUALS;
+    
+    // Execute individual assertions using browser
+    auto result1 = assertion_manager.executeAssertion(*browser_, exists_cmd);
+    auto result2 = assertion_manager.executeAssertion(*browser_, value_cmd);
+    
+    bool assertions_passed = (result1 == Assertion::Result::PASS && result2 == Assertion::Result::PASS);
     EXPECT_TRUE(assertions_passed);
     
     // Verify results are accessible
@@ -154,7 +165,7 @@ TEST_F(ServiceArchitectureCoordinationTest, SessionService_BrowserStateIntegrati
     
     // Create a test session
     Session test_session = session_service_->initialize_session("service_test_session");
-    EXPECT_FALSE(test_session.getUrl().empty());
+    EXPECT_FALSE(test_session.getCurrentUrl().empty());
     
     // Modify browser state
     browser_->fillInput("#test-input", "modified_value");
@@ -164,9 +175,20 @@ TEST_F(ServiceArchitectureCoordinationTest, SessionService_BrowserStateIntegrati
     // Update session with current browser state
     session_service_->update_session_state(*browser_, test_session);
     
-    // Verify session captured the state
-    auto form_data = test_session.getFormData();
-    EXPECT_EQ(form_data.at("test_field"), "modified_value");
+    // Verify session captured the state (use getFormFields instead)
+    auto form_fields = test_session.getFormFields();
+    EXPECT_FALSE(form_fields.empty());
+    
+    // Find the test field and verify its value
+    bool found_field = false;
+    for (const auto& field : form_fields) {
+        if (field.name == "test_field" || field.id == "test-input") {
+            EXPECT_EQ(field.value, "modified_value");
+            found_field = true;
+            break;
+        }
+    }
+    EXPECT_TRUE(found_field);
     
     // Save session
     bool saved = session_service_->save_session_safely(test_session, "service_test_session");
@@ -178,7 +200,7 @@ TEST_F(ServiceArchitectureCoordinationTest, SessionService_NavigationServiceInte
     Session test_session = session_service_->initialize_session("nav_test_session");
     
     // Create HWebConfig for navigation planning
-    HWebConfig config;
+    HWeb::HWebConfig config;
     config.url = "data:text/html,<h1>Test Page</h1>";
     config.sessionName = "nav_test_session";
     
@@ -196,7 +218,7 @@ TEST_F(ServiceArchitectureCoordinationTest, SessionService_NavigationServiceInte
     session_service_->update_session_state(*browser_, test_session);
     
     // Verify session updated with new URL
-    EXPECT_EQ(test_session.getUrl(), config.url);
+    EXPECT_EQ(test_session.getCurrentUrl(), config.url);
 }
 
 TEST_F(ServiceArchitectureCoordinationTest, SessionService_MultiSessionIsolation) {
@@ -210,8 +232,8 @@ TEST_F(ServiceArchitectureCoordinationTest, SessionService_MultiSessionIsolation
     browser_->fillInput("#test-input", "session1_value");
     session_service_->update_session_state(*browser_, session1);
     
-    // Clear and modify for session2
-    browser_->clearInput("#test-input");
+    // Clear and modify for session2 (clear by filling with empty string)
+    browser_->fillInput("#test-input", "");
     browser_->fillInput("#test-input", "session2_value");
     session_service_->update_session_state(*browser_, session2);
     
@@ -219,31 +241,52 @@ TEST_F(ServiceArchitectureCoordinationTest, SessionService_MultiSessionIsolation
     EXPECT_TRUE(session_service_->save_session_safely(session1, "session1"));
     EXPECT_TRUE(session_service_->save_session_safely(session2, "session2"));
     
-    // Verify sessions maintain different data
-    EXPECT_NE(session1.getFormData().at("test_field"), session2.getFormData().at("test_field"));
-    EXPECT_EQ(session1.getFormData().at("test_field"), "session1_value");
-    EXPECT_EQ(session2.getFormData().at("test_field"), "session2_value");
+    // Verify sessions maintain different data (use getFormFields)
+    auto form_fields1 = session1.getFormFields();
+    auto form_fields2 = session2.getFormFields();
+    
+    EXPECT_FALSE(form_fields1.empty());
+    EXPECT_FALSE(form_fields2.empty());
+    
+    // Find and compare test field values
+    std::string session1_value, session2_value;
+    for (const auto& field : form_fields1) {
+        if (field.name == "test_field" || field.id == "test-input") {
+            session1_value = field.value;
+            break;
+        }
+    }
+    for (const auto& field : form_fields2) {
+        if (field.name == "test_field" || field.id == "test-input") {
+            session2_value = field.value;
+            break;
+        }
+    }
+    
+    EXPECT_NE(session1_value, session2_value);
+    EXPECT_EQ(session1_value, "session1_value");
+    EXPECT_EQ(session2_value, "session2_value");
 }
 
 // ========== NavigationService Coordination Tests ==========
 
 TEST_F(ServiceArchitectureCoordinationTest, NavigationService_StrategyDetermination) {
     // Test different navigation strategies based on config and session state
-    HWebConfig config1;
+    HWeb::HWebConfig config1;
     config1.url = "https://example.com";
     config1.sessionName = "";
     
-    Session empty_session;
+    Session empty_session("empty_session_test");
     auto strategy1 = navigation_service_->determine_navigation_strategy(config1, empty_session);
-    EXPECT_EQ(strategy1, NavigationStrategy::Direct);
+    EXPECT_EQ(strategy1, HWeb::NavigationStrategy::NEW_URL);
     
     // Test with session restore
-    HWebConfig config2;
+    HWeb::HWebConfig config2;
     config2.sessionName = "existing_session";
     config2.url = "";
     
-    Session existing_session;
-    existing_session.setUrl("https://saved.com");
+    Session existing_session("existing_session_test");
+    existing_session.setCurrentUrl("https://saved.com");
     auto strategy2 = navigation_service_->determine_navigation_strategy(config2, existing_session);
     // Strategy depends on implementation logic
 }
@@ -270,14 +313,13 @@ TEST_F(ServiceArchitectureCoordinationTest, NavigationService_WaitMechanisms) {
 
 TEST_F(ServiceArchitectureCoordinationTest, NavigationService_ComplexNavigationPlans) {
     // Create complex navigation plan with session restore
-    HWebConfig config;
+    HWeb::HWebConfig config;
     config.url = "data:text/html,<h1>Complex Page</h1>";
     config.sessionName = "complex_session";
     
-    Session session_with_state;
-    session_with_state.setUrl("data:text/html,<h1>Previous Page</h1>");
-    session_with_state.setViewportWidth(1024);
-    session_with_state.setViewportHeight(768);
+    Session session_with_state("complex_session");
+    session_with_state.setCurrentUrl("data:text/html,<h1>Previous Page</h1>");
+    session_with_state.setViewport(1024, 768);
     
     auto nav_plan = navigation_service_->create_navigation_plan(config, session_with_state);
     
@@ -292,10 +334,9 @@ TEST_F(ServiceArchitectureCoordinationTest, NavigationService_ComplexNavigationP
     EXPECT_EQ(browser_->getCurrentUrl(), config.url);
     
     // Verify viewport was restored from session
-    int width, height;
-    browser_->getViewportSize(width, height);
-    EXPECT_EQ(width, 1024);
-    EXPECT_EQ(height, 768);
+    auto viewport = browser_->getViewport();
+    EXPECT_EQ(viewport.first, 1024);
+    EXPECT_EQ(viewport.second, 768);
 }
 
 // ========== Cross-Service Error Handling ==========
@@ -314,7 +355,7 @@ TEST_F(ServiceArchitectureCoordinationTest, CrossService_ErrorPropagation) {
     EXPECT_NO_THROW(session_service_->update_session_state(*browser_, test_session));
     
     // Session should have fallback URL or empty state
-    std::string session_url = test_session.getUrl();
+    std::string session_url = test_session.getCurrentUrl();
     EXPECT_TRUE(session_url.empty() || session_url != "invalid://malformed.url");
 }
 
@@ -331,7 +372,7 @@ TEST_F(ServiceArchitectureCoordinationTest, CrossService_RecoveryMechanisms) {
     browser_ = std::make_unique<Browser>();
     
     // Test service recovery with new browser instance
-    HWebConfig recovery_config;
+    HWeb::HWebConfig recovery_config;
     recovery_config.sessionName = "recovery_test";
     recovery_config.url = ""; // Will use session URL
     
@@ -391,12 +432,17 @@ TEST_F(ServiceArchitectureCoordinationTest, ResourceManagement_ConcurrentAccess)
     
     // Final session state should be consistent
     session_service_->update_session_state(*browser_, concurrent_session);
-    auto final_form_data = concurrent_session.getFormData();
+    auto final_form_fields = concurrent_session.getFormFields();
     
     // Should contain our test data
-    if (final_form_data.find("test_field") != final_form_data.end()) {
-        EXPECT_EQ(final_form_data.at("test_field"), "concurrent_value");
+    bool found_concurrent_value = false;
+    for (const auto& field : final_form_fields) {
+        if ((field.name == "test_field" || field.id == "test-input") && field.value == "concurrent_value") {
+            found_concurrent_value = true;
+            break;
+        }
     }
+    EXPECT_TRUE(found_concurrent_value);
 }
 
 // ========== Service Integration Workflows ==========
@@ -408,7 +454,7 @@ TEST_F(ServiceArchitectureCoordinationTest, ServiceIntegration_CompleteWorkflow)
     Session workflow_session = session_service_->initialize_session("workflow_test");
     
     // Step 2: Plan and execute navigation through NavigationService
-    HWebConfig workflow_config;
+    HWeb::HWebConfig workflow_config;
     workflow_config.url = "data:text/html,<form><input id='workflow-input' value='workflow-data'></form>";
     workflow_config.sessionName = "workflow_test";
     
@@ -422,8 +468,15 @@ TEST_F(ServiceArchitectureCoordinationTest, ServiceIntegration_CompleteWorkflow)
     
     // Step 4: Use ManagerRegistry services for assertions
     auto& assertion_manager = HWeb::ManagerRegistry::get_assertion_manager();
-    assertion_manager.addAssertion("element-value", "#workflow-input", "modified-workflow-data", "equals");
-    bool assertions_passed = assertion_manager.executeAssertions(*browser_);
+    
+    Assertion::Command workflow_cmd;
+    workflow_cmd.type = "element-value";
+    workflow_cmd.selector = "#workflow-input";
+    workflow_cmd.expected_value = "modified-workflow-data";
+    workflow_cmd.op = Assertion::ComparisonOperator::EQUALS;
+    
+    auto assertion_result = assertion_manager.executeAssertion(*browser_, workflow_cmd);
+    bool assertions_passed = (assertion_result == Assertion::Result::PASS);
     EXPECT_TRUE(assertions_passed);
     
     // Step 5: Update and save session through SessionService
@@ -435,10 +488,15 @@ TEST_F(ServiceArchitectureCoordinationTest, ServiceIntegration_CompleteWorkflow)
     auto results = assertion_manager.getResults();
     EXPECT_FALSE(results.empty());
     
-    auto session_form_data = workflow_session.getFormData();
-    if (session_form_data.find("workflow-input") != session_form_data.end()) {
-        EXPECT_EQ(session_form_data.at("workflow-input"), "modified-workflow-data");
+    auto session_form_fields = workflow_session.getFormFields();
+    bool found_workflow_data = false;
+    for (const auto& field : session_form_fields) {
+        if ((field.id == "workflow-input" || field.name == "workflow-input") && field.value == "modified-workflow-data") {
+            found_workflow_data = true;
+            break;
+        }
     }
+    EXPECT_TRUE(found_workflow_data);
 }
 
 TEST_F(ServiceArchitectureCoordinationTest, ServiceIntegration_ErrorRecoveryWorkflow) {
@@ -449,7 +507,7 @@ TEST_F(ServiceArchitectureCoordinationTest, ServiceIntegration_ErrorRecoveryWork
     // Should handle gracefully
     
     // Step 2: Attempt navigation to invalid URL
-    HWebConfig error_config;
+    HWeb::HWebConfig error_config;
     error_config.url = "://invalid-url";
     error_config.sessionName = "error_test";
     
@@ -458,7 +516,7 @@ TEST_F(ServiceArchitectureCoordinationTest, ServiceIntegration_ErrorRecoveryWork
     // Should handle failure gracefully
     
     // Step 3: Attempt recovery with valid configuration
-    HWebConfig recovery_config;
+    HWeb::HWebConfig recovery_config;
     recovery_config.url = "data:text/html,<h1>Recovery Success</h1>";
     recovery_config.sessionName = "recovery_test";
     

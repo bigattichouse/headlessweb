@@ -83,7 +83,7 @@ test_visible_screenshot() {
     
     create_screenshot_test_html
     
-    check_command "./hweb --session 'screenshot_test' --url 'file://$TEST_FILE' --screenshot 'test_visible.png'" "Visible area screenshot"
+    check_command "$HWEB_EXECUTABLE --session 'screenshot_test' --url 'file://$TEST_FILE' --screenshot 'test_visible.png'" "Visible area screenshot"
     
     if [[ -f "test_visible.png" ]]; then
         SIZE=$(stat -f%z "test_visible.png" 2>/dev/null || stat -c%s "test_visible.png" 2>/dev/null || echo "0")
@@ -98,7 +98,7 @@ test_visible_screenshot() {
 test_fullpage_screenshot() {
     echo "=== Test: Full Page Screenshot ==="
     
-    check_command "./hweb --session 'screenshot_test' --screenshot-full 'test_fullpage.png'" "Full page screenshot"
+    check_command "$HWEB_EXECUTABLE --session 'screenshot_test' --screenshot-full 'test_fullpage.png'" "Full page screenshot"
     
     if [[ -f "test_fullpage.png" ]]; then
         SIZE=$(stat -f%z "test_fullpage.png" 2>/dev/null || stat -c%s "test_fullpage.png" 2>/dev/null || echo "0")
@@ -121,7 +121,7 @@ test_fullpage_screenshot() {
 test_default_filename() {
     echo "=== Test: Default Filename Screenshot ==="
     
-    check_command "./hweb --session 'screenshot_test' --screenshot" "Screenshot with default filename"
+    check_command "$HWEB_EXECUTABLE --session 'screenshot_test' --screenshot" "Screenshot with default filename"
     
     if [[ -f "screenshot.png" ]]; then
         echo -e "${GREEN}✓ SUCCESS${NC}: Default screenshot created"
@@ -136,8 +136,8 @@ test_default_filename() {
 test_screenshot_with_scroll() {
     echo "=== Test: Screenshot After Scrolling ==="
     
-    check_command "./hweb --session 'screenshot_test' --js 'window.scrollTo(0, 800); \"scrolled\"'" "Scroll page"
-    check_command "./hweb --session 'screenshot_test' --screenshot 'test_scrolled.png'" "Screenshot after scroll"
+    check_command "$HWEB_EXECUTABLE --session 'screenshot_test' --js 'window.scrollTo(0, 800); \"scrolled\"'" "Scroll page"
+    check_command "$HWEB_EXECUTABLE --session 'screenshot_test' --screenshot 'test_scrolled.png'" "Screenshot after scroll"
     
     if [[ -f "test_scrolled.png" ]]; then
         echo -e "${GREEN}✓ SUCCESS${NC}: Screenshot after scroll created"
@@ -151,7 +151,7 @@ test_screenshot_with_scroll() {
 test_screenshot_command_chain() {
     echo "=== Test: Screenshot in Command Chain ==="
     
-    check_command "./hweb --session 'screenshot_chain' \
+    check_command "$HWEB_EXECUTABLE --session 'screenshot_chain' \
         --url 'file://$TEST_FILE' \
         --wait 'h1' \
         --js 'document.body.style.background = \"lightblue\"' \
@@ -170,7 +170,7 @@ test_screenshot_command_chain() {
 test_remote_screenshot() {
     echo "=== Test: Remote Website Screenshot ==="
     
-    check_command "./hweb --session 'screenshot_remote' --url 'https://example.com' --wait 'h1' --screenshot 'test_remote.png'" "Remote website screenshot"
+    check_command "$HWEB_EXECUTABLE --session 'screenshot_remote' --url 'https://example.com' --wait 'h1' --screenshot 'test_remote.png'" "Remote website screenshot"
     
     if [[ -f "test_remote.png" ]]; then
         echo -e "${GREEN}✓ SUCCESS${NC}: Remote website screenshot created"
@@ -185,7 +185,7 @@ test_screenshot_errors() {
     echo "=== Test: Screenshot Error Handling ==="
     
     # Test invalid path
-    if ./hweb --session 'screenshot_test' --screenshot '/invalid/path/screenshot.png' 2>&1 | grep -q "Error"; then
+    if $HWEB_EXECUTABLE --session 'screenshot_test' --screenshot '/invalid/path/screenshot.png' 2>&1 | grep -q "Error"; then
         echo -e "${GREEN}✓ PASS${NC}: Invalid path error handled correctly"
     else
         echo -e "${RED}✗ FAIL${NC}: Invalid path error not handled properly"
@@ -198,7 +198,7 @@ test_screenshot_subdirectory() {
     echo "=== Test: Screenshot in Subdirectory ==="
     
     mkdir -p screenshots_test
-    check_command "./hweb --session 'screenshot_test' --screenshot 'screenshots_test/test_subdir.png'" "Screenshot in subdirectory"
+    check_command "$HWEB_EXECUTABLE --session 'screenshot_test' --screenshot 'screenshots_test/test_subdir.png'" "Screenshot in subdirectory"
     
     if [[ -f "screenshots_test/test_subdir.png" ]]; then
         echo -e "${GREEN}✓ SUCCESS${NC}: Screenshot in subdirectory created"
@@ -211,9 +211,9 @@ test_screenshot_subdirectory() {
 # Cleanup function
 cleanup_screenshots() {
     echo "=== Screenshot Cleanup ==="
-    ./hweb --session 'screenshot_test' --end >/dev/null 2>&1 || true
-    ./hweb --session 'screenshot_remote' --end >/dev/null 2>&1 || true  
-    ./hweb --session 'screenshot_chain' --end >/dev/null 2>&1 || true
+    $HWEB_EXECUTABLE --session 'screenshot_test' --end >/dev/null 2>&1 || true
+    $HWEB_EXECUTABLE --session 'screenshot_remote' --end >/dev/null 2>&1 || true  
+    $HWEB_EXECUTABLE --session 'screenshot_chain' --end >/dev/null 2>&1 || true
     
     rm -f test_*.png screenshot.png
     rm -rf screenshots_test

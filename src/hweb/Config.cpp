@@ -23,6 +23,8 @@ HWebConfig ConfigParser::parseArguments(const std::vector<std::string>& args) {
             config.endSession = true;
         } else if (args[i] == "--list") {
             config.listSessions = true;
+        } else if (args[i] == "--help" || args[i] == "-h") {
+            config.showHelp = true;
         } else if (args[i] == "--json") {
             config.json_mode = true;
         } else if (args[i] == "--silent") {
@@ -416,6 +418,7 @@ void ConfigParser::print_usage() {
     std::cerr << "  --url <url>          Navigate to URL" << std::endl;
     std::cerr << "  --end                End session" << std::endl;
     std::cerr << "  --list               List all sessions" << std::endl;
+    std::cerr << "  --help, -h           Show this help message" << std::endl;
     std::cerr << "  --debug              Enable debug output" << std::endl;
     std::cerr << "  --user-agent <ua>    Set custom user agent" << std::endl;
     std::cerr << "  --width <px>         Set browser width (default: 1000)" << std::endl;

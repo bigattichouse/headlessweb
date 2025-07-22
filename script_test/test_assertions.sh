@@ -82,29 +82,29 @@ test_element_existence() {
     create_assertion_test_html
     
     # Setup session
-    ./hweb --session 'assertion-test' --url "file://$TEST_FILE" >/dev/null 2>&1
+    $HWEB_EXECUTABLE --session 'assertion-test' --url "file://$TEST_FILE" >/dev/null 2>&1
     
     # Test element exists (should pass)
     run_test "Element Exists - Pass" \
-        "./hweb --session 'assertion-test' --assert-exists 'h1'" \
+        "$HWEB_EXECUTABLE --session 'assertion-test' --assert-exists 'h1'" \
         0 \
         "Existing element assertion"
     
     # Test element exists with explicit true
     run_test "Element Exists - Explicit True" \
-        "./hweb --session 'assertion-test' --assert-exists '.container' true" \
+        "$HWEB_EXECUTABLE --session 'assertion-test' --assert-exists '.container' true" \
         0 \
         "Existing element with explicit true"
     
     # Test element does not exist (should pass)
     run_test "Element Not Exists - Pass" \
-        "./hweb --session 'assertion-test' --assert-exists '.nonexistent' false" \
+        "$HWEB_EXECUTABLE --session 'assertion-test' --assert-exists '.nonexistent' false" \
         0 \
         "Non-existing element assertion"
     
     # Test element exists but expect false (should fail)
     run_test "Element Exists - Expect False (Fail)" \
-        "./hweb --session 'assertion-test' --assert-exists 'h1' false" \
+        "$HWEB_EXECUTABLE --session 'assertion-test' --assert-exists 'h1' false" \
         1 \
         "Existing element expected to not exist"
     
@@ -117,25 +117,25 @@ test_text_assertions() {
     
     # Test exact text match (should pass)
     run_test "Text Match - Exact" \
-        "./hweb --session 'assertion-test' --assert-text 'h1' 'Assertion Test Page'" \
+        "$HWEB_EXECUTABLE --session 'assertion-test' --assert-text 'h1' 'Assertion Test Page'" \
         0 \
         "Exact text match"
     
     # Test text contains (should pass) 
     run_test "Text Match - Contains" \
-        "./hweb --session 'assertion-test' --assert-text '.status' 'contains:Ready'" \
+        "$HWEB_EXECUTABLE --session 'assertion-test' --assert-text '.status' 'contains:Ready'" \
         0 \
         "Text contains match"
     
     # Test text mismatch (should fail)
     run_test "Text Match - Fail" \
-        "./hweb --session 'assertion-test' --assert-text 'h1' 'Wrong Title'" \
+        "$HWEB_EXECUTABLE --session 'assertion-test' --assert-text 'h1' 'Wrong Title'" \
         1 \
         "Text content mismatch"
     
     # Test not equals (should pass)
     run_test "Text Match - Not Equals" \
-        "./hweb --session 'assertion-test' --assert-text '.status' '!=Wrong Text'" \
+        "$HWEB_EXECUTABLE --session 'assertion-test' --assert-text '.status' '!=Wrong Text'" \
         0 \
         "Text not equals match"
     
@@ -148,31 +148,31 @@ test_count_assertions() {
     
     # Test exact count (should pass)
     run_test "Count - Exact Match" \
-        "./hweb --session 'assertion-test' --assert-count '.item' '5'" \
+        "$HWEB_EXECUTABLE --session 'assertion-test' --assert-count '.item' '5'" \
         0 \
         "Exact element count"
     
     # Test greater than (should pass)
     run_test "Count - Greater Than" \
-        "./hweb --session 'assertion-test' --assert-count '.item' '>3'" \
+        "$HWEB_EXECUTABLE --session 'assertion-test' --assert-count '.item' '>3'" \
         0 \
         "Element count greater than"
     
     # Test less than (should pass)
     run_test "Count - Less Than" \
-        "./hweb --session 'assertion-test' --assert-count '.item' '<10'" \
+        "$HWEB_EXECUTABLE --session 'assertion-test' --assert-count '.item' '<10'" \
         0 \
         "Element count less than"
     
     # Test equals zero (should pass)
     run_test "Count - Zero Elements" \
-        "./hweb --session 'assertion-test' --assert-count '.nonexistent' '==0'" \
+        "$HWEB_EXECUTABLE --session 'assertion-test' --assert-count '.nonexistent' '==0'" \
         0 \
         "Zero element count"
     
     # Test count failure (should fail)
     run_test "Count - Fail" \
-        "./hweb --session 'assertion-test' --assert-count '.item' '10'" \
+        "$HWEB_EXECUTABLE --session 'assertion-test' --assert-count '.item' '10'" \
         1 \
         "Incorrect element count"
     
@@ -185,31 +185,31 @@ test_javascript_assertions() {
     
     # Test simple JavaScript boolean (should pass)
     run_test "JS - Simple Boolean True" \
-        "./hweb --session 'assertion-test' --assert-js 'true'" \
+        "$HWEB_EXECUTABLE --session 'assertion-test' --assert-js 'true'" \
         0 \
         "Simple JavaScript true"
     
     # Test JavaScript boolean false (should pass)
     run_test "JS - Simple Boolean False" \
-        "./hweb --session 'assertion-test' --assert-js 'false' false" \
+        "$HWEB_EXECUTABLE --session 'assertion-test' --assert-js 'false' false" \
         0 \
         "Simple JavaScript false"
     
     # Test JavaScript expression (should pass)
     run_test "JS - Expression True" \
-        "./hweb --session 'assertion-test' --assert-js 'document.querySelectorAll(\".item\").length === 5'" \
+        "$HWEB_EXECUTABLE --session 'assertion-test' --assert-js 'document.querySelectorAll(\".item\").length === 5'" \
         0 \
         "JavaScript expression evaluation"
     
     # Test complex JavaScript (should pass)
     run_test "JS - Complex Expression" \
-        "./hweb --session 'assertion-test' --assert-js 'window.testData && window.testData.count > 0'" \
+        "$HWEB_EXECUTABLE --session 'assertion-test' --assert-js 'window.testData && window.testData.count > 0'" \
         0 \
         "Complex JavaScript condition"
     
     # Test JavaScript failure (should fail)
     run_test "JS - Expression False" \
-        "./hweb --session 'assertion-test' --assert-js 'document.querySelectorAll(\".item\").length === 10'" \
+        "$HWEB_EXECUTABLE --session 'assertion-test' --assert-js 'document.querySelectorAll(\".item\").length === 10'" \
         1 \
         "JavaScript expression that evaluates to false"
     
@@ -221,7 +221,7 @@ test_json_output() {
     echo "=== Test: JSON Output Mode ==="
     
     # Test JSON output for passing assertion
-    local output=$(./hweb --session 'assertion-test' --json --assert-exists 'h1' 2>/dev/null)
+    local output=$($HWEB_EXECUTABLE --session 'assertion-test' --json --assert-exists 'h1' 2>/dev/null)
     if echo "$output" | jq -e '.result == "PASS"' >/dev/null 2>&1; then
         echo -e "${GREEN}✓ PASS${NC}: JSON output for passing assertion"
         TESTS_PASSED=$((TESTS_PASSED + 1))
@@ -241,13 +241,13 @@ test_silent_mode() {
     
     # Test silent mode with passing assertion (should produce no output)
     run_test_with_output "Silent - Pass" \
-        "./hweb --session 'assertion-test' --silent --assert-exists 'h1'" \
+        "$HWEB_EXECUTABLE --session 'assertion-test' --silent --assert-exists 'h1'" \
         "" \
         "Silent mode with passing assertion"
     
     # Test silent mode with failing assertion (should produce no output but exit 1)
     run_test "Silent - Fail" \
-        "./hweb --session 'assertion-test' --silent --assert-exists '.nonexistent'" \
+        "$HWEB_EXECUTABLE --session 'assertion-test' --silent --assert-exists '.nonexistent'" \
         1 \
         "Silent mode with failing assertion"
     
@@ -260,13 +260,13 @@ test_custom_features() {
     
     # Test custom message
     run_test_with_output "Custom Message" \
-        "./hweb --session 'assertion-test' --assert-exists 'h1' --message 'Page title should exist'" \
+        "$HWEB_EXECUTABLE --session 'assertion-test' --assert-exists 'h1' --message 'Page title should exist'" \
         "Page title should exist" \
         "Custom assertion message"
     
     # Test timeout (with element that appears dynamically)
     run_test "Timeout - Dynamic Content" \
-        "./hweb --session 'assertion-test' --assert-text '#dynamic-content' 'Dynamic content loaded' --timeout 2000" \
+        "$HWEB_EXECUTABLE --session 'assertion-test' --assert-text '#dynamic-content' 'Dynamic content loaded' --timeout 2000" \
         0 \
         "Assertion with timeout for dynamic content"
     
@@ -279,13 +279,13 @@ test_error_handling() {
     
     # Test invalid selector syntax
     run_test "Error - Invalid Selector" \
-        "./hweb --session 'assertion-test' --assert-exists 'invalid[selector'" \
+        "$HWEB_EXECUTABLE --session 'assertion-test' --assert-exists 'invalid[selector'" \
         2 \
         "Invalid CSS selector handling"
     
     # Test timeout exceeded
     run_test "Error - Timeout" \
-        "./hweb --session 'assertion-test' --assert-exists '.never-appears' --timeout 100" \
+        "$HWEB_EXECUTABLE --session 'assertion-test' --assert-exists '.never-appears' --timeout 100" \
         1 \
         "Assertion timeout handling"
     
@@ -298,13 +298,13 @@ test_edge_cases() {
     
     # Test empty text assertion
     run_test "Edge - Empty Text" \
-        "./hweb --session 'assertion-test' --assert-text '.empty-div' ''" \
+        "$HWEB_EXECUTABLE --session 'assertion-test' --assert-text '.empty-div' ''" \
         0 \
         "Empty text content assertion"
     
     # Test very large numbers
     run_test "Edge - Large Number" \
-        "./hweb --session 'assertion-test' --assert-js '1000000 > 999999'" \
+        "$HWEB_EXECUTABLE --session 'assertion-test' --assert-js '1000000 > 999999'" \
         0 \
         "Large number comparison"
     
@@ -314,7 +314,7 @@ test_edge_cases() {
 # Cleanup function
 cleanup_assertions() {
     echo "=== Assertion Cleanup ==="
-    ./hweb --session 'assertion-test' --end >/dev/null 2>&1 || true
+    $HWEB_EXECUTABLE --session 'assertion-test' --end >/dev/null 2>&1 || true
     rm -f "$TEST_FILE"
     echo "Assertion test files cleaned up"
     echo ""

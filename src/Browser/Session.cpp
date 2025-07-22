@@ -167,7 +167,8 @@ void Browser::updateSessionState(Session& session) {
         // Try a simple JavaScript test first
         std::string testResult = executeJavascriptSync("(function() { try { return 'alive'; } catch(e) { return 'dead'; } })()");
         if (testResult != "alive") {
-            std::cerr << "Warning: JavaScript execution not working, skipping state extraction" << std::endl;
+            std::cerr << "Warning: JavaScript execution not working, but preserving session URL context" << std::endl;
+            // Still update last accessed time and preserve URL context
             session.updateLastAccessed();
             return;
         }

@@ -35,18 +35,39 @@ EOF
     echo "Created navigation test HTML file: $LOCAL_TEST_FILE"
 }
 
+# Test help functionality
+test_help() {
+    echo "=== Test: Help Command ==="
+    
+    check_command "$HWEB_EXECUTABLE --help" "Show help text"
+    
+    # Verify help output contains expected text
+    local help_output
+    help_output=$($HWEB_EXECUTABLE --help 2>&1)
+    
+    verify_contains "$help_output" "Usage:" "Help contains usage information"
+    verify_contains "$help_output" "--session" "Help contains session option"
+    verify_contains "$help_output" "--url" "Help contains url option" 
+    verify_contains "$help_output" "--help" "Help lists help option"
+    
+    # Test short form help
+    check_command "$HWEB_EXECUTABLE -h" "Show help text (short form)"
+    
+    echo ""
+}
+
 # Test basic navigation
 test_basic_navigation() {
     echo "=== Test: Basic Navigation ==="
     
     create_navigation_test_html
     
-    check_command "./hweb --session 'nav_basic' --url 'file://$LOCAL_TEST_FILE'" "Navigate to local file"
+    check_command "$HWEB_EXECUTABLE --session 'nav_basic' --url 'file://$LOCAL_TEST_FILE'" "Navigate to local file"
     
-    DOM_CHECK=$(./hweb --session "nav_basic" --text "#testDiv" 2>/dev/null | tail -n 1)
+    DOM_CHECK=$($HWEB_EXECUTABLE --session "nav_basic" --text "#testDiv" 2>/dev/null | tail -n 1)
     verify_value "$DOM_CHECK" "This is a test div." "Local file DOM access"
     
-    check_command "./hweb --session 'nav_basic' --end" "End basic navigation session"
+    check_command "$HWEB_EXECUTABLE --session 'nav_basic' --end" "End basic navigation session"
     
     rm -f "$LOCAL_TEST_FILE"
     echo ""
@@ -59,26 +80,26 @@ test_session_management() {
     create_navigation_test_html
     
     # Create session with URL
-    check_command "./hweb --session 'nav_session' --url 'file://$LOCAL_TEST_FILE'" "Create session with URL"
+    check_command "$HWEB_EXECUTABLE --session 'nav_session' --url 'file://$LOCAL_TEST_FILE'" "Create session with URL"
     
     # Store some state
-    check_command "./hweb --session 'nav_session' --store 'test_var' 'test_value'" "Store session variable"
+    check_command "$HWEB_EXECUTABLE --session 'nav_session' --store 'test_var' 'test_value'" "Store session variable"
     
     # End session
-    check_command "./hweb --session 'nav_session' --end" "End session"
+    check_command "$HWEB_EXECUTABLE --session 'nav_session' --end" "End session"
     
     # Restore session
-    check_command "./hweb --session 'nav_session'" "Restore session"
+    check_command "$HWEB_EXECUTABLE --session 'nav_session'" "Restore session"
     
     # Verify state restoration
-    RESTORED_VAR=$(./hweb --session "nav_session" --get "test_var" 2>/dev/null | tail -n 1)
+    RESTORED_VAR=$($HWEB_EXECUTABLE --session "nav_session" --get "test_var" 2>/dev/null | tail -n 1)
     verify_value "$RESTORED_VAR" "test_value" "Session state restoration"
     
     # Verify URL restoration
-    RESTORED_URL=$(./hweb --session "nav_session" --js "window.location.href" 2>/dev/null | tail -n 1)
+    RESTORED_URL=$($HWEB_EXECUTABLE --session "nav_session" --js "window.location.href" 2>/dev/null | tail -n 1)
     verify_contains "$RESTORED_URL" "$LOCAL_TEST_FILE" "Session URL restoration"
     
-    check_command "./hweb --session 'nav_session' --end" "Clean up session"
+    check_command "$HWEB_EXECUTABLE --session 'nav_session' --end" "Clean up session"
     
     rm -f "$LOCAL_TEST_FILE"
     echo ""
@@ -89,23 +110,23 @@ test_navigation_commands() {
     echo "=== Test: Navigation Commands (Back/Forward/Reload) ==="
     
     # Test with remote URLs for proper navigation history
-    check_command "./hweb --session 'nav_commands' --url 'https://example.com'" "Navigate to first page"
-    check_command "./hweb --session 'nav_commands' --url 'https://www.iana.org/domains/example'" "Navigate to second page"
+    check_command "$HWEB_EXECUTABLE --session 'nav_commands' --url 'https://example.com'" "Navigate to first page"
+    check_command "$HWEB_EXECUTABLE --session 'nav_commands' --url 'https://www.iana.org/domains/example'" "Navigate to second page"
     
     # Test back navigation
-    check_command "./hweb --session 'nav_commands' --back" "Navigate back"
-    URL_AFTER_BACK=$(./hweb --session "nav_commands" --js "window.location.href" 2>/dev/null | tail -n 1)
+    check_command "$HWEB_EXECUTABLE --session 'nav_commands' --back" "Navigate back"
+    URL_AFTER_BACK=$($HWEB_EXECUTABLE --session "nav_commands" --js "window.location.href" 2>/dev/null | tail -n 1)
     verify_contains "$URL_AFTER_BACK" "example.com" "Back navigation"
     
     # Test forward navigation
-    check_command "./hweb --session 'nav_commands' --forward" "Navigate forward"
-    URL_AFTER_FORWARD=$(./hweb --session "nav_commands" --js "window.location.href" 2>/dev/null | tail -n 1)
+    check_command "$HWEB_EXECUTABLE --session 'nav_commands' --forward" "Navigate forward"
+    URL_AFTER_FORWARD=$($HWEB_EXECUTABLE --session "nav_commands" --js "window.location.href" 2>/dev/null | tail -n 1)
     verify_contains "$URL_AFTER_FORWARD" "iana.org" "Forward navigation"
     
     # Test reload
-    check_command "./hweb --session 'nav_commands' --reload" "Reload page"
+    check_command "$HWEB_EXECUTABLE --session 'nav_commands' --reload" "Reload page"
     
-    check_command "./hweb --session 'nav_commands' --end" "End navigation commands test"
+    check_command "$HWEB_EXECUTABLE --session 'nav_commands' --end" "End navigation commands test"
     echo ""
 }
 
@@ -114,20 +135,20 @@ test_url_validation() {
     echo "=== Test: URL Validation ==="
     
     # Test invalid URL
-    if ./hweb --session "url_error" --url "invalid://url" 2>&1 | grep -q -E "(Failed|Error|Invalid)"; then
+    if $HWEB_EXECUTABLE --session "url_error" --url "invalid://url" 2>&1 | grep -q -E "(Failed|Error|Invalid)"; then
         echo -e "${GREEN}✓ PASS${NC}: Invalid URL handled correctly"
     else
         echo -e "${RED}✗ FAIL${NC}: Invalid URL not handled properly"
     fi
     
     # Test file URL security
-    if ./hweb --session "url_error" --url "file:///etc/passwd" 2>&1 | grep -q -E "(Error|Invalid|unsafe)"; then
+    if $HWEB_EXECUTABLE --session "url_error" --url "file:///etc/passwd" 2>&1 | grep -q -E "(Error|Invalid|unsafe)"; then
         echo -e "${GREEN}✓ PASS${NC}: File URL security check working"
     else
         echo -e "${RED}✗ FAIL${NC}: File URL security check not working"
     fi
     
-    check_command "./hweb --session 'url_error' --end" "Clean up URL error test"
+    check_command "$HWEB_EXECUTABLE --session 'url_error' --end" "Clean up URL error test"
     echo ""
 }
 
@@ -136,6 +157,7 @@ main() {
     echo "=== Navigation Feature Test Suite ==="
     echo ""
     
+    test_help
     test_basic_navigation
     test_session_management  
     test_navigation_commands
