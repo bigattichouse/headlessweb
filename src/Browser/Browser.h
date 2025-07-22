@@ -8,6 +8,8 @@
 #include <set>
 #include <memory>
 #include <vector>
+#include <atomic>
+#include <mutex>
 #include <json/json.h>
 #include <glib.h> // Include glib.h for GMainLoop
 #include <algorithm> // For std::remove_if
@@ -44,6 +46,11 @@ private:
         bool completed;
         guint timeout_id;
     };
+    
+    // Object lifetime and thread safety
+    std::atomic<bool> is_valid;
+    mutable std::mutex signal_mutex;
+    std::vector<gulong> connected_signal_ids;
     
     std::vector<std::unique_ptr<EventWaiter>> active_waiters;
     std::vector<std::unique_ptr<SignalWaiter>> signal_waiters;
@@ -107,11 +114,17 @@ public:
     bool waitForElementWithContent(const std::string& selector, int timeout_ms);
     bool waitForNavigation(int timeout_ms);
     
-    // PUBLIC NOTIFICATION METHODS FOR SIGNAL HANDLERS
+    // Signal connection management
+    void disconnectSignalHandlers();
+    
+    // PUBLIC NOTIFICATION METHODS FOR SIGNAL HANDLERS (thread-safe)
     void notifyNavigationComplete();
     void notifyUriChanged();
     void notifyTitleChanged();
     void notifyReadyToShow();
+    
+    // Object validity checking
+    bool isObjectValid() const;
 
     // ========== DOM Manipulation - BrowserDOM.cpp ==========
     bool fillInput(const std::string& selector, const std::string& value);

@@ -8,7 +8,7 @@
 // External debug flag
 extern bool g_debug;
 
-Browser::Browser() : cookieManager(nullptr), main_loop(g_main_loop_new(NULL, FALSE)) {
+Browser::Browser() : cookieManager(nullptr), main_loop(g_main_loop_new(NULL, FALSE)), is_valid(true) {
     gtk_init();
     
     // Initialize with a proper data manager for cookie/storage persistence
@@ -78,6 +78,12 @@ Browser::Browser() : cookieManager(nullptr), main_loop(g_main_loop_new(NULL, FAL
 }
 
 Browser::~Browser() {
+    // Mark object as invalid to prevent signal handler access
+    is_valid.store(false);
+    
+    // Disconnect all WebKit signals to prevent race conditions
+    disconnectSignalHandlers();
+    
     // Cleanup waiters (implemented in BrowserEvents.cpp)
     cleanupWaiters();
     

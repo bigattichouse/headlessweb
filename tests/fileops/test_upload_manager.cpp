@@ -2,6 +2,7 @@
 #include "FileOps/UploadManager.h"
 #include "../utils/test_helpers.h"
 #include "Browser/Browser.h"
+#include "Debug.h"
 #include <thread>
 #include <chrono>
 
@@ -13,6 +14,9 @@ protected:
         temp_dir = std::make_unique<TestHelpers::TemporaryDirectory>("upload_tests");
         browser = std::make_unique<Browser>();
         manager = std::make_unique<UploadManager>();
+        
+        // Allow browser initialization to complete
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
         
         // Start test server if needed
         server_manager = std::make_unique<TestHelpers::TestServerManager>();
@@ -41,14 +45,21 @@ protected:
         // Load the test server page into the browser
         browser->loadUri(server_url);
         
-        // Wait for page to be ready (longer timeout for network request)
-        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-        
-        // Verify the page loaded correctly
-        std::string title = browser->executeJavascriptSync("document.title");
-        if (title != "Upload Test Server") {
-            GTEST_SKIP() << "Test server page not responding correctly (title: " << title << ")";
+        // Wait for navigation to complete properly
+        bool navigation_success = browser->waitForNavigation(10000); // 10 second timeout
+        if (!navigation_success) {
+            std::string current_url = browser->getCurrentUrl();
+            GTEST_SKIP() << "Navigation timeout - page failed to load (url: '" << current_url << "')";
         }
+        
+        // Verify the page loaded correctly by checking the title
+        std::string title = browser->getPageTitle();
+        if (title != "Upload Test Server") {
+            std::string current_url = browser->getCurrentUrl();
+            GTEST_SKIP() << "Test server page not loaded correctly (url: '" << current_url << "', title: '" << title << "')";
+        }
+        
+        debug_output("Upload test page loaded successfully via test server");
     }
 
     void TearDown() override {
@@ -437,7 +448,7 @@ TEST_F(UploadManagerTest, EndToEndUploadWorkflow) {
     EXPECT_TRUE(selection_ok);
     
     // 5. Verify browser state is consistent
-    std::string page_title = browser->executeJavascriptSync("document.title");
+    std::string page_title = browser->getPageTitle();
     EXPECT_EQ(page_title, "Upload Test Server");
 }
 

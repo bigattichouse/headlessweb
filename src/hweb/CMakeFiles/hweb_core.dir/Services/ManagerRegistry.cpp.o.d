@@ -210,7 +210,9 @@ src/hweb/CMakeFiles/hweb_core.dir/Services/ManagerRegistry.cpp.o: \
  /usr/include/c++/13/bits/stl_algo.h \
  /usr/include/c++/13/bits/algorithmfwd.h \
  /usr/include/c++/13/bits/stl_heap.h \
- /usr/include/c++/13/bits/uniform_int_dist.h /usr/include/glib-2.0/glib.h \
+ /usr/include/c++/13/bits/uniform_int_dist.h /usr/include/c++/13/atomic \
+ /usr/include/c++/13/mutex /usr/include/c++/13/bits/std_mutex.h \
+ /usr/include/c++/13/bits/unique_lock.h /usr/include/glib-2.0/glib.h \
  /usr/include/glib-2.0/glib/galloca.h /usr/include/glib-2.0/glib/gtypes.h \
  /usr/lib/x86_64-linux-gnu/glib-2.0/include/glibconfig.h \
  /usr/include/glib-2.0/glib/gmacros.h \
@@ -339,4 +341,4 @@ src/hweb/CMakeFiles/hweb_core.dir/Services/ManagerRegistry.cpp.o: \
  /usr/include/c++/13/bits/fs_dir.h /usr/include/c++/13/bits/fs_ops.h \
  /home/bigattichouse/workspace/headlessweb/src/hweb/Services/../../FileOps/DownloadManager.h \
  /usr/include/c++/13/thread /usr/include/c++/13/bits/std_thread.h \
- /usr/include/c++/13/bits/this_thread_sleep.h /usr/include/c++/13/atomic
+ /usr/include/c++/13/bits/this_thread_sleep.h

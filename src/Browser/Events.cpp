@@ -69,24 +69,55 @@ void load_changed_callback(WebKitWebView* web_view, WebKitLoadEvent load_event, 
 // ========== Setup and Cleanup Methods ==========
 
 void Browser::setupSignalHandlers() {
+    std::lock_guard<std::mutex> lock(signal_mutex);
+    
+    // Clear any existing signal IDs
+    connected_signal_ids.clear();
+    
     // Navigation events
-    g_signal_connect(webView, "load-changed", 
-                     G_CALLBACK(navigation_complete_handler), this);
+    gulong nav_id = g_signal_connect(webView, "load-changed", 
+                                    G_CALLBACK(navigation_complete_handler), this);
+    connected_signal_ids.push_back(nav_id);
     
     // URI changes (including SPA navigation)
-    g_signal_connect(webView, "notify::uri", 
-                     G_CALLBACK(uri_changed_handler), this);
+    gulong uri_id = g_signal_connect(webView, "notify::uri", 
+                                    G_CALLBACK(uri_changed_handler), this);
+    connected_signal_ids.push_back(uri_id);
     
     // Title changes (often indicates page updates)
-    g_signal_connect(webView, "notify::title", 
-                     G_CALLBACK(title_changed_handler), this);
+    gulong title_id = g_signal_connect(webView, "notify::title", 
+                                      G_CALLBACK(title_changed_handler), this);
+    connected_signal_ids.push_back(title_id);
     
     // Page ready signal
-    g_signal_connect(webView, "ready-to-show", 
-                     G_CALLBACK(ready_to_show_handler), this);
+    gulong ready_id = g_signal_connect(webView, "ready-to-show", 
+                                      G_CALLBACK(ready_to_show_handler), this);
+    connected_signal_ids.push_back(ready_id);
+    
+    debug_output("Connected " + std::to_string(connected_signal_ids.size()) + " signal handlers");
+}
+
+void Browser::disconnectSignalHandlers() {
+    std::lock_guard<std::mutex> lock(signal_mutex);
+    
+    if (!webView) {
+        return;
+    }
+    
+    // Disconnect all stored signal handlers
+    for (gulong signal_id : connected_signal_ids) {
+        if (g_signal_handler_is_connected(webView, signal_id)) {
+            g_signal_handler_disconnect(webView, signal_id);
+        }
+    }
+    
+    debug_output("Disconnected " + std::to_string(connected_signal_ids.size()) + " signal handlers");
+    connected_signal_ids.clear();
 }
 
 void Browser::cleanupWaiters() {
+    std::lock_guard<std::mutex> lock(signal_mutex);
+    
     // Clean up active waiters
     for (auto& waiter : active_waiters) {
         if (waiter->timeout_id != 0) {
@@ -104,47 +135,93 @@ void Browser::cleanupWaiters() {
     signal_waiters.clear();
 }
 
+bool Browser::isObjectValid() const {
+    return is_valid.load();
+}
+
 // ========== Public Notification Methods ==========
 
 void Browser::notifyNavigationComplete() {
+    // Check if object is still valid before accessing members
+    if (!is_valid.load()) {
+        return;
+    }
+    
+    std::lock_guard<std::mutex> lock(signal_mutex);
+    
     for (auto& waiter : signal_waiters) {
-        if (waiter->signal_name == "navigation" && !waiter->completed) {
+        if (waiter && waiter->signal_name == "navigation" && !waiter->completed) {
             waiter->completed = true;
             if (waiter->callback) {
-                waiter->callback();
+                try {
+                    waiter->callback();
+                } catch (const std::exception& e) {
+                    // Log error but don't crash
+                    debug_output("Error in navigation callback: " + std::string(e.what()));
+                }
             }
         }
     }
 }
 
 void Browser::notifyUriChanged() {
+    if (!is_valid.load()) {
+        return;
+    }
+    
+    std::lock_guard<std::mutex> lock(signal_mutex);
+    
     for (auto& waiter : signal_waiters) {
-        if (waiter->signal_name == "uri-change" && !waiter->completed) {
+        if (waiter && waiter->signal_name == "uri-change" && !waiter->completed) {
             waiter->completed = true;
             if (waiter->callback) {
-                waiter->callback();
+                try {
+                    waiter->callback();
+                } catch (const std::exception& e) {
+                    debug_output("Error in URI change callback: " + std::string(e.what()));
+                }
             }
         }
     }
 }
 
 void Browser::notifyTitleChanged() {
+    if (!is_valid.load()) {
+        return;
+    }
+    
+    std::lock_guard<std::mutex> lock(signal_mutex);
+    
     for (auto& waiter : signal_waiters) {
-        if (waiter->signal_name == "title-change" && !waiter->completed) {
+        if (waiter && waiter->signal_name == "title-change" && !waiter->completed) {
             waiter->completed = true;
             if (waiter->callback) {
-                waiter->callback();
+                try {
+                    waiter->callback();
+                } catch (const std::exception& e) {
+                    debug_output("Error in title change callback: " + std::string(e.what()));
+                }
             }
         }
     }
 }
 
 void Browser::notifyReadyToShow() {
+    if (!is_valid.load()) {
+        return;
+    }
+    
+    std::lock_guard<std::mutex> lock(signal_mutex);
+    
     for (auto& waiter : signal_waiters) {
-        if (waiter->signal_name == "ready-to-show" && !waiter->completed) {
+        if (waiter && waiter->signal_name == "ready-to-show" && !waiter->completed) {
             waiter->completed = true;
             if (waiter->callback) {
-                waiter->callback();
+                try {
+                    waiter->callback();
+                } catch (const std::exception& e) {
+                    debug_output("Error in ready to show callback: " + std::string(e.what()));
+                }
             }
         }
     }
