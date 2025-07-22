@@ -1,0 +1,1175 @@
+ ./comprehensive_test.sh 
+========================================
+HeadlessWeb Comprehensive Test Suite
+========================================
+Testing all functionality of hweb
+
+=== Cleanup Phase ===
+Cleaned up session directory and test files
+
+Running individual test modules...
+
+========================================
+Running: test_navigation.sh
+========================================
+=== Navigation Feature Test Suite ===
+
+=== Test: Help Command ===
+Running: ../hweb --help
+Usage: hweb [options] [commands...]
+Options:
+  --session <n>        Use named session (default: 'default')
+  --url <url>          Navigate to URL
+  --end                End session
+  --list               List all sessions
+  --help, -h           Show this help message
+  --debug              Enable debug output
+  --user-agent <ua>    Set custom user agent
+  --width <px>         Set browser width (default: 1000)
+  --json               Enable JSON output mode
+  --silent             Silent mode (exit codes only)
+✓ SUCCESS: Show help text
+
+✓ PASS: Help contains usage information
+  Value contains: 'Usage:'
+
+✓ PASS: Help contains session option
+  Value contains: '--session'
+
+✓ PASS: Help contains url option
+  Value contains: '--url'
+
+✓ PASS: Help lists help option
+  Value contains: '--help'
+
+Running: ../hweb -h
+Usage: hweb [options] [commands...]
+Options:
+  --session <n>        Use named session (default: 'default')
+  --url <url>          Navigate to URL
+  --end                End session
+  --list               List all sessions
+  --help, -h           Show this help message
+  --debug              Enable debug output
+  --user-agent <ua>    Set custom user agent
+  --width <px>         Set browser width (default: 1000)
+  --json               Enable JSON output mode
+  --silent             Silent mode (exit codes only)
+✓ SUCCESS: Show help text (short form)
+
+
+=== Test: Basic Navigation ===
+Created navigation test HTML file: /tmp/hweb_navigation_test.html
+Running: ../hweb --session 'nav_basic' --url 'file:///tmp/hweb_navigation_test.html'
+Navigated to file:///tmp/hweb_navigation_test.html
+Session 'nav_basic' saved.
+✓ SUCCESS: Navigate to local file
+
+✓ PASS: Local file DOM access
+  Value: 'This is a test div.'
+
+Running: ../hweb --session 'nav_basic' --end
+Session 'nav_basic' ended.
+✓ SUCCESS: End basic navigation session
+
+
+=== Test: Session Management ===
+Created navigation test HTML file: /tmp/hweb_navigation_test.html
+Running: ../hweb --session 'nav_session' --url 'file:///tmp/hweb_navigation_test.html'
+Navigated to file:///tmp/hweb_navigation_test.html
+Session 'nav_session' saved.
+✓ SUCCESS: Create session with URL
+
+Running: ../hweb --session 'nav_session' --store 'test_var' 'test_value'
+Restoring session URL: file:///tmp/hweb_navigation_test.html
+Stored variable 'test_var'
+Session 'nav_session' saved.
+✓ SUCCESS: Store session variable
+
+Running: ../hweb --session 'nav_session' --end
+Session 'nav_session' ended.
+✓ SUCCESS: End session
+
+Running: ../hweb --session 'nav_session'
+Restoring session URL: file:///tmp/hweb_navigation_test.html
+Session 'nav_session' saved.
+✓ SUCCESS: Restore session
+
+✓ PASS: Session state restoration
+  Value: 'test_value'
+
+✓ PASS: Session URL restoration
+  Value contains: '/tmp/hweb_navigation_test.html'
+
+Running: ../hweb --session 'nav_session' --end
+Session 'nav_session' ended.
+✓ SUCCESS: Clean up session
+
+
+=== Test: Navigation Commands (Back/Forward/Reload) ===
+Running: ../hweb --session 'nav_commands' --url 'https://example.com'
+Navigated to https://example.com
+Session 'nav_commands' saved.
+✓ SUCCESS: Navigate to first page
+
+Running: ../hweb --session 'nav_commands' --url 'https://www.iana.org/domains/example'
+Navigated to https://www.iana.org/domains/example
+Session 'nav_commands' saved.
+✓ SUCCESS: Navigate to second page
+
+Running: ../hweb --session 'nav_commands' --back
+Restoring session URL: https://www.iana.org/help/example-domains
+Navigating back to: https://example.com
+Navigated back
+Session 'nav_commands' saved.
+✓ SUCCESS: Navigate back
+
+✓ PASS: Back navigation
+  Value contains: 'example.com'
+
+Running: ../hweb --session 'nav_commands' --forward
+Restoring session URL: https://example.com/
+Navigating forward to: https://www.iana.org/domains/example
+Navigated forward
+Session 'nav_commands' saved.
+✓ SUCCESS: Navigate forward
+
+✓ PASS: Forward navigation
+  Value contains: 'iana.org'
+
+Running: ../hweb --session 'nav_commands' --reload
+Restoring session URL: https://www.iana.org/help/example-domains
+Page reloaded
+Session 'nav_commands' saved.
+✓ SUCCESS: Reload page
+
+Running: ../hweb --session 'nav_commands' --end
+Session 'nav_commands' ended.
+✓ SUCCESS: End navigation commands test
+
+
+=== Test: URL Validation ===
+✓ PASS: Invalid URL handled correctly
+✓ PASS: File URL security check working
+Running: ../hweb --session 'url_error' --end
+Session 'url_error' ended.
+✓ SUCCESS: Clean up URL error test
+
+
+=== Navigation Tests Complete ===
+✅ MODULE PASSED: test_navigation.sh
+
+----------------------------------------
+
+========================================
+Running: test_screenshot.sh
+========================================
+=== Screenshot Feature Test Suite ===
+
+=== Test: Visible Area Screenshot ===
+Created screenshot test HTML: /tmp/hweb_screenshot_test.html
+Running: ../hweb --session 'screenshot_test' --url 'file:///tmp/hweb_screenshot_test.html' --screenshot 'test_visible.png'
+Navigated to file:///tmp/hweb_screenshot_test.html
+Screenshot saved: test_visible.png
+Session 'screenshot_test' saved.
+✓ SUCCESS: Visible area screenshot
+
+✓ SUCCESS: Screenshot file created (34464 bytes)
+
+=== Test: Full Page Screenshot ===
+Running: ../hweb --session 'screenshot_test' --screenshot-full 'test_fullpage.png'
+Restoring session URL: file:///tmp/hweb_screenshot_test.html
+Full page screenshot saved: test_fullpage.png
+Session 'screenshot_test' saved.
+✓ SUCCESS: Full page screenshot
+
+✓ SUCCESS: Full page screenshot created (68550 bytes)
+✓ PASS: Full page screenshot is larger than visible area
+
+=== Test: Default Filename Screenshot ===
+Running: ../hweb --session 'screenshot_test' --screenshot
+Restoring session URL: file:///tmp/hweb_screenshot_test.html
+Screenshot saved: screenshot.png
+Session 'screenshot_test' saved.
+✓ SUCCESS: Screenshot with default filename
+
+✓ SUCCESS: Default screenshot created
+
+=== Test: Screenshot After Scrolling ===
+Running: ../hweb --session 'screenshot_test' --js 'window.scrollTo(0, 800); "scrolled"'
+Restoring session URL: file:///tmp/hweb_screenshot_test.html
+scrolled
+Session 'screenshot_test' saved.
+✓ SUCCESS: Scroll page
+
+Running: ../hweb --session 'screenshot_test' --screenshot 'test_scrolled.png'
+Restoring session URL: file:///tmp/hweb_screenshot_test.html
+Screenshot saved: test_scrolled.png
+Session 'screenshot_test' saved.
+✓ SUCCESS: Screenshot after scroll
+
+✓ SUCCESS: Screenshot after scroll created
+
+=== Test: Screenshot in Command Chain ===
+Running: ../hweb --session 'screenshot_chain'         --url 'file:///tmp/hweb_screenshot_test.html'         --wait 'h1'         --js 'document.body.style.background = "lightblue"'         --screenshot 'test_chain.png'         --js 'document.querySelector("h1").innerText'
+Navigated to file:///tmp/hweb_screenshot_test.html
+Element found: h1
+lightblue
+Screenshot saved: test_chain.png
+Screenshot Test Page
+Session 'screenshot_chain' saved.
+✓ SUCCESS: Screenshot in command chain
+
+✓ SUCCESS: Screenshot in command chain created
+
+=== Test: Remote Website Screenshot ===
+Running: ../hweb --session 'screenshot_remote' --url 'https://example.com' --wait 'h1' --screenshot 'test_remote.png'
+Navigated to https://example.com
+Element found: h1
+Screenshot saved: test_remote.png
+Session 'screenshot_remote' saved.
+✓ SUCCESS: Remote website screenshot
+
+✓ SUCCESS: Remote website screenshot created
+
+=== Test: Screenshot Error Handling ===
+✓ PASS: Invalid path error handled correctly
+
+=== Test: Screenshot in Subdirectory ===
+Running: ../hweb --session 'screenshot_test' --screenshot 'screenshots_test/test_subdir.png'
+Restoring session URL: file:///tmp/hweb_screenshot_test.html
+Screenshot saved: screenshots_test/test_subdir.png
+Session 'screenshot_test' saved.
+✓ SUCCESS: Screenshot in subdirectory
+
+✓ SUCCESS: Screenshot in subdirectory created
+
+=== Screenshot Cleanup ===
+Screenshot test files cleaned up
+
+=== Screenshot Tests Complete ===
+
+Screenshot features tested:
+✓ Visible area screenshots
+✓ Full page screenshots
+✓ Default filename handling
+✓ Screenshots with scrolling
+✓ Screenshots in command chains
+✓ Remote website screenshots
+✓ Error handling
+✓ Subdirectory creation
+✅ MODULE PASSED: test_screenshot.sh
+
+----------------------------------------
+
+========================================
+Running: test_assertions.sh
+========================================
+=== Assertion System Test Suite ===
+
+=== Test: Element Existence Assertions ===
+Created assertion test HTML: /tmp/hweb_assertion_test.html
+Test 1: Element Exists - Pass
+Command: ../hweb --session 'assertion-test' --assert-exists 'h1'
+✓ PASS: Existing element assertion (exit code: 0)
+
+Test 2: Element Exists - Explicit True
+Command: ../hweb --session 'assertion-test' --assert-exists '.container' true
+✓ PASS: Existing element with explicit true (exit code: 0)
+
+Test 3: Element Not Exists - Pass
+Command: ../hweb --session 'assertion-test' --assert-exists '.nonexistent' false
+✓ PASS: Non-existing element assertion (exit code: 0)
+
+Test 4: Element Exists - Expect False (Fail)
+Command: ../hweb --session 'assertion-test' --assert-exists 'h1' false
+✓ PASS: Existing element expected to not exist (exit code: 1)
+
+
+=== Test: Text Content Assertions ===
+Test 5: Text Match - Exact
+Command: ../hweb --session 'assertion-test' --assert-text 'h1' 'Assertion Test Page'
+✓ PASS: Exact text match (exit code: 0)
+
+Test 6: Text Match - Contains
+Command: ../hweb --session 'assertion-test' --assert-text '.status' 'contains:Ready'
+✓ PASS: Text contains match (exit code: 0)
+
+Test 7: Text Match - Fail
+Command: ../hweb --session 'assertion-test' --assert-text 'h1' 'Wrong Title'
+✓ PASS: Text content mismatch (exit code: 1)
+
+Test 8: Text Match - Not Equals
+Command: ../hweb --session 'assertion-test' --assert-text '.status' '!=Wrong Text'
+✓ PASS: Text not equals match (exit code: 0)
+
+
+=== Test: Element Count Assertions ===
+Test 9: Count - Exact Match
+Command: ../hweb --session 'assertion-test' --assert-count '.item' '5'
+✓ PASS: Exact element count (exit code: 0)
+
+Test 10: Count - Greater Than
+Command: ../hweb --session 'assertion-test' --assert-count '.item' '>3'
+✓ PASS: Element count greater than (exit code: 0)
+
+Test 11: Count - Less Than
+Command: ../hweb --session 'assertion-test' --assert-count '.item' '<10'
+✓ PASS: Element count less than (exit code: 0)
+
+Test 12: Count - Zero Elements
+Command: ../hweb --session 'assertion-test' --assert-count '.nonexistent' '==0'
+✓ PASS: Zero element count (exit code: 0)
+
+Test 13: Count - Fail
+Command: ../hweb --session 'assertion-test' --assert-count '.item' '10'
+✓ PASS: Incorrect element count (exit code: 1)
+
+
+=== Test: JavaScript Assertions ===
+Test 14: JS - Simple Boolean True
+Command: ../hweb --session 'assertion-test' --assert-js 'true'
+✓ PASS: Simple JavaScript true (exit code: 0)
+
+Test 15: JS - Simple Boolean False
+Command: ../hweb --session 'assertion-test' --assert-js 'false' false
+✓ PASS: Simple JavaScript false (exit code: 0)
+
+Test 16: JS - Expression True
+Command: ../hweb --session 'assertion-test' --assert-js 'document.querySelectorAll(".item").length === 5'
+✓ PASS: JavaScript expression evaluation (exit code: 0)
+
+Test 17: JS - Complex Expression
+Command: ../hweb --session 'assertion-test' --assert-js 'window.testData && window.testData.count > 0'
+✓ PASS: Complex JavaScript condition (exit code: 0)
+
+Test 18: JS - Expression False
+Command: ../hweb --session 'assertion-test' --assert-js 'document.querySelectorAll(".item").length === 10'
+✓ PASS: JavaScript expression that evaluates to false (exit code: 1)
+
+
+=== Test: JSON Output Mode ===
+✓ PASS: JSON output for passing assertion
+
+=== Test: Silent Mode ===
+Test 20: Silent - Pass
+Command: ../hweb --session 'assertion-test' --silent --assert-exists 'h1'
+✓ PASS: Silent mode with passing assertion
+  Output contains: ''
+
+Test 21: Silent - Fail
+Command: ../hweb --session 'assertion-test' --silent --assert-exists '.nonexistent'
+✓ PASS: Silent mode with failing assertion (exit code: 1)
+
+
+=== Test: Custom Messages and Timeouts ===
+Test 22: Custom Message
+Command: ../hweb --session 'assertion-test' --assert-exists 'h1' --message 'Page title should exist'
+✓ PASS: Custom assertion message
+  Output contains: 'Page title should exist'
+
+Test 23: Timeout - Dynamic Content
+Command: ../hweb --session 'assertion-test' --assert-text '#dynamic-content' 'Dynamic content loaded' --timeout 2000
+✓ PASS: Assertion with timeout for dynamic content (exit code: 0)
+
+
+=== Test: Error Handling ===
+Test 24: Error - Invalid Selector
+Command: ../hweb --session 'assertion-test' --assert-exists '::invalid-pseudo'
+✓ PASS: Invalid CSS selector handling (exit code: 2)
+
+Test 25: Error - Timeout
+Command: ../hweb --session 'assertion-test' --assert-exists '.never-appears' --timeout 100
+✓ PASS: Assertion timeout handling (exit code: 1)
+
+
+=== Test: Edge Cases ===
+Test 26: Edge - Empty Text
+Command: ../hweb --session 'assertion-test' --assert-text '.empty-div' ''
+✓ PASS: Empty text content assertion (exit code: 0)
+
+Test 27: Edge - Large Number
+Command: ../hweb --session 'assertion-test' --assert-js '1000000 > 999999'
+✓ PASS: Large number comparison (exit code: 0)
+
+
+=== Assertion Cleanup ===
+Assertion test files cleaned up
+
+=== Assertion System Test Summary ===
+Total Tests Run: 27
+Tests Passed: 27
+Tests Failed: 0
+🎉 ALL TESTS PASSED!
+
+Assertion Features Tested:
+✓ Basic element existence assertions
+✓ Text content matching (exact, contains, not-equals)
+✓ Element counting with comparison operators
+✓ JavaScript expression evaluation
+✓ JSON output mode for tool integration
+✓ Silent mode for scripts and monitoring
+✓ Custom messages and timeout configuration
+✓ Error handling and edge cases
+✅ MODULE PASSED: test_assertions.sh
+
+----------------------------------------
+
+========================================
+Running: test_forms.sh
+========================================
+=== Form Interaction Test Suite ===
+
+=== Test: Basic Form Input ===
+Created form test HTML: /tmp/hweb_form_test.html
+Running: ../hweb --session 'form-test' --type '#username' 'testuser'
+Restoring session URL: file:///tmp/hweb_form_test.html
+Typed text into: #username
+Session 'form-test' saved.
+✓ SUCCESS: Type into text input
+
+✓ PASS: Text input value
+  Value: 'testuser'
+
+Running: ../hweb --session 'form-test' --type '#email' 'test@example.com'
+Restoring session URL: file:///tmp/hweb_form_test.html
+Typed text into: #email
+Session 'form-test' saved.
+✓ SUCCESS: Type into email input
+
+Running: ../hweb --session 'form-test' --type '#password' 'secretpass'
+Restoring session URL: file:///tmp/hweb_form_test.html
+Typed text into: #password
+Session 'form-test' saved.
+✓ SUCCESS: Type into password input
+
+Running: ../hweb --session 'form-test' --type '#comments' 'This is a test comment'
+Restoring session URL: file:///tmp/hweb_form_test.html
+Typed text into: #comments
+Session 'form-test' saved.
+✓ SUCCESS: Type into textarea
+
+
+=== Test: Select Dropdowns ===
+Running: ../hweb --session 'form-test' --select '#country' 'us'
+Restoring session URL: file:///tmp/hweb_form_test.html
+Selected option: us in #country
+Session 'form-test' saved.
+✓ SUCCESS: Select country option
+
+✓ PASS: Country selection value
+  Value: 'us'
+
+Running: ../hweb --session 'form-test' --select '#country' 'ca'
+Restoring session URL: file:///tmp/hweb_form_test.html
+Selected option: ca in #country
+Session 'form-test' saved.
+✓ SUCCESS: Select Canada
+
+✓ PASS: Updated country selection
+  Value: 'ca'
+
+
+=== Test: Checkboxes and Radio Buttons ===
+Running: ../hweb --session 'form-test' --check '#newsletter'
+Restoring session URL: file:///tmp/hweb_form_test.html
+Checked: #newsletter
+Session 'form-test' saved.
+✓ SUCCESS: Check newsletter checkbox
+
+✓ PASS: Newsletter checkbox checked
+  Value: 'true'
+
+Running: ../hweb --session 'form-test' --uncheck '#newsletter'
+Restoring session URL: file:///tmp/hweb_form_test.html
+Unchecked: #newsletter
+Session 'form-test' saved.
+✓ SUCCESS: Uncheck newsletter checkbox
+
+✓ PASS: Newsletter checkbox unchecked
+  Value: 'false'
+
+Running: ../hweb --session 'form-test' --check '#newsletter'
+Restoring session URL: file:///tmp/hweb_form_test.html
+Checked: #newsletter
+Session 'form-test' saved.
+✓ SUCCESS: Check newsletter
+
+Running: ../hweb --session 'form-test' --check '#terms'
+Restoring session URL: file:///tmp/hweb_form_test.html
+Checked: #terms
+Session 'form-test' saved.
+✓ SUCCESS: Check terms
+
+Running: ../hweb --session 'form-test' --click '#male'
+Restoring session URL: file:///tmp/hweb_form_test.html
+Clicked: #male
+Session 'form-test' saved.
+✓ SUCCESS: Select male radio
+
+✓ PASS: Male radio button selected
+  Value: 'true'
+
+
+=== Test: Form Focus and Navigation ===
+Running: ../hweb --session 'form-test' --focus '#email'
+Restoring session URL: file:///tmp/hweb_form_test.html
+Focused: #email
+Session 'form-test' saved.
+✓ SUCCESS: Focus on email field
+
+✓ PASS: Email field focused
+  Value: 'email'
+
+Running: ../hweb --session 'form-test' --focus '#password'
+Restoring session URL: file:///tmp/hweb_form_test.html
+Focused: #password
+Session 'form-test' saved.
+✓ SUCCESS: Focus on password field
+
+
+=== Test: Form Submission ===
+Running: ../hweb --session 'form-test' --type '#username' 'formtester'
+Restoring session URL: file:///tmp/hweb_form_test.html
+Typed text into: #username
+Session 'form-test' saved.
+✓ SUCCESS: Fill username
+
+Running: ../hweb --session 'form-test' --type '#email' 'form@test.com'
+Restoring session URL: file:///tmp/hweb_form_test.html
+Typed text into: #email
+Session 'form-test' saved.
+✓ SUCCESS: Fill email
+
+Running: ../hweb --session 'form-test' --select '#country' 'us'
+Restoring session URL: file:///tmp/hweb_form_test.html
+Selected option: us in #country
+Session 'form-test' saved.
+✓ SUCCESS: Select country
+
+Running: ../hweb --session 'form-test' --check '#terms'
+Restoring session URL: file:///tmp/hweb_form_test.html
+Checked: #terms
+Session 'form-test' saved.
+✓ SUCCESS: Accept terms
+
+Running: ../hweb --session 'form-test' --click '#submit-btn'
+Restoring session URL: file:///tmp/hweb_form_test.html
+Clicked: #submit-btn
+Session 'form-test' saved.
+✓ SUCCESS: Submit form
+
+✗ FAIL: Form submission status
+  Expected: 'Form submitted'
+  Actual: ''
+
+
+=== Test: Form Validation ===
+Running: ../hweb --session 'form-test' --click '#reset-btn'
+Restoring session URL: file:///tmp/hweb_form_test.html
+Clicked: #reset-btn
+Session 'form-test' saved.
+✓ SUCCESS: Reset form
+
+Running: ../hweb --session 'form-test' --click '#submit-btn'
+Restoring session URL: file:///tmp/hweb_form_test.html
+Clicked: #submit-btn
+Session 'form-test' saved.
+✓ SUCCESS: Submit empty form
+
+✗ FAIL: Form validation for empty form
+  Expected: 'Invalid'
+  Actual: ''
+
+Running: ../hweb --session 'form-test' --type '#username' 'validuser'
+Restoring session URL: file:///tmp/hweb_form_test.html
+Typed text into: #username
+Session 'form-test' saved.
+✓ SUCCESS: Fill required username
+
+Running: ../hweb --session 'form-test' --type '#email' 'valid@email.com'
+Restoring session URL: file:///tmp/hweb_form_test.html
+Typed text into: #email
+Session 'form-test' saved.
+✓ SUCCESS: Fill required email
+
+Running: ../hweb --session 'form-test' --click '#submit-btn'
+Restoring session URL: file:///tmp/hweb_form_test.html
+Clicked: #submit-btn
+Session 'form-test' saved.
+✓ SUCCESS: Submit valid form
+
+✗ FAIL: Form validation for valid form
+  Expected: 'Valid'
+  Actual: ''
+
+
+=== Test: Complex Form Interactions ===
+Running: ../hweb --session 'form-chain'         --url 'file:///tmp/hweb_form_test.html'         --type '#username' 'chainuser'         --type '#email' 'chain@test.com'         --select '#country' 'ca'         --check '#newsletter'         --check '#terms'         --click '#male'         --type '#comments' 'Chained form operations test'
+Navigated to file:///tmp/hweb_form_test.html
+Typed text into: #username
+Typed text into: #email
+Selected option: ca in #country
+Checked: #newsletter
+Checked: #terms
+Clicked: #male
+Typed text into: #comments
+Session 'form-chain' saved.
+✓ SUCCESS: Chained form operations
+
+✓ PASS: Chained username
+  Value: 'chainuser'
+
+✓ PASS: Chained country selection
+  Value: 'ca'
+
+✓ PASS: Chained newsletter checkbox
+  Value: 'true'
+
+
+=== Test: Form State Persistence ===
+Running: ../hweb --session 'form-persist'         --url 'file:///tmp/hweb_form_test.html'         --type '#username' 'persistent'         --type '#email' 'persist@test.com'         --select '#country' 'uk'         --check '#terms'
+Navigated to file:///tmp/hweb_form_test.html
+Typed text into: #username
+Typed text into: #email
+Selected option: uk in #country
+Checked: #terms
+Session 'form-persist' saved.
+✓ SUCCESS: Fill form for persistence test
+
+Running: ../hweb --session 'form-persist' --end
+Session 'form-persist' ended.
+✓ SUCCESS: Save form session
+
+Running: ../hweb --session 'form-persist'
+Restoring session URL: file:///tmp/hweb_form_test.html
+Session 'form-persist' saved.
+✓ SUCCESS: Restore form session
+
+✓ PASS: Persistent username
+  Value: 'persistent'
+
+✓ PASS: Persistent country selection
+  Value: 'uk'
+
+✓ PASS: Persistent terms checkbox
+  Value: 'true'
+
+
+=== Test: Form Error Handling ===
+✗ FAIL: Invalid form field selector not handled
+✓ PASS: Invalid select option handled
+
+=== Form Test Cleanup ===
+Form test files cleaned up
+
+=== Form Tests Complete ===
+
+Form Features Tested:
+✓ Basic text input (text, email, password, textarea)
+✓ Select dropdowns (single and multi-select)
+✓ Checkboxes and radio buttons
+✓ Form focus and navigation
+✓ Form submission and validation
+✓ Complex chained form operations
+✓ Form state persistence across sessions
+✓ Error handling for invalid selectors
+✅ MODULE PASSED: test_forms.sh
+
+----------------------------------------
+
+========================================
+Running: test_javascript.sh
+========================================
+=== JavaScript Execution Test Suite ===
+
+=== Test: Basic JavaScript Execution ===
+Created JavaScript test HTML: /tmp/hweb_js_test.html
+Running: ../hweb --session 'js-test' --js '2 + 2'
+Restoring session URL: file:///tmp/hweb_js_test.html
+4
+Session 'js-test' saved.
+✓ SUCCESS: Simple arithmetic
+
+✓ PASS: Arithmetic result
+  Value: '4'
+
+✓ PASS: String concatenation
+  Value: 'Hello World'
+
+✓ PASS: Boolean operation
+  Value: 'false'
+
+
+=== Test: DOM Access and Manipulation ===
+✓ PASS: Document title access
+  Value: 'JavaScript Test Page'
+
+✓ PASS: Element text access
+  Value: 'Original text content'
+
+✓ PASS: Element counting
+  Value: '3'
+
+✓ PASS: DOM modification result
+  Value: 'Modified text'
+
+
+=== Test: Global Object Access ===
+✓ PASS: Window location access
+  Value contains: 'file:'
+
+✓ PASS: Custom global number
+  Value: '42'
+
+✓ PASS: Custom global string
+  Value: 'Hello World'
+
+✓ PASS: Custom global array length
+  Value: '5'
+
+✓ PASS: Custom global object property
+  Value: 'Test Object'
+
+
+=== Test: Function Calls ===
+✓ PASS: Simple function call
+  Value: 'Function called successfully'
+
+✓ PASS: Function with parameters
+  Value: '30'
+
+✓ PASS: Complex calculation function
+  Value: '5050'
+
+✓ PASS: DOM manipulation function
+  Value: 'DOM element created'
+
+✓ PASS: Dynamic element created
+  Value: 'Dynamically created'
+
+
+=== Test: Complex JavaScript Operations ===
+✓ PASS: JSON stringify operation
+  Value contains: 'Test Object'
+
+✓ PASS: Array filter operation
+  Value: '3'
+
+✓ PASS: Complex DOM query
+  Value: '100,200,300'
+
+✓ PASS: Multiple operations in one script
+  Value contains: '4 items'
+
+
+=== Test: Form Data Extraction ===
+✓ PASS: Form username value
+  Value: 'testuser'
+
+✓ PASS: Form email value
+  Value: 'test@example.com'
+
+✓ PASS: Form data extraction function
+  Value contains: 'testuser'
+
+✓ PASS: Form data extraction email
+  Value contains: 'test@example.com'
+
+
+=== Test: Attribute Access ===
+✓ PASS: Data attribute access
+  Value: '123'
+
+✓ PASS: Data name attribute
+  Value: 'test-element'
+
+✓ PASS: Class attribute access
+  Value: 'important'
+
+Running: ../hweb --session 'js-test' --js "document.getElementById('attr-test').setAttribute('data-modified', 'true'); 'Attribute set'"
+Restoring session URL: file:///tmp/hweb_js_test.html
+Attribute set
+Session 'js-test' saved.
+✓ SUCCESS: Set attribute
+
+✓ PASS: Modified attribute value
+  Value: 'true'
+
+
+=== Test: Event Handling ===
+✓ PASS: Event handler result
+  Value: 'Button clicked via JS'
+
+
+=== Test: JavaScript Error Handling ===
+✓ PASS: Syntax error handled correctly
+✓ PASS: Reference error handled correctly
+
+=== Test: JavaScript Return Types ===
+✗ FAIL: Undefined return
+  Expected: 'undefined'
+  Actual: ''
+
+✗ FAIL: Null return
+  Expected: 'null'
+  Actual: ''
+
+✗ FAIL: Number return
+  Expected: '42.5'
+  Actual: '42.500000'
+
+✓ PASS: Boolean true return
+  Value: 'true'
+
+✓ PASS: Boolean false return
+  Value: 'false'
+
+
+=== JavaScript Test Cleanup ===
+JavaScript test files cleaned up
+
+=== JavaScript Tests Complete ===
+
+JavaScript Features Tested:
+✓ Basic JavaScript expression execution
+✓ DOM access and manipulation
+✓ Global object and variable access
+✓ Function calls with parameters
+✓ Complex operations (JSON, arrays, queries)
+✓ Form data extraction
+✓ Attribute access and modification
+✓ Event handling and simulation
+✓ Error handling for invalid JavaScript
+✓ Different return type handling
+✅ MODULE PASSED: test_javascript.sh
+
+----------------------------------------
+
+========================================
+Running: test_sessions.sh
+========================================
+=== Session Management Test Suite ===
+
+=== Test: Session Creation ===
+Created session test HTML: /tmp/hweb_session_test.html
+Running: ../hweb --session 'test_session_1' --url 'file:///tmp/hweb_session_test.html'
+Navigated to file:///tmp/hweb_session_test.html
+Session 'test_session_1' saved.
+✓ SUCCESS: Create session with URL
+
+✓ PASS: Session page access
+  Value: 'Session Test Page'
+
+Running: ../hweb --session 'test_session_1' --store 'test_key' 'test_value'
+Restoring session URL: file:///tmp/hweb_session_test.html
+Stored variable 'test_key'
+Session 'test_session_1' saved.
+✓ SUCCESS: Store data in session
+
+✓ PASS: Session data storage
+  Value: 'test_value'
+
+
+=== Test: Session Persistence ===
+Running: ../hweb --session 'test_session_1' --type '#persistent-input' 'modified_value'
+Restoring session URL: file:///tmp/hweb_session_test.html
+Typed text into: #persistent-input
+Session 'test_session_1' saved.
+✓ SUCCESS: Modify input field
+
+Running: ../hweb --session 'test_session_1' --type '#persistent-textarea' 'modified textarea'
+Restoring session URL: file:///tmp/hweb_session_test.html
+Typed text into: #persistent-textarea
+Session 'test_session_1' saved.
+✓ SUCCESS: Modify textarea
+
+Running: ../hweb --session 'test_session_1' --select '#persistent-select' 'option3'
+Restoring session URL: file:///tmp/hweb_session_test.html
+Selected option: option3 in #persistent-select
+Session 'test_session_1' saved.
+✓ SUCCESS: Modify select
+
+Running: ../hweb --session 'test_session_1' --uncheck '#persistent-checkbox'
+Restoring session URL: file:///tmp/hweb_session_test.html
+Unchecked: #persistent-checkbox
+Session 'test_session_1' saved.
+✓ SUCCESS: Uncheck checkbox
+
+Running: ../hweb --session 'test_session_1' --js 'window.scrollTo(0, 1000); "scrolled"'
+Restoring session URL: file:///tmp/hweb_session_test.html
+scrolled
+Session 'test_session_1' saved.
+✓ SUCCESS: Set scroll position
+
+Running: ../hweb --session 'test_session_1' --js 'localStorage.setItem("session_persistent", "persistent_data"); "localStorage set"'
+Restoring session URL: file:///tmp/hweb_session_test.html
+localStorage set
+Session 'test_session_1' saved.
+✓ SUCCESS: Set localStorage
+
+Running: ../hweb --session 'test_session_1' --js 'document.cookie = "session_test=persistent_cookie; path=/"; "cookie set"'
+Restoring session URL: file:///tmp/hweb_session_test.html
+cookie set
+Session 'test_session_1' saved.
+✓ SUCCESS: Set cookie
+
+Running: ../hweb --session 'test_session_1' --end
+Session 'test_session_1' ended.
+✓ SUCCESS: End session to save state
+
+
+=== Test: Session Restoration ===
+Running: ../hweb --session 'test_session_1'
+Restoring session URL: file:///tmp/hweb_session_test.html
+Session 'test_session_1' saved.
+✓ SUCCESS: Restore session
+
+✓ PASS: URL restoration
+  Value contains: '/tmp/hweb_session_test.html'
+
+✓ PASS: Input field restoration
+  Value: 'modified_value'
+
+✓ PASS: Textarea restoration
+  Value: 'modified textarea'
+
+✓ PASS: Select restoration
+  Value: 'option3'
+
+✓ PASS: Checkbox restoration
+  Value: 'false'
+
+✓ PASS: localStorage restoration
+  Value: 'persistent_data'
+
+✓ PASS: Cookie restoration
+  Value: 'true'
+
+✓ PASS: Scroll position restored (1000 > 900)
+✓ PASS: Custom session data restoration
+  Value: 'test_value'
+
+
+=== Test: Session Isolation ===
+Running: ../hweb --session 'session_a' --url 'file:///tmp/hweb_session_test.html' --store 'session_name' 'session_a'
+Navigated to file:///tmp/hweb_session_test.html
+Stored variable 'session_name'
+Session 'session_a' saved.
+✓ SUCCESS: Create session A
+
+Running: ../hweb --session 'session_b' --url 'file:///tmp/hweb_session_test.html' --store 'session_name' 'session_b'
+Navigated to file:///tmp/hweb_session_test.html
+Stored variable 'session_name'
+Session 'session_b' saved.
+✓ SUCCESS: Create session B
+
+Running: ../hweb --session 'session_c' --url 'file:///tmp/hweb_session_test.html' --store 'session_name' 'session_c'
+Navigated to file:///tmp/hweb_session_test.html
+Stored variable 'session_name'
+Session 'session_c' saved.
+✓ SUCCESS: Create session C
+
+Running: ../hweb --session 'session_a' --type '#persistent-input' 'value_a'
+Restoring session URL: file:///tmp/hweb_session_test.html
+Typed text into: #persistent-input
+Session 'session_a' saved.
+✓ SUCCESS: Set unique data in session A
+
+Running: ../hweb --session 'session_b' --type '#persistent-input' 'value_b'
+Restoring session URL: file:///tmp/hweb_session_test.html
+Typed text into: #persistent-input
+Session 'session_b' saved.
+✓ SUCCESS: Set unique data in session B
+
+Running: ../hweb --session 'session_c' --type '#persistent-input' 'value_c'
+Restoring session URL: file:///tmp/hweb_session_test.html
+Typed text into: #persistent-input
+Session 'session_c' saved.
+✓ SUCCESS: Set unique data in session C
+
+Running: ../hweb --session 'session_a' --js 'localStorage.setItem("unique", "data_a"); "set"'
+Restoring session URL: file:///tmp/hweb_session_test.html
+set
+Session 'session_a' saved.
+✓ SUCCESS: Set localStorage in session A
+
+Running: ../hweb --session 'session_b' --js 'localStorage.setItem("unique", "data_b"); "set"'
+Restoring session URL: file:///tmp/hweb_session_test.html
+set
+Session 'session_b' saved.
+✓ SUCCESS: Set localStorage in session B
+
+Running: ../hweb --session 'session_c' --js 'localStorage.setItem("unique", "data_c"); "set"'
+Restoring session URL: file:///tmp/hweb_session_test.html
+set
+Session 'session_c' saved.
+✓ SUCCESS: Set localStorage in session C
+
+✓ PASS: Session A isolation
+  Value: 'session_a'
+
+✓ PASS: Session B isolation
+  Value: 'session_b'
+
+✓ PASS: Session C isolation
+  Value: 'session_c'
+
+✓ PASS: Form field isolation A
+  Value: 'value_a'
+
+✓ PASS: Form field isolation B
+  Value: 'value_b'
+
+✓ PASS: Form field isolation C
+  Value: 'value_c'
+
+✗ FAIL: localStorage isolation A
+  Expected: 'data_a'
+  Actual: 'data_c'
+
+✗ FAIL: localStorage isolation B
+  Expected: 'data_b'
+  Actual: 'data_c'
+
+✓ PASS: localStorage isolation C
+  Value: 'data_c'
+
+
+=== Test: Session Listing ===
+Current sessions:
+Active sessions:
+  form-chain - file:///tmp/hweb_form_test.html (3K, 7 min ago)
+  session_a - file:///tmp/hweb_session_test.html (1K, 11 sec ago)
+  test_session_1 - file:///tmp/hweb_session_test.html (2K, 1 min ago)
+  form-persist - file:///tmp/hweb_form_test.html (3K, 7 min ago)
+  screenshot_chain - file:///tmp/hweb_screenshot_test.html (954B, 18 min ago)
+  session_c - file:///tmp/hweb_session_test.html (1K, 0 sec ago)
+  nav_commands - https://www.iana.org/help/example-domains (1K, 19 min ago)
+  form-test - file:///tmp/hweb_form_test.html (3K, 7 min ago)
+  nav_session - file:///tmp/hweb_navigation_test.html (843B, 19 min ago)
+  nav_basic - file:///tmp/hweb_navigation_test.html (805B, 19 min ago)
+  assertion-test - file:///tmp/hweb_assertion_test.html (1K, 15 min ago)
+  js-test - file:///tmp/hweb_js_test.html (1K, 3 min ago)
+  url_error -  (711B, 19 min ago)
+  screenshot_remote - https://example.com/ (1K, 18 min ago)
+  session_b - file:///tmp/hweb_session_test.html (1K, 6 sec ago)
+  screenshot_test - file:///tmp/hweb_screenshot_test.html (955B, 18 min ago)
+✗ FAIL: Session A not found in list
+✗ FAIL: Session B not found in list
+
+=== Test: Session Continuation ===
+Running: ../hweb --session 'continuation_test' --url 'file:///tmp/hweb_session_test.html'
+Navigated to file:///tmp/hweb_session_test.html
+Session 'continuation_test' saved.
+✓ SUCCESS: Start continuation test session
+
+Running: ../hweb --session 'continuation_test' --type '#persistent-input' 'continued_session'
+Restoring session URL: file:///tmp/hweb_session_test.html
+Typed text into: #persistent-input
+Session 'continuation_test' saved.
+✓ SUCCESS: Continue session without URL
+
+✓ PASS: Session continuation
+  Value: 'continued_session'
+
+Running: ../hweb --session 'continuation_test'         --type '#persistent-textarea' 'chained operation'         --select '#persistent-select' 'option1'         --js 'document.title'
+Restoring session URL: file:///tmp/hweb_session_test.html
+Typed text into: #persistent-textarea
+Selected option: option1 in #persistent-select
+Session Test Page
+Session 'continuation_test' saved.
+✓ SUCCESS: Chained commands in continued session
+
+
+=== Test: Session Cleanup ===
+Running: ../hweb --session 'session_a' --end
+Session 'session_a' ended.
+✓ SUCCESS: End session A
+
+Running: ../hweb --session 'session_b' --end
+Session 'session_b' ended.
+✓ SUCCESS: End session B
+
+Running: ../hweb --session 'session_c' --end
+Session 'session_c' ended.
+✓ SUCCESS: End session C
+
+Running: ../hweb --session 'continuation_test' --end
+Session 'continuation_test' ended.
+✓ SUCCESS: End continuation test session
+
+✓ PASS: Session A removed from list
+
+=== Test: Session Error Handling ===
+✓ PASS: Non-existent session data handling
+  Value: ''
+
+✓ PASS: Invalid session name handled (if restricted)
+
+=== Test: Session URL Changes ===
+Running: ../hweb --session 'url_change_test' --url 'file:///tmp/hweb_session_test.html'
+Navigated to file:///tmp/hweb_session_test.html
+Session 'url_change_test' saved.
+✓ SUCCESS: Create session with initial URL
+
+Running: ../hweb --session 'url_change_test' --store 'initial_page' 'test_file'
+Restoring session URL: file:///tmp/hweb_session_test.html
+Stored variable 'initial_page'
+Session 'url_change_test' saved.
+✓ SUCCESS: Store data for initial page
+
+Running: ../hweb --session 'url_change_test' --url 'https://example.com' --store 'second_page' 'example_com'
+Navigated to https://example.com
+Stored variable 'second_page'
+Session 'url_change_test' saved.
+✓ SUCCESS: Navigate to different URL
+
+✓ PASS: Initial page data persistence
+  Value: 'test_file'
+
+✓ PASS: Second page data persistence
+  Value: 'example_com'
+
+
+=== Session Test Cleanup ===
+Session test cleanup completed
+
+=== Session Tests Complete ===
+
+Session Features Tested:
+✓ Session creation with URL and data storage
+✓ Session persistence (forms, localStorage, cookies, scroll)
+✓ Session restoration after restart
+✓ Session isolation between multiple sessions
+✓ Session listing and management
+✓ Session continuation without re-specifying URL
+✓ Session cleanup and removal
+✓ Error handling for invalid operations
+✓ Session data persistence across URL changes
+✅ MODULE PASSED: test_sessions.sh
+
+----------------------------------------
+
+=== Cleanup Phase ===
+Cleaned up session directory and test files
+
+========================================
+COMPREHENSIVE TEST RESULTS
+========================================
+Total Test Modules: 6
+Modules Passed: 6
+Modules Failed: 0
+
+🎉 ALL TESTS PASSED!
+
+HeadlessWeb is functioning correctly across all tested features:
+✅ Navigation and session management
+✅ Screenshot functionality
+✅ Assertion system
+✅ Form interactions
+✅ JavaScript execution
+✅ Session persistence and isolation
+
+The application is ready for production use!
+
