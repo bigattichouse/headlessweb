@@ -22,3 +22,11 @@ Testing/
 *~
 .bak
 .swp
+
+# CMake generated files
+**/CMakeFiles/
+**/cmake_install.cmake
+**/CTestTestfile.cmake
+**/Makefile
+**/hweb_tests[1]_include.cmake
+**/hweb_tests[1]_tests.cmake
