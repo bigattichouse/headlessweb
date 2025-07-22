@@ -436,6 +436,9 @@ std::string Manager::extractOperatorFromValue(const std::string& value, Comparis
         } else if (prefix == "~=") {
             op = ComparisonOperator::REGEX_MATCH;
             return value.substr(2);
+        } else if (prefix == "==") {
+            op = ComparisonOperator::EQUALS;
+            return value.substr(2);
         }
     }
     

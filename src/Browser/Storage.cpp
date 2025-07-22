@@ -209,3 +209,18 @@ void Browser::setSessionStorage(const std::map<std::string, std::string>& storag
         executeJavascriptSync(js);
     }
 }
+
+// ========== Storage Clearing Methods ==========
+
+void Browser::clearLocalStorage() {
+    executeJavascriptSync("try { localStorage.clear(); } catch(e) { 'localStorage clear error'; }");
+}
+
+void Browser::clearSessionStorage() {
+    executeJavascriptSync("try { sessionStorage.clear(); } catch(e) { 'sessionStorage clear error'; }");
+}
+
+void Browser::clearAllStorage() {
+    clearLocalStorage();
+    clearSessionStorage();
+}

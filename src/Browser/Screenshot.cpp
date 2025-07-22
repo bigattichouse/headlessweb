@@ -1,4 +1,5 @@
 #include "Browser.h"
+#include "../FileOps/PathUtils.h"
 #include <gtk/gtk.h>
 #include <webkit/webkit.h>
 #include <gdk/gdk.h>
@@ -94,6 +95,19 @@ void screenshot_callback(GObject* source_object, GAsyncResult* res, gpointer use
 void Browser::takeScreenshot(const std::string& filename) {
     debug_output("Starting headless visible area screenshot: " + filename);
     
+    // Validate screenshot path
+    if (!FileOps::PathUtils::isSecurePath(filename)) {
+        std::cerr << "Error: Invalid or insecure screenshot path: " + filename << std::endl;
+        return;
+    }
+    
+    // Create directory if needed
+    std::string directory = FileOps::PathUtils::getDirectory(filename);
+    if (!directory.empty() && !FileOps::PathUtils::createDirectoriesIfNeeded(directory)) {
+        std::cerr << "Error: Cannot create directory for screenshot: " + directory << std::endl;
+        return;
+    }
+    
     // Ensure proper offscreen viewport and rendering
     ensureProperViewportForScreenshots();
     
@@ -132,6 +146,19 @@ void Browser::takeScreenshot(const std::string& filename) {
 
 void Browser::takeFullPageScreenshot(const std::string& filename) {
     debug_output("Starting headless full page screenshot: " + filename);
+    
+    // Validate screenshot path
+    if (!FileOps::PathUtils::isSecurePath(filename)) {
+        std::cerr << "Error: Invalid or insecure screenshot path: " + filename << std::endl;
+        return;
+    }
+    
+    // Create directory if needed
+    std::string directory = FileOps::PathUtils::getDirectory(filename);
+    if (!directory.empty() && !FileOps::PathUtils::createDirectoriesIfNeeded(directory)) {
+        std::cerr << "Error: Cannot create directory for screenshot: " + directory << std::endl;
+        return;
+    }
     
     // Ensure proper offscreen viewport and rendering
     ensureProperViewportForScreenshots();

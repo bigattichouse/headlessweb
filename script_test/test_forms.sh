@@ -263,7 +263,7 @@ test_form_submission() {
     check_command "$HWEB_EXECUTABLE --session 'form-test' --click '#submit-btn'" "Submit form"
     
     # Check form submission result (our test page prevents actual submission)
-    FORM_STATUS=$($HWEB_EXECUTABLE --session "form-test" --text "#form-status" 2>/dev/null | tail -n 1)
+    FORM_STATUS=$($HWEB_EXECUTABLE --session "form-test" --js "document.getElementById('form-status').innerText" 2>/dev/null | tail -n 1)
     verify_value "$FORM_STATUS" "Form submitted" "Form submission status"
     
     echo ""
@@ -279,7 +279,7 @@ test_form_validation() {
     # Submit empty form (should trigger validation)
     check_command "$HWEB_EXECUTABLE --session 'form-test' --click '#submit-btn'" "Submit empty form"
     
-    VALIDATION_RESULT=$($HWEB_EXECUTABLE --session "form-test" --text "#validation-result" 2>/dev/null | tail -n 1)
+    VALIDATION_RESULT=$($HWEB_EXECUTABLE --session "form-test" --js "document.getElementById('validation-result').innerText" 2>/dev/null | tail -n 1)
     verify_value "$VALIDATION_RESULT" "Invalid" "Form validation for empty form"
     
     # Fill required fields and test again
@@ -287,7 +287,7 @@ test_form_validation() {
     check_command "$HWEB_EXECUTABLE --session 'form-test' --type '#email' 'valid@email.com'" "Fill required email"
     check_command "$HWEB_EXECUTABLE --session 'form-test' --click '#submit-btn'" "Submit valid form"
     
-    VALID_RESULT=$($HWEB_EXECUTABLE --session "form-test" --text "#validation-result" 2>/dev/null | tail -n 1)
+    VALID_RESULT=$($HWEB_EXECUTABLE --session "form-test" --js "document.getElementById('validation-result').innerText" 2>/dev/null | tail -n 1)
     verify_value "$VALID_RESULT" "Valid" "Form validation for valid form"
     
     echo ""

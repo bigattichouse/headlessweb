@@ -350,11 +350,17 @@ bool Browser::elementExists(const std::string& selector) {
         "  try { "
         "    return document.querySelector('" + selector + "') !== null; "
         "  } catch(e) { "
-        "    return false; "
+        "    return 'SELECTOR_ERROR:' + e.message; "
         "  } "
         "})()";
     
     std::string result = executeJavascriptSync(js_script);
+    
+    // Check if we got a selector error
+    if (result.find("SELECTOR_ERROR:") == 0) {
+        throw std::runtime_error("Invalid CSS selector: " + selector + " (" + result.substr(15) + ")");
+    }
+    
     return result == "true";
 }
 
@@ -364,11 +370,17 @@ int Browser::countElements(const std::string& selector) {
         "  try { "
         "    return document.querySelectorAll('" + selector + "').length; "
         "  } catch(e) { "
-        "    return 0; "
+        "    return 'SELECTOR_ERROR:' + e.message; "
         "  } "
         "})()";
     
     std::string result = executeJavascriptSync(js_script);
+    
+    // Check if we got a selector error
+    if (result.find("SELECTOR_ERROR:") == 0) {
+        throw std::runtime_error("Invalid CSS selector: " + selector + " (" + result.substr(15) + ")");
+    }
+    
     try {
         return std::stoi(result);
     } catch (...) {

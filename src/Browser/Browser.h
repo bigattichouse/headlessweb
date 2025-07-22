@@ -142,6 +142,10 @@ public:
     void setLocalStorage(const std::map<std::string, std::string>& storage);
     std::map<std::string, std::string> getSessionStorage();
     void setSessionStorage(const std::map<std::string, std::string>& storage);
+    
+    void clearLocalStorage();
+    void clearSessionStorage();
+    void clearAllStorage();
 
     // ========== Session Management - BrowserSession.cpp ==========
     void restoreSession(const Session& session);

@@ -170,10 +170,8 @@ test_dom_access() {
     ITEM_COUNT=$($HWEB_EXECUTABLE --session "js-test" --js "document.querySelectorAll('.test-item').length" 2>/dev/null | tail -n 1)
     verify_value "$ITEM_COUNT" "3" "Element counting"
     
-    # Test DOM manipulation
-    check_command "$HWEB_EXECUTABLE --session 'js-test' --js \"document.getElementById('test-paragraph').innerText = 'Modified text'; 'Text modified'\"" "DOM text modification"
-    
-    MODIFIED_TEXT=$($HWEB_EXECUTABLE --session "js-test" --js "document.getElementById('test-paragraph').innerText" 2>/dev/null | tail -n 1)
+    # Test DOM manipulation (modify and verify in one command to avoid session restoration)
+    MODIFIED_TEXT=$($HWEB_EXECUTABLE --session "js-test" --js "document.getElementById('test-paragraph').innerText = 'Modified text'; document.getElementById('test-paragraph').innerText" 2>/dev/null | tail -n 1)
     verify_value "$MODIFIED_TEXT" "Modified text" "DOM modification result"
     
     echo ""
@@ -223,8 +221,8 @@ test_function_calls() {
     DOM_FUNC_RESULT=$($HWEB_EXECUTABLE --session "js-test" --js "window.testFunctions.manipulateDOM()" 2>/dev/null | tail -n 1)
     verify_value "$DOM_FUNC_RESULT" "DOM element created" "DOM manipulation function"
     
-    # Verify the DOM was actually modified
-    DYNAMIC_ELEMENT=$($HWEB_EXECUTABLE --session "js-test" --js "document.getElementById('dynamic-element').innerText" 2>/dev/null | tail -n 1)
+    # Verify the DOM was actually modified (create and verify in one command)  
+    DYNAMIC_ELEMENT=$($HWEB_EXECUTABLE --session "js-test" --js "window.testFunctions.manipulateDOM(); document.getElementById('dynamic-element').innerText" 2>/dev/null | tail -n 1)
     verify_value "$DYNAMIC_ELEMENT" "Dynamically created" "Dynamic element created"
     
     echo ""
@@ -304,11 +302,8 @@ test_attribute_access() {
 test_event_handling() {
     echo "=== Test: Event Handling ==="
     
-    # Test click event simulation
-    check_command "$HWEB_EXECUTABLE --session 'js-test' --js \"document.getElementById('js-trigger').click(); 'Click simulated'\"" "Simulate click event"
-    
-    # Check if event handler fired
-    CLICK_RESULT=$($HWEB_EXECUTABLE --session "js-test" --js "document.getElementById('click-result').innerText" 2>/dev/null | tail -n 1)
+    # Test click event simulation (simulate and verify in one command)
+    CLICK_RESULT=$($HWEB_EXECUTABLE --session "js-test" --js "document.getElementById('js-trigger').click(); document.getElementById('click-result').innerText" 2>/dev/null | tail -n 1)  
     verify_value "$CLICK_RESULT" "Button clicked via JS" "Event handler result"
     
     echo ""

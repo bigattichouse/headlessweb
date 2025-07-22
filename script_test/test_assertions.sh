@@ -279,7 +279,7 @@ test_error_handling() {
     
     # Test invalid selector syntax
     run_test "Error - Invalid Selector" \
-        "$HWEB_EXECUTABLE --session 'assertion-test' --assert-exists 'invalid[selector'" \
+        "$HWEB_EXECUTABLE --session 'assertion-test' --assert-exists '::invalid-pseudo'" \
         2 \
         "Invalid CSS selector handling"
     

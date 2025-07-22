@@ -69,6 +69,10 @@ void Browser::restoreSession(const Session& session) {
         // Storage - skip for file:// URLs due to security restrictions
         if (!isFileUrl) {
             try {
+                // Clear existing storage to ensure session isolation
+                clearAllStorage();
+                debug_output("Cleared existing storage for session isolation");
+                
                 if (!session.getLocalStorage().empty()) {
                     setLocalStorage(session.getLocalStorage());
                     wait(500);

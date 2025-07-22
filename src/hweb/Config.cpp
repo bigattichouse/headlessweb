@@ -39,7 +39,7 @@ HWebConfig ConfigParser::parseArguments(const std::vector<std::string>& args) {
             parse_test_suite_command(args, i, config);
         }
         // Assertion Commands
-        else if (args[i].substr(0, 8) == "--assert") {
+        else if (args[i].substr(0, 8) == "--assert" || args[i] == "--message" || args[i] == "--timeout") {
             parse_assertion_command(args, i, config, current_assertion, has_pending_assertion);
         }
         // File Operation Commands  
