@@ -7,6 +7,8 @@
 #include <functional>
 #include <vector>
 #include <cstdint>
+#include <unistd.h>
+#include <sys/wait.h>
 
 namespace TestHelpers {
 
@@ -26,6 +28,27 @@ bool waitForFileExists(const std::filesystem::path& filepath,
 bool waitForFileSize(const std::filesystem::path& filepath,
                     size_t expected_size,
                     std::chrono::milliseconds timeout = std::chrono::milliseconds(5000));
+
+// Test server management
+class TestServerManager {
+public:
+    TestServerManager(const std::string& server_url = "http://localhost:9876", 
+                     const std::string& server_script_path = "../test_server/start_test_server.sh");
+    ~TestServerManager();
+    
+    bool isServerRunning();
+    bool startServer();
+    void stopServer();
+    std::string getServerUrl() const { return server_url_; }
+
+private:
+    std::string server_url_;
+    std::string server_script_path_;
+    pid_t server_pid_;
+    bool server_started_by_us_;
+    
+    bool checkServerHealth();
+};
 
 // Random data generation
 std::string generateRandomString(size_t length);

@@ -2,6 +2,9 @@
 #include <fstream>
 #include <random>
 #include <chrono>
+#include <iostream>
+#include <cstdlib>
+#include <signal.h>
 
 namespace TestHelpers {
 
@@ -216,6 +219,97 @@ std::chrono::milliseconds Timer::elapsed() const {
 
 bool Timer::hasElapsed(std::chrono::milliseconds duration) const {
     return elapsed() >= duration;
+}
+
+// ========== Test Server Management ==========
+
+TestServerManager::TestServerManager(const std::string& server_url, const std::string& server_script_path)
+    : server_url_(server_url), server_script_path_(server_script_path), server_pid_(-1), server_started_by_us_(false) {
+}
+
+TestServerManager::~TestServerManager() {
+    if (server_started_by_us_) {
+        stopServer();
+    }
+}
+
+bool TestServerManager::isServerRunning() {
+    return checkServerHealth();
+}
+
+bool TestServerManager::startServer() {
+    // Check if server is already running
+    if (isServerRunning()) {
+        return true; // Server already running
+    }
+    
+    // Get the absolute path to the script
+    std::filesystem::path script_path = std::filesystem::absolute(server_script_path_);
+    if (!std::filesystem::exists(script_path)) {
+        std::cerr << "Test server script not found: " << script_path << std::endl;
+        return false;
+    }
+    
+    // Fork a child process to run the server
+    server_pid_ = fork();
+    if (server_pid_ == -1) {
+        std::cerr << "Failed to fork process for test server" << std::endl;
+        return false;
+    }
+    
+    if (server_pid_ == 0) {
+        // Child process: execute the server script
+        std::string script_dir = script_path.parent_path().string();
+        chdir(script_dir.c_str());
+        
+        // Redirect stdout/stderr to avoid cluttering test output
+        freopen("/dev/null", "w", stdout);
+        freopen("/dev/null", "w", stderr);
+        
+        execl("/bin/bash", "bash", script_path.filename().c_str(), nullptr);
+        exit(1); // If execl fails
+    }
+    
+    // Parent process: wait for server to be ready
+    server_started_by_us_ = true;
+    
+    // Wait up to 15 seconds for server to start (Node.js startup can be slow)
+    for (int i = 0; i < 150; ++i) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        if (checkServerHealth()) {
+            return true;
+        }
+    }
+    
+    std::cerr << "Test server failed to start within 15 seconds" << std::endl;
+    stopServer();
+    return false;
+}
+
+void TestServerManager::stopServer() {
+    if (server_pid_ > 0 && server_started_by_us_) {
+        kill(server_pid_, SIGTERM);
+        
+        // Wait for process to terminate
+        int status;
+        waitpid(server_pid_, &status, 0);
+        
+        server_pid_ = -1;
+        server_started_by_us_ = false;
+    }
+}
+
+bool TestServerManager::checkServerHealth() {
+    // Simple check using wget (more commonly available than curl)
+    std::string health_url = server_url_ + "/health";
+    std::string cmd = "wget -q --timeout=1 --tries=1 -O /dev/null " + health_url + " 2>/dev/null";
+    int result = system(cmd.c_str());
+    if (result != 0) {
+        // Fallback to curl if wget is not available
+        cmd = "curl -s --connect-timeout 1 --max-time 1 " + health_url + " > /dev/null 2>&1";
+        result = system(cmd.c_str());
+    }
+    return result == 0;
 }
 
 } // namespace TestHelpers
