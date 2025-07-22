@@ -1,0 +1,24 @@
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CTestTestfile.cmake
+Makefile
+hweb
+hweb_tests
+test_output.xml
+Testing/
+
+# Visual Studio
+*.sln
+*.vcxproj
+*.vcxproj.filters
+
+# Xcode
+*.xcodeproj/
+
+# Other
+*.DS_Store
+*~
+.bak
+.swp
