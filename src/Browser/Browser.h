@@ -150,6 +150,8 @@ public:
     
     // Element queries
     bool elementExists(const std::string& selector);
+    // Returns: 0 = doesn't exist, 1 = exists, -1 = invalid selector
+    int elementExistsWithValidation(const std::string& selector);
     int countElements(const std::string& selector);
     std::string getElementHtml(const std::string& selector);
     std::string getInnerText(const std::string& selector);

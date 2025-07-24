@@ -50,118 +50,6 @@ void Browser::reload() {
 
 // ========== URL Validation Methods ==========
 
-bool Browser::validateUrl(const std::string& url) const {
-    if (url.empty()) {
-        debug_output("URL validation failed: empty URL");
-        return false;
-    }
-    
-    // Check for minimum URL length
-    if (url.length() < 10) { // Minimum: "http://a.b"
-        debug_output("URL validation failed: too short (" + std::to_string(url.length()) + " chars)");
-        return false;
-    }
-    
-    // Check for protocol separator (different for data URLs)
-    size_t protocol_pos = url.find("://");
-    size_t data_pos = url.find(":");
-    
-    std::string protocol;
-    
-    // Handle data URLs specially (they use : not ://)
-    if (url.substr(0, 5) == "data:" && data_pos != std::string::npos) {
-        protocol = "data";
-        protocol_pos = data_pos;
-    } else if (protocol_pos != std::string::npos) {
-        protocol = url.substr(0, protocol_pos);
-    } else {
-        debug_output("URL validation failed: no protocol separator");
-        return false;
-    }
-    
-    debug_output("URL validation: protocol = '" + protocol + "'");
-    
-    // Only allow safe protocols - reject dangerous ones
-#ifdef TESTING_MODE
-    // In testing mode, also allow data URLs for test fixtures
-    if (protocol != "http" && protocol != "https" && protocol != "file" && protocol != "data") {
-        debug_output("URL validation failed: unsupported protocol '" + protocol + "'");
-        return false; // Reject ftp, javascript, etc. but allow data URLs for tests
-    }
-#else
-    if (protocol != "http" && protocol != "https" && protocol != "file" && !(config_.allow_data_uri && protocol == "data")) {
-        debug_output("URL validation failed: unsupported protocol '" + protocol + "'");
-        return false; // Reject ftp, javascript, data, etc.
-    }
-#endif
-
-    if (config_.allow_data_uri && protocol == "data") {
-        // Data URIs are explicitly allowed by configuration
-    } else if (protocol == "data") {
-        debug_output("URL validation failed: data URI not allowed by configuration");
-        return false;
-    }
-    
-    // Validate what comes after the protocol
-    std::string remainder;
-    if (protocol == "data") {
-        remainder = url.substr(protocol_pos + 1); // data: uses just ":"
-    } else {
-        remainder = url.substr(protocol_pos + 3); // http:// uses "://"
-    }
-    if (remainder.empty()) {
-        return false; // Reject malformed URLs like "http://"
-    }
-    
-    // Check for dangerous characters
-    if (url.find('\0') != std::string::npos || 
-        url.find('\x01') != std::string::npos || 
-        url.find('\x02') != std::string::npos) {
-        return false; // Reject binary data
-    }
-    
-    // Additional validation for HTTP/HTTPS URLs
-    if (protocol == "http" || protocol == "https") {
-        // Must have host part after ://
-        if (remainder.length() < 2) { // Minimum: "ab"
-            return false;
-        }
-        
-        // Check for valid domain characters in basic host part
-        size_t path_start = remainder.find('/');
-        std::string host_part = (path_start != std::string::npos) ? 
-                               remainder.substr(0, path_start) : remainder;
-        
-        // Reject obvious malformed hosts
-        if (host_part.empty() || host_part == "." || host_part.find("..") != std::string::npos) {
-            return false;
-        }
-        
-        // Reject non-ASCII domains for security (would need IDN validation)
-        for (char c : host_part) {
-            if (static_cast<unsigned char>(c) > 127) {
-                return false;
-            }
-        }
-    }
-    
-    // Special file URL validation
-    if (protocol == "file") {
-        return validateFileUrl(url);
-    }
-    
-    #ifdef TESTING_MODE
-    // Special data URL validation for tests
-    if (protocol == "data") {
-        // Basic data URL validation - just check it has some content after data:
-        return remainder.length() > 0 && remainder.find(',') != std::string::npos;
-    }
-#endif
-
-    
-    return true;
-}
-
 bool Browser::isFileUrl(const std::string& url) const {
     return url.find("file://") == 0;
 }
@@ -177,7 +65,15 @@ bool Browser::validateFileUrl(const std::string& url) const {
         return false;
     }
     
-    // Security checks: reject dangerous system paths
+    // Handle localhost prefix in file URLs
+    if (path.rfind("localhost/", 0) == 0) {
+        path = path.substr(10);  // Remove "localhost/"
+    }
+    
+    // Normalize path separators to forward slashes for consistent checking
+    std::replace(path.begin(), path.end(), '\\', '/');
+    
+    // Security checks: reject dangerous system paths (more comprehensive)
     std::vector<std::string> dangerous_paths = {
         "/etc/",
         "/proc/",
@@ -188,31 +84,42 @@ bool Browser::validateFileUrl(const std::string& url) const {
         "/usr/sbin/",
         "/sbin/",
         "/bin/",
+        "/var/log/",
+        "/boot/",
         "C:/Windows/",
         "C:/Program Files/",
         "C:/Users/Administrator/",
-        "C:/System32/"
+        "C:/System32/",
+        "C:/ProgramData/"
     };
     
+    // Convert path to lowercase for case-insensitive comparison on Windows paths
+    std::string path_lower = path;
+    std::transform(path_lower.begin(), path_lower.end(), path_lower.begin(), ::tolower);
+    
     for (const auto& dangerous : dangerous_paths) {
-        if (path.find(dangerous) == 0) {
+        std::string dangerous_lower = dangerous;
+        std::transform(dangerous_lower.begin(), dangerous_lower.end(), dangerous_lower.begin(), ::tolower);
+        
+        if (path_lower.find(dangerous_lower) == 0) {
             return false;
         }
     }
     
-    // Check for path traversal attempts
+    // Check for path traversal attempts (more comprehensive)
     if (path.find("../") != std::string::npos || 
         path.find("..\\") != std::string::npos ||
         path.find("/..") != std::string::npos ||
-        path.find("\\..") != std::string::npos) {
+        path.find("\\..") != std::string::npos ||
+        path.find("..") == 0) {  // Path starting with ..
         return false;
     }
     
     // Check for null bytes and other dangerous characters
-    if (path.find('\0') != std::string::npos ||
-        path.find('\x01') != std::string::npos ||
-        path.find('\x02') != std::string::npos) {
-        return false;
+    for (char c : path) {
+        if (c == '\0' || c < 0x20) {
+            return false;
+        }
     }
     
     // Only allow HTML and related file extensions for file URLs
@@ -230,14 +137,34 @@ bool Browser::validateFileUrl(const std::string& url) const {
                 return false;
             }
         }
+    } else {
+        // If no extension, reject (directories are not allowed)
+        return false;
     }
     
-    // Check if file actually exists and is readable
+    // For security, check if file actually exists and is readable
+    // This prevents attempts to access non-existent system files
     try {
         std::filesystem::path file_path(path);
         if (!std::filesystem::exists(file_path) || !std::filesystem::is_regular_file(file_path)) {
             return false;
         }
+        
+        // Additional check: ensure it's not a symlink to dangerous location
+        std::filesystem::path canonical_path = std::filesystem::canonical(file_path);
+        std::string canonical_str = canonical_path.string();
+        std::replace(canonical_str.begin(), canonical_str.end(), '\\', '/');
+        std::transform(canonical_str.begin(), canonical_str.end(), canonical_str.begin(), ::tolower);
+        
+        for (const auto& dangerous : dangerous_paths) {
+            std::string dangerous_lower = dangerous;
+            std::transform(dangerous_lower.begin(), dangerous_lower.end(), dangerous_lower.begin(), ::tolower);
+            
+            if (canonical_str.find(dangerous_lower) == 0) {
+                return false;
+            }
+        }
+        
     } catch (const std::exception&) {
         return false;
     }

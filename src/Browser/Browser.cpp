@@ -105,8 +105,60 @@ Browser::~Browser() {
     cleanupWaiters();
     
     if (main_loop) {
-        g_main_loop_unref(main_loop);
     }
+}
+
+bool Browser::validateUrl(const std::string& url) const {
+    // Reject empty or overly long URLs
+    if (url.empty() || url.length() > 2048) {
+        return false;
+    }
+    
+    // Check for binary data and control characters (except allowed whitespace)
+    for (char c : url) {
+        if (c < 0x20 && c != '\t' && c != '\n' && c != '\r') {
+            return false;
+        }
+    }
+    
+    // about:blank is always valid
+    if (url == "about:blank") {
+        return true;
+    }
+    
+    // HTTP/HTTPS validation - must have content after protocol
+    if (url.rfind("http://", 0) == 0) {
+        std::string after_protocol = url.substr(7);  // Remove "http://"
+        if (after_protocol.empty() || after_protocol == "/" || after_protocol.find_first_not_of('/') == std::string::npos) {
+            return false;  // Reject malformed URLs like "http://" or "http:///"
+        }
+        return true;
+    }
+    
+    if (url.rfind("https://", 0) == 0) {
+        std::string after_protocol = url.substr(8);  // Remove "https://"
+        if (after_protocol.empty() || after_protocol == "/" || after_protocol.find_first_not_of('/') == std::string::npos) {
+            return false;  // Reject malformed URLs like "https://" or "https:///"
+        }
+        return true;
+    }
+    
+    // File URL validation with comprehensive security checks
+    if (url.rfind("file://", 0) == 0) {
+        return validateFileUrl(url);
+    }
+    
+    // Data URL validation (safe HTML only)
+    if (url.rfind("data:text/html", 0) == 0) {
+        // Basic check for script tags or javascript pseudo-schemes in data URLs
+        if (url.find("<script") != std::string::npos || url.find("javascript:") != std::string::npos) {
+            return false;
+        }
+        return true;
+    }
+    
+    // Reject any other schemes or invalid formats
+    return false;
 }
 
 
