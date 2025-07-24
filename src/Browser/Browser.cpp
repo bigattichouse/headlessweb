@@ -115,6 +115,7 @@ bool Browser::validateUrl(const std::string& url) const {
     }
     
     // Check for binary data and control characters (except allowed whitespace)
+    // Allow newlines and tabs for data: URLs which may contain multiline HTML
     for (char c : url) {
         if (c < 0x20 && c != '\t' && c != '\n' && c != '\r') {
             return false;
@@ -150,8 +151,15 @@ bool Browser::validateUrl(const std::string& url) const {
     
     // Data URL validation (safe HTML only)
     if (url.rfind("data:text/html", 0) == 0) {
-        // Basic check for script tags or javascript pseudo-schemes in data URLs
-        if (url.find("<script") != std::string::npos || url.find("javascript:") != std::string::npos) {
+        // For data URLs, we allow multiline content but check for dangerous scripts
+        // Look for actual executable script content, not just <script> tags
+        if (url.find("javascript:") != std::string::npos ||
+            url.find("data:text/javascript") != std::string::npos ||
+            (url.find("<script") != std::string::npos && 
+             (url.find("eval(") != std::string::npos || 
+              url.find("Function(") != std::string::npos ||
+              url.find("setTimeout(") != std::string::npos ||
+              url.find("setInterval(") != std::string::npos))) {
             return false;
         }
         return true;
