@@ -27,7 +27,7 @@ set(TEST_SOURCES
     fileops/test_types.cpp
     fileops/test_path_utils.cpp
     fileops/test_upload_manager.cpp
-    # fileops/test_download_manager.cpp
+    fileops/test_download_manager.cpp
     utils/test_helpers.cpp
     main/test_command_parsing.cpp
     hweb/test_output.cpp
