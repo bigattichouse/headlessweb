@@ -105,7 +105,6 @@ bool EventLoopManager::waitForCondition(std::function<bool()> condition, int tim
     bool result = data->result;
     
     // Cleanup
-    g_source_remove(check_source_id);
     delete data;
     
     return success && result;
@@ -130,22 +129,26 @@ void EventLoopManager::safeQuit() {
 }
 
 void EventLoopManager::reset() {
-    std::lock_guard<std::mutex> lock(mutex_);
     is_waiting_.store(false);
     operation_complete_.store(false);
     timed_out_.store(false);
-    
-    if (timeout_source_id_ != 0) {
-        g_source_remove(timeout_source_id_);
-        timeout_source_id_ = 0;
-    }
+    timeout_source_id_ = 0;
 }
 
 void EventLoopManager::cleanup() {
     std::lock_guard<std::mutex> lock(mutex_);
-    reset();
-    main_loop_ = nullptr;
-    debug_output("EventLoopManager cleaned up");
+    
+    // Explicitly remove timeout source before unreffing main_loop
+    if (timeout_source_id_ != 0) {
+        g_source_remove(timeout_source_id_);
+        timeout_source_id_ = 0;
+    }
+
+    if (main_loop_) {
+        g_main_loop_unref(main_loop_);
+        main_loop_ = nullptr;
+    }
+    reset(); // Reset other state variables
 }
 
 gboolean EventLoopManager::timeoutCallback(gpointer user_data) {
@@ -170,22 +173,19 @@ bool EventLoopManager::internalWait(int timeout_ms) {
     // Set up timeout
     timeout_source_id_ = g_timeout_add(timeout_ms, timeoutCallback, this);
     
-    debug_output("EventLoopManager: Starting wait for " + std::to_string(timeout_ms) + "ms");
-    
     // Run the event loop
     g_main_loop_run(main_loop_);
     
     // Clean up timeout if still active
     if (timeout_source_id_ != 0) {
-        g_source_remove(timeout_source_id_);
+        if (g_source_remove(timeout_source_id_)) {
+        }
         timeout_source_id_ = 0;
     }
     
     is_waiting_.store(false);
     
     bool success = operation_complete_.load() && !timed_out_.load();
-    
-    debug_output("EventLoopManager: Wait completed, success: " + std::string(success ? "true" : "false"));
     
     return success;
 }

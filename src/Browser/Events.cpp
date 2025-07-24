@@ -23,15 +23,10 @@ void navigation_complete_handler(WebKitWebView* webview, WebKitLoadEvent load_ev
             debug_output("Navigation committed (DOM available)");
             break;
         case WEBKIT_LOAD_FINISHED:
-            debug_output("Navigation completed via signal");
-            
             // Use public interface to notify waiters
             browser->notifyNavigationComplete();
             
-            // General completion signal
-            if (g_main_loop_is_running(browser->main_loop)) {
-                g_main_loop_quit(browser->main_loop);
-            }
+            
             break;
     }
 }
@@ -67,14 +62,7 @@ void ready_to_show_handler(WebKitWebView* webview, gpointer user_data) {
 
 // Callback for load-changed signal
 void load_changed_callback(WebKitWebView* web_view, WebKitLoadEvent load_event, gpointer user_data) {
-    if (load_event == WEBKIT_LOAD_FINISHED) {
-        Browser* browser_instance = static_cast<Browser*>(user_data);
-        if (browser_instance) {
-            if (g_main_loop_is_running(browser_instance->main_loop)) {
-                g_main_loop_quit(browser_instance->main_loop);
-            }
-        }
-    }
+    
 }
 
 // ========== Setup and Cleanup Methods ==========
@@ -125,7 +113,6 @@ void Browser::disconnectSignalHandlers() {
         }
     }
     
-    debug_output("Disconnected " + std::to_string(connected_signal_ids.size()) + " signal handlers");
     connected_signal_ids.clear();
 }
 
