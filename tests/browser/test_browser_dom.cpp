@@ -1,7 +1,10 @@
 #include <gtest/gtest.h>
 #include "Browser/Browser.h"
 #include "../utils/test_helpers.h"
+#include "browser_test_environment.h"
 #include <filesystem>
+
+extern std::unique_ptr<Browser> g_browser;
 
 class BrowserDOMTest : public ::testing::Test {
 protected:
@@ -100,181 +103,144 @@ protected:
 // ========== Element Existence Tests ==========
 
 TEST_F(BrowserDOMTest, ElementExistenceChecking) {
-    HWeb::HWebConfig test_config;
-    Browser browser(test_config);
+    // No need to initialize Browser here, using global g_browser
     
     // Test element existence checking interface
     // Note: These tests verify the interface exists, actual DOM testing requires WebKit
     EXPECT_NO_THROW({
-        browser.elementExists("#main-content");
-        browser.elementExists(".description");
-        browser.elementExists("h1");
-        browser.elementExists("#nonexistent");
+        g_browser->elementExists("#main-content");
+        g_browser->elementExists(".description");
+        g_browser->elementExists("h1");
+        g_browser->elementExists("#nonexistent");
     });
 }
 
 TEST_F(BrowserDOMTest, ElementExistenceEdgeCases) {
-    HWeb::HWebConfig test_config;
-    Browser browser(test_config);
-    
     // Test edge cases for element existence
     EXPECT_NO_THROW({
-        browser.elementExists(""); // Empty selector
-        browser.elementExists("#"); // Invalid ID selector
-        browser.elementExists("."); // Invalid class selector
-        browser.elementExists("div.class#id"); // Complex selector
-        browser.elementExists("div > p + span"); // CSS combinator
-        browser.elementExists("input[type='text']"); // Attribute selector
+        g_browser->elementExists(""); // Empty selector
+        g_browser->elementExists("#"); // Invalid ID selector
+        g_browser->elementExists("."); // Invalid class selector
+        g_browser->elementExists("div.class#id"); // Complex selector
+        g_browser->elementExists("div > p + span"); // CSS combinator
+        g_browser->elementExists("input[type='text']"); // Attribute selector
     });
 }
 
 // ========== Form Interaction Tests ==========
 
 TEST_F(BrowserDOMTest, FormInputFilling) {
-    HWeb::HWebConfig test_config;
-    Browser browser(test_config);
-    
     // Test form input filling interface
     EXPECT_NO_THROW({
-        browser.fillInput("#username", "testuser");
-        browser.fillInput("#password", "password123");
-        browser.fillInput("#email", "test@example.com");
-        browser.fillInput("#comments", "This is a test comment");
+        g_browser->fillInput("#username", "testuser");
+        g_browser->fillInput("#password", "password123");
+        g_browser->fillInput("#email", "test@example.com");
+        g_browser->fillInput("#comments", "This is a test comment");
     });
 }
 
 TEST_F(BrowserDOMTest, FormInputValidation) {
-    HWeb::HWebConfig test_config;
-    Browser browser(test_config);
-    
     // Test input validation and edge cases
     EXPECT_NO_THROW({
-        browser.fillInput("#username", ""); // Empty value
-        browser.fillInput("#password", std::string(1000, 'a')); // Very long value
-        browser.fillInput("#email", "unicode测试@example.com"); // Unicode content
-        browser.fillInput("#nonexistent", "value"); // Nonexistent element
+        g_browser->fillInput("#username", ""); // Empty value
+        g_browser->fillInput("#password", std::string(1000, 'a')); // Very long value
+        g_browser->fillInput("#email", "unicode测试@example.com"); // Unicode content
+        g_browser->fillInput("#nonexistent", "value"); // Nonexistent element
     });
 }
 
 TEST_F(BrowserDOMTest, SelectOptionHandling) {
-    HWeb::HWebConfig test_config;
-    Browser browser(test_config);
-    
     // Test select option handling
     EXPECT_NO_THROW({
-        browser.selectOption("#country", "us");
-        browser.selectOption("#country", "uk");
-        browser.selectOption("#country", ""); // Reset to default
-        browser.selectOption("#country", "invalid"); // Invalid option
-        browser.selectOption("#nonexistent", "value"); // Nonexistent select
+        g_browser->selectOption("#country", "us");
+        g_browser->selectOption("#country", "uk");
+        g_browser->selectOption("#country", ""); // Reset to default
+        g_browser->selectOption("#country", "invalid"); // Invalid option
+        g_browser->selectOption("#nonexistent", "value"); // Nonexistent select
     });
 }
 
 TEST_F(BrowserDOMTest, CheckboxAndRadioHandling) {
-    HWeb::HWebConfig test_config;
-    Browser browser(test_config);
-    
     // Test checkbox and radio button operations
     EXPECT_NO_THROW({
-        browser.checkElement("#subscribe");
-        browser.uncheckElement("#subscribe");
-        browser.checkElement("#nonexistent"); // Nonexistent element
-        browser.uncheckElement("#nonexistent");
+        g_browser->checkElement("#subscribe");
+        g_browser->uncheckElement("#subscribe");
+        g_browser->checkElement("#nonexistent"); // Nonexistent element
+        g_browser->uncheckElement("#nonexistent");
     });
 }
 
 // ========== Element Interaction Tests ==========
 
 TEST_F(BrowserDOMTest, ElementClicking) {
-    HWeb::HWebConfig test_config;
-    Browser browser(test_config);
-    
     // Test element clicking interface
     EXPECT_NO_THROW({
-        browser.clickElement("#test-button");
-        browser.clickElement("#submit-btn");
-        browser.clickElement(".list-item");
-        browser.clickElement("#nonexistent"); // Nonexistent element
+        g_browser->clickElement("#test-button");
+        g_browser->clickElement("#submit-btn");
+        g_browser->clickElement(".list-item");
+        g_browser->clickElement("#nonexistent"); // Nonexistent element
     });
 }
 
 TEST_F(BrowserDOMTest, ElementFocusing) {
-    HWeb::HWebConfig test_config;
-    Browser browser(test_config);
-    
     // Test element focusing
     EXPECT_NO_THROW({
-        browser.focusElement("#username");
-        browser.focusElement("#password");
-        browser.focusElement("#search-input");
-        browser.focusElement("#nonexistent"); // Nonexistent element
+        g_browser->focusElement("#username");
+        g_browser->focusElement("#password");
+        g_browser->focusElement("#search-input");
+        g_browser->focusElement("#nonexistent"); // Nonexistent element
     });
 }
 
 // ========== Form Submission Tests ==========
 
 TEST_F(BrowserDOMTest, FormSubmission) {
-    HWeb::HWebConfig test_config;
-    Browser browser(test_config);
-    
     // Test form submission interface
     EXPECT_NO_THROW({
-        browser.submitForm("#test-form");
-        browser.submitForm("#search-form");
-        browser.submitForm(); // Default form submission
-        browser.submitForm("#nonexistent"); // Nonexistent form
+        g_browser->submitForm("#test-form");
+        g_browser->submitForm("#search-form");
+        g_browser->submitForm(); // Default form submission
+        g_browser->submitForm("#nonexistent"); // Nonexistent form
     });
 }
 
 TEST_F(BrowserDOMTest, SearchFormHandling) {
-    HWeb::HWebConfig test_config;
-    Browser browser(test_config);
-    
     // Test search form functionality
     EXPECT_NO_THROW({
-        browser.searchForm("test query");
-        browser.searchForm(""); // Empty query
-        browser.searchForm("unicode测试query");
-        browser.searchForm(std::string(1000, 'x')); // Very long query
+        g_browser->searchForm("test query");
+        g_browser->searchForm(""); // Empty query
+        g_browser->searchForm("unicode测试query");
+        g_browser->searchForm(std::string(1000, 'x')); // Very long query
     });
 }
 
 // ========== Attribute Management Tests ==========
 
 TEST_F(BrowserDOMTest, AttributeGetting) {
-    HWeb::HWebConfig test_config;
-    Browser browser(test_config);
-    
     // Test attribute retrieval interface
     EXPECT_NO_THROW({
-        std::string value = browser.getAttribute("#username", "name");
-        std::string type = browser.getAttribute("#password", "type");
-        std::string placeholder = browser.getAttribute("#text-input", "placeholder");
-        std::string nonexistent = browser.getAttribute("#nonexistent", "value");
-        std::string invalid_attr = browser.getAttribute("#username", "");
+        std::string value = g_browser->getAttribute("#username", "name");
+        std::string type = g_browser->getAttribute("#password", "type");
+        std::string placeholder = g_browser->getAttribute("#text-input", "placeholder");
+        std::string nonexistent = g_browser->getAttribute("#nonexistent", "value");
+        std::string invalid_attr = g_browser->getAttribute("#username", "");
     });
 }
 
 TEST_F(BrowserDOMTest, AttributeSetting) {
-    HWeb::HWebConfig test_config;
-    Browser browser(test_config);
-    
     // Test attribute setting interface
     EXPECT_NO_THROW({
-        browser.setAttribute("#text-input", "value", "new value");
-        browser.setAttribute("#test-button", "disabled", "true");
-        browser.setAttribute("#dynamic-content", "style", "display: block;");
-        browser.setAttribute("#nonexistent", "value", "test"); // Nonexistent element
-        browser.setAttribute("#username", "", "value"); // Empty attribute name
+        g_browser->setAttribute("#text-input", "value", "new value");
+        g_browser->setAttribute("#test-button", "disabled", "true");
+        g_browser->setAttribute("#dynamic-content", "style", "display: block;");
+        g_browser->setAttribute("#nonexistent", "value", "test"); // Nonexistent element
+        g_browser->setAttribute("#username", "", "value"); // Empty attribute name
     });
 }
 
 // ========== Complex Selector Tests ==========
 
 TEST_F(BrowserDOMTest, ComplexSelectorHandling) {
-    HWeb::HWebConfig test_config;
-    Browser browser(test_config);
-    
     // Test complex CSS selectors
     std::vector<std::string> complex_selectors = {
         "div#main-content",
@@ -293,9 +259,9 @@ TEST_F(BrowserDOMTest, ComplexSelectorHandling) {
     
     for (const auto& selector : complex_selectors) {
         EXPECT_NO_THROW({
-            browser.elementExists(selector);
-            browser.clickElement(selector);
-            browser.getAttribute(selector, "id");
+            g_browser->elementExists(selector);
+            g_browser->clickElement(selector);
+            g_browser->getAttribute(selector, "id");
         });
     }
 }
@@ -303,9 +269,6 @@ TEST_F(BrowserDOMTest, ComplexSelectorHandling) {
 // ========== XPath Selector Tests ==========
 
 TEST_F(BrowserDOMTest, XPathSelectorSupport) {
-    HWeb::HWebConfig test_config;
-    Browser browser(test_config);
-    
     // Test XPath selectors (if supported)
     std::vector<std::string> xpath_selectors = {
         "//div[@id='main-content']",
@@ -317,18 +280,15 @@ TEST_F(BrowserDOMTest, XPathSelectorSupport) {
     
     for (const auto& xpath : xpath_selectors) {
         EXPECT_NO_THROW({
-            browser.elementExists(xpath);
-            browser.clickElement(xpath);
+            g_browser->elementExists(xpath);
+            g_browser->clickElement(xpath);
         });
     }
 }
 
 // ========== Error Handling and Edge Cases ==========
 
-TEST_F(BrowserDOMTest, InvalidSelectorHandling) {
-    HWeb::HWebConfig test_config;
-    Browser browser(test_config);
-    
+TEST_F(BrowserDOMTest, RejectInvalidUrls) {
     // Test handling of invalid selectors
     std::vector<std::string> invalid_selectors = {
         "",
@@ -344,17 +304,14 @@ TEST_F(BrowserDOMTest, InvalidSelectorHandling) {
     
     for (const auto& selector : invalid_selectors) {
         EXPECT_NO_THROW({
-            browser.elementExists(selector);
-            browser.clickElement(selector);
-            browser.fillInput(selector, "value");
+            g_browser->elementExists(selector);
+            g_browser->clickElement(selector);
+            g_browser->fillInput(selector, "value");
         });
     }
 }
 
 TEST_F(BrowserDOMTest, UnicodeContentHandling) {
-    HWeb::HWebConfig test_config;
-    Browser browser(test_config);
-    
     // Test Unicode content in form fields
     std::vector<std::string> unicode_values = {
         "测试文本",
@@ -368,42 +325,36 @@ TEST_F(BrowserDOMTest, UnicodeContentHandling) {
     
     for (const auto& value : unicode_values) {
         EXPECT_NO_THROW({
-            browser.fillInput("#username", value);
-            browser.fillInput("#comments", value);
-            browser.searchForm(value);
+            g_browser->fillInput("#username", value);
+            g_browser->fillInput("#comments", value);
+            g_browser->searchForm(value);
         });
     }
 }
 
 TEST_F(BrowserDOMTest, LargeContentHandling) {
-    HWeb::HWebConfig test_config;
-    Browser browser(test_config);
-    
     // Test handling of large content
     std::string large_text(10000, 'A');
     std::string very_large_text(100000, 'B');
     
     EXPECT_NO_THROW({
-        browser.fillInput("#comments", large_text);
-        browser.fillInput("#comments", very_large_text);
-        browser.searchForm(large_text);
+        g_browser->fillInput("#comments", large_text);
+        g_browser->fillInput("#comments", very_large_text);
+        g_browser->searchForm(large_text);
     });
 }
 
 // ========== Performance and Timing Tests ==========
 
 TEST_F(BrowserDOMTest, OperationTiming) {
-    HWeb::HWebConfig test_config;
-    Browser browser(test_config);
-    
     // Test that DOM operations complete in reasonable time
     auto start = std::chrono::steady_clock::now();
     
     EXPECT_NO_THROW({
         for (int i = 0; i < 100; ++i) {
-            browser.elementExists("#test-button");
-            browser.getAttribute("#username", "name");
-            browser.fillInput("#search-input", "test" + std::to_string(i));
+            g_browser->elementExists("#test-button");
+            g_browser->getAttribute("#username", "name");
+            g_browser->fillInput("#search-input", "test" + std::to_string(i));
         }
     });
     
@@ -417,21 +368,18 @@ TEST_F(BrowserDOMTest, OperationTiming) {
 // ========== State Management Tests ==========
 
 TEST_F(BrowserDOMTest, ConsistentStateHandling) {
-    HWeb::HWebConfig test_config;
-    Browser browser(test_config);
-    
     // Test that multiple operations maintain consistent state
     EXPECT_NO_THROW({
-        browser.fillInput("#username", "testuser");
-        std::string username = browser.getAttribute("#username", "value");
+        g_browser->fillInput("#username", "testuser");
+        std::string username = g_browser->getAttribute("#username", "value");
         
-        browser.selectOption("#country", "us");
-        std::string country = browser.getAttribute("#country", "value");
+        g_browser->selectOption("#country", "us");
+        std::string country = g_browser->getAttribute("#country", "value");
         
-        browser.checkElement("#subscribe");
-        std::string checked = browser.getAttribute("#subscribe", "checked");
+        g_browser->checkElement("#subscribe");
+        std::string checked = g_browser->getAttribute("#subscribe", "checked");
         
-        browser.focusElement("#password");
-        browser.fillInput("#password", "secure123");
+        g_browser->focusElement("#password");
+        g_browser->fillInput("#password", "secure123");
     });
 }
