@@ -19,7 +19,10 @@ void Browser::loadUri(const std::string& uri) {
         throw std::invalid_argument("Error: Invalid or unsafe URL: " + uri);
     }
     
-    debug_output("Loading URI: " + uri);
+    // Store current URL before navigating for proper waitForNavigation detection
+    previous_url = getCurrentUrl();
+    
+    debug_output("Loading URI: " + uri + " (from: " + previous_url + ")");
     webkit_web_view_load_uri(webView, uri.c_str());
 }
 

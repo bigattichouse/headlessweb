@@ -314,9 +314,14 @@ std::string Browser::setupNavigationObserver(int timeout_ms) {
         (function(timeout, initialUrl) {
             window._hweb_event_result = undefined;
             
+            // Debug output for troubleshooting
+            console.log('Navigation Observer - Initial URL: "' + initialUrl + '"');
+            console.log('Navigation Observer - Current URL: "' + window.location.href + '"');
+            
             // Check for URL changes
             const checkNavigation = () => {
                 if (window.location.href !== initialUrl) {
+                    console.log('Navigation detected: ' + initialUrl + ' -> ' + window.location.href);
                     window._hweb_event_result = true;
                     return true;
                 }
@@ -335,6 +340,7 @@ std::string Browser::setupNavigationObserver(int timeout_ms) {
                 if (checkNavigation()) {
                     // Navigation detected
                 } else if (attempts >= maxAttempts) {
+                    console.log('Navigation timeout after ' + attempts + ' attempts');
                     window._hweb_event_result = false;
                 } else {
                     setTimeout(poll, 500);
@@ -344,7 +350,7 @@ std::string Browser::setupNavigationObserver(int timeout_ms) {
             // Start polling
             setTimeout(poll, 500);
             
-        })()" + std::to_string(timeout_ms) + ", '" + getCurrentUrl() + R"(');
+        })()" + std::to_string(timeout_ms) + ", '" + previous_url + R"(');
     )";
 }
 

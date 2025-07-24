@@ -3,7 +3,7 @@
 # HeadlessWeb File Operations Integration Tests
 # Tests file upload and download functionality with the Node.js test server
 
-set -e
+# Note: Not using set -e so tests can continue after individual failures
 
 # Configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -13,6 +13,7 @@ HWEB_BINARY="$PROJECT_ROOT/build/hweb"
 TEST_SESSION="file_ops_test"
 SERVER_URL="http://localhost:9876"
 SERVER_PID=""
+SERVER_STARTED_BY_US=false
 
 # Colors for output
 RED='\033[0;31m'
@@ -57,11 +58,13 @@ fail_test() {
 cleanup() {
     log "Cleaning up..."
     
-    # Stop test server
-    if [ ! -z "$SERVER_PID" ]; then
+    # Stop test server only if we started it
+    if [ "$SERVER_STARTED_BY_US" = true ] && [ ! -z "$SERVER_PID" ]; then
         log "Stopping test server (PID: $SERVER_PID)"
         kill $SERVER_PID 2>/dev/null || true
         wait $SERVER_PID 2>/dev/null || true
+    elif [ "$SERVER_STARTED_BY_US" = false ]; then
+        log "Leaving existing test server running"
     fi
     
     # Clean up test session
@@ -114,11 +117,27 @@ check_prerequisites() {
 
 # Start the test server
 start_test_server() {
+    # Check if server is already running
+    if curl -s "$SERVER_URL/health" > /dev/null 2>&1; then
+        log "Test server is already running at $SERVER_URL"
+        # Try to get the PID of existing server
+        SERVER_PID=$(lsof -ti :9876 2>/dev/null | head -1)
+        if [ ! -z "$SERVER_PID" ]; then
+            log "Using existing test server (PID: $SERVER_PID)"
+        else
+            log "Using existing test server (PID unknown)"
+            SERVER_PID=""
+        fi
+        SERVER_STARTED_BY_US=false
+        return 0
+    fi
+    
     log "Starting test server..."
     
     cd "$TEST_SERVER_DIR"
     node upload-server.js &
     SERVER_PID=$!
+    SERVER_STARTED_BY_US=true
     cd "$PROJECT_ROOT"
     
     # Wait for server to start
@@ -166,7 +185,7 @@ test_navigation_to_server() {
     
     log "Running test: $test_name"
     
-    if "$HWEB_BINARY" --session "$TEST_SESSION" --url "$SERVER_URL" --assert-title "Upload Test Server" --timeout 10; then
+    if "$HWEB_BINARY" --session "$TEST_SESSION" --url "$SERVER_URL" --assert-text "title" "Upload Test Server" --timeout 10000; then
         pass_test "$test_name"
     else
         fail_test "$test_name" "Failed to navigate to test server or title assertion failed"
@@ -358,7 +377,7 @@ test_session_state_persistence() {
     
     # Check if session state persists across invocations
     if "$HWEB_BINARY" --session "$TEST_SESSION" \
-       --assert-title "Upload Test Server" --timeout 5; then
+       --assert-text "title" "Upload Test Server" --timeout 5000; then
         pass_test "$test_name"
     else
         fail_test "$test_name" "Session state did not persist correctly"

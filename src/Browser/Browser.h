@@ -55,6 +55,9 @@ private:
     std::vector<std::unique_ptr<EventWaiter>> active_waiters;
     std::vector<std::unique_ptr<SignalWaiter>> signal_waiters;
     
+    // Navigation tracking for proper waitForNavigation behavior
+    std::string previous_url;
+    
     // JavaScript event helpers - BrowserEvents.cpp
     std::string setupDOMObserver(const std::string& selector, int timeout_ms);
     std::string setupVisibilityObserver(const std::string& selector, int timeout_ms);
