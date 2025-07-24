@@ -3,6 +3,8 @@
 #include <webkit/webkit.h>
 #include <glib.h>
 #include <iostream>
+#include <chrono>
+#include <thread>
 
 // External debug flag
 extern bool g_debug;
@@ -414,32 +416,32 @@ std::string Browser::setupConditionObserver(const std::string& condition, int ti
 // ========== Event-driven Waiting Implementations ==========
 
 bool Browser::waitForSelectorEvent(const std::string& selector, int timeout_ms) {
-    // Set up the JavaScript observer
-    std::string observerScript = setupDOMObserver(selector, timeout_ms);
+    // CRITICAL FIX: Use simple polling instead of nested main loop to prevent segfaults
     
     // Clear any previous result
     executeJavascriptSync("window._hweb_event_result = undefined;");
     
-    // Start the observer - note this no longer returns a promise
-    executeJavascript(observerScript);
-    
-    // Wait for the observer to complete with more frequent checking
+    // Simple polling approach - check if element exists repeatedly
     int elapsed = 0;
-    const int check_interval = 100; // Check every 100ms
+    const int check_interval = 200; // Check every 200ms
     
     while (elapsed < timeout_ms) {
-        wait(check_interval);
-        elapsed += check_interval;
-        
-        // Check if the observer has set the result
-        std::string result = executeJavascriptSync("typeof window._hweb_event_result !== 'undefined' ? String(window._hweb_event_result) : 'undefined'");
+        // Direct element check without complex observers
+        std::string result = executeJavascriptSync(
+            "(function() { "
+            "  try { "
+            "    const element = document.querySelector('" + selector + "'); "
+            "    return element !== null ? 'true' : 'false'; "
+            "  } catch(e) { return 'false'; } "
+            "})()");
         
         if (result == "true") {
             return true;
-        } else if (result == "false") {
-            return false;
         }
-        // If result is "undefined", continue waiting
+        
+        // Use std::this_thread::sleep_for instead of wait() to avoid nested main loops
+        std::this_thread::sleep_for(std::chrono::milliseconds(check_interval));
+        elapsed += check_interval;
     }
     
     return false;
@@ -662,7 +664,47 @@ bool Browser::waitForPageReadyEvent(int timeout_ms) {
     // Then do a simple check for basic page elements
     bool basic_ready = waitForConditionEvent("document.body !== null", timeout_ms / 4);
     
-    return document_ready && basic_ready;
+    // CRITICAL FIX: Wait for JavaScript execution to complete
+    // Give JavaScript in <script> tags time to execute after DOM is ready
+    if (document_ready && basic_ready) {
+        wait(3000); // Wait 3 seconds for JavaScript execution (increased from 2s)
+        
+        // Enhanced JavaScript readiness check
+        std::string js_ready_check = executeJavascriptSync(
+            "(function() { "
+            "  try { "
+            "    // Basic checks"
+            "    if (typeof document === 'undefined' || typeof window === 'undefined') return false; "
+            "    if (document.readyState !== 'complete') return false; "
+            "    "
+            "    // Test that script execution works by defining and calling a test function"
+            "    window.testScriptExecution = function() { return 'working'; }; "
+            "    var result = window.testScriptExecution(); "
+            "    delete window.testScriptExecution; "
+            "    "
+            "    // Test localStorage if available (may be blocked for data: URLs)"
+            "    var localStorage_works = true; "
+            "    try { "
+            "      localStorage.setItem('__hweb_test__', 'test'); "
+            "      var stored = localStorage.getItem('__hweb_test__'); "
+            "      localStorage.removeItem('__hweb_test__'); "
+            "      localStorage_works = (stored === 'test'); "
+            "    } catch(e) { "
+            "      // localStorage may be blocked for data: URLs - this is normal"
+            "      localStorage_works = true; "
+            "    } "
+            "    "
+            "    return result === 'working' && localStorage_works; "
+            "  } catch(e) { "
+            "    console.log('JS ready check error: ' + e.message); "
+            "    return false; "
+            "  } "
+            "})()");
+        
+        return js_ready_check == "true";
+    }
+    
+    return false;
 }
 
 // ========== Public Wrapper Methods ==========
