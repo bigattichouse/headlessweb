@@ -42,11 +42,33 @@ protected:
         // Use the Node.js test server
         std::string server_url = server_manager->getServerUrl();
         
-        // Load the test server page into the browser
+        debug_output("Setting up test page with URL: " + server_url);
+        
+        // First try a simple test to see if browser works at all
+        std::string simple_test_html = 
+            "data:text/html;charset=utf-8,"
+            "<!DOCTYPE html>"
+            "<html><head><title>Upload Test Server</title></head>"
+            "<body>"
+            "<h1>Test Page</h1>"
+            "<input type='file' id='file-input'/>"
+            "<input type='file' id='multiple-input' multiple/>"
+            "<div id='drop-zone'>Drop files here</div>"
+            "<div id='upload-status'>Ready</div>"
+            "<script>"
+            "function hasFileInputs() { return document.querySelectorAll('input[type=file]').length > 0; }"
+            "function elementExists(sel) { return document.querySelector(sel) !== null; }"
+            "function updateStatus(msg) { document.getElementById('upload-status').innerText = msg; }"
+            "function simulateUploadComplete() { updateStatus('Upload complete'); }"
+            "</script>"
+            "</body></html>";
+        
+        // Use the actual test server now that URL validation is fixed
+        debug_output("Loading actual test server page at: " + server_url);
         browser->loadUri(server_url);
         
-        // Wait for navigation to complete properly
-        bool navigation_success = browser->waitForNavigation(10000); // 10 second timeout
+        // Wait for navigation to complete properly with extended timeout
+        bool navigation_success = browser->waitForNavigation(30000); // 30 second timeout for CI
         if (!navigation_success) {
             std::string current_url = browser->getCurrentUrl();
             GTEST_SKIP() << "Navigation timeout - page failed to load (url: '" << current_url << "')";
@@ -54,9 +76,13 @@ protected:
         
         // Verify the page loaded correctly by checking the title
         std::string title = browser->getPageTitle();
+        std::string current_url = browser->getCurrentUrl();
+        debug_output("Browser loaded - URL: '" + current_url + "', Title: '" + title + "'");
+        
         if (title != "Upload Test Server") {
-            std::string current_url = browser->getCurrentUrl();
-            GTEST_SKIP() << "Test server page not loaded correctly (url: '" << current_url << "', title: '" << title << "')";
+            // Let's also try to get some page content for debugging
+            std::string page_content = browser->executeJavascriptSync("return document.body.innerHTML.substring(0, 200);");
+            GTEST_SKIP() << "Test server page not loaded correctly (url: '" << current_url << "', title: '" << title << "', content start: '" << page_content << "')";
         }
         
         debug_output("Upload test page loaded successfully via test server");

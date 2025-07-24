@@ -9,7 +9,14 @@
 extern bool g_debug;
 
 Browser::Browser() : cookieManager(nullptr), main_loop(g_main_loop_new(NULL, FALSE)), is_valid(true) {
+#ifndef DISABLE_GTK_INIT
     gtk_init();
+#else
+    // For tests, ensure GTK is initialized if needed
+    if (!gtk_init_check()) {
+        std::cerr << "Warning: GTK initialization failed in test environment" << std::endl;
+    }
+#endif
     
     // Initialize with a proper data manager for cookie/storage persistence
     std::string home = std::getenv("HOME");
