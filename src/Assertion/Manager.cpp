@@ -20,17 +20,38 @@ Result Manager::assertExists(Browser& browser, const Command& cmd) {
                         cmd.expected_value == "yes" || cmd.expected_value.empty());
         
         // Check if element exists (with timeout if specified)
-        bool exists = false;
+        int existence_result = 0; // 0 = doesn't exist, 1 = exists, -1 = invalid selector
+        
         if (cmd.timeout_ms > 0) {
-            // Use browser's event-driven waiting
-            exists = browser.waitForSelector(cmd.selector, cmd.timeout_ms);
-            if (!exists) {
-                // Double-check with elementExists for negative assertions
-                exists = browser.elementExists(cmd.selector);
+            // Use browser's event-driven waiting first
+            bool found_via_wait = browser.waitForSelector(cmd.selector, cmd.timeout_ms);
+            if (found_via_wait) {
+                existence_result = 1;
+            } else {
+                // Double-check with validation for negative assertions
+                existence_result = browser.elementExistsWithValidation(cmd.selector);
             }
         } else {
-            exists = browser.elementExists(cmd.selector);
+            existence_result = browser.elementExistsWithValidation(cmd.selector);
         }
+        
+        // Handle invalid selector case (should return error exit code 2)
+        if (existence_result == -1) {
+            auto end_time = std::chrono::steady_clock::now();
+            auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
+            
+            TestResult test_result = createResult(cmd, Result::ERROR, "false", "Invalid CSS selector");
+            test_result.duration = duration;
+            
+            if (!silent_mode) {
+                outputResult(test_result);
+            }
+            
+            addResult(test_result);
+            return Result::ERROR; // This should map to exit code 2
+        }
+        
+        bool exists = (existence_result == 1);
         
         auto end_time = std::chrono::steady_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
