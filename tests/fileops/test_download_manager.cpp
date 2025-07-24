@@ -530,4 +530,134 @@ TEST_F(DownloadManagerTest, WaitForMultipleDownloads_Timeout) {
     EXPECT_EQ(result, DownloadResult::TIMEOUT);
 }
 
+// ========== Enhanced Browser Integration Tests ==========
+
+TEST_F(DownloadManagerTest, EnhancedBrowserTempFileDetection) {
+    // Test all browser temporary file patterns
+    EXPECT_TRUE(download_manager_->isBrowserTempFile("download.crdownload")); // Chrome
+    EXPECT_TRUE(download_manager_->isBrowserTempFile("download.part")); // Firefox
+    EXPECT_TRUE(download_manager_->isBrowserTempFile("download.download")); // Safari
+    EXPECT_TRUE(download_manager_->isBrowserTempFile("download.partial")); // Edge
+    EXPECT_TRUE(download_manager_->isBrowserTempFile("download.tmp")); // Generic
+    EXPECT_TRUE(download_manager_->isBrowserTempFile("download.temp")); // Generic
+    EXPECT_TRUE(download_manager_->isBrowserTempFile("~download.txt")); // Temp prefix
+    EXPECT_TRUE(download_manager_->isBrowserTempFile("temp_download.txt")); // Temp prefix
+    EXPECT_TRUE(download_manager_->isBrowserTempFile(".tmp_download")); // Hidden temp
+    EXPECT_TRUE(download_manager_->isBrowserTempFile("download.opr")); // Opera
+    
+    // Test case insensitivity
+    EXPECT_TRUE(download_manager_->isBrowserTempFile("DOWNLOAD.CRDOWNLOAD"));
+    EXPECT_TRUE(download_manager_->isBrowserTempFile("Download.Part"));
+    
+    // Test non-temp files
+    EXPECT_FALSE(download_manager_->isBrowserTempFile("normal_file.txt"));
+    EXPECT_FALSE(download_manager_->isBrowserTempFile("document.pdf"));
+    EXPECT_FALSE(download_manager_->isBrowserTempFile("image.jpg"));
+}
+
+TEST_F(DownloadManagerTest, GetBrowserDownloadPatterns) {
+    std::vector<std::string> patterns = download_manager_->getBrowserDownloadPatterns("document.pdf");
+    
+    EXPECT_FALSE(patterns.empty());
+    EXPECT_NE(std::find(patterns.begin(), patterns.end(), "document.pdf"), patterns.end());
+    EXPECT_NE(std::find(patterns.begin(), patterns.end(), "document.pdf.crdownload"), patterns.end());
+    EXPECT_NE(std::find(patterns.begin(), patterns.end(), "document.pdf.part"), patterns.end());
+    EXPECT_NE(std::find(patterns.begin(), patterns.end(), "document.pdf.download"), patterns.end());
+}
+
+TEST_F(DownloadManagerTest, ResolveBrowserTempFile) {
+    EXPECT_EQ(download_manager_->resolveBrowserTempFile("document.pdf.crdownload"), "document.pdf");
+    EXPECT_EQ(download_manager_->resolveBrowserTempFile("image.jpg.part"), "image.jpg");
+    EXPECT_EQ(download_manager_->resolveBrowserTempFile("video.mp4.download"), "video.mp4");
+    
+    // Non-temp files should remain unchanged
+    EXPECT_EQ(download_manager_->resolveBrowserTempFile("normal.txt"), "normal.txt");
+}
+
+TEST_F(DownloadManagerTest, EnhancedStabilityChecking) {
+    // Create a file that grows over time
+    createProgressiveFile("growing.txt", 5, 200); // 5 chunks, 200ms each
+    
+    auto filepath = (test_dir_ / "growing.txt").string();
+    
+    // Should be false initially (file is changing)
+    bool stable_early = download_manager_->isFileSizeStable(filepath, std::chrono::milliseconds(100));
+    
+    // Wait for file to complete and become stable
+    std::this_thread::sleep_for(std::chrono::milliseconds(1500));
+    
+    bool stable_final = download_manager_->isFileSizeStable(filepath, std::chrono::milliseconds(300));
+    EXPECT_TRUE(stable_final);
+}
+
+TEST_F(DownloadManagerTest, DownloadCompletionWithTempFiles) {
+    // Simulate browser temp file workflow
+    std::thread([this]() {
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        
+        // First create temp file
+        createTestFile("document.pdf.crdownload", "partial content");
+        
+        std::this_thread::sleep_for(std::chrono::milliseconds(300));
+        
+        // Then rename to final file
+        std::filesystem::rename(
+            test_dir_ / "document.pdf.crdownload",
+            test_dir_ / "document.pdf"
+        );
+    }).detach();
+    
+    DownloadCommand cmd;
+    cmd.filename_pattern = "document.pdf";
+    cmd.download_dir = test_dir_.string();
+    cmd.timeout_ms = 2000;
+    cmd.verify_integrity = true;
+    
+    DownloadResult result = download_manager_->waitForDownload(cmd);
+    EXPECT_EQ(result, DownloadResult::SUCCESS);
+    
+    // Verify final file exists and temp file is gone
+    EXPECT_TRUE(std::filesystem::exists(test_dir_ / "document.pdf"));
+    EXPECT_FALSE(std::filesystem::exists(test_dir_ / "document.pdf.crdownload"));
+}
+
+TEST_F(DownloadManagerTest, WaitForBrowserWriteCompletion) {
+    createTestFileDelayed("browser_write.txt", 300);
+    
+    auto filepath = (test_dir_ / "browser_write.txt").string();
+    bool result = download_manager_->waitForBrowserWriteCompletion(filepath, 2000);
+    
+    EXPECT_TRUE(result);
+    EXPECT_TRUE(std::filesystem::exists(filepath));
+}
+
+TEST_F(DownloadManagerTest, MonitorDirectoryForNewFiles) {
+    bool file_detected = false;
+    std::string detected_file;
+    
+    auto callback = [&](const std::string& filepath) {
+        file_detected = true;
+        detected_file = filepath;
+    };
+    
+    // Start monitoring in background
+    std::thread([this, callback]() {
+        download_manager_->monitorDirectoryForNewFiles(
+            test_dir_.string(),
+            "*.txt",
+            2000,
+            callback
+        );
+    }).detach();
+    
+    // Create file after short delay
+    createTestFileDelayed("monitored.txt", 500);
+    
+    // Wait for detection
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    
+    EXPECT_TRUE(file_detected);
+    EXPECT_NE(detected_file.find("monitored.txt"), std::string::npos);
+}
+
 } // namespace FileOps

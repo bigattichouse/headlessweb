@@ -141,12 +141,62 @@ namespace FileOps {
             // macOS: ~/Downloads
             downloads_dir = getHomeDirectory() + "/Downloads";
         #else
-            // Linux: Check XDG_DOWNLOAD_DIR first
+            // Linux: Check XDG directories and common locations
             const char* xdg_download = std::getenv("XDG_DOWNLOAD_DIR");
-            if (xdg_download && strlen(xdg_download) > 0) {
+            if (xdg_download && strlen(xdg_download) > 0 && isDirectory(xdg_download)) {
                 downloads_dir = xdg_download;
             } else {
-                downloads_dir = getHomeDirectory() + "/Downloads";
+                // Try to read from ~/.config/user-dirs.dirs
+                std::string home = getHomeDirectory();
+                std::string user_dirs_file = home + "/.config/user-dirs.dirs";
+                std::ifstream dirs_file(user_dirs_file);
+                
+                if (dirs_file.is_open()) {
+                    std::string line;
+                    while (std::getline(dirs_file, line)) {
+                        if (line.find("XDG_DOWNLOAD_DIR=") == 0) {
+                            // Extract path from XDG_DOWNLOAD_DIR="$HOME/Downloads"
+                            size_t start = line.find('"');
+                            size_t end = line.find('"', start + 1);
+                            if (start != std::string::npos && end != std::string::npos) {
+                                std::string xdg_path = line.substr(start + 1, end - start - 1);
+                                // Replace $HOME with actual home directory
+                                if (xdg_path.find("$HOME") == 0) {
+                                    xdg_path = home + xdg_path.substr(5);
+                                }
+                                if (isDirectory(xdg_path)) {
+                                    downloads_dir = xdg_path;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    dirs_file.close();
+                }
+                
+                // Fallback to common locations
+                if (downloads_dir.empty()) {
+                    std::vector<std::string> candidates = {
+                        home + "/Downloads",
+                        home + "/downloads", 
+                        home + "/Download",
+                        home + "/下载",  // Chinese
+                        home + "/Téléchargements",  // French
+                        home + "/Descargas"  // Spanish
+                    };
+                    
+                    for (const auto& candidate : candidates) {
+                        if (isDirectory(candidate)) {
+                            downloads_dir = candidate;
+                            break;
+                        }
+                    }
+                    
+                    // If none found, use ~/Downloads as default
+                    if (downloads_dir.empty()) {
+                        downloads_dir = home + "/Downloads";
+                    }
+                }
             }
         #endif
         

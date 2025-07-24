@@ -581,13 +581,38 @@ namespace FileOps {
     
     bool DownloadManager::isBrowserTempFile(const std::string& filepath) {
         std::string filename = PathUtils::getFileName(filepath);
+        std::string lower_filename = filename;
+        std::transform(lower_filename.begin(), lower_filename.end(), lower_filename.begin(), ::tolower);
         
-        // Check for common browser temporary file extensions
-        return (filename.size() >= 11 && filename.substr(filename.size() - 11) == ".crdownload") ||  // Chrome
-               (filename.size() >= 5 && filename.substr(filename.size() - 5) == ".part") ||        // Firefox
-               (filename.size() >= 9 && filename.substr(filename.size() - 9) == ".download") ||    // Safari
-               (filename.size() >= 4 && filename.substr(filename.size() - 4) == ".tmp") ||         // Generic temp
-               (!filename.empty() && filename[0] == '~');            // Generic temp prefix
+        // Chrome temporary files
+        if (endsWith(lower_filename, ".crdownload")) return true;
+        
+        // Firefox temporary files
+        if (endsWith(lower_filename, ".part")) return true;
+        
+        // Safari temporary files
+        if (endsWith(lower_filename, ".download")) return true;
+        
+        // Edge temporary files
+        if (endsWith(lower_filename, ".partial")) return true;
+        
+        // Generic temporary files
+        if (endsWith(lower_filename, ".tmp")) return true;
+        if (endsWith(lower_filename, ".temp")) return true;
+        
+        // Files starting with temp indicators
+        if (startsWith(filename, "~")) return true;
+        if (startsWith(lower_filename, "temp")) return true;
+        if (startsWith(lower_filename, ".tmp")) return true;
+        
+        // Internet Explorer temporary files
+        if (lower_filename.find(".tmp") != std::string::npos && 
+            lower_filename.find("ie") != std::string::npos) return true;
+        
+        // Opera temporary files
+        if (endsWith(lower_filename, ".opr")) return true;
+        
+        return false;
     }
     
     bool DownloadManager::waitForBrowserWriteCompletion(const std::string& filepath, int timeout_ms) {

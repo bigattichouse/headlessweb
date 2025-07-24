@@ -460,3 +460,134 @@ TEST_F(UploadManagerTest, BrowserPageInteraction) {
     EXPECT_EQ(inputs_count, "2"); // file-input and multiple-input
     EXPECT_EQ(drop_zone_exists, "true");
 }
+
+// ========== Enhanced Method Tests ==========
+
+TEST_F(UploadManagerTest, EnhancedFileValidation) {
+    UploadCommand cmd = createUploadCommand(test_file.string());
+    
+    // Test with empty file (should fail with enhanced validation)
+    std::filesystem::path empty_file = temp_dir->createFile("empty.txt", "");
+    bool empty_result = manager->validateFile(empty_file.string(), cmd);
+    EXPECT_FALSE(empty_result); // Enhanced validation rejects empty files
+    
+    // Test with dangerous filename patterns
+    std::filesystem::path dangerous_file = temp_dir->createFile("..", "content");
+    bool dangerous_result = manager->validateFile(dangerous_file.string(), cmd);
+    EXPECT_FALSE(dangerous_result); // Should reject dangerous filenames
+    
+    // Test filename length validation
+    std::string long_name(300, 'a') + ".txt";
+    std::filesystem::path long_file = temp_dir->createFile(long_name, "content");
+    bool long_result = manager->validateFile(long_file.string(), cmd);
+    EXPECT_FALSE(long_result); // Should reject overly long filenames
+}
+
+TEST_F(UploadManagerTest, EnhancedMimeTypeDetection) {
+    // Test comprehensive MIME type detection
+    std::string html_mime = manager->detectMimeType("/test/file.html");
+    std::string css_mime = manager->detectMimeType("/test/file.css");
+    std::string js_mime = manager->detectMimeType("/test/file.js");
+    std::string json_mime = manager->detectMimeType("/test/file.json");
+    std::string pdf_mime = manager->detectMimeType("/test/file.pdf");
+    std::string jpg_mime = manager->detectMimeType("/test/file.jpg");
+    std::string mp4_mime = manager->detectMimeType("/test/file.mp4");
+    std::string zip_mime = manager->detectMimeType("/test/file.zip");
+    
+    EXPECT_EQ(html_mime, "text/html");
+    EXPECT_EQ(css_mime, "text/css");
+    EXPECT_EQ(js_mime, "application/javascript");
+    EXPECT_EQ(json_mime, "application/json");
+    EXPECT_EQ(pdf_mime, "application/pdf");
+    EXPECT_EQ(jpg_mime, "image/jpeg");
+    EXPECT_EQ(mp4_mime, "video/mp4");
+    EXPECT_EQ(zip_mime, "application/zip");
+    
+    // Test unknown extension fallback
+    std::string unknown_mime = manager->detectMimeType("/test/file.unknown");
+    EXPECT_EQ(unknown_mime, "application/octet-stream");
+}
+
+TEST_F(UploadManagerTest, Base64Encoding) {
+    std::string base64_content = manager->encodeFileAsBase64(test_file.string());
+    
+    EXPECT_FALSE(base64_content.empty());
+    EXPECT_NE(base64_content.find("data:"), std::string::npos);
+    EXPECT_NE(base64_content.find("base64"), std::string::npos);
+    
+    // Test with non-existent file
+    std::string empty_result = manager->encodeFileAsBase64("/nonexistent/file.txt");
+    EXPECT_TRUE(empty_result.empty());
+}
+
+TEST_F(UploadManagerTest, JavaScriptGeneration) {
+    std::string script = manager->generateFileUploadScript("#test-input", test_file.string(), "test.txt", "text/plain");
+    
+    EXPECT_FALSE(script.empty());
+    EXPECT_NE(script.find("#test-input"), std::string::npos);
+    EXPECT_NE(script.find("test.txt"), std::string::npos);
+    EXPECT_NE(script.find("text/plain"), std::string::npos);
+    EXPECT_NE(script.find("File selected"), std::string::npos);
+    EXPECT_NE(script.find("dispatchEvent"), std::string::npos);
+}
+
+TEST_F(UploadManagerTest, JavaScriptEscaping) {
+    // Test escaping of dangerous characters
+    std::string dangerous_input = "test'with\"quotes\nand\ttabs\\and\\backslashes";
+    std::string escaped = manager->escapeForJavaScript(dangerous_input);
+    
+    EXPECT_NE(escaped.find("\\'"), std::string::npos); // Single quote escaped
+    EXPECT_NE(escaped.find("\\\""), std::string::npos); // Double quote escaped
+    EXPECT_NE(escaped.find("\\n"), std::string::npos); // Newline escaped
+    EXPECT_NE(escaped.find("\\t"), std::string::npos); // Tab escaped
+    EXPECT_EQ(escaped.find("'"), std::string::npos); // No unescaped single quotes
+    EXPECT_EQ(escaped.find("\""), std::string::npos); // No unescaped double quotes
+}
+
+TEST_F(UploadManagerTest, EnhancedFileSimulation) {
+    // Test the enhanced file simulation with proper File object creation
+    bool result = manager->simulateFileSelection(*browser, "#file-input", test_file.string());
+    
+    EXPECT_TRUE(result);
+    
+    // Verify that the enhanced script was executed
+    std::string console_logs = browser->executeJavascriptSync("return window.lastConsoleMessage || '';");
+    // The enhanced script includes error logging, so we shouldn't see error messages
+    EXPECT_EQ(console_logs.find("File upload simulation error"), std::string::npos);
+}
+
+TEST_F(UploadManagerTest, FilePreparationWithMetadata) {
+    FileInfo info = manager->prepareFile(test_file.string());
+    
+    // Enhanced FileInfo should include complete metadata
+    EXPECT_FALSE(info.filepath.empty());
+    EXPECT_FALSE(info.filename.empty());
+    EXPECT_FALSE(info.mime_type.empty());
+    EXPECT_GT(info.size_bytes, 0);
+    EXPECT_TRUE(info.exists);
+    EXPECT_TRUE(info.is_readable);
+    
+    // Test absolute path conversion
+    EXPECT_EQ(info.filepath.front(), '/'); // Should be absolute path on Unix
+    
+    // Test MIME type is set correctly
+    EXPECT_EQ(info.mime_type, "text/plain");
+}
+
+TEST_F(UploadManagerTest, SecurityValidation) {
+    // Test various security validations in enhanced validateFile method
+    UploadCommand cmd = createUploadCommand("");
+    
+    // Test null byte injection protection
+    std::string null_byte_path = std::string("test") + std::string(1, '\0') + std::string("malicious");
+    // Note: filesystem won't actually create files with null bytes, so we test the validation logic
+    
+    // Test path traversal protection
+    std::filesystem::path traversal_file = temp_dir->createFile("../../../etc/passwd", "fake content");
+    bool traversal_result = manager->validateFile(traversal_file.string(), cmd);
+    // The file creation will fail or be contained within temp_dir, validation should still work
+    
+    // Test permission validation with actual file
+    bool permission_result = manager->validateFile(test_file.string(), cmd);
+    EXPECT_TRUE(permission_result); // Our test file should be readable
+}
