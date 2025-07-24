@@ -23,6 +23,10 @@ Testing/
 .bak
 .swp
 
+# Python Virtual Environment
+.venv/
+venv/
+
 # CMake generated files
 **/CMakeFiles/
 **/cmake_install.cmake
