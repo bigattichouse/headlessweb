@@ -1,11 +1,15 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include "browser_test_environment.h"
 #include <iostream>
 
 // Main test runner for HeadlessWeb unit tests
 int main(int argc, char **argv) {
     // Initialize Google Test
     ::testing::InitGoogleTest(&argc, argv);
+    
+    // Add global test environment
+    ::testing::AddGlobalTestEnvironment(new BrowserTestEnvironment);
     
     // Initialize Google Mock
     ::testing::InitGoogleMock(&argc, argv);

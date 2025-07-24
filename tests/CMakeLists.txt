@@ -35,6 +35,7 @@ set(TEST_SOURCES
     hweb/test_manager_registry.cpp
     hweb/test_navigation_service.cpp
     hweb/test_service_architecture_coordination.cpp
+    browser_test_environment.cpp
 )
 
 # Browser component tests (excluded due to WebKit/GTK dependencies)
