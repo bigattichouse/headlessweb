@@ -163,11 +163,12 @@ TEST_F(BrowserEventsTest, NavigationSignalWaiting) {
     HWeb::HWebConfig test_config;
     Browser browser(test_config);
     
-    // Test navigation signal waiting
+    // Test navigation signal waiting interface exists (with short timeout)
     EXPECT_NO_THROW({
-        browser.waitForNavigationSignal(1000);
-        browser.waitForNavigationSignal(3000);
-        browser.waitForBackForwardNavigation(2000);
+        // These should timeout quickly since no navigation is occurring
+        browser.waitForNavigationSignal(100);  // Short timeout
+        browser.waitForNavigationSignal(100);  // Short timeout
+        browser.waitForBackForwardNavigation(100);  // Short timeout
     });
 }
 
@@ -348,7 +349,7 @@ TEST_F(BrowserEventsTest, TimeoutVariations) {
     for (int timeout : timeout_values) {
         EXPECT_NO_THROW({
             browser.waitForSelector("#test-button", timeout);
-            browser.waitForNavigation(timeout);
+            browser.waitForNavigation(std::min(timeout, 100));  // Cap at 100ms for interface test
             browser.waitForJsCondition("true", timeout);
         });
     }
@@ -540,8 +541,8 @@ TEST_F(BrowserEventsTest, ComplexEventScenarios) {
         // Wait for element visibility
         browser.waitForVisibilityEvent("#test-button", 1000);
         
-        // Wait for navigation (simulated)
-        browser.waitForNavigation(1000);
+        // Wait for navigation (simulated) - short timeout since no navigation
+        browser.waitForNavigation(100);
     });
 }
 

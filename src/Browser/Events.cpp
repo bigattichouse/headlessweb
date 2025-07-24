@@ -490,14 +490,25 @@ bool Browser::waitForNavigationSignal(int timeout_ms) {
     waiter->completed = false;
     waiter->timeout_id = 0;
     
-    // Set up timeout
+    // Set up timeout with Browser context
+    struct TimeoutData {
+        SignalWaiter* waiter;
+        Browser* browser;
+    };
+    TimeoutData* timeout_data = new TimeoutData{waiter.get(), this};
+    
     waiter->timeout_id = g_timeout_add(timeout_ms, [](gpointer user_data) -> gboolean {
-        SignalWaiter* waiter = static_cast<SignalWaiter*>(user_data);
-        if (!waiter->completed) {
-            waiter->completed = true;
+        TimeoutData* data = static_cast<TimeoutData*>(user_data);
+        if (!data->waiter->completed) {
+            data->waiter->completed = true;
+            // Quit the main loop to break out of g_main_loop_run()
+            if (g_main_loop_is_running(data->browser->main_loop)) {
+                g_main_loop_quit(data->browser->main_loop);
+            }
         }
+        delete data;  // Clean up timeout data
         return G_SOURCE_REMOVE;
-    }, waiter.get());
+    }, timeout_data);
     
     // Add to active waiters
     signal_waiters.push_back(std::move(waiter));
