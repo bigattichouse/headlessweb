@@ -8,7 +8,7 @@
 // External debug flag
 extern bool g_debug;
 
-Browser::Browser() : cookieManager(nullptr), main_loop(g_main_loop_new(NULL, FALSE)), is_valid(true) {
+Browser::Browser(const HWeb::HWebConfig& config) : cookieManager(nullptr), main_loop(g_main_loop_new(NULL, FALSE)), is_valid(true), config_(config) {
 #ifndef DISABLE_GTK_INIT
     gtk_init();
 #else

@@ -76,7 +76,7 @@ int run_application(const HWebConfig& config) {
     }
     
     // Create and configure browser
-    Browser browser;
+    Browser browser(config);
     browser.setViewport(config.browser_width, 800);
     
     // Configure file operation handlers

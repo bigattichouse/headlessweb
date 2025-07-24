@@ -89,11 +89,18 @@ bool Browser::validateUrl(const std::string& url) const {
         return false; // Reject ftp, javascript, etc. but allow data URLs for tests
     }
 #else
-    if (protocol != "http" && protocol != "https" && protocol != "file") {
+    if (protocol != "http" && protocol != "https" && protocol != "file" && !(config_.allow_data_uri && protocol == "data")) {
         debug_output("URL validation failed: unsupported protocol '" + protocol + "'");
         return false; // Reject ftp, javascript, data, etc.
     }
 #endif
+
+    if (config_.allow_data_uri && protocol == "data") {
+        // Data URIs are explicitly allowed by configuration
+    } else if (protocol == "data") {
+        debug_output("URL validation failed: data URI not allowed by configuration");
+        return false;
+    }
     
     // Validate what comes after the protocol
     std::string remainder;
@@ -143,13 +150,14 @@ bool Browser::validateUrl(const std::string& url) const {
         return validateFileUrl(url);
     }
     
-#ifdef TESTING_MODE
+    #ifdef TESTING_MODE
     // Special data URL validation for tests
     if (protocol == "data") {
         // Basic data URL validation - just check it has some content after data:
         return remainder.length() > 0 && remainder.find(',') != std::string::npos;
     }
 #endif
+
     
     return true;
 }

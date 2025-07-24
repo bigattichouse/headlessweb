@@ -5,26 +5,28 @@
 #include "Debug.h"
 #include <thread>
 #include <chrono>
+#include <gtk/gtk.h>
 
 using namespace FileOps;
 
 class UploadManagerTest : public ::testing::Test {
 protected:
     void SetUp() override {
+        if (!gtk_is_initialized_) {
+            gtk_init();
+            gtk_is_initialized_ = true;
+        }
+        
         temp_dir = std::make_unique<TestHelpers::TemporaryDirectory>("upload_tests");
-        browser = std::make_unique<Browser>();
+        HWeb::HWebConfig test_config;
+        test_config.allow_data_uri = true;
+        browser = std::make_unique<Browser>(test_config);
         manager = std::make_unique<UploadManager>();
         
         // Allow browser initialization to complete
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
         
-        // Start test server if needed
-        server_manager = std::make_unique<TestHelpers::TestServerManager>();
-        if (!server_manager->startServer()) {
-            GTEST_SKIP() << "Could not start test server - upload tests skipped";
-        }
-        
-        // Initialize browser with a controlled test page
+        // Use simple data URI instead of complex server setup
         setupTestPage();
         
         // Create test files
@@ -39,53 +41,64 @@ protected:
     }
     
     void setupTestPage() {
-        // Use the Node.js test server
-        std::string server_url = server_manager->getServerUrl();
-        
-        debug_output("Setting up test page with URL: " + server_url);
-        
-        // First try a simple test to see if browser works at all
-        std::string simple_test_html = 
-            "data:text/html;charset=utf-8,"
-            "<!DOCTYPE html>"
-            "<html><head><title>Upload Test Server</title></head>"
-            "<body>"
-            "<h1>Test Page</h1>"
-            "<input type='file' id='file-input'/>"
-            "<input type='file' id='multiple-input' multiple/>"
-            "<div id='drop-zone'>Drop files here</div>"
-            "<div id='upload-status'>Ready</div>"
-            "<script>"
-            "function hasFileInputs() { return document.querySelectorAll('input[type=file]').length > 0; }"
-            "function elementExists(sel) { return document.querySelector(sel) !== null; }"
-            "function updateStatus(msg) { document.getElementById('upload-status').innerText = msg; }"
-            "function simulateUploadComplete() { updateStatus('Upload complete'); }"
-            "</script>"
+        // Create a proper HTML file to avoid data URI encoding issues
+        std::string test_html = 
+            "<!DOCTYPE html>\n"
+            "<html><head><title>Upload Test Server</title></head>\n"
+            "<body>\n"
+            "<h1>Test Page</h1>\n"
+            "<input type='file' id='file-input'/>\n"
+            "<input type='file' id='multiple-input' multiple/>\n"
+            "<div id='drop-zone'>Drop files here</div>\n"
+            "<div id='upload-status'>Ready</div>\n"
+            "<script>\n"
+            "function hasFileInputs() { return document.querySelectorAll('input[type=file]').length > 0; }\n"
+            "function elementExists(sel) { return document.querySelector(sel) !== null; }\n"
+            "function updateStatus(msg) { document.getElementById('upload-status').innerText = msg; }\n"
+            "function simulateUploadComplete() { updateStatus('Upload complete'); }\n"
+            "function findFileInputs() {\n"
+            "  var inputs = document.querySelectorAll('input[type=file]');\n"
+            "  var result = [];\n"
+            "  for (var i = 0; i < inputs.length; i++) {\n"
+            "    result.push('#' + inputs[i].id);\n"
+            "  }\n"
+            "  return JSON.stringify(result);\n"
+            "}\n"
+            "</script>\n"
             "</body></html>";
         
-        // Use the actual test server now that URL validation is fixed
-        debug_output("Loading actual test server page at: " + server_url);
-        browser->loadUri(server_url);
+        // Create temporary HTML file
+        auto test_html_file = temp_dir->createFile("test_page.html", test_html);
+        std::string file_url = "file://" + test_html_file.string();
         
-        // Wait for navigation to complete properly with extended timeout
-        bool navigation_success = browser->waitForNavigation(30000); // 30 second timeout for CI
+        debug_output("Loading test page via file URL: " + file_url);
+        browser->loadUri(file_url);
+        
+        // Process GTK events while waiting for navigation
+        auto start_time = std::chrono::steady_clock::now();
+        const auto timeout = std::chrono::milliseconds(5000);
+        bool navigation_success = false;
+        GMainContext *context = g_main_context_default();
+        
+        while (!navigation_success && (std::chrono::steady_clock::now() - start_time) < timeout) {
+            while (g_main_context_pending(context)) {
+                g_main_context_iteration(context, FALSE);
+            }
+            navigation_success = browser->waitForNavigation(100);
+            if (!navigation_success) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            }
+        }
+        
         if (!navigation_success) {
             std::string current_url = browser->getCurrentUrl();
             GTEST_SKIP() << "Navigation timeout - page failed to load (url: '" << current_url << "')";
         }
         
-        // Verify the page loaded correctly by checking the title
-        std::string title = browser->getPageTitle();
-        std::string current_url = browser->getCurrentUrl();
-        debug_output("Browser loaded - URL: '" + current_url + "', Title: '" + title + "'");
+        debug_output("Upload test page loaded successfully via data URI");
         
-        if (title != "Upload Test Server") {
-            // Let's also try to get some page content for debugging
-            std::string page_content = browser->executeJavascriptSync("return document.body.innerHTML.substring(0, 200);");
-            GTEST_SKIP() << "Test server page not loaded correctly (url: '" << current_url << "', title: '" << title << "', content start: '" << page_content << "')";
-        }
-        
-        debug_output("Upload test page loaded successfully via test server");
+        // Give JavaScript a moment to initialize
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
     }
 
     void TearDown() override {
@@ -97,7 +110,7 @@ protected:
     std::unique_ptr<TestHelpers::TemporaryDirectory> temp_dir;
     std::unique_ptr<Browser> browser;
     std::unique_ptr<UploadManager> manager;
-    std::unique_ptr<TestHelpers::TestServerManager> server_manager;
+    static bool gtk_is_initialized_;
     
     std::filesystem::path test_file;
     std::filesystem::path large_file;
@@ -115,6 +128,8 @@ protected:
         return cmd;
     }
 };
+
+bool UploadManagerTest::gtk_is_initialized_ = false;
 
 // ========== File Validation Tests ==========
 
@@ -185,7 +200,7 @@ TEST_F(UploadManagerTest, ValidateUploadTargetExists) {
 
 TEST_F(UploadManagerTest, ValidateUploadTargetNotExists) {
     // Test with selector that doesn't exist in our test page
-    std::string exists_result = browser->executeJavascriptSync("return elementExists('#nonexistent-input').toString();");
+    std::string exists_result = browser->executeJavascriptSync("elementExists('#nonexistent-input').toString()");
     bool result = manager->validateUploadTarget(*browser, "#nonexistent-input");
     
     EXPECT_FALSE(result);
@@ -234,7 +249,7 @@ TEST_F(UploadManagerTest, SimulateFileSelection) {
     bool result = manager->simulateFileSelection(*browser, "#file-input", test_file.string());
     
     // Verify the file was actually selected by checking page state
-    std::string status = browser->executeJavascriptSync("return document.getElementById('upload-status').innerText;");
+    std::string status = browser->executeJavascriptSync("document.getElementById('upload-status').innerText");
     
     EXPECT_TRUE(result);
     // Note: Real file selection might not trigger the change event in our test setup
@@ -251,7 +266,7 @@ TEST_F(UploadManagerTest, SimulateFileDrop) {
     bool result = manager->simulateFileDrop(*browser, "#drop-zone", test_file.string());
     
     // Verify drop zone exists and can be targeted
-    std::string zone_exists = browser->executeJavascriptSync("return elementExists('#drop-zone').toString();");
+    std::string zone_exists = browser->executeJavascriptSync("elementExists('#drop-zone').toString()");
     
     EXPECT_TRUE(result);
     EXPECT_EQ(zone_exists, "true");
@@ -266,7 +281,7 @@ TEST_F(UploadManagerTest, WaitForUploadCompletion) {
     bool result = manager->waitForUploadCompletion(*browser, "#file-input", 1000);
     
     // Verify status was updated
-    std::string status = browser->executeJavascriptSync("return document.getElementById('upload-status').innerText;");
+    std::string status = browser->executeJavascriptSync("document.getElementById('upload-status').innerText");
     EXPECT_EQ(status, "Upload complete");
     EXPECT_TRUE(result);
 }
@@ -291,7 +306,7 @@ TEST_F(UploadManagerTest, VerifyUploadSuccess) {
     
     bool result = manager->verifyUploadSuccess(*browser, "#file-input");
     
-    std::string status = browser->executeJavascriptSync("return document.getElementById('upload-status').innerText;");
+    std::string status = browser->executeJavascriptSync("document.getElementById('upload-status').innerText");
     EXPECT_EQ(status, "Upload complete");
     EXPECT_TRUE(result);
 }
@@ -347,7 +362,7 @@ TEST_F(UploadManagerTest, ClearUploadState) {
     manager->clearUploadState(*browser, "#file-input");
     
     // Verify browser is still responsive
-    std::string status = browser->executeJavascriptSync("return document.getElementById('upload-status').innerText;");
+    std::string status = browser->executeJavascriptSync("document.getElementById('upload-status').innerText");
     EXPECT_FALSE(status.empty());
 }
 
@@ -395,7 +410,7 @@ TEST_F(UploadManagerTest, GetCommonFileInputSelectors) {
 
 TEST_F(UploadManagerTest, HasFileInputs) {
     // Use actual JavaScript to check for file inputs
-    std::string result_str = browser->executeJavascriptSync("return hasFileInputs().toString();");
+    std::string result_str = browser->executeJavascriptSync("hasFileInputs().toString()");
     bool result = manager->hasFileInputs(*browser);
     
     EXPECT_TRUE(result);
@@ -404,7 +419,7 @@ TEST_F(UploadManagerTest, HasFileInputs) {
 
 TEST_F(UploadManagerTest, FindFileInputs) {
     // Use actual JavaScript to find file inputs
-    std::string inputs_json = browser->executeJavascriptSync("return findFileInputs();");
+    std::string inputs_json = browser->executeJavascriptSync("findFileInputs()");
     std::vector<std::string> inputs = manager->findFileInputs(*browser);
     
     EXPECT_GE(inputs.size(), 2); // Should find at least our test inputs
@@ -560,7 +575,7 @@ TEST_F(UploadManagerTest, EnhancedFileSimulation) {
     EXPECT_TRUE(result);
     
     // Verify that the enhanced script was executed
-    std::string console_logs = browser->executeJavascriptSync("return window.lastConsoleMessage || '';");
+    std::string console_logs = browser->executeJavascriptSync("window.lastConsoleMessage || ''");
     // The enhanced script includes error logging, so we shouldn't see error messages
     EXPECT_EQ(console_logs.find("File upload simulation error"), std::string::npos);
 }

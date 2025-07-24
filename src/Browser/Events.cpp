@@ -12,16 +12,27 @@ extern bool g_debug;
 void navigation_complete_handler(WebKitWebView* webview, WebKitLoadEvent load_event, gpointer user_data) {
     Browser* browser = static_cast<Browser*>(user_data);
     
-    if (load_event == WEBKIT_LOAD_FINISHED) {
-        debug_output("Navigation completed via signal");
-        
-        // Use public interface to notify waiters
-        browser->notifyNavigationComplete();
-        
-        // General completion signal
-        if (g_main_loop_is_running(browser->main_loop)) {
-            g_main_loop_quit(browser->main_loop);
-        }
+    switch (load_event) {
+        case WEBKIT_LOAD_STARTED:
+            debug_output("Navigation started");
+            break;
+        case WEBKIT_LOAD_REDIRECTED:
+            debug_output("Navigation redirected");
+            break;
+        case WEBKIT_LOAD_COMMITTED:
+            debug_output("Navigation committed (DOM available)");
+            break;
+        case WEBKIT_LOAD_FINISHED:
+            debug_output("Navigation completed via signal");
+            
+            // Use public interface to notify waiters
+            browser->notifyNavigationComplete();
+            
+            // General completion signal
+            if (g_main_loop_is_running(browser->main_loop)) {
+                g_main_loop_quit(browser->main_loop);
+            }
+            break;
     }
 }
 
@@ -88,6 +99,9 @@ void Browser::setupSignalHandlers() {
     gulong title_id = g_signal_connect(webView, "notify::title", 
                                       G_CALLBACK(title_changed_handler), this);
     connected_signal_ids.push_back(title_id);
+    
+    // Note: document-loaded is not a valid WebKit signal, 
+    // ready-to-show and load-changed with WEBKIT_LOAD_FINISHED are sufficient
     
     // Page ready signal
     gulong ready_id = g_signal_connect(webView, "ready-to-show", 
@@ -619,7 +633,7 @@ bool Browser::waitForSelector(const std::string& selector, int timeout_ms) {
 }
 
 bool Browser::waitForNavigation(int timeout_ms) {
-    return waitForNavigationEvent(timeout_ms);
+    return waitForNavigationSignal(timeout_ms);
 }
 
 bool Browser::waitForJsCondition(const std::string& condition, int timeout_ms) {

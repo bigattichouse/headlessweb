@@ -29,6 +29,8 @@ HWebConfig ConfigParser::parseArguments(const std::vector<std::string>& args) {
             config.json_mode = true;
         } else if (args[i] == "--silent") {
             config.silent_mode = true;
+        } else if (args[i] == "--allow-data-uri") {
+            config.allow_data_uri = true;
         } else if (args[i] == "--width" && i + 1 < args.size()) {
             config.browser_width = std::stoi(args[++i]);
         } else if (args[i] == "--user-agent" && i + 1 < args.size()) {

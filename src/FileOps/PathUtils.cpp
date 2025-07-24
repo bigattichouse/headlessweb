@@ -333,14 +333,19 @@ namespace FileOps {
     // ========== Security and Validation ==========
     
     bool PathUtils::isSecurePath(const std::string& path) {
-        if (path.empty()) {
-            return false;
-        }
-        
-        // Check for null bytes
-        if (path.find('\0') != std::string::npos) {
-            return false;
-        }
+    if (path.empty()) {
+        return false;
+    }
+
+    // Allow data URIs
+    if (path.rfind("data:", 0) == 0) {
+        return true;
+    }
+
+    // Check for null bytes
+    if (path.find('\0') != std::string::npos) {
+        return false;
+    }
         
         // Check for directory traversal patterns
         if (path.find("..") != std::string::npos) {

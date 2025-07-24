@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Session/Session.h"
+#include "../hweb/Types.h"
 #include "../Debug.h"
 #include <string>
 #include <functional>
@@ -30,6 +31,8 @@ class Browser {
     friend void screenshot_callback(void* source_object, void* res, gpointer user_data);
 
 private:
+    HWeb::HWebConfig config_; // Store the configuration
+
     // Event management structures
     struct EventWaiter {
         std::string event_type;
@@ -74,7 +77,7 @@ public:
     GMainLoop* main_loop; // For synchronous operations
     
     // Constructor/Destructor - Browser.cpp
-    Browser();
+    Browser(const HWeb::HWebConfig& config);
     ~Browser();
 
     // ========== Core Navigation - BrowserCore.cpp ==========
