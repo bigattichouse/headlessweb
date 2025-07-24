@@ -3,6 +3,7 @@
 #include "../Session/Session.h"
 #include "../hweb/Types.h"
 #include "../Debug.h"
+#include "EventLoopManager.h"
 #include <string>
 #include <functional>
 #include <map>
@@ -75,6 +76,9 @@ public:
     GtkWidget* window;
     WebKitWebView* webView;
     GMainLoop* main_loop; // For synchronous operations
+    
+    // Event loop manager for preventing nested loops
+    std::unique_ptr<EventLoopManager> event_loop_manager;
     
     // Constructor/Destructor - Browser.cpp
     Browser(const HWeb::HWebConfig& config);

@@ -78,6 +78,10 @@ Browser::Browser(const HWeb::HWebConfig& config) : cookieManager(nullptr), main_
     // Store browser instance in the webView for callbacks
     g_object_set_data(G_OBJECT(webView), "browser-instance", this);
     
+    // Initialize the EventLoopManager
+    event_loop_manager = std::make_unique<EventLoopManager>();
+    event_loop_manager->initialize(main_loop);
+    
     // Setup event-driven signal handlers (implemented in BrowserEvents.cpp)
     setupSignalHandlers();
     
@@ -87,6 +91,12 @@ Browser::Browser(const HWeb::HWebConfig& config) : cookieManager(nullptr), main_
 Browser::~Browser() {
     // Mark object as invalid to prevent signal handler access
     is_valid.store(false);
+    
+    // Cleanup EventLoopManager first
+    if (event_loop_manager) {
+        event_loop_manager->cleanup();
+        event_loop_manager.reset();
+    }
     
     // Disconnect all WebKit signals to prevent race conditions
     disconnectSignalHandlers();

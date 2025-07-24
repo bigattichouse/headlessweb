@@ -79,10 +79,8 @@ void js_eval_callback(GObject* object, GAsyncResult* res, gpointer user_data) {
         }
     }
     
-    if (browser_instance) {
-        if (g_main_loop_is_running(browser_instance->main_loop)) {
-            g_main_loop_quit(browser_instance->main_loop);
-        }
+    if (browser_instance && browser_instance->event_loop_manager) {
+        browser_instance->event_loop_manager->signalJavaScriptComplete();
     }
 }
 
@@ -122,34 +120,48 @@ void Browser::executeJavascript(const std::string& script, std::string* result) 
 }
 
 bool Browser::waitForJavaScriptCompletion(int timeout_ms) {
-    struct CompletionData {
-        GMainLoop* loop;
-        bool timed_out;
-        guint timeout_id;
-    };
-    
-    CompletionData data = {main_loop, false, 0};
-    
-    data.timeout_id = g_timeout_add(timeout_ms, [](gpointer user_data) -> gboolean {
-        CompletionData* data = static_cast<CompletionData*>(user_data);
-        data->timed_out = true;
-        if (g_main_loop_is_running(data->loop)) {
-            g_main_loop_quit(data->loop);
+    if (!event_loop_manager) {
+        debug_output("EventLoopManager not initialized, falling back to direct wait");
+        // Fallback to old method
+        struct CompletionData {
+            GMainLoop* loop;
+            bool timed_out;
+            guint timeout_id;
+        };
+        
+        CompletionData data = {main_loop, false, 0};
+        
+        data.timeout_id = g_timeout_add(timeout_ms, [](gpointer user_data) -> gboolean {
+            CompletionData* data = static_cast<CompletionData*>(user_data);
+            data->timed_out = true;
+            if (g_main_loop_is_running(data->loop)) {
+                g_main_loop_quit(data->loop);
+            }
+            return G_SOURCE_REMOVE;
+        }, &data);
+        
+        g_main_loop_run(main_loop);
+        
+        if (!data.timed_out && data.timeout_id != 0) {
+            g_source_remove(data.timeout_id);
         }
-        return G_SOURCE_REMOVE;
-    }, &data);
-    
-    g_main_loop_run(main_loop);
-    
-    if (!data.timed_out && data.timeout_id != 0) {
-        g_source_remove(data.timeout_id);
+        
+        return !data.timed_out;
     }
     
-    return !data.timed_out;
+    return event_loop_manager->waitForJavaScriptCompletion(timeout_ms);
 }
 
 std::string Browser::executeJavascriptSync(const std::string& script) {
     if (script.empty() || !webView) {
+        return "";
+    }
+    
+    // Check if we have a valid document context
+    const gchar* uri = webkit_web_view_get_uri(webView);
+    if (!uri || strlen(uri) == 0) {
+        debug_output("No URI loaded, JavaScript execution may hang. Script: " + script.substr(0, 50) + "...");
+        // For now, return empty to prevent hangs
         return "";
     }
     

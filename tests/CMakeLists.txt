@@ -93,6 +93,7 @@ target_sources(hweb_tests PRIVATE
     ../src/Browser/Core.cpp
     ../src/Browser/DOM.cpp
     ../src/Browser/Events.cpp
+    ../src/Browser/EventLoopManager.cpp
     ../src/Browser/JavaScript.cpp
     ../src/Browser/Screenshot.cpp
     ../src/Browser/Session.cpp

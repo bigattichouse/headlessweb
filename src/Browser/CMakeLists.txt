@@ -3,6 +3,7 @@ set(BROWSER_SOURCES
     Core.cpp
     JavaScript.cpp
     Events.cpp
+    EventLoopManager.cpp
     DOM.cpp
     Storage.cpp
     Session.cpp
@@ -14,6 +15,7 @@ set(BROWSER_SOURCES
 set(BROWSER_HEADERS
     Browser.h
     WebKitCompat.h
+    EventLoopManager.h
 )
 
 set(BROWSER_MODULE_SOURCES "")

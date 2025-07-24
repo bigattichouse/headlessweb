@@ -89,30 +89,70 @@ bool Browser::fillInput(const std::string& selector, const std::string& value) {
 }
 
 bool Browser::clickElement(const std::string& selector) {
-    if (!waitForSelectorEvent(selector, 5000)) {
+    // Check if webView exists first
+    if (!webView) {
         return false;
     }
     
-    if (!waitForVisibilityEvent(selector, 2000)) {
-        debug_output("Warning: Element exists but may not be visible");
+    // Check if a page is loaded
+    const gchar* uri = webkit_web_view_get_uri(webView);
+    if (!uri || strlen(uri) == 0) {
+        debug_output("No page loaded, clickElement returning false for: " + selector);
+        return false;
+    }
+    
+    // Single wait with combined check - no nested event loops
+    if (!elementExists(selector)) {
+        debug_output("Element does not exist: " + selector);
+        return false;
+    }
+    
+    // Escape selector to prevent injection
+    std::string escaped_selector = selector;
+    size_t pos = 0;
+    while ((pos = escaped_selector.find("'", pos)) != std::string::npos) {
+        escaped_selector.replace(pos, 1, "\\'");
+        pos += 2;
     }
     
     std::string js_script = 
         "(function() { "
         "  try { "
-        "    var element = document.querySelector('" + selector + "'); "
+        "    if (!document || !document.querySelector) return 'NO_DOCUMENT'; "
+        "    var element = document.querySelector('" + escaped_selector + "'); "
         "    if (element) { "
-        "      element.click(); "
-        "      return true; "
+        "      // Check if element is visible before clicking "
+        "      var rect = element.getBoundingClientRect(); "
+        "      if (rect.width > 0 && rect.height > 0) { "
+        "        element.click(); "
+        "        return 'clicked'; "
+        "      } else { "
+        "        return 'not_visible'; "
+        "      } "
         "    } "
-        "    return false; "
+        "    return 'not_found'; "
         "  } catch(e) { "
-        "    return false; "
+        "    return 'error:' + e.message; "
         "  } "
         "})()";
     
     std::string result = executeJavascriptSync(js_script);
-    return result == "true";
+    
+    if (result == "clicked") {
+        return true;
+    } else if (result == "not_visible") {
+        debug_output("Element not visible: " + selector);
+        return false;
+    } else if (result == "not_found") {
+        debug_output("Element not found during click: " + selector);
+        return false;
+    } else if (result == "NO_DOCUMENT") {
+        debug_output("Document not ready for click: " + selector);
+        return false;
+    } else {
+        debug_output("Click failed: " + result);
+        return false;
+    }
 }
 
 bool Browser::submitForm(const std::string& form_selector) {
@@ -345,10 +385,31 @@ bool Browser::focusElement(const std::string& selector) {
 // ========== Element Query Methods ==========
 
 bool Browser::elementExists(const std::string& selector) {
+    // Add timeout protection to prevent hanging
+    if (!webView) {
+        return false;
+    }
+    
+    // Check if a page is loaded
+    const gchar* uri = webkit_web_view_get_uri(webView);
+    if (!uri || strlen(uri) == 0) {
+        debug_output("No page loaded, elementExists returning false for: " + selector);
+        return false; // No page loaded, element cannot exist
+    }
+    
+    // Escape selector to prevent injection
+    std::string escaped_selector = selector;
+    size_t pos = 0;
+    while ((pos = escaped_selector.find("'", pos)) != std::string::npos) {
+        escaped_selector.replace(pos, 1, "\\'");
+        pos += 2;
+    }
+    
     std::string js_script = 
         "(function() { "
         "  try { "
-        "    return document.querySelector('" + selector + "') !== null; "
+        "    if (!document || !document.querySelector) return 'NO_DOCUMENT'; "
+        "    return document.querySelector('" + escaped_selector + "') !== null; "
         "  } catch(e) { "
         "    return 'SELECTOR_ERROR:' + e.message; "
         "  } "
@@ -356,9 +417,15 @@ bool Browser::elementExists(const std::string& selector) {
     
     std::string result = executeJavascriptSync(js_script);
     
-    // Check if we got a selector error
+    // Check for various error conditions
+    if (result.empty() || result == "NO_DOCUMENT") {
+        debug_output("Document not ready for selector: " + selector);
+        return false;
+    }
+    
     if (result.find("SELECTOR_ERROR:") == 0) {
-        throw std::runtime_error("Invalid CSS selector: " + selector + " (" + result.substr(15) + ")");
+        debug_output("Invalid CSS selector: " + selector + " (" + result.substr(15) + ")");
+        return false; // Don't throw, just return false
     }
     
     return result == "true";
@@ -467,6 +534,17 @@ std::string Browser::getFirstNonEmptyText(const std::string& selector) {
 // ========== Attribute Methods ==========
 
 std::string Browser::getAttribute(const std::string& selector, const std::string& attribute) {
+    if (!webView) {
+        return "";
+    }
+    
+    // Check if a page is loaded
+    const gchar* uri = webkit_web_view_get_uri(webView);
+    if (!uri || strlen(uri) == 0) {
+        debug_output("No page loaded, getAttribute returning empty for: " + selector);
+        return "";
+    }
+    
     // Escape the selector
     std::string escaped_selector = selector;
     size_t pos = 0;
@@ -486,6 +564,7 @@ std::string Browser::getAttribute(const std::string& selector, const std::string
     std::string js_script = 
         "(function() { "
         "  try { "
+        "    if (!document || !document.querySelector) return 'NO_DOCUMENT'; "
         "    var element = document.querySelector('" + escaped_selector + "'); "
         "    if (element) { "
         "      var attr = element.getAttribute('" + escaped_attribute + "'); "
@@ -493,11 +572,23 @@ std::string Browser::getAttribute(const std::string& selector, const std::string
         "    } "
         "    return ''; "
         "  } catch(e) { "
-        "    return ''; "
+        "    return 'ERROR:' + e.message; "
         "  } "
         "})()";
     
-    return executeJavascriptSync(js_script);
+    std::string result = executeJavascriptSync(js_script);
+    
+    if (result == "NO_DOCUMENT") {
+        debug_output("Document not ready for getAttribute: " + selector);
+        return "";
+    }
+    
+    if (result.find("ERROR:") == 0) {
+        debug_output("getAttribute error: " + result.substr(6));
+        return "";
+    }
+    
+    return result;
 }
 bool Browser::setAttribute(const std::string& selector, const std::string& attribute, const std::string& value) {
     // Small delay to ensure element is ready
