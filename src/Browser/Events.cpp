@@ -485,53 +485,94 @@ bool Browser::waitForNavigationEvent(int timeout_ms) {
 }
 
 bool Browser::waitForNavigationSignal(int timeout_ms) {
+    if (!event_loop_manager) {
+        debug_output("EventLoopManager not initialized, falling back to direct wait");
+        // Fallback to old method
+        auto waiter = std::make_unique<SignalWaiter>();
+        waiter->signal_name = "navigation";
+        waiter->completed = false;
+        waiter->timeout_id = 0;
+        
+        // Set up timeout with Browser context
+        struct TimeoutData {
+            SignalWaiter* waiter;
+            Browser* browser;
+        };
+        TimeoutData* timeout_data = new TimeoutData{waiter.get(), this};
+        
+        waiter->timeout_id = g_timeout_add(timeout_ms, [](gpointer user_data) -> gboolean {
+            TimeoutData* data = static_cast<TimeoutData*>(user_data);
+            if (!data->waiter->completed) {
+                data->waiter->completed = true;
+                // Quit the main loop to break out of g_main_loop_run()
+                if (g_main_loop_is_running(data->browser->main_loop)) {
+                    g_main_loop_quit(data->browser->main_loop);
+                }
+            }
+            delete data;  // Clean up timeout data
+            return G_SOURCE_REMOVE;
+        }, timeout_data);
+        
+        // Add to active waiters
+        signal_waiters.push_back(std::move(waiter));
+        
+        // Wait for signal or timeout
+        g_main_loop_run(main_loop);
+        
+        // Check result and cleanup
+        bool success = false;
+        signal_waiters.erase(
+            std::remove_if(signal_waiters.begin(), signal_waiters.end(),
+                [&success](const std::unique_ptr<SignalWaiter>& w) {
+                    if (w->signal_name == "navigation") {
+                        success = w->completed;
+                        if (w->timeout_id != 0) {
+                            g_source_remove(w->timeout_id);
+                        }
+                        return true;
+                    }
+                    return false;
+                }),
+            signal_waiters.end()
+        );
+        
+        return success;
+    }
+    
+    // Set up signal waiter first
     auto waiter = std::make_unique<SignalWaiter>();
     waiter->signal_name = "navigation";
     waiter->completed = false;
     waiter->timeout_id = 0;
     
-    // Set up timeout with Browser context
-    struct TimeoutData {
-        SignalWaiter* waiter;
-        Browser* browser;
-    };
-    TimeoutData* timeout_data = new TimeoutData{waiter.get(), this};
+    {
+        std::lock_guard<std::mutex> lock(signal_mutex);
+        signal_waiters.push_back(std::move(waiter));
+    }
     
-    waiter->timeout_id = g_timeout_add(timeout_ms, [](gpointer user_data) -> gboolean {
-        TimeoutData* data = static_cast<TimeoutData*>(user_data);
-        if (!data->waiter->completed) {
-            data->waiter->completed = true;
-            // Quit the main loop to break out of g_main_loop_run()
-            if (g_main_loop_is_running(data->browser->main_loop)) {
-                g_main_loop_quit(data->browser->main_loop);
+    // Use EventLoopManager to handle the wait with navigation signal check
+    bool success = event_loop_manager->waitForCondition([this]() -> bool {
+        // Check if any navigation waiters have completed
+        std::lock_guard<std::mutex> lock(signal_mutex);
+        for (const auto& waiter : signal_waiters) {
+            if (waiter && waiter->signal_name == "navigation" && waiter->completed) {
+                return true;
             }
         }
-        delete data;  // Clean up timeout data
-        return G_SOURCE_REMOVE;
-    }, timeout_data);
+        return false;
+    }, timeout_ms);
     
-    // Add to active waiters
-    signal_waiters.push_back(std::move(waiter));
-    
-    // Wait for signal or timeout
-    g_main_loop_run(main_loop);
-    
-    // Check result and cleanup
-    bool success = false;
-    signal_waiters.erase(
-        std::remove_if(signal_waiters.begin(), signal_waiters.end(),
-            [&success](const std::unique_ptr<SignalWaiter>& w) {
-                if (w->signal_name == "navigation") {
-                    success = w->completed;
-                    if (w->timeout_id != 0) {
-                        g_source_remove(w->timeout_id);
-                    }
-                    return true;
-                }
-                return false;
-            }),
-        signal_waiters.end()
-    );
+    // Clean up the waiter
+    {
+        std::lock_guard<std::mutex> lock(signal_mutex);
+        signal_waiters.erase(
+            std::remove_if(signal_waiters.begin(), signal_waiters.end(),
+                [](const std::unique_ptr<SignalWaiter>& w) {
+                    return w && w->signal_name == "navigation";
+                }),
+            signal_waiters.end()
+        );
+    }
     
     return success;
 }

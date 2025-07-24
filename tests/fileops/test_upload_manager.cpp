@@ -131,9 +131,51 @@ protected:
 
 bool UploadManagerTest::gtk_is_initialized_ = false;
 
-// ========== File Validation Tests ==========
+// ========== Simple Validation Tests (No Browser Required) ==========
 
-TEST_F(UploadManagerTest, ValidateExistingFile) {
+class UploadValidationTest : public ::testing::Test {
+protected:
+    void SetUp() override {
+        temp_dir = std::make_unique<TestHelpers::TemporaryDirectory>("upload_validation_tests");
+        manager = std::make_unique<UploadManager>();
+        
+        // Create test files without browser setup
+        test_file = temp_dir->createFile("test.txt", "test content");
+        large_file = temp_dir->createFile("large.txt", std::string(1024 * 1024, 'x')); // 1MB
+        
+        // Create binary test file
+        std::vector<uint8_t> binary_data = {0x89, 0x50, 0x4E, 0x47}; // PNG header
+        TestHelpers::createTestFile(temp_dir->getPath() / "test.png", 
+                                   std::string(binary_data.begin(), binary_data.end()));
+        binary_file = temp_dir->getPath() / "test.png";
+    }
+
+    void TearDown() override {
+        manager.reset();
+        temp_dir.reset();
+    }
+
+    std::unique_ptr<TestHelpers::TemporaryDirectory> temp_dir;
+    std::unique_ptr<UploadManager> manager;
+    
+    std::filesystem::path test_file;
+    std::filesystem::path large_file;
+    std::filesystem::path binary_file;
+    
+    UploadCommand createUploadCommand(const std::string& filepath) {
+        UploadCommand cmd;
+        cmd.selector = "#file-input";
+        cmd.filepath = filepath;
+        cmd.timeout_ms = 5000;
+        cmd.wait_completion = true;
+        cmd.max_file_size = 10 * 1024 * 1024; // 10MB
+        cmd.allowed_types = {"*"};
+        cmd.verify_upload = true;
+        return cmd;
+    }
+};
+
+TEST_F(UploadValidationTest, ValidateExistingFile) {
     UploadCommand cmd = createUploadCommand(test_file.string());
     
     bool result = manager->validateFile(test_file.string(), cmd);
@@ -141,7 +183,7 @@ TEST_F(UploadManagerTest, ValidateExistingFile) {
     EXPECT_TRUE(result);
 }
 
-TEST_F(UploadManagerTest, ValidateNonExistentFile) {
+TEST_F(UploadValidationTest, ValidateNonExistentFile) {
     UploadCommand cmd = createUploadCommand("/nonexistent/file.txt");
     
     bool result = manager->validateFile("/nonexistent/file.txt", cmd);
@@ -149,7 +191,7 @@ TEST_F(UploadManagerTest, ValidateNonExistentFile) {
     EXPECT_FALSE(result);
 }
 
-TEST_F(UploadManagerTest, ValidateFileSize) {
+TEST_F(UploadValidationTest, ValidateFileSize) {
     // Test file within size limit
     bool result1 = manager->validateFileSize(test_file.string(), 1024);
     EXPECT_TRUE(result1);
@@ -159,7 +201,7 @@ TEST_F(UploadManagerTest, ValidateFileSize) {
     EXPECT_FALSE(result2);
 }
 
-TEST_F(UploadManagerTest, ValidateFileTypeAllowed) {
+TEST_F(UploadValidationTest, ValidateFileTypeAllowed) {
     std::vector<std::string> allowed = {"txt", "png", "jpg"};
     
     bool txt_result = manager->validateFileType(test_file.string(), allowed);
@@ -169,7 +211,7 @@ TEST_F(UploadManagerTest, ValidateFileTypeAllowed) {
     EXPECT_TRUE(png_result);
 }
 
-TEST_F(UploadManagerTest, ValidateFileTypeRestricted) {
+TEST_F(UploadValidationTest, ValidateFileTypeRestricted) {
     std::vector<std::string> allowed = {"jpg", "jpeg"};
     
     bool txt_result = manager->validateFileType(test_file.string(), allowed);
@@ -179,7 +221,7 @@ TEST_F(UploadManagerTest, ValidateFileTypeRestricted) {
     EXPECT_FALSE(png_result);
 }
 
-TEST_F(UploadManagerTest, ValidateFileTypeWildcard) {
+TEST_F(UploadValidationTest, ValidateFileTypeWildcard) {
     std::vector<std::string> allowed = {"*"};
     
     bool result = manager->validateFileType(test_file.string(), allowed);
