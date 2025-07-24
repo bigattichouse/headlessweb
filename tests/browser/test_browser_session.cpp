@@ -11,7 +11,8 @@ using namespace std::chrono_literals;
 class BrowserSessionTest : public ::testing::Test {
 protected:
     void SetUp() override {
-        browser = std::make_unique<Browser>();
+        HWeb::HWebConfig test_config;
+        browser = std::make_unique<Browser>(test_config);
         session = std::make_unique<Session>("test_session");
         
         // Load a comprehensive test page for session testing
@@ -198,7 +199,8 @@ TEST_F(BrowserSessionTest, RestoreSessionBasic) {
     session->setUserAgent("HeadlessWeb Test Agent");
     
     // Create a new browser instance
-    auto newBrowser = std::make_unique<Browser>();
+    HWeb::HWebConfig test_config;
+    auto newBrowser = std::make_unique<Browser>(test_config);
     std::this_thread::sleep_for(500ms);
     
     // Restore session
@@ -235,7 +237,8 @@ TEST_F(BrowserSessionTest, RestoreSessionWithFormState) {
     session->setCurrentUrl(browser->getCurrentUrl());
     
     // Create new browser and restore session
-    auto newBrowser = std::make_unique<Browser>();
+    HWeb::HWebConfig test_config;
+    auto newBrowser = std::make_unique<Browser>(test_config);
     std::this_thread::sleep_for(500ms);
     
     newBrowser->restoreSession(*session);
@@ -259,7 +262,8 @@ TEST_F(BrowserSessionTest, RestoreSessionWithScrollPosition) {
     session->setCurrentUrl(browser->getCurrentUrl());
     
     // Create new browser and restore session
-    auto newBrowser = std::make_unique<Browser>();
+    HWeb::HWebConfig test_config;
+    auto newBrowser = std::make_unique<Browser>(test_config);
     std::this_thread::sleep_for(500ms);
     
     newBrowser->restoreSession(*session);
@@ -278,7 +282,8 @@ TEST_F(BrowserSessionTest, RestoreSessionWithActiveElements) {
     session->setCurrentUrl(browser->getCurrentUrl());
     
     // Create new browser and restore session
-    auto newBrowser = std::make_unique<Browser>();
+    HWeb::HWebConfig test_config;
+    auto newBrowser = std::make_unique<Browser>(test_config);
     std::this_thread::sleep_for(500ms);
     
     newBrowser->restoreSession(*session);
@@ -302,7 +307,8 @@ TEST_F(BrowserSessionTest, RestoreSessionWithCustomState) {
     session->setCurrentUrl(browser->getCurrentUrl());
     
     // Create new browser and restore session
-    auto newBrowser = std::make_unique<Browser>();
+    HWeb::HWebConfig test_config;
+    auto newBrowser = std::make_unique<Browser>(test_config);
     std::this_thread::sleep_for(500ms);
     
     newBrowser->restoreSession(*session);
@@ -584,7 +590,8 @@ TEST_F(BrowserSessionTest, FullSessionSaveAndRestore) {
     browser->updateSessionState(*session);
     
     // Create new browser instance and restore
-    auto newBrowser = std::make_unique<Browser>();
+    HWeb::HWebConfig test_config;
+    auto newBrowser = std::make_unique<Browser>(test_config);
     std::this_thread::sleep_for(500ms);
     
     newBrowser->restoreSession(*session);
