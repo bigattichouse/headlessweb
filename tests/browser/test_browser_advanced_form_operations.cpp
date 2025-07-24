@@ -10,7 +10,8 @@ protected:
     void SetUp() override {
         // Create temporary directory for testing
         temp_dir = std::make_unique<TestHelpers::TemporaryDirectory>("browser_advanced_form_tests");
-        browser_ = std::make_unique<Browser>();
+        HWeb::HWebConfig test_config;
+        browser_ = std::make_unique<Browser>(test_config);
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
     

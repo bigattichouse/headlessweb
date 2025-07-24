@@ -19,7 +19,8 @@ protected:
         temp_dir = std::make_unique<TestHelpers::TemporaryDirectory>("workflow_chains_tests");
         
         // Initialize components
-        browser_ = std::make_unique<Browser>();
+        HWeb::HWebConfig test_config;
+        browser_ = std::make_unique<Browser>(test_config);
         session_manager_ = std::make_unique<SessionManager>(temp_dir->getPath());
         download_manager_ = std::make_unique<FileOps::DownloadManager>();
         upload_manager_ = std::make_unique<FileOps::UploadManager>();

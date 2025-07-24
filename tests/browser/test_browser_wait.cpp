@@ -10,7 +10,8 @@ using namespace std::chrono_literals;
 class BrowserWaitTest : public ::testing::Test {
 protected:
     void SetUp() override {
-        browser = std::make_unique<Browser>();
+        HWeb::HWebConfig test_config;
+        browser = std::make_unique<Browser>(test_config);
         
         // Load a comprehensive test page for wait method testing
         setupTestPage();

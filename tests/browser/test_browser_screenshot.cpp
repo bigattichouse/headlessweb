@@ -19,7 +19,8 @@ protected:
         std::filesystem::create_directories(test_dir_);
         
         // Initialize browser
-        browser_ = std::make_unique<Browser>();
+        HWeb::HWebConfig test_config;
+        browser_ = std::make_unique<Browser>(test_config);
         
         // Small delay to ensure proper initialization
         std::this_thread::sleep_for(std::chrono::milliseconds(500));

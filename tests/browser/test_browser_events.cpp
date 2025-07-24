@@ -148,7 +148,8 @@ protected:
 // ========== Basic Event Waiting Tests ==========
 
 TEST_F(BrowserEventsTest, NavigationEventWaiting) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test navigation event waiting interface
     EXPECT_NO_THROW({
@@ -159,7 +160,8 @@ TEST_F(BrowserEventsTest, NavigationEventWaiting) {
 }
 
 TEST_F(BrowserEventsTest, NavigationSignalWaiting) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test navigation signal waiting
     EXPECT_NO_THROW({
@@ -170,7 +172,8 @@ TEST_F(BrowserEventsTest, NavigationSignalWaiting) {
 }
 
 TEST_F(BrowserEventsTest, PageReadyEventWaiting) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test page ready event waiting
     EXPECT_NO_THROW({
@@ -182,7 +185,8 @@ TEST_F(BrowserEventsTest, PageReadyEventWaiting) {
 // ========== Selector-Based Event Tests ==========
 
 TEST_F(BrowserEventsTest, SelectorEventWaiting) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     std::vector<std::string> test_selectors = {
         "#test-button",
@@ -201,7 +205,8 @@ TEST_F(BrowserEventsTest, SelectorEventWaiting) {
 }
 
 TEST_F(BrowserEventsTest, VisibilityEventWaiting) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     std::vector<std::string> visibility_selectors = {
         "#hidden-element",
@@ -219,7 +224,8 @@ TEST_F(BrowserEventsTest, VisibilityEventWaiting) {
 }
 
 TEST_F(BrowserEventsTest, ElementContentWaiting) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     std::vector<std::string> content_selectors = {
         "#title",
@@ -238,7 +244,8 @@ TEST_F(BrowserEventsTest, ElementContentWaiting) {
 // ========== JavaScript Condition Waiting Tests ==========
 
 TEST_F(BrowserEventsTest, JavaScriptConditionWaiting) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     std::vector<std::string> js_conditions = {
         "true",
@@ -262,7 +269,8 @@ TEST_F(BrowserEventsTest, JavaScriptConditionWaiting) {
 }
 
 TEST_F(BrowserEventsTest, ComplexJavaScriptConditions) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     std::vector<std::string> complex_conditions = {
         "document.readyState === 'complete' && document.getElementById('main-content')",
@@ -283,7 +291,8 @@ TEST_F(BrowserEventsTest, ComplexJavaScriptConditions) {
 // ========== Text-Based Waiting Tests ==========
 
 TEST_F(BrowserEventsTest, TextAppearanceWaiting) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     std::vector<std::string> text_targets = {
         "Event Test Page",
@@ -303,7 +312,8 @@ TEST_F(BrowserEventsTest, TextAppearanceWaiting) {
 }
 
 TEST_F(BrowserEventsTest, UnicodeTextWaiting) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     std::vector<std::string> unicode_texts = {
         "测试文本",
@@ -323,7 +333,8 @@ TEST_F(BrowserEventsTest, UnicodeTextWaiting) {
 // ========== Timeout Handling Tests ==========
 
 TEST_F(BrowserEventsTest, TimeoutVariations) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     std::vector<int> timeout_values = {
         1,      // Very short
@@ -344,7 +355,8 @@ TEST_F(BrowserEventsTest, TimeoutVariations) {
 }
 
 TEST_F(BrowserEventsTest, NegativeTimeoutHandling) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test handling of negative timeouts
     EXPECT_NO_THROW({
@@ -357,7 +369,8 @@ TEST_F(BrowserEventsTest, NegativeTimeoutHandling) {
 // ========== Multiple Concurrent Events ==========
 
 TEST_F(BrowserEventsTest, ConcurrentEventWaiting) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test that multiple event waiting operations don't interfere
     EXPECT_NO_THROW({
@@ -369,7 +382,8 @@ TEST_F(BrowserEventsTest, ConcurrentEventWaiting) {
 }
 
 TEST_F(BrowserEventsTest, SequentialEventOperations) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test sequential event operations
     EXPECT_NO_THROW({
@@ -384,7 +398,8 @@ TEST_F(BrowserEventsTest, SequentialEventOperations) {
 // ========== Event Notification Tests ==========
 
 TEST_F(BrowserEventsTest, EventNotificationMethods) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test event notification methods (should not crash)
     EXPECT_NO_THROW({
@@ -396,7 +411,8 @@ TEST_F(BrowserEventsTest, EventNotificationMethods) {
 }
 
 TEST_F(BrowserEventsTest, RepeatedEventNotifications) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test repeated event notifications
     EXPECT_NO_THROW({
@@ -412,7 +428,8 @@ TEST_F(BrowserEventsTest, RepeatedEventNotifications) {
 // ========== Error Handling in Events ==========
 
 TEST_F(BrowserEventsTest, InvalidSelectorEventHandling) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     std::vector<std::string> invalid_selectors = {
         "",
@@ -433,7 +450,8 @@ TEST_F(BrowserEventsTest, InvalidSelectorEventHandling) {
 }
 
 TEST_F(BrowserEventsTest, InvalidJavaScriptConditionHandling) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     std::vector<std::string> invalid_conditions = {
         "",
@@ -455,7 +473,8 @@ TEST_F(BrowserEventsTest, InvalidJavaScriptConditionHandling) {
 // ========== Performance and Timing Tests ==========
 
 TEST_F(BrowserEventsTest, EventWaitingPerformance) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     auto start = std::chrono::steady_clock::now();
     
@@ -476,7 +495,8 @@ TEST_F(BrowserEventsTest, EventWaitingPerformance) {
 }
 
 TEST_F(BrowserEventsTest, TimingAccuracy) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test that timeouts are reasonably accurate
     std::vector<int> test_timeouts = {100, 500, 1000};
@@ -500,7 +520,8 @@ TEST_F(BrowserEventsTest, TimingAccuracy) {
 // ========== Complex Event Scenarios ==========
 
 TEST_F(BrowserEventsTest, ComplexEventScenarios) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test complex event scenarios that might occur in real usage
     EXPECT_NO_THROW({
@@ -527,7 +548,8 @@ TEST_F(BrowserEventsTest, ComplexEventScenarios) {
 // ========== Edge Cases ==========
 
 TEST_F(BrowserEventsTest, EdgeCaseEventHandling) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test edge cases in event handling
     EXPECT_NO_THROW({

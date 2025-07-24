@@ -100,7 +100,8 @@ protected:
 // ========== Element Existence Tests ==========
 
 TEST_F(BrowserDOMTest, ElementExistenceChecking) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test element existence checking interface
     // Note: These tests verify the interface exists, actual DOM testing requires WebKit
@@ -113,7 +114,8 @@ TEST_F(BrowserDOMTest, ElementExistenceChecking) {
 }
 
 TEST_F(BrowserDOMTest, ElementExistenceEdgeCases) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test edge cases for element existence
     EXPECT_NO_THROW({
@@ -129,7 +131,8 @@ TEST_F(BrowserDOMTest, ElementExistenceEdgeCases) {
 // ========== Form Interaction Tests ==========
 
 TEST_F(BrowserDOMTest, FormInputFilling) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test form input filling interface
     EXPECT_NO_THROW({
@@ -141,7 +144,8 @@ TEST_F(BrowserDOMTest, FormInputFilling) {
 }
 
 TEST_F(BrowserDOMTest, FormInputValidation) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test input validation and edge cases
     EXPECT_NO_THROW({
@@ -153,7 +157,8 @@ TEST_F(BrowserDOMTest, FormInputValidation) {
 }
 
 TEST_F(BrowserDOMTest, SelectOptionHandling) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test select option handling
     EXPECT_NO_THROW({
@@ -166,7 +171,8 @@ TEST_F(BrowserDOMTest, SelectOptionHandling) {
 }
 
 TEST_F(BrowserDOMTest, CheckboxAndRadioHandling) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test checkbox and radio button operations
     EXPECT_NO_THROW({
@@ -180,7 +186,8 @@ TEST_F(BrowserDOMTest, CheckboxAndRadioHandling) {
 // ========== Element Interaction Tests ==========
 
 TEST_F(BrowserDOMTest, ElementClicking) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test element clicking interface
     EXPECT_NO_THROW({
@@ -192,7 +199,8 @@ TEST_F(BrowserDOMTest, ElementClicking) {
 }
 
 TEST_F(BrowserDOMTest, ElementFocusing) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test element focusing
     EXPECT_NO_THROW({
@@ -206,7 +214,8 @@ TEST_F(BrowserDOMTest, ElementFocusing) {
 // ========== Form Submission Tests ==========
 
 TEST_F(BrowserDOMTest, FormSubmission) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test form submission interface
     EXPECT_NO_THROW({
@@ -218,7 +227,8 @@ TEST_F(BrowserDOMTest, FormSubmission) {
 }
 
 TEST_F(BrowserDOMTest, SearchFormHandling) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test search form functionality
     EXPECT_NO_THROW({
@@ -232,7 +242,8 @@ TEST_F(BrowserDOMTest, SearchFormHandling) {
 // ========== Attribute Management Tests ==========
 
 TEST_F(BrowserDOMTest, AttributeGetting) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test attribute retrieval interface
     EXPECT_NO_THROW({
@@ -245,7 +256,8 @@ TEST_F(BrowserDOMTest, AttributeGetting) {
 }
 
 TEST_F(BrowserDOMTest, AttributeSetting) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test attribute setting interface
     EXPECT_NO_THROW({
@@ -260,7 +272,8 @@ TEST_F(BrowserDOMTest, AttributeSetting) {
 // ========== Complex Selector Tests ==========
 
 TEST_F(BrowserDOMTest, ComplexSelectorHandling) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test complex CSS selectors
     std::vector<std::string> complex_selectors = {
@@ -290,7 +303,8 @@ TEST_F(BrowserDOMTest, ComplexSelectorHandling) {
 // ========== XPath Selector Tests ==========
 
 TEST_F(BrowserDOMTest, XPathSelectorSupport) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test XPath selectors (if supported)
     std::vector<std::string> xpath_selectors = {
@@ -312,7 +326,8 @@ TEST_F(BrowserDOMTest, XPathSelectorSupport) {
 // ========== Error Handling and Edge Cases ==========
 
 TEST_F(BrowserDOMTest, InvalidSelectorHandling) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test handling of invalid selectors
     std::vector<std::string> invalid_selectors = {
@@ -337,7 +352,8 @@ TEST_F(BrowserDOMTest, InvalidSelectorHandling) {
 }
 
 TEST_F(BrowserDOMTest, UnicodeContentHandling) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test Unicode content in form fields
     std::vector<std::string> unicode_values = {
@@ -360,7 +376,8 @@ TEST_F(BrowserDOMTest, UnicodeContentHandling) {
 }
 
 TEST_F(BrowserDOMTest, LargeContentHandling) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test handling of large content
     std::string large_text(10000, 'A');
@@ -376,7 +393,8 @@ TEST_F(BrowserDOMTest, LargeContentHandling) {
 // ========== Performance and Timing Tests ==========
 
 TEST_F(BrowserDOMTest, OperationTiming) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test that DOM operations complete in reasonable time
     auto start = std::chrono::steady_clock::now();
@@ -399,7 +417,8 @@ TEST_F(BrowserDOMTest, OperationTiming) {
 // ========== State Management Tests ==========
 
 TEST_F(BrowserDOMTest, ConsistentStateHandling) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test that multiple operations maintain consistent state
     EXPECT_NO_THROW({

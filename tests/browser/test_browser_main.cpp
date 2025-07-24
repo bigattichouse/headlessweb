@@ -11,7 +11,8 @@ class BrowserMainTest : public ::testing::Test {
 protected:
     void SetUp() override {
         // Create fresh browser instance for each test
-        browser = std::make_unique<Browser>();
+        HWeb::HWebConfig test_config;
+        browser = std::make_unique<Browser>(test_config);
         
         // Allow browser initialization to complete
         std::this_thread::sleep_for(500ms);
@@ -62,8 +63,9 @@ TEST_F(BrowserMainTest, DefaultViewportSize) {
 
 TEST_F(BrowserMainTest, MultipleBrowserInstances) {
     // Should be able to create multiple browser instances
-    auto browser2 = std::make_unique<Browser>();
-    auto browser3 = std::make_unique<Browser>();
+    HWeb::HWebConfig test_config;
+    auto browser2 = std::make_unique<Browser>(test_config);
+    auto browser3 = std::make_unique<Browser>(test_config);
     
     EXPECT_NE(browser->webView, nullptr);
     EXPECT_NE(browser2->webView, nullptr);  
@@ -81,7 +83,8 @@ TEST_F(BrowserMainTest, MultipleBrowserInstances) {
 TEST_F(BrowserMainTest, BrowserLifecycleRapidCreateDestroy) {
     // Test rapid creation and destruction
     for (int i = 0; i < 5; i++) {
-        auto temp_browser = std::make_unique<Browser>();
+        HWeb::HWebConfig test_config;
+        auto temp_browser = std::make_unique<Browser>(test_config);
         EXPECT_NE(temp_browser->webView, nullptr);
         temp_browser.reset();
     }
@@ -440,7 +443,8 @@ TEST_F(BrowserMainTest, BrowserStateConsistency) {
 TEST_F(BrowserMainTest, ResourceCleanupOnDestruction) {
     // Create and destroy browser to test cleanup
     {
-        auto temp_browser = std::make_unique<Browser>();
+        HWeb::HWebConfig test_config;
+        auto temp_browser = std::make_unique<Browser>(test_config);
         EXPECT_NE(temp_browser->webView, nullptr);
         // Browser destructor should be called here
     }

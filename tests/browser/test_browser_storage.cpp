@@ -11,7 +11,8 @@ using namespace std::chrono_literals;
 class BrowserStorageTest : public ::testing::Test {
 protected:
     void SetUp() override {
-        browser = std::make_unique<Browser>();
+        HWeb::HWebConfig test_config;
+        browser = std::make_unique<Browser>(test_config);
         
         // Load a simple HTML page for testing storage functionality
         setupTestPage();
@@ -438,7 +439,8 @@ TEST_F(BrowserStorageTest, CombinedStorageOperations) {
 
 TEST_F(BrowserStorageTest, StorageWithEmptyBrowser) {
     // Test behavior with minimal setup
-    auto empty_browser = std::make_unique<Browser>();
+    HWeb::HWebConfig test_config;
+    auto empty_browser = std::make_unique<Browser>(test_config);
     
     // These should not crash even without a loaded page
     EXPECT_NO_THROW(empty_browser->getLocalStorage());

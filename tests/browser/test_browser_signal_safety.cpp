@@ -16,7 +16,8 @@ class BrowserSignalSafetyTest : public ::testing::Test {
 protected:
     void SetUp() override {
         // Each test gets a fresh browser instance
-        browser = std::make_unique<Browser>();
+        HWeb::HWebConfig test_config;
+        browser = std::make_unique<Browser>(test_config);
     }
     
     void TearDown() override {
@@ -118,7 +119,8 @@ TEST_F(BrowserSignalSafetyTest, RapidCreateDestroy) {
     
     // Create multiple browsers quickly
     for (int i = 0; i < 10; i++) {
-        auto test_browser = std::make_unique<Browser>();
+        HWeb::HWebConfig test_config;
+        auto test_browser = std::make_unique<Browser>(test_config);
         EXPECT_TRUE(test_browser->isObjectValid());
         browsers.push_back(std::move(test_browser));
     }
@@ -234,7 +236,8 @@ TEST_F(BrowserSignalSafetyTest, MemoryLeakPrevention) {
         
         // Create browsers
         for (int i = 0; i < 5; i++) {
-            auto temp = std::make_unique<Browser>();
+            HWeb::HWebConfig test_config;
+            auto temp = std::make_unique<Browser>(test_config);
             temp->setupSignalHandlers();
             temp_browsers.push_back(std::move(temp));
         }

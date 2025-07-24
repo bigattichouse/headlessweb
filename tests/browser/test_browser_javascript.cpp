@@ -122,7 +122,8 @@ protected:
 // ========== Basic JavaScript Execution Tests ==========
 
 TEST_F(BrowserJavaScriptTest, BasicJavaScriptExecution) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test basic JavaScript execution interface
     std::string result;
@@ -134,7 +135,8 @@ TEST_F(BrowserJavaScriptTest, BasicJavaScriptExecution) {
 }
 
 TEST_F(BrowserJavaScriptTest, SynchronousJavaScriptExecution) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test synchronous JavaScript execution
     EXPECT_NO_THROW({
@@ -145,7 +147,8 @@ TEST_F(BrowserJavaScriptTest, SynchronousJavaScriptExecution) {
 }
 
 TEST_F(BrowserJavaScriptTest, SafeJavaScriptExecution) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test safe JavaScript execution (should handle errors gracefully)
     EXPECT_NO_THROW({
@@ -159,7 +162,8 @@ TEST_F(BrowserJavaScriptTest, SafeJavaScriptExecution) {
 // ========== JavaScript Expression Tests ==========
 
 TEST_F(BrowserJavaScriptTest, ArithmeticExpressions) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     std::vector<std::string> arithmetic_tests = {
         "1 + 1",
@@ -181,7 +185,8 @@ TEST_F(BrowserJavaScriptTest, ArithmeticExpressions) {
 }
 
 TEST_F(BrowserJavaScriptTest, StringOperations) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     std::vector<std::string> string_tests = {
         "'Hello' + ' ' + 'World'",
@@ -201,7 +206,8 @@ TEST_F(BrowserJavaScriptTest, StringOperations) {
 }
 
 TEST_F(BrowserJavaScriptTest, BooleanExpressions) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     std::vector<std::string> boolean_tests = {
         "true",
@@ -227,7 +233,8 @@ TEST_F(BrowserJavaScriptTest, BooleanExpressions) {
 // ========== DOM Manipulation via JavaScript ==========
 
 TEST_F(BrowserJavaScriptTest, DOMQueryOperations) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     std::vector<std::string> dom_tests = {
         "document.title",
@@ -248,7 +255,8 @@ TEST_F(BrowserJavaScriptTest, DOMQueryOperations) {
 }
 
 TEST_F(BrowserJavaScriptTest, DOMModificationOperations) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     std::vector<std::string> modification_tests = {
         "document.getElementById('result').innerHTML = 'Modified by test'",
@@ -267,7 +275,8 @@ TEST_F(BrowserJavaScriptTest, DOMModificationOperations) {
 // ========== Function Execution Tests ==========
 
 TEST_F(BrowserJavaScriptTest, FunctionCalling) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test calling functions defined in the page
     std::vector<std::string> function_tests = {
@@ -287,7 +296,8 @@ TEST_F(BrowserJavaScriptTest, FunctionCalling) {
 }
 
 TEST_F(BrowserJavaScriptTest, AnonymousFunctionExecution) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     std::vector<std::string> anonymous_tests = {
         "(function() { return 'anonymous function'; })()",
@@ -306,7 +316,8 @@ TEST_F(BrowserJavaScriptTest, AnonymousFunctionExecution) {
 // ========== Error Handling Tests ==========
 
 TEST_F(BrowserJavaScriptTest, SyntaxErrorHandling) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     std::vector<std::string> syntax_errors = {
         "",                    // Empty script
@@ -326,7 +337,8 @@ TEST_F(BrowserJavaScriptTest, SyntaxErrorHandling) {
 }
 
 TEST_F(BrowserJavaScriptTest, RuntimeErrorHandling) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     std::vector<std::string> runtime_errors = {
         "nonexistentFunction()",
@@ -346,7 +358,8 @@ TEST_F(BrowserJavaScriptTest, RuntimeErrorHandling) {
 // ========== Complex Data Type Tests ==========
 
 TEST_F(BrowserJavaScriptTest, ArrayOperations) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     std::vector<std::string> array_tests = {
         "[1, 2, 3, 4, 5]",
@@ -366,7 +379,8 @@ TEST_F(BrowserJavaScriptTest, ArrayOperations) {
 }
 
 TEST_F(BrowserJavaScriptTest, ObjectOperations) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     std::vector<std::string> object_tests = {
         "{name: 'test', value: 42}",
@@ -387,7 +401,8 @@ TEST_F(BrowserJavaScriptTest, ObjectOperations) {
 // ========== Timing and Asynchronous Tests ==========
 
 TEST_F(BrowserJavaScriptTest, JavaScriptCompletionWaiting) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test JavaScript completion waiting
     EXPECT_NO_THROW({
@@ -398,7 +413,8 @@ TEST_F(BrowserJavaScriptTest, JavaScriptCompletionWaiting) {
 }
 
 TEST_F(BrowserJavaScriptTest, TimeBasedOperations) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     std::vector<std::string> time_tests = {
         "new Date().getTime()",
@@ -418,7 +434,8 @@ TEST_F(BrowserJavaScriptTest, TimeBasedOperations) {
 // ========== Browser Environment Tests ==========
 
 TEST_F(BrowserJavaScriptTest, BrowserEnvironmentAccess) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     std::vector<std::string> browser_tests = {
         "navigator.userAgent",
@@ -440,7 +457,8 @@ TEST_F(BrowserJavaScriptTest, BrowserEnvironmentAccess) {
 // ========== Performance Tests ==========
 
 TEST_F(BrowserJavaScriptTest, JavaScriptExecutionPerformance) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     auto start = std::chrono::steady_clock::now();
     
@@ -463,7 +481,8 @@ TEST_F(BrowserJavaScriptTest, JavaScriptExecutionPerformance) {
 // ========== Unicode and Special Characters ==========
 
 TEST_F(BrowserJavaScriptTest, UnicodeStringHandling) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     std::vector<std::string> unicode_tests = {
         "'测试文本'",
@@ -486,7 +505,8 @@ TEST_F(BrowserJavaScriptTest, UnicodeStringHandling) {
 // ========== Edge Cases and Boundary Tests ==========
 
 TEST_F(BrowserJavaScriptTest, EdgeCaseInputs) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test edge case inputs
     EXPECT_NO_THROW({

@@ -10,7 +10,8 @@ using namespace std::chrono_literals;
 class BrowserUtilitiesTest : public ::testing::Test {
 protected:
     void SetUp() override {
-        browser = std::make_unique<Browser>();
+        HWeb::HWebConfig test_config;
+        browser = std::make_unique<Browser>(test_config);
         
         // Load a test page with content for utility testing
         setupTestPage();
@@ -385,7 +386,8 @@ TEST_F(BrowserUtilitiesTest, UtilityMethodsAfterNavigation) {
 
 TEST_F(BrowserUtilitiesTest, UtilitiesWithMinimalBrowser) {
     // Test behavior with a browser that has minimal setup
-    auto minimal_browser = std::make_unique<Browser>();
+    HWeb::HWebConfig test_config;
+    auto minimal_browser = std::make_unique<Browser>(test_config);
     
     // These should not crash even without a loaded page
     EXPECT_NO_THROW(minimal_browser->wait(10));

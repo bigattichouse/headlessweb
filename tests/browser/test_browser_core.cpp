@@ -30,14 +30,16 @@ protected:
 TEST_F(BrowserCoreTest, BrowserDefaultConstruction) {
     // Test that Browser can be constructed without crashing
     EXPECT_NO_THROW({
-        Browser browser;
+        HWeb::HWebConfig test_config;
+        Browser browser(test_config);
     });
 }
 
 TEST_F(BrowserCoreTest, BrowserSessionInitialization) {
     // Test browser initialization with session
     EXPECT_NO_THROW({
-        Browser browser;
+        HWeb::HWebConfig test_config;
+        Browser browser(test_config);
         // Note: Full initialization may require WebKit, these tests focus on interface
     });
 }
@@ -45,7 +47,8 @@ TEST_F(BrowserCoreTest, BrowserSessionInitialization) {
 // ========== URL Validation Tests ==========
 
 TEST_F(BrowserCoreTest, ValidateHttpUrls) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test valid HTTP URLs
     EXPECT_TRUE(browser.validateUrl("http://example.com"));
@@ -56,7 +59,8 @@ TEST_F(BrowserCoreTest, ValidateHttpUrls) {
 }
 
 TEST_F(BrowserCoreTest, ValidateFileUrls) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Create actual test files for validation
     std::filesystem::path test_html = temp_dir->createFile("test.html", "<html><body>Test</body></html>");
@@ -78,7 +82,8 @@ TEST_F(BrowserCoreTest, ValidateFileUrls) {
 }
 
 TEST_F(BrowserCoreTest, RejectInvalidUrls) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test invalid URLs
     EXPECT_FALSE(browser.validateUrl(""));
@@ -91,7 +96,8 @@ TEST_F(BrowserCoreTest, RejectInvalidUrls) {
 }
 
 TEST_F(BrowserCoreTest, ValidateFileUrlSecurity) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test file URL security validation
     EXPECT_FALSE(browser.validateUrl("file:///etc/passwd")); // System file access
@@ -103,7 +109,8 @@ TEST_F(BrowserCoreTest, ValidateFileUrlSecurity) {
 // ========== File URL Specific Tests ==========
 
 TEST_F(BrowserCoreTest, DetectFileUrls) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     EXPECT_TRUE(browser.isFileUrl("file:///path/to/file.html"));
     EXPECT_TRUE(browser.isFileUrl("file://localhost/path/to/file.html"));
@@ -113,7 +120,8 @@ TEST_F(BrowserCoreTest, DetectFileUrls) {
 }
 
 TEST_F(BrowserCoreTest, ValidateFileUrlPaths) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Create test files
     std::filesystem::path valid_html = temp_dir->createFile("valid.html", "<html><body>Valid</body></html>");
@@ -130,7 +138,8 @@ TEST_F(BrowserCoreTest, ValidateFileUrlPaths) {
 // ========== Viewport Management Tests ==========
 
 TEST_F(BrowserCoreTest, GetDefaultViewport) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     auto viewport = browser.getViewport();
     
@@ -142,7 +151,8 @@ TEST_F(BrowserCoreTest, GetDefaultViewport) {
 }
 
 TEST_F(BrowserCoreTest, ViewportForScreenshots) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Should not crash when ensuring proper viewport
     EXPECT_NO_THROW({
@@ -158,7 +168,8 @@ TEST_F(BrowserCoreTest, ViewportForScreenshots) {
 // ========== Navigation State Tests ==========
 
 TEST_F(BrowserCoreTest, NavigationStateManagement) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test initial navigation state - browser should be in ready state
     EXPECT_NO_THROW(browser.getCurrentUrl()); // Should be able to get URL without error
@@ -175,7 +186,8 @@ TEST_F(BrowserCoreTest, NavigationStateManagement) {
 // ========== JavaScript Execution Interface Tests ==========
 
 TEST_F(BrowserCoreTest, JavaScriptExecutionInterface) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test that JavaScript execution methods exist and don't crash with null browser
     std::string result;
@@ -193,7 +205,8 @@ TEST_F(BrowserCoreTest, JavaScriptExecutionInterface) {
 // ========== Error Handling Tests ==========
 
 TEST_F(BrowserCoreTest, ErrorHandlingRobustness) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test that browser handles invalid operations gracefully
     EXPECT_NO_THROW({
@@ -211,7 +224,8 @@ TEST_F(BrowserCoreTest, ErrorHandlingRobustness) {
 // ========== Session Integration Tests ==========
 
 TEST_F(BrowserCoreTest, SessionIntegrationBasics) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test that browser can work with session data
     EXPECT_NO_THROW({
@@ -227,7 +241,8 @@ TEST_F(BrowserCoreTest, SessionIntegrationBasics) {
 // ========== Edge Cases and Boundary Tests ==========
 
 TEST_F(BrowserCoreTest, EdgeCaseUrlHandling) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test edge case URLs
     EXPECT_FALSE(browser.validateUrl(std::string(10000, 'a'))); // Very long URL
@@ -236,7 +251,8 @@ TEST_F(BrowserCoreTest, EdgeCaseUrlHandling) {
 }
 
 TEST_F(BrowserCoreTest, ConcurrentOperationSafety) {
-    Browser browser;
+    HWeb::HWebConfig test_config;
+    Browser browser(test_config);
     
     // Test that multiple operations don't interfere
     EXPECT_NO_THROW({
@@ -251,7 +267,8 @@ TEST_F(BrowserCoreTest, ConcurrentOperationSafety) {
 TEST_F(BrowserCoreTest, ResourceCleanupSafety) {
     // Test that browser destruction is safe
     EXPECT_NO_THROW({
-        Browser* browser = new Browser();
+        HWeb::HWebConfig test_config;
+        Browser* browser = new Browser(test_config);
         browser->executeJavascript("console.log('test');");
         delete browser;
     });

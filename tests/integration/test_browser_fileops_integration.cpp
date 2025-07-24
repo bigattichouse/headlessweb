@@ -15,7 +15,8 @@ using namespace FileOps;
 class BrowserFileOpsIntegrationTest : public ::testing::Test {
 protected:
     void SetUp() override {
-        browser = std::make_unique<Browser>();
+        HWeb::HWebConfig test_config;
+        browser = std::make_unique<Browser>(test_config);
         session = std::make_unique<Session>("integration_test_session");
         
         // Create test files directory
@@ -164,7 +165,8 @@ TEST_F(BrowserFileOpsIntegrationTest, SessionRestoresFileOperationState) {
     browser->updateSessionState(*session);
     
     // Create new browser instance and restore session
-    auto newBrowser = std::make_unique<Browser>();
+            HWeb::HWebConfig test_config;
+        auto newBrowser = std::make_unique<Browser>(test_config);
     std::this_thread::sleep_for(500ms);
     
     newBrowser->restoreSession(*session);
@@ -439,7 +441,8 @@ TEST_F(BrowserFileOpsIntegrationTest, CompleteFileOpsSessionWorkflow) {
     browser->updateSessionState(*session);
     
     // Step 4: Create new browser and restore complete state
-    auto newBrowser = std::make_unique<Browser>();
+            HWeb::HWebConfig test_config;
+        auto newBrowser = std::make_unique<Browser>(test_config);
     std::this_thread::sleep_for(500ms);
     
     newBrowser->restoreSession(*session);
