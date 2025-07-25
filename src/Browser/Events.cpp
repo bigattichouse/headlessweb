@@ -418,6 +418,18 @@ std::string Browser::setupConditionObserver(const std::string& condition, int ti
 bool Browser::waitForSelectorEvent(const std::string& selector, int timeout_ms) {
     // CRITICAL FIX: Use simple polling instead of nested main loop to prevent segfaults
     
+    // Handle zero or negative timeout - perform single immediate check
+    if (timeout_ms <= 0) {
+        std::string result = executeJavascriptSync(
+            "(function() { "
+            "  try { "
+            "    const element = document.querySelector('" + selector + "'); "
+            "    return element !== null ? 'true' : 'false'; "
+            "  } catch(e) { return 'false'; } "
+            "})()");
+        return result == "true";
+    }
+    
     // Clear any previous result
     executeJavascriptSync("window._hweb_event_result = undefined;");
     
@@ -474,111 +486,77 @@ bool Browser::waitForNavigationEvent(int timeout_ms) {
 }
 
 bool Browser::waitForNavigationSignal(int timeout_ms) {
-    if (!event_loop_manager) {
-        debug_output("EventLoopManager not initialized, falling back to direct wait");
-        // Fallback to old method
-        auto waiter = std::make_unique<SignalWaiter>();
-        waiter->signal_name = "navigation";
-        waiter->completed = false;
-        waiter->timeout_id = 0;
-        
-        // Set up timeout with Browser context
-        struct TimeoutData {
-            SignalWaiter* waiter;
-            Browser* browser;
-        };
-        TimeoutData* timeout_data = new TimeoutData{waiter.get(), this};
-        
-        waiter->timeout_id = g_timeout_add(timeout_ms, [](gpointer user_data) -> gboolean {
-            TimeoutData* data = static_cast<TimeoutData*>(user_data);
-            if (!data->waiter->completed) {
-                data->waiter->completed = true;
-                // Quit the main loop to break out of g_main_loop_run()
-                if (g_main_loop_is_running(data->browser->main_loop)) {
-                    g_main_loop_quit(data->browser->main_loop);
-                }
-            }
-            delete data;  // Clean up timeout data
-            return G_SOURCE_REMOVE;
-        }, timeout_data);
-        
-        // Add to active waiters
-        signal_waiters.push_back(std::move(waiter));
-        
-        // Wait for signal or timeout
-        g_main_loop_run(main_loop);
-        
-        // Check result and cleanup
-        bool success = false;
-        signal_waiters.erase(
-            std::remove_if(signal_waiters.begin(), signal_waiters.end(),
-                [&success](const std::unique_ptr<SignalWaiter>& w) {
-                    if (w->signal_name == "navigation") {
-                        success = w->completed;
-                        if (w->timeout_id != 0) {
-                            g_source_remove(w->timeout_id);
-                        }
-                        return true;
-                    }
-                    return false;
-                }),
-            signal_waiters.end()
-        );
-        
-        return success;
+    // CRITICAL SEGFAULT FIX: Add object validity check
+    if (!is_valid.load()) {
+        return false;
     }
     
-    // Set up signal waiter first
-    auto waiter = std::make_unique<SignalWaiter>();
-    waiter->signal_name = "navigation";
-    waiter->completed = false;
-    waiter->timeout_id = 0;
-    
-    {
-        std::lock_guard<std::mutex> lock(signal_mutex);
-        signal_waiters.push_back(std::move(waiter));
+    // Handle zero or negative timeout - perform single immediate check
+    if (timeout_ms <= 0) {
+        if (webView) {
+            std::string ready_state = executeJavascriptSync("document.readyState");
+            return ready_state == "complete";
+        }
+        return false;
     }
     
-    // Use EventLoopManager to handle the wait with navigation signal check
-    bool success = event_loop_manager->waitForCondition([this]() -> bool {
-        // Check if any navigation waiters have completed
-        std::lock_guard<std::mutex> lock(signal_mutex);
-        for (const auto& waiter : signal_waiters) {
-            if (waiter && waiter->signal_name == "navigation" && waiter->completed) {
+    // CRITICAL SEGFAULT FIX: Use simple polling instead of complex nested main loops
+    debug_output("Waiting for navigation signal with simple polling approach");
+    
+    int elapsed = 0;
+    const int check_interval = 50; // Check every 50ms
+    
+    while (elapsed < timeout_ms) {
+        // Check object validity before each operation
+        if (!is_valid.load()) {
+            return false;
+        }
+        
+        // Check if navigation has completed by examining readyState
+        if (webView) {
+            std::string ready_state = executeJavascriptSync("document.readyState");
+            if (ready_state == "complete") {
+                debug_output("Navigation signal detected (document ready)");
                 return true;
             }
         }
-        return false;
-    }, timeout_ms);
-    
-    // Clean up the waiter
-    {
-        std::lock_guard<std::mutex> lock(signal_mutex);
-        signal_waiters.erase(
-            std::remove_if(signal_waiters.begin(), signal_waiters.end(),
-                [](const std::unique_ptr<SignalWaiter>& w) {
-                    return w && w->signal_name == "navigation";
-                }),
-            signal_waiters.end()
-        );
+        
+        // Use safe sleep instead of nested main loops
+        std::this_thread::sleep_for(std::chrono::milliseconds(check_interval));
+        elapsed += check_interval;
     }
     
-    return success;
+    debug_output("Navigation signal timeout");
+    return false;
 }
 
 bool Browser::waitForBackForwardNavigation(int timeout_ms) {
+    // CRITICAL SEGFAULT FIX: Add object validity check
+    if (!is_valid.load()) {
+        return false;
+    }
+    
     // For back/forward navigation, URL change is more reliable than load events
     std::string initial_url = getCurrentUrl();
     debug_output("Waiting for back/forward navigation from: " + initial_url);
+    
+    // Handle zero or negative timeout - perform single immediate check
+    if (timeout_ms <= 0) {
+        std::string current_url = getCurrentUrl();
+        return (current_url != initial_url && !current_url.empty());
+    }
     
     const int check_interval = 50; // Faster checking for back/forward
     int elapsed = 0;
     
     while (elapsed < timeout_ms) {
-        // Process any pending GTK events
-        while (g_main_context_pending(g_main_context_default())) {
-            g_main_context_iteration(g_main_context_default(), FALSE);
+        // CRITICAL SEGFAULT FIX: Check object validity before each operation
+        if (!is_valid.load()) {
+            return false;
         }
+        
+        // CRITICAL SEGFAULT FIX: Removed unsafe GTK event processing that could access freed memory
+        // The original code processed GTK events manually which could trigger callbacks on destroyed objects
         
         std::string current_url = getCurrentUrl();
         if (current_url != initial_url && !current_url.empty()) {
@@ -586,7 +564,8 @@ bool Browser::waitForBackForwardNavigation(int timeout_ms) {
             return true;
         }
         
-        wait(check_interval);
+        // CRITICAL SEGFAULT FIX: Use safe sleep instead of wait() method which might use nested main loops
+        std::this_thread::sleep_for(std::chrono::milliseconds(check_interval));
         elapsed += check_interval;
     }
     
