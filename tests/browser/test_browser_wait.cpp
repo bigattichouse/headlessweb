@@ -1,27 +1,40 @@
 #include <gtest/gtest.h>
 #include "Browser/Browser.h"
 #include "../utils/test_helpers.h"
+#include "browser_test_environment.h"
+#include "Debug.h"
 #include <thread>
 #include <chrono>
 #include <filesystem>
 #include <fstream>
+
+extern std::unique_ptr<Browser> g_browser;
 
 using namespace std::chrono_literals;
 
 class BrowserWaitTest : public ::testing::Test {
 protected:
     void SetUp() override {
-        HWeb::HWebConfig test_config;
-        browser = std::make_unique<Browser>(test_config);
+        // Use global browser instance (properly initialized)
+        browser = g_browser.get();
         
         // Create temporary directory for HTML test files
         temp_dir = std::make_unique<TestHelpers::TemporaryDirectory>("wait_tests");
         
+        // Reset browser to clean state before each test
+        browser->loadUri("about:blank");
+        browser->waitForNavigation(2000);
+        
         // Load a comprehensive test page for wait method testing
         setupTestPage();
         
-        // Wait for page to be ready
-        std::this_thread::sleep_for(800ms);
+        debug_output("BrowserWaitTest SetUp complete");
+    }
+    
+    // Generic JavaScript wrapper function for safe execution
+    std::string executeWrappedJS(const std::string& jsCode) {
+        std::string wrapped = "(function() { " + jsCode + " })()";
+        return browser->executeJavascriptSync(wrapped);
     }
     
     void setupTestPage() {
@@ -388,42 +401,42 @@ protected:
             return;
         }
         
-        // Check JavaScript execution readiness
-        std::string js_test = browser->executeJavascriptSync("'test'");
+        // Check JavaScript execution readiness using wrapper function
+        std::string js_test = executeWrappedJS("return 'test';");
         if (js_test != "test") {
             std::cerr << "BrowserWaitTest: JavaScript not ready" << std::endl;
             std::this_thread::sleep_for(1000ms);
         }
         
-        // Wait for critical DOM elements and functions to be available
-        std::string dom_ready = browser->executeJavascriptSync(
-            "document.readyState === 'complete' && "
+        // Wait for critical DOM elements and functions to be available using wrapper function
+        std::string dom_ready = executeWrappedJS(
+            "return document.readyState === 'complete' && "
             "typeof changeTextContent === 'function' && "
             "typeof simulateXHRRequest === 'function' && "
             "typeof showElement === 'function' && "
             "document.getElementById('text-content') !== null && "
-            "document.getElementById('visibility-target') !== null"
+            "document.getElementById('visibility-target') !== null;"
         );
         
         if (dom_ready != "true") {
             std::cerr << "BrowserWaitTest: DOM not fully ready, waiting..." << std::endl;
             std::this_thread::sleep_for(1500ms);
             
-            // Re-check readiness
-            dom_ready = browser->executeJavascriptSync(
-                "document.readyState === 'complete' && "
-                "typeof changeTextContent === 'function'"
+            // Re-check readiness using wrapper function
+            dom_ready = executeWrappedJS(
+                "return document.readyState === 'complete' && "
+                "typeof changeTextContent === 'function';"
             );
             std::cerr << "BrowserWaitTest: Final DOM ready state: " << dom_ready << std::endl;
         }
     }
 
     void TearDown() override {
-        browser.reset();
+        // Clean up (don't destroy global browser)
         temp_dir.reset();
     }
 
-    std::unique_ptr<Browser> browser;
+    Browser* browser;  // Raw pointer to global browser instance
     std::unique_ptr<TestHelpers::TemporaryDirectory> temp_dir;
     std::filesystem::path test_html_file;
 };
@@ -464,7 +477,7 @@ TEST_F(BrowserWaitTest, WaitForTextAdvancedExactMatch) {
 
 TEST_F(BrowserWaitTest, WaitForTextAdvancedDynamic) {
     // Change text and wait for it
-    browser->executeJavascriptSync("setTimeout(() => changeTextContent(), 500);");
+    executeWrappedJS("setTimeout(() => changeTextContent(), 500);");
     
     bool result = browser->waitForTextAdvanced("Changed text content", 2000);
     EXPECT_TRUE(result);
@@ -480,7 +493,7 @@ TEST_F(BrowserWaitTest, WaitForNetworkIdleImmediate) {
 
 TEST_F(BrowserWaitTest, WaitForNetworkIdleAfterActivity) {
     // Simulate network activity then wait for idle
-    browser->executeJavascriptSync("setTimeout(() => simulateXHRRequest(), 200);");
+    executeWrappedJS("setTimeout(() => simulateXHRRequest(), 200);");
     
     bool result = browser->waitForNetworkIdle(300, 2000);
     EXPECT_TRUE(result);
@@ -490,7 +503,7 @@ TEST_F(BrowserWaitTest, WaitForNetworkIdleAfterActivity) {
 
 TEST_F(BrowserWaitTest, WaitForNetworkRequestPattern) {
     // Trigger a specific network request
-    browser->executeJavascriptSync("setTimeout(() => simulateNetworkRequest('/api/test'), 300);");
+    executeWrappedJS("setTimeout(() => simulateNetworkRequest('/api/test'), 300);");
     
     bool result = browser->waitForNetworkRequest("/api/test", 2000);
     EXPECT_TRUE(result);
@@ -510,7 +523,7 @@ TEST_F(BrowserWaitTest, WaitForElementVisibleInitiallyHidden) {
     EXPECT_FALSE(visible_initially);
     
     // Show the element and wait for visibility
-    browser->executeJavascriptSync("setTimeout(() => showElement(), 300);");
+    executeWrappedJS("setTimeout(() => showElement(), 300);");
     
     bool result = browser->waitForElementVisible("#visibility-target", 2000);
     EXPECT_TRUE(result);
@@ -518,7 +531,7 @@ TEST_F(BrowserWaitTest, WaitForElementVisibleInitiallyHidden) {
 
 TEST_F(BrowserWaitTest, WaitForElementVisibleAlreadyVisible) {
     // Show element first
-    browser->executeJavascriptSync("showElement();");
+    executeWrappedJS("showElement();");
     std::this_thread::sleep_for(100ms);
     
     bool result = browser->waitForElementVisible("#visibility-target", 1000);
@@ -535,7 +548,7 @@ TEST_F(BrowserWaitTest, WaitForElementCountEqual) {
 
 TEST_F(BrowserWaitTest, WaitForElementCountGreaterThan) {
     // Add an item and wait for count > 2
-    browser->executeJavascriptSync("setTimeout(() => addCountItem(), 300);");
+    executeWrappedJS("setTimeout(() => addCountItem(), 300);");
     
     bool result = browser->waitForElementCount(".count-item", ">", 2, 2000);
     EXPECT_TRUE(result);
@@ -543,7 +556,7 @@ TEST_F(BrowserWaitTest, WaitForElementCountGreaterThan) {
 
 TEST_F(BrowserWaitTest, WaitForElementCountLessThan) {
     // Remove an item and wait for count < 2
-    browser->executeJavascriptSync("setTimeout(() => removeCountItem(), 300);");
+    executeWrappedJS("setTimeout(() => removeCountItem(), 300);");
     
     bool result = browser->waitForElementCount(".count-item", "<", 2, 2000);
     EXPECT_TRUE(result);
@@ -551,7 +564,7 @@ TEST_F(BrowserWaitTest, WaitForElementCountLessThan) {
 
 TEST_F(BrowserWaitTest, WaitForElementCountNotEqual) {
     // Change count and wait for != 2
-    browser->executeJavascriptSync("setTimeout(() => addCountItem(), 300);");
+    executeWrappedJS("setTimeout(() => addCountItem(), 300);");
     
     bool result = browser->waitForElementCount(".count-item", "!=", 2, 2000);
     EXPECT_TRUE(result);
@@ -561,7 +574,7 @@ TEST_F(BrowserWaitTest, WaitForElementCountNotEqual) {
 
 TEST_F(BrowserWaitTest, WaitForAttributeChange) {
     // Wait for attribute change
-    browser->executeJavascriptSync("setTimeout(() => changeAttribute('ready'), 400);");
+    executeWrappedJS("setTimeout(() => changeAttribute('ready'), 400);");
     
     bool result = browser->waitForAttribute("#attribute-target", "data-status", "ready", 2000);
     EXPECT_TRUE(result);
@@ -583,7 +596,7 @@ TEST_F(BrowserWaitTest, WaitForAttributeNonexistent) {
 
 TEST_F(BrowserWaitTest, WaitForUrlChangeHash) {
     // Change hash and wait for URL change
-    browser->executeJavascriptSync("setTimeout(() => changeHash('section1'), 300);");
+    executeWrappedJS("setTimeout(() => changeHash('section1'), 300);");
     
     bool result = browser->waitForUrlChange("section1", 2000);
     EXPECT_TRUE(result);
@@ -591,7 +604,7 @@ TEST_F(BrowserWaitTest, WaitForUrlChangeHash) {
 
 TEST_F(BrowserWaitTest, WaitForUrlChangeAny) {
     // Change URL and wait for any change
-    browser->executeJavascriptSync("setTimeout(() => changeHash('newsection'), 300);");
+    executeWrappedJS("setTimeout(() => changeHash('newsection'), 300);");
     
     bool result = browser->waitForUrlChange("", 2000);
     EXPECT_TRUE(result);
@@ -601,7 +614,7 @@ TEST_F(BrowserWaitTest, WaitForUrlChangeAny) {
 
 TEST_F(BrowserWaitTest, WaitForTitleChange) {
     // Change title and wait for it
-    browser->executeJavascriptSync("setTimeout(() => changeTitle('New Dynamic Title'), 400);");
+    executeWrappedJS("setTimeout(() => changeTitle('New Dynamic Title'), 400);");
     
     bool result = browser->waitForTitleChange("Dynamic", 2000);
     EXPECT_TRUE(result);
@@ -609,7 +622,7 @@ TEST_F(BrowserWaitTest, WaitForTitleChange) {
 
 TEST_F(BrowserWaitTest, WaitForTitleChangeAny) {
     // Change title and wait for any change
-    browser->executeJavascriptSync("setTimeout(() => changeTitle('Any New Title'), 300);");
+    executeWrappedJS("setTimeout(() => changeTitle('Any New Title'), 300);");
     
     bool result = browser->waitForTitleChange("", 2000);
     EXPECT_TRUE(result);
@@ -619,7 +632,7 @@ TEST_F(BrowserWaitTest, WaitForTitleChangeAny) {
 
 TEST_F(BrowserWaitTest, WaitForSPANavigationSpecific) {
     // Simulate SPA navigation to dashboard
-    browser->executeJavascriptSync("setTimeout(() => simulateSPANavigation(), 300);");
+    executeWrappedJS("setTimeout(() => simulateSPANavigation(), 300);");
     
     bool result = browser->waitForSPANavigation("dashboard", 2000);
     EXPECT_TRUE(result);
@@ -627,7 +640,7 @@ TEST_F(BrowserWaitTest, WaitForSPANavigationSpecific) {
 
 TEST_F(BrowserWaitTest, WaitForSPANavigationAny) {
     // Wait for any navigation change
-    browser->executeJavascriptSync("setTimeout(() => changeHash('spa-test'), 300);");
+    executeWrappedJS("setTimeout(() => changeHash('spa-test'), 300);");
     
     bool result = browser->waitForSPANavigation("", 2000);
     EXPECT_TRUE(result);
@@ -637,7 +650,7 @@ TEST_F(BrowserWaitTest, WaitForSPANavigationAny) {
 
 TEST_F(BrowserWaitTest, WaitForFrameworkReadyJQuery) {
     // Simulate jQuery loading
-    browser->executeJavascriptSync("setTimeout(() => simulateJQuery(), 300);");
+    executeWrappedJS("setTimeout(() => simulateJQuery(), 300);");
     
     bool result = browser->waitForFrameworkReady("jquery", 2000);
     EXPECT_TRUE(result);
@@ -645,7 +658,7 @@ TEST_F(BrowserWaitTest, WaitForFrameworkReadyJQuery) {
 
 TEST_F(BrowserWaitTest, WaitForFrameworkReadyReact) {
     // Simulate React loading
-    browser->executeJavascriptSync("setTimeout(() => simulateReact(), 300);");
+    executeWrappedJS("setTimeout(() => simulateReact(), 300);");
     
     bool result = browser->waitForFrameworkReady("react", 2000);
     EXPECT_TRUE(result);
@@ -659,7 +672,7 @@ TEST_F(BrowserWaitTest, WaitForFrameworkReadyAuto) {
 
 TEST_F(BrowserWaitTest, WaitForFrameworkReadyCustom) {
     // Set custom app ready flag
-    browser->executeJavascriptSync("setTimeout(() => setAppReady(), 300);");
+    executeWrappedJS("setTimeout(() => setAppReady(), 300);");
     
     bool result = browser->waitForFrameworkReady("auto", 2000);
     EXPECT_TRUE(result);
@@ -669,7 +682,7 @@ TEST_F(BrowserWaitTest, WaitForFrameworkReadyCustom) {
 
 TEST_F(BrowserWaitTest, WaitForDOMChangeAddElement) {
     // Add element and wait for DOM change
-    browser->executeJavascriptSync("setTimeout(() => addElement(), 400);");
+    executeWrappedJS("setTimeout(() => addElement(), 400);");
     
     bool result = browser->waitForDOMChange("#mutation-target", 2000);
     EXPECT_TRUE(result);
@@ -677,7 +690,7 @@ TEST_F(BrowserWaitTest, WaitForDOMChangeAddElement) {
 
 TEST_F(BrowserWaitTest, WaitForDOMChangeModifyElement) {
     // Modify element and wait for DOM change
-    browser->executeJavascriptSync("setTimeout(() => modifyElement(), 300);");
+    executeWrappedJS("setTimeout(() => modifyElement(), 300);");
     
     bool result = browser->waitForDOMChange("#mutation-target", 2000);
     EXPECT_TRUE(result);
@@ -685,10 +698,10 @@ TEST_F(BrowserWaitTest, WaitForDOMChangeModifyElement) {
 
 TEST_F(BrowserWaitTest, WaitForDOMChangeRemoveElement) {
     // First add an element, then remove it
-    browser->executeJavascriptSync("addElement();");
+    executeWrappedJS("addElement();");
     std::this_thread::sleep_for(100ms);
     
-    browser->executeJavascriptSync("setTimeout(() => removeElement(), 300);");
+    executeWrappedJS("setTimeout(() => removeElement(), 300);");
     
     bool result = browser->waitForDOMChange("#mutation-target", 2000);
     EXPECT_TRUE(result);
@@ -704,7 +717,7 @@ TEST_F(BrowserWaitTest, WaitForDOMChangeTimeout) {
 
 TEST_F(BrowserWaitTest, WaitForContentChangeText) {
     // Change text content
-    browser->executeJavascriptSync("setTimeout(() => changeContent(), 400);");
+    executeWrappedJS("setTimeout(() => changeContent(), 400);");
     
     bool result = browser->waitForContentChange("#content-target", "text", 2000);
     EXPECT_TRUE(result);
@@ -712,7 +725,7 @@ TEST_F(BrowserWaitTest, WaitForContentChangeText) {
 
 TEST_F(BrowserWaitTest, WaitForContentChangeHTML) {
     // Change HTML content
-    browser->executeJavascriptSync("setTimeout(() => changeHTML(), 300);");
+    executeWrappedJS("setTimeout(() => changeHTML(), 300);");
     
     bool result = browser->waitForContentChange("#content-target", "html", 2000);
     EXPECT_TRUE(result);
@@ -720,7 +733,7 @@ TEST_F(BrowserWaitTest, WaitForContentChangeHTML) {
 
 TEST_F(BrowserWaitTest, WaitForContentChangeInputValue) {
     // Change input value
-    browser->executeJavascriptSync("setTimeout(() => changeInput(), 300);");
+    executeWrappedJS("setTimeout(() => changeInput(), 300);");
     
     bool result = browser->waitForContentChange("#content-input", "value", 2000);
     EXPECT_TRUE(result);
@@ -757,7 +770,7 @@ TEST_F(BrowserWaitTest, WaitMethodsIntegration) {
     EXPECT_TRUE(initial);
     
     // 2. Change state and wait for new condition  
-    browser->executeJavascriptSync("setTimeout(() => { addCountItem(); changeAttribute('ready'); }, 300);");
+    executeWrappedJS("setTimeout(() => { addCountItem(); changeAttribute('ready'); }, 300);");
     
     bool count_changed = browser->waitForElementCount(".count-item", ">", 2, 2000);
     EXPECT_TRUE(count_changed);
@@ -766,6 +779,6 @@ TEST_F(BrowserWaitTest, WaitMethodsIntegration) {
     EXPECT_TRUE(attribute_changed);
     
     // 3. Verify final state
-    std::string count_result = browser->executeJavascriptSync("document.querySelectorAll('.count-item').length");
+    std::string count_result = executeWrappedJS("document.querySelectorAll('.count-item').length");
     EXPECT_EQ(count_result, "3");
 }
