@@ -6,7 +6,7 @@
 #include "FileOps/UploadManager.h"
 #include "Assertion/Manager.h"
 #include "../utils/test_helpers.h"
-#include "../browser/browser_test_environment.h"
+#include "browser_test_environment.h"
 #include "Debug.h"
 #include <memory>
 #include <thread>
