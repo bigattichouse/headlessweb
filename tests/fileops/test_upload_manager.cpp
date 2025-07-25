@@ -210,11 +210,24 @@ TEST_F(UploadValidationTest, ValidateFileTypeWildcard) {
 // ========== Upload Target Validation ==========
 
 TEST_F(UploadManagerTest, ValidateUploadTargetExists) {
-
+    // DEBUG: Check basic JavaScript execution
+    std::string basic_test = g_browser->executeJavascriptSync("'hello'");
+    debug_output("Basic JS test result: '" + basic_test + "'");
+    
+    // DEBUG: Check document ready state
+    std::string ready_state = g_browser->executeJavascriptSync("document.readyState");
+    debug_output("Document ready state: '" + ready_state + "'");
+    
+    // DEBUG: Check direct element query
+    std::string direct_query = g_browser->executeJavascriptSync("document.querySelector('#file-input') !== null");
+    debug_output("Direct query result: '" + direct_query + "'");
     
     // Verify target exists using real browser DOM query
     std::string exists_result = g_browser->executeJavascriptSync("elementExists('#file-input').toString()");
+    debug_output("elementExists result: '" + exists_result + "'");
+    
     bool result = manager->validateUploadTarget(*g_browser, "#file-input");
+    debug_output("validateUploadTarget result: " + std::string(result ? "true" : "false"));
     
     EXPECT_TRUE(result);
     EXPECT_EQ(exists_result, "true");
