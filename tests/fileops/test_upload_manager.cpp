@@ -71,12 +71,42 @@ protected:
         g_browser->loadUri(file_url);
         
         // Wait for navigation to complete using the browser's internal mechanism
-        bool navigation_success = g_browser->waitForNavigation(10000); // Use the full timeout
+        bool navigation_success = g_browser->waitForNavigation(10000);
+        if (!navigation_success) {
+            debug_output("Navigation failed");
+            return false;
+        }
         
-        return navigation_success;
+        // CRITICAL FIX: Wait for DOM and JavaScript to be fully ready
+        // Check that basic JavaScript execution works
+        std::string js_test = g_browser->executeJavascriptSync("'test'");
+        if (js_test != "test") {
+            debug_output("JavaScript execution not ready");
+            return false;
+        }
         
-        debug_output("Upload test page loaded successfully via data URI");
-        return true;
+        // Wait for all DOM elements to be available
+        std::string dom_ready = g_browser->executeJavascriptSync(
+            "document.readyState === 'complete' && "
+            "document.getElementById('file-input') !== null && "
+            "document.getElementById('upload-status') !== null"
+        );
+        
+        if (dom_ready != "true") {
+            debug_output("DOM not fully ready, waiting...");
+            // Give additional time for DOM to settle
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+            
+            // Re-check DOM readiness
+            dom_ready = g_browser->executeJavascriptSync(
+                "document.readyState === 'complete' && "
+                "document.getElementById('file-input') !== null && "
+                "document.getElementById('upload-status') !== null"
+            );
+        }
+        
+        debug_output("Upload test page setup complete - DOM ready: " + dom_ready);
+        return dom_ready == "true";
     }
 
     void TearDown() override {
