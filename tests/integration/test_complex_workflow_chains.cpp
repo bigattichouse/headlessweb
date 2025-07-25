@@ -6,11 +6,15 @@
 #include "FileOps/UploadManager.h"
 #include "Assertion/Manager.h"
 #include "../utils/test_helpers.h"
+#include "../browser/browser_test_environment.h"
+#include "Debug.h"
 #include <memory>
 #include <thread>
 #include <chrono>
 #include <filesystem>
 #include <fstream>
+
+extern std::unique_ptr<Browser> g_browser;
 
 class ComplexWorkflowChainsTest : public ::testing::Test {
 protected:
@@ -18,9 +22,14 @@ protected:
         // Create temporary directories for testing
         temp_dir = std::make_unique<TestHelpers::TemporaryDirectory>("workflow_chains_tests");
         
+        // Use global browser instance (properly initialized)
+        browser_ = g_browser.get();
+        
+        // Reset browser to clean state before each test
+        browser_->loadUri("about:blank");
+        browser_->waitForNavigation(2000);
+        
         // Initialize components
-        HWeb::HWebConfig test_config;
-        browser_ = std::make_unique<Browser>(test_config);
         session_manager_ = std::make_unique<SessionManager>(temp_dir->getPath());
         download_manager_ = std::make_unique<FileOps::DownloadManager>();
         upload_manager_ = std::make_unique<FileOps::UploadManager>();
@@ -29,16 +38,21 @@ protected:
         // Set up download directory
         download_manager_->setDownloadDirectory(temp_dir->getPath());
         
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        debug_output("ComplexWorkflowChainsTest SetUp complete");
+    }
+    
+    // Generic JavaScript wrapper function for safe execution
+    std::string executeWrappedJS(const std::string& jsCode) {
+        std::string wrapped = "(function() { " + jsCode + " })()";
+        return browser_->executeJavascriptSync(wrapped);
     }
     
     void TearDown() override {
-        // Cleanup components
+        // Cleanup components (don't destroy global browser)
         assertion_manager_.reset();
         upload_manager_.reset();
         download_manager_.reset();
         session_manager_.reset();
-        browser_.reset();
         temp_dir.reset();
     }
 
@@ -208,8 +222,24 @@ protected:
             </html>
         )HTMLDELIM";
         
-        browser_->loadUri("data:text/html;charset=utf-8," + ecommerce_html);
-        std::this_thread::sleep_for(std::chrono::milliseconds(800));
+        // CRITICAL FIX: Create HTML file and use file:// URL instead of data: URL
+        auto html_file = temp_dir->createFile("ecommerce_test.html", ecommerce_html);
+        std::string file_url = "file://" + html_file.string();
+        browser_->loadUri(file_url);
+        
+        // Enhanced DOM readiness checking
+        bool nav_success = browser_->waitForNavigation(5000);
+        if (!nav_success) {
+            std::cerr << "ComplexWorkflowChainsTest: E-commerce page navigation failed" << std::endl;
+            return;
+        }
+        
+        // Wait for DOM elements to be available using wrapper function
+        std::string dom_ready = executeWrappedJS(
+            "return document.readyState === 'complete' && "
+            "document.getElementById('product-grid') !== null && "
+            "document.getElementById('cart') !== null;"
+        );
     }
     
     void createTestUploadFile(const std::string& filename, const std::string& content) {
@@ -219,7 +249,7 @@ protected:
         file.close();
     }
 
-    std::unique_ptr<Browser> browser_;
+    Browser* browser_;  // Raw pointer to global browser instance
     std::unique_ptr<SessionManager> session_manager_;
     std::unique_ptr<FileOps::DownloadManager> download_manager_;
     std::unique_ptr<FileOps::UploadManager> upload_manager_;
@@ -346,8 +376,11 @@ TEST_F(ComplexWorkflowChainsTest, MultiPageNavigation_WithFormData) {
         </body></html>
     )HTMLDELIM";
     
-    browser_->loadUri("data:text/html;charset=utf-8," + page1_html);
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    // CRITICAL FIX: Create HTML file and use file:// URL instead of data: URL  
+    auto html_file = temp_dir->createFile("workflow_page1.html", page1_html);
+    std::string file_url = "file://" + html_file.string();
+    browser_->loadUri(file_url);
+    browser_->waitForNavigation(3000);
     
     // Step 2: Fill form and navigate
     browser_->fillInput("#username", "testuser");
@@ -403,8 +436,11 @@ TEST_F(ComplexWorkflowChainsTest, MultiPageNavigation_WithFormData) {
         </body></html>
     )HTMLDELIM";
     
-    browser_->loadUri("data:text/html;charset=utf-8," + page2_html);
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    // CRITICAL FIX: Create HTML file and use file:// URL instead of data: URL
+    auto html_file2 = temp_dir->createFile("workflow_page2.html", page2_html);
+    std::string file_url2 = "file://" + html_file2.string();
+    browser_->loadUri(file_url2);
+    browser_->waitForNavigation(3000);
     
     // Step 5: Complete profile form
     browser_->fillInput("#fullname", "Test User Full Name");
@@ -499,8 +535,11 @@ TEST_F(ComplexWorkflowChainsTest, FileOperationWorkflow_UploadProcessDownload) {
         </body></html>
     )HTMLDELIM";
     
-    browser_->loadUri("data:text/html;charset=utf-8," + file_processor_html);
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    // CRITICAL FIX: Create HTML file and use file:// URL instead of data: URL
+    auto html_file3 = temp_dir->createFile("file_processor.html", file_processor_html);
+    std::string file_url3 = "file://" + html_file3.string();
+    browser_->loadUri(file_url3);
+    browser_->waitForNavigation(3000);
     
     // Step 3: Upload file simulation (in real scenario, would use actual file upload)
     std::filesystem::path upload_file = temp_dir->getPath() / "test_document.txt";
@@ -581,8 +620,11 @@ TEST_F(ComplexWorkflowChainsTest, ScreenshotSessionAssertionWorkflow) {
         </html>
     )HTMLDELIM";
     
-    browser_->loadUri("data:text/html;charset=utf-8," + visual_test_html);
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    // CRITICAL FIX: Create HTML file and use file:// URL instead of data: URL
+    auto html_file4 = temp_dir->createFile("visual_test.html", visual_test_html);
+    std::string file_url4 = "file://" + html_file4.string();
+    browser_->loadUri(file_url4);
+    browser_->waitForNavigation(3000);
     
     // Step 2: Create session and take initial screenshot
     Session visual_session("visual_test_session");
@@ -641,8 +683,11 @@ TEST_F(ComplexWorkflowChainsTest, ErrorRecoveryWorkflow_NavigationFailureRecover
     Session recovery_session("recovery_test_session");
     
     std::string stable_html = "<html><body><h1>Stable Page</h1><input id='test-input' value='stable'></body></html>";
-    browser_->loadUri("data:text/html;charset=utf-8," + stable_html);
-    std::this_thread::sleep_for(std::chrono::milliseconds(300));
+    // CRITICAL FIX: Create HTML file and use file:// URL instead of data: URL
+    auto stable_file = temp_dir->createFile("stable_page.html", stable_html);
+    std::string stable_url = "file://" + stable_file.string();
+    browser_->loadUri(stable_url);
+    browser_->waitForNavigation(2000);
     
     browser_->updateSessionState(recovery_session);
     session_manager_->saveSession(recovery_session);
@@ -666,8 +711,8 @@ TEST_F(ComplexWorkflowChainsTest, ErrorRecoveryWorkflow_NavigationFailureRecover
         EXPECT_FALSE(loaded_session.getName().empty());
         
         // In real implementation, would restore browser to session state
-        browser_->loadUri("data:text/html;charset=utf-8," + stable_html); // Simulate recovery
-        std::this_thread::sleep_for(std::chrono::milliseconds(300));
+        browser_->loadUri(stable_url); // Simulate recovery using file:// URL
+        browser_->waitForNavigation(2000);
     }
     
     // Step 4: Verify recovery was successful
@@ -713,8 +758,11 @@ TEST_F(ComplexWorkflowChainsTest, PerformanceStressWorkflow_RapidOperations) {
         </body></html>
     )HTMLDELIM";
     
-    browser_->loadUri("data:text/html;charset=utf-8," + stress_test_html);
-    std::this_thread::sleep_for(std::chrono::milliseconds(300));
+    // CRITICAL FIX: Create HTML file and use file:// URL instead of data: URL
+    auto stress_file = temp_dir->createFile("stress_test.html", stress_test_html);
+    std::string stress_url = "file://" + stress_file.string();
+    browser_->loadUri(stress_url);
+    browser_->waitForNavigation(2000);
     
     // Step 2: Perform rapid operations
     auto start_time = std::chrono::high_resolution_clock::now();
