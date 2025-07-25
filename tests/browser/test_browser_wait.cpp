@@ -380,8 +380,42 @@ protected:
         std::string file_url = "file://" + test_html_file.string();
         browser->loadUri(file_url);
         
-        // Wait for page load
-        std::this_thread::sleep_for(1200ms);
+        // Enhanced DOM readiness checking (same pattern as UploadManagerTest)
+        // Wait for navigation to complete first
+        bool nav_success = browser->waitForNavigation(10000);
+        if (!nav_success) {
+            std::cerr << "BrowserWaitTest: Navigation failed" << std::endl;
+            return;
+        }
+        
+        // Check JavaScript execution readiness
+        std::string js_test = browser->executeJavascriptSync("'test'");
+        if (js_test != "test") {
+            std::cerr << "BrowserWaitTest: JavaScript not ready" << std::endl;
+            std::this_thread::sleep_for(1000ms);
+        }
+        
+        // Wait for critical DOM elements and functions to be available
+        std::string dom_ready = browser->executeJavascriptSync(
+            "document.readyState === 'complete' && "
+            "typeof changeTextContent === 'function' && "
+            "typeof simulateXHRRequest === 'function' && "
+            "typeof showElement === 'function' && "
+            "document.getElementById('text-content') !== null && "
+            "document.getElementById('visibility-target') !== null"
+        );
+        
+        if (dom_ready != "true") {
+            std::cerr << "BrowserWaitTest: DOM not fully ready, waiting..." << std::endl;
+            std::this_thread::sleep_for(1500ms);
+            
+            // Re-check readiness
+            dom_ready = browser->executeJavascriptSync(
+                "document.readyState === 'complete' && "
+                "typeof changeTextContent === 'function'"
+            );
+            std::cerr << "BrowserWaitTest: Final DOM ready state: " << dom_ready << std::endl;
+        }
     }
 
     void TearDown() override {

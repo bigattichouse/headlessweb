@@ -4,6 +4,7 @@
 #include <thread>
 #include <chrono>
 #include <filesystem>
+#include <fstream>
 
 using namespace std::chrono_literals;
 
@@ -14,15 +15,49 @@ protected:
         HWeb::HWebConfig test_config;
         browser = std::make_unique<Browser>(test_config);
         
+        // Create temporary directory for file:// URLs
+        temp_dir = std::make_unique<TestHelpers::TemporaryDirectory>("browser_main_tests");
+        
         // Allow browser initialization to complete
         std::this_thread::sleep_for(500ms);
     }
     
     void TearDown() override {
         browser.reset();
+        temp_dir.reset();
+    }
+    
+    // Helper method to create file:// URL from HTML content
+    std::string createTestPage(const std::string& html_content, const std::string& filename = "test.html") {
+        auto html_file = temp_dir->createFile(filename, html_content);
+        return "file://" + html_file.string();
+    }
+    
+    // Helper method to load page and wait for full readiness
+    bool loadPageWithReadinessCheck(const std::string& url) {
+        browser->loadUri(url);
+        
+        // Wait for navigation
+        bool nav_success = browser->waitForNavigation(5000);
+        if (!nav_success) return false;
+        
+        // Check basic JavaScript execution
+        std::string js_test = browser->executeJavascriptSync("'test'");
+        if (js_test != "test") {
+            std::this_thread::sleep_for(1000ms);
+        }
+        
+        // Verify DOM is complete
+        std::string dom_ready = browser->executeJavascriptSync("document.readyState === 'complete'");
+        if (dom_ready != "true") {
+            std::this_thread::sleep_for(500ms);
+        }
+        
+        return true;
     }
 
     std::unique_ptr<Browser> browser;
+    std::unique_ptr<TestHelpers::TemporaryDirectory> temp_dir;
 };
 
 // ========== Constructor and Initialization Tests ==========
@@ -101,19 +136,20 @@ TEST_F(BrowserMainTest, LoadSimplePage) {
 </html>
 )HTML";
     
-    std::string data_url = "data:text/html;charset=utf-8," + simple_html;
+    // CRITICAL FIX: Use file:// URL instead of data: URL with enhanced readiness
+    std::string file_url = createTestPage(simple_html);
     
-    EXPECT_NO_THROW(browser->loadUri(data_url));
-    
-    // Wait for page load
-    std::this_thread::sleep_for(800ms);
+    EXPECT_NO_THROW({
+        bool load_success = loadPageWithReadinessCheck(file_url);
+        EXPECT_TRUE(load_success);
+    });
     
     // Verify page loaded
     std::string title = browser->getPageTitle();
     EXPECT_EQ(title, "Test Page");
     
     std::string current_url = browser->getCurrentUrl();
-    EXPECT_NE(current_url.find("data:text/html"), std::string::npos);
+    EXPECT_NE(current_url.find("file://"), std::string::npos);
 }
 
 TEST_F(BrowserMainTest, GetCurrentUrlInitial) {
@@ -287,16 +323,21 @@ TEST_F(BrowserMainTest, ElementCounting) {
 // ========== Navigation Tests ==========
 
 TEST_F(BrowserMainTest, BasicNavigation) {
-    // Load first page
-    std::string page1 = "data:text/html,<html><head><title>Page 1</title></head><body><h1>First Page</h1></body></html>";
-    browser->loadUri(page1);
-    std::this_thread::sleep_for(600ms);
+    // Load first page using file:// URL
+    std::string page1_html = "<html><head><title>Page 1</title></head><body><h1>First Page</h1></body></html>";
+    std::string page1_url = createTestPage(page1_html, "page1.html");
+    browser->loadUri(page1_url);
+    
+    // Enhanced page load waiting
+    bool nav_success = browser->waitForNavigation(5000);
+    EXPECT_TRUE(nav_success);
     
     EXPECT_EQ(browser->getPageTitle(), "Page 1");
     
-    // Load second page
-    std::string page2 = "data:text/html,<html><head><title>Page 2</title></head><body><h1>Second Page</h1></body></html>";
-    browser->loadUri(page2);
+    // Load second page using file:// URL  
+    std::string page2_html = "<html><head><title>Page 2</title></head><body><h1>Second Page</h1></body></html>";
+    std::string page2_url = createTestPage(page2_html, "page2.html");
+    browser->loadUri(page2_url);
     std::this_thread::sleep_for(600ms);
     
     EXPECT_EQ(browser->getPageTitle(), "Page 2");
