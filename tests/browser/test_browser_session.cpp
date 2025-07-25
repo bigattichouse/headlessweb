@@ -2,28 +2,41 @@
 #include "Browser/Browser.h"
 #include "Session/Session.h"
 #include "../utils/test_helpers.h"
+#include "browser_test_environment.h"
+#include "Debug.h"
 #include <thread>
 #include <chrono>
 #include <filesystem>
 #include <fstream>
+
+extern std::unique_ptr<Browser> g_browser;
 
 using namespace std::chrono_literals;
 
 class BrowserSessionTest : public ::testing::Test {
 protected:
     void SetUp() override {
-        HWeb::HWebConfig test_config;
-        browser = std::make_unique<Browser>(test_config);
+        // Use global browser instance (properly initialized)
+        browser = g_browser.get();
         session = std::make_unique<Session>("test_session");
         
         // Create temporary directory for file:// URLs
         temp_dir = std::make_unique<TestHelpers::TemporaryDirectory>("session_tests");
         
+        // Reset browser to clean state before each test
+        browser->loadUri("about:blank");
+        browser->waitForNavigation(2000);
+        
         // Load a comprehensive test page for session testing
         setupTestPage();
         
-        // Enhanced page readiness waiting
-        std::this_thread::sleep_for(500ms);
+        debug_output("BrowserSessionTest SetUp complete");
+    }
+    
+    // Generic JavaScript wrapper function for safe execution
+    std::string executeWrappedJS(const std::string& jsCode) {
+        std::string wrapped = "(function() { " + jsCode + " })()";
+        return browser->executeJavascriptSync(wrapped);
     }
     
     void setupTestPage() {
@@ -35,10 +48,15 @@ protected:
     <h1>Session Test</h1>
     <form>
         <input type="text" id="text-input" value="initial" />
+        <input type="email" id="email-input" placeholder="Email" />
+        <input type="number" id="number-input" placeholder="Number" />
+        <textarea id="textarea-input" placeholder="Textarea content">Initial textarea</textarea>
         <input type="checkbox" id="checkbox1" checked />
+        <input type="checkbox" id="checkbox2" />
         <select id="select-single">
             <option value="opt1" selected>Option 1</option>
-            <option value="opt2">Option 2</option>
+            <option value="option2">Option 2</option>
+            <option value="option3">Option 3</option>
         </select>
         <button type="button" id="focus-btn">Focus</button>
     </form>
@@ -59,29 +77,29 @@ protected:
             return;
         }
         
-        // Check JavaScript execution readiness
-        std::string js_test = browser->executeJavascriptSync("'test'");
+        // Check JavaScript execution readiness using wrapper function
+        std::string js_test = executeWrappedJS("return 'test';");
         if (js_test != "test") {
             std::cerr << "BrowserSessionTest: JavaScript not ready" << std::endl;
             std::this_thread::sleep_for(1000ms);
         }
         
-        // Wait for DOM elements to be available
-        std::string dom_ready = browser->executeJavascriptSync(
-            "document.readyState === 'complete' && "
+        // Wait for DOM elements to be available using wrapper function
+        std::string dom_ready = executeWrappedJS(
+            "return document.readyState === 'complete' && "
             "document.getElementById('text-input') !== null && "
             "document.getElementById('checkbox1') !== null && "
-            "document.getElementById('select-single') !== null"
+            "document.getElementById('select-single') !== null;"
         );
         
         if (dom_ready != "true") {
             std::cerr << "BrowserSessionTest: DOM not fully ready, waiting..." << std::endl;
             std::this_thread::sleep_for(1500ms);
             
-            // Re-check readiness
-            dom_ready = browser->executeJavascriptSync(
-                "document.readyState === 'complete' && "
-                "document.getElementById('text-input') !== null"
+            // Re-check readiness using wrapper function
+            dom_ready = executeWrappedJS(
+                "return document.readyState === 'complete' && "
+                "document.getElementById('text-input') !== null;"
             );
         }
         
@@ -90,12 +108,12 @@ protected:
     }
 
     void TearDown() override {
-        browser.reset();
+        // Clean up (don't destroy global browser)
         session.reset();
         temp_dir.reset();
     }
 
-    std::unique_ptr<Browser> browser;
+    Browser* browser;  // Raw pointer to global browser instance
     std::unique_ptr<Session> session;
     std::unique_ptr<TestHelpers::TemporaryDirectory> temp_dir;
     std::filesystem::path test_html_file;
@@ -157,8 +175,11 @@ TEST_F(BrowserSessionTest, UpdateSessionStateWithFormData) {
 }
 
 TEST_F(BrowserSessionTest, UpdateSessionStateWithStorage) {
-    // Set storage data via JavaScript
-    browser->executeJavascriptSync("setStorage();");
+    // Set storage data via JavaScript using wrapper function
+    executeWrappedJS(
+        "localStorage.setItem('testKey1', 'testValue1'); "
+        "sessionStorage.setItem('sessionKey1', 'sessionValue1');"
+    );
     std::this_thread::sleep_for(200ms);
     
     // Update session state
@@ -207,8 +228,8 @@ TEST_F(BrowserSessionTest, UpdateSessionStateWithActiveElements) {
 }
 
 TEST_F(BrowserSessionTest, UpdateSessionStateWithPageHash) {
-    // Change page hash
-    browser->executeJavascriptSync("window.location.hash = '#test-section';");
+    // Change page hash using wrapper function
+    executeWrappedJS("window.location.hash = '#test-section';");
     std::this_thread::sleep_for(200ms);
     
     // Update session state
@@ -219,8 +240,11 @@ TEST_F(BrowserSessionTest, UpdateSessionStateWithPageHash) {
 }
 
 TEST_F(BrowserSessionTest, UpdateSessionStateWithCustomAttributes) {
-    // Update custom attributes
-    browser->executeJavascriptSync("updateCustomAttributes();");
+    // Update custom attributes using wrapper function
+    executeWrappedJS(
+        "document.getElementById('custom-widget').setAttribute('data-state', 'updated'); "
+        "document.getElementById('custom-widget').setAttribute('data-custom', 'test-value');"
+    );
     std::this_thread::sleep_for(200ms);
     
     // Update session state
@@ -247,8 +271,8 @@ TEST_F(BrowserSessionTest, RestoreSessionBasic) {
     // Restore session
     EXPECT_NO_THROW(newBrowser->restoreSession(*session));
     
-    // Verify restoration
-    std::string userAgent = newBrowser->executeJavascriptSync("navigator.userAgent");
+    // Verify restoration using wrapper-style approach (for consistency)
+    std::string userAgent = newBrowser->executeJavascriptSync("(function() { return navigator.userAgent; })()");
     EXPECT_NE(userAgent.find("HeadlessWeb Test Agent"), std::string::npos);
 }
 
@@ -290,7 +314,7 @@ TEST_F(BrowserSessionTest, RestoreSessionWithFormState) {
     EXPECT_EQ(textValue, "restored text");
     
     std::string checkboxChecked = newBrowser->executeJavascriptSync(
-        "document.getElementById('checkbox2').checked");
+        "(function() { return document.getElementById('checkbox2').checked; })()");
     EXPECT_EQ(checkboxChecked, "true");
     
     std::string selectValue = newBrowser->getAttribute("#select-single", "value");
@@ -332,7 +356,7 @@ TEST_F(BrowserSessionTest, RestoreSessionWithActiveElements) {
     
     // Verify active element restoration
     std::string focusedElement = newBrowser->executeJavascriptSync(
-        "document.activeElement ? document.activeElement.id : ''");
+        "(function() { return document.activeElement ? document.activeElement.id : ''; })()");
     EXPECT_EQ(focusedElement, "focus-btn");
 }
 
@@ -356,10 +380,10 @@ TEST_F(BrowserSessionTest, RestoreSessionWithCustomState) {
     std::this_thread::sleep_for(800ms);
     
     // Verify custom state restoration
-    std::string restoredAppData = newBrowser->executeJavascriptSync("window['_hweb_custom_appData']");
+    std::string restoredAppData = newBrowser->executeJavascriptSync("(function() { return window['_hweb_custom_appData']; })()");
     EXPECT_EQ(restoredAppData, "test value");
     
-    std::string restoredTheme = newBrowser->executeJavascriptSync("window['_hweb_custom_userSettings'].theme");
+    std::string restoredTheme = newBrowser->executeJavascriptSync("(function() { return window['_hweb_custom_userSettings'].theme; })()");
     EXPECT_EQ(restoredTheme, "dark");
 }
 
@@ -464,8 +488,8 @@ TEST_F(BrowserSessionTest, RestoreFormState) {
     std::string selectValue = browser->getAttribute("#select-single", "value");
     EXPECT_EQ(selectValue, "option3");
     
-    std::string checkboxChecked = browser->executeJavascriptSync(
-        "document.getElementById('checkbox1').checked");
+    std::string checkboxChecked = executeWrappedJS(
+        "return document.getElementById('checkbox1').checked;");
     EXPECT_EQ(checkboxChecked, "false");
 }
 
@@ -491,16 +515,16 @@ TEST_F(BrowserSessionTest, RestoreActiveElements) {
     std::this_thread::sleep_for(200ms);
     
     // Verify restoration
-    std::string focusedElement = browser->executeJavascriptSync(
-        "document.activeElement ? document.activeElement.id : ''");
+    std::string focusedElement = executeWrappedJS(
+        "return document.activeElement ? document.activeElement.id : '';");
     EXPECT_EQ(focusedElement, "focus-btn");
 }
 
 // ========== Page State Extraction Tests ==========
 
 TEST_F(BrowserSessionTest, ExtractPageHash) {
-    // Set page hash
-    browser->executeJavascriptSync("window.location.hash = '#test-hash';");
+    // Set page hash using wrapper function
+    executeWrappedJS("window.location.hash = '#test-hash';");
     std::this_thread::sleep_for(100ms);
     
     std::string hash = browser->extractPageHash();
@@ -546,8 +570,8 @@ TEST_F(BrowserSessionTest, RestoreScrollPositions) {
 // ========== Custom State Management Tests ==========
 
 TEST_F(BrowserSessionTest, ExtractCustomState) {
-    // Set custom state via JavaScript
-    browser->executeJavascriptSync("window.testData = {key: 'value', number: 42};");
+    // Set custom state via JavaScript using wrapper function
+    executeWrappedJS("window.testData = {key: 'value', number: 42};");
     std::this_thread::sleep_for(100ms);
     
     // Create extractors
@@ -579,10 +603,10 @@ TEST_F(BrowserSessionTest, RestoreCustomState) {
     std::this_thread::sleep_for(200ms);
     
     // Verify restoration
-    std::string restoredData = browser->executeJavascriptSync("window['_hweb_custom_testData'].restored");
+    std::string restoredData = executeWrappedJS("return window['_hweb_custom_testData'].restored;");
     EXPECT_EQ(restoredData, "true");
     
-    std::string simpleValue = browser->executeJavascriptSync("window['_hweb_custom_simpleValue']");
+    std::string simpleValue = executeWrappedJS("return window['_hweb_custom_simpleValue'];");
     EXPECT_EQ(simpleValue, "simple string");
 }
 
@@ -629,7 +653,7 @@ TEST_F(BrowserSessionTest, FullSessionSaveAndRestore) {
     browser->selectOption("#select-single", "option2");
     browser->setScrollPosition(50, 75);
     browser->focusElement("#focus-btn");
-    browser->executeJavascriptSync("window.location.hash = '#full-test';");
+    executeWrappedJS("window.location.hash = '#full-test';");
     
     std::this_thread::sleep_for(300ms);
     
@@ -649,7 +673,7 @@ TEST_F(BrowserSessionTest, FullSessionSaveAndRestore) {
     EXPECT_EQ(textValue, "full test");
     
     std::string checkboxChecked = newBrowser->executeJavascriptSync(
-        "document.getElementById('checkbox2').checked");
+        "(function() { return document.getElementById('checkbox2').checked; })()");
     EXPECT_EQ(checkboxChecked, "true");
     
     std::string selectValue = newBrowser->getAttribute("#select-single", "value");
@@ -659,6 +683,6 @@ TEST_F(BrowserSessionTest, FullSessionSaveAndRestore) {
     EXPECT_EQ(x, 50);
     EXPECT_EQ(y, 75);
     
-    std::string hash = newBrowser->executeJavascriptSync("window.location.hash");
+    std::string hash = newBrowser->executeJavascriptSync("(function() { return window.location.hash; })()");
     EXPECT_EQ(hash, "#full-test");
 }
