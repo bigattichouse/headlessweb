@@ -249,9 +249,10 @@ TEST_F(BrowserJavaScriptTest, BooleanExpressions) {
     EXPECT_EQ(g_browser->executeJavascriptSync("1 !== 2"), "true");
     EXPECT_EQ(g_browser->executeJavascriptSync("checkPageReady()"), "true"); // Test our loaded function
     
-    // Additional boolean tests
+    // Additional boolean expression tests
+    std::vector<std::string> additional_tests = {
         "1 === 1",
-        "1 !== 2",
+        "1 !== 2", 
         "5 > 3",
         "2 < 10",
         "5 >= 5",
@@ -261,7 +262,7 @@ TEST_F(BrowserJavaScriptTest, BooleanExpressions) {
         "!false"
     };
     
-    for (const auto& expression : boolean_tests) {
+    for (const auto& expression : additional_tests) {
         EXPECT_NO_THROW({
             std::string result = g_browser->executeJavascriptSync(expression);
         });

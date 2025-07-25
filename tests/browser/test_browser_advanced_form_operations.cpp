@@ -1,22 +1,32 @@
 #include <gtest/gtest.h>
 #include "Browser/Browser.h"
 #include "../utils/test_helpers.h"
+#include "browser_test_environment.h"
+#include "Debug.h"
 #include <memory>
 #include <thread>
 #include <chrono>
 
+extern std::unique_ptr<Browser> g_browser;
+
 class BrowserAdvancedFormOperationsTest : public ::testing::Test {
 protected:
     void SetUp() override {
-        // Create temporary directory for testing
+        // Use global browser instance (properly initialized)
+        browser_ = g_browser.get();
+        
+        // Create temporary directory for file:// URLs
         temp_dir = std::make_unique<TestHelpers::TemporaryDirectory>("browser_advanced_form_tests");
-        HWeb::HWebConfig test_config;
-        browser_ = std::make_unique<Browser>(test_config);
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        
+        // Reset browser to clean state before each test
+        browser_->loadUri("about:blank");
+        browser_->waitForNavigation(2000);
+        
+        debug_output("BrowserAdvancedFormOperationsTest SetUp complete");
     }
     
     void TearDown() override {
-        browser_.reset();
+        // Clean up temporary directory (don't destroy global browser)
         temp_dir.reset();
     }
 
@@ -225,11 +235,45 @@ protected:
             </html>
         )HTMLDELIM";
         
-        browser_->loadUri("data:text/html;charset=utf-8," + complex_html);
-        std::this_thread::sleep_for(std::chrono::milliseconds(800));
+        // CRITICAL FIX: Use file:// URL instead of data: URL with proper readiness checking
+        auto html_file = temp_dir->createFile("complex_form.html", complex_html);
+        std::string file_url = "file://" + html_file.string();
+        
+        debug_output("Loading complex form page: " + file_url);
+        debug_output("HTML content length: " + std::to_string(complex_html.length()));  
+        browser_->loadUri(file_url);
+        
+        // Wait for navigation to complete
+        bool navigation_success = browser_->waitForNavigation(10000);
+        if (!navigation_success) {
+            debug_output("Navigation failed for complex form page");
+            return;
+        }
+        
+        // CRITICAL: Wait for JavaScript environment to be fully ready
+        // Check that JavaScript functions and DOM elements are available
+        std::string js_ready = browser_->executeJavascriptSync(
+            "document.readyState === 'complete' && "
+            "typeof showStep === 'function' && "
+            "document.getElementById('step1') !== null"
+        );
+        
+        if (js_ready != "true") {
+            debug_output("JavaScript environment not ready, waiting additional time...");
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+            
+            // Re-check JavaScript readiness
+            js_ready = browser_->executeJavascriptSync(
+                "document.readyState === 'complete' && "
+                "typeof showStep === 'function' && "
+                "document.getElementById('step1') !== null"
+            );
+        }
+        
+        debug_output("Complex form page loaded - ready: " + js_ready);
     }
 
-    std::unique_ptr<Browser> browser_;
+    Browser* browser_;  // Raw pointer to global browser instance
 };
 
 // ========== Multi-Step Form Navigation Tests ==========
