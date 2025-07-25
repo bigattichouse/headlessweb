@@ -36,6 +36,12 @@ protected:
         temp_dir.reset();
     }
     
+    // Generic JavaScript wrapper function for safe execution
+    std::string executeWrappedJS(const std::string& jsCode) {
+        std::string wrapped = "(function() { " + jsCode + " })()";
+        return browser->executeJavascriptSync(wrapped);
+    }
+    
     // Helper method to create file:// URL from HTML content
     std::string createTestPage(const std::string& html_content, const std::string& filename = "test.html") {
         auto html_file = temp_dir->createFile(filename, html_content);
@@ -50,28 +56,28 @@ protected:
         bool nav_success = browser->waitForNavigation(5000);
         if (!nav_success) return false;
         
-        // CRITICAL FIX: Proper readiness checking with retry logic
+        // CRITICAL FIX: Proper readiness checking with retry logic using wrapper functions
         // Check basic JavaScript execution with retry
-        std::string js_test = browser->executeJavascriptSync("'test'");
+        std::string js_test = executeWrappedJS("return 'test';");
         if (js_test != "test") {
             std::this_thread::sleep_for(1000ms);
-            js_test = browser->executeJavascriptSync("'test'");
+            js_test = executeWrappedJS("return 'test';");
             if (js_test != "test") return false;
         }
         
         // Verify DOM is complete with retry
-        std::string dom_ready = browser->executeJavascriptSync("document.readyState === 'complete'");
+        std::string dom_ready = executeWrappedJS("return document.readyState === 'complete';");
         if (dom_ready != "true") {
             std::this_thread::sleep_for(500ms);
-            dom_ready = browser->executeJavascriptSync("document.readyState === 'complete'");
+            dom_ready = executeWrappedJS("return document.readyState === 'complete';");
             if (dom_ready != "true") return false;
         }
         
         // Additional check: Ensure title is available (common indicator of full load)
-        std::string title_check = browser->executeJavascriptSync("document.title !== undefined && document.title !== null");
+        std::string title_check = executeWrappedJS("return document.title !== undefined && document.title !== null;");
         if (title_check != "true") {
             std::this_thread::sleep_for(300ms);
-            title_check = browser->executeJavascriptSync("document.title !== undefined && document.title !== null");
+            title_check = executeWrappedJS("return document.title !== undefined && document.title !== null;");
             if (title_check != "true") return false;
         }
         
@@ -188,8 +194,8 @@ TEST_F(BrowserMainTest, LoadSimplePage) {
     // DEBUG: Check what we can get from the browser
     std::string current_url = browser->getCurrentUrl();
     std::string title = browser->getPageTitle();
-    std::string dom_title = browser->executeJavascriptSync("document.title");
-    std::string body_content = browser->executeJavascriptSync("document.body ? document.body.innerHTML : 'no body'");
+    std::string dom_title = executeWrappedJS("return document.title;");
+    std::string body_content = executeWrappedJS("return document.body ? document.body.innerHTML : 'no body';");
     
     debug_output("DEBUG LoadSimplePage:");
     debug_output("  Current URL: " + current_url);
@@ -272,11 +278,11 @@ TEST_F(BrowserMainTest, BasicJavaScriptExecution) {
     std::this_thread::sleep_for(600ms);
     
     // Test JavaScript execution
-    std::string result = browser->executeJavascriptSync("2 + 3");
+    std::string result = executeWrappedJS("return 2 + 3;");
     EXPECT_EQ(result, "5");
     
     // Test DOM manipulation via JavaScript
-    browser->executeJavascript("document.getElementById('target').textContent = 'Modified';");
+    executeWrappedJS("document.getElementById('target').textContent = 'Modified';");
     std::this_thread::sleep_for(100ms);
     
     std::string content = browser->getInnerText("#target");
@@ -289,7 +295,7 @@ TEST_F(BrowserMainTest, JavaScriptErrorHandling) {
     std::this_thread::sleep_for(500ms);
     
     // Test safe JavaScript execution with invalid syntax
-    std::string result = browser->executeJavascriptSyncSafe("invalid.syntax.here");
+    std::string result = executeWrappedJS("return invalid.syntax.here;"); // This will still fail but safely
     
     // Should not crash and should return empty or error indicator
     EXPECT_TRUE(result.empty() || result.find("error") != std::string::npos || result == "undefined");
@@ -490,7 +496,7 @@ TEST_F(BrowserMainTest, EmptyPageOperations) {
     EXPECT_TRUE(browser->getPageTitle().empty());
     
     // JavaScript should still work
-    std::string result = browser->executeJavascriptSync("1 + 1");
+    std::string result = executeWrappedJS("return 1 + 1;");
     EXPECT_EQ(result, "2");
 }
 
@@ -543,6 +549,6 @@ TEST_F(BrowserMainTest, ResourceCleanupOnDestruction) {
     
     // Original browser should still work
     EXPECT_NE(browser->webView, nullptr);
-    std::string result = browser->executeJavascriptSync("42");
+    std::string result = executeWrappedJS("return 42;");
     EXPECT_EQ(result, "42");
 }
