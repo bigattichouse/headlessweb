@@ -173,6 +173,9 @@ bool Browser::validateUrl(const std::string& url) const {
     
     // Data URL validation (safe HTML only) - handle charset parameter
     if (url.find("data:text/html") == 0) {
+        // Note: data: URLs have WebKit storage restrictions - localStorage/sessionStorage won't work
+        // Consider using file:// URLs if storage access is needed
+        
         // Very permissive validation - only block the most obvious XSS patterns
         // The original test case that should fail: data:text/html,<script>alert('xss')</script>
         if (url.find("alert('xss')") != std::string::npos ||

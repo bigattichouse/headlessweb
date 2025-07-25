@@ -145,13 +145,9 @@ namespace FileOps {
                 return false;
             }
             
-            // Handle empty files based on validation requirements
+            // Allow empty files by default - applications can set size restrictions if needed
+            // Empty files are technically valid for upload scenarios like placeholder creation
             if (file_size == 0) {
-                // For enhanced validation (when max_file_size is explicitly set and > 0), reject empty files
-                if (cmd.max_file_size > 0 && cmd.max_file_size < 104857600) { // Not default 100MB
-                    debug_output("File is empty (rejected for enhanced validation): " + filepath);
-                    return false;
-                }
                 debug_output("File is empty (but allowed): " + filepath);
             }
         } catch (const std::exception& e) {
@@ -355,6 +351,7 @@ namespace FileOps {
         if (extension == ".png") return "image/png";
         if (extension == ".gif") return "image/gif";
         if (extension == ".svg") return "image/svg+xml";
+        if (extension == ".mp4") return "video/mp4";
         if (extension == ".zip") return "application/zip";
         if (extension == ".doc") return "application/msword";
         if (extension == ".docx") return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";

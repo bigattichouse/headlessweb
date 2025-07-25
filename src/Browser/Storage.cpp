@@ -1,4 +1,5 @@
 #include "Browser.h"
+#include "../Debug.h"
 #include <json/json.h>
 #include <iostream>
 
@@ -100,6 +101,7 @@ std::map<std::string, std::string> Browser::getLocalStorage() {
                 }
                 return JSON.stringify(result);
             } catch(e) {
+                console.warn("localStorage access failed:", e.name, "- WebKit restricts localStorage on data: URLs. Consider using file:// URLs instead.");
                 return "{}";
             }
         })()
@@ -142,8 +144,17 @@ void Browser::setLocalStorage(const std::map<std::string, std::string>& storage)
             pos += 2;
         }
         
-        std::string js = "try { localStorage.setItem('" + escaped_key + "', '" + escaped_value + "'); } catch(e) { 'localStorage error'; }";
-        executeJavascriptSync(js);
+        std::string js = "try { localStorage.setItem('" + escaped_key + "', '" + escaped_value + "'); } catch(e) { " +
+                         "'localStorage error: ' + e.name + ' - Note: WebKit restricts localStorage on data: URLs. Consider using file:// URLs instead.'; }";
+        std::string result = executeJavascriptSync(js);
+        
+        // If we get an error result and current URL is a data: URL, warn the user
+        if (!result.empty() && result.find("localStorage error") != std::string::npos) {
+            std::string currentUrl = getCurrentUrl();
+            if (currentUrl.find("data:") == 0) {
+                debug_output("WARNING: localStorage operation failed on data: URL. WebKit restricts storage on data: URLs. Consider using file:// URLs for full storage functionality.");
+            }
+        }
     }
 }
 
@@ -163,6 +174,7 @@ std::map<std::string, std::string> Browser::getSessionStorage() {
                 }
                 return JSON.stringify(result);
             } catch(e) {
+                console.warn("sessionStorage access failed:", e.name, "- WebKit restricts sessionStorage on data: URLs. Consider using file:// URLs instead.");
                 return "{}";
             }
         })()
@@ -205,8 +217,17 @@ void Browser::setSessionStorage(const std::map<std::string, std::string>& storag
             pos += 2;
         }
         
-        std::string js = "try { sessionStorage.setItem('" + escaped_key + "', '" + escaped_value + "'); } catch(e) { 'sessionStorage error'; }";
-        executeJavascriptSync(js);
+        std::string js = "try { sessionStorage.setItem('" + escaped_key + "', '" + escaped_value + "'); } catch(e) { " +
+                         "'sessionStorage error: ' + e.name + ' - Note: WebKit restricts sessionStorage on data: URLs. Consider using file:// URLs instead.'; }";
+        std::string result = executeJavascriptSync(js);
+        
+        // If we get an error result and current URL is a data: URL, warn the user
+        if (!result.empty() && result.find("sessionStorage error") != std::string::npos) {
+            std::string currentUrl = getCurrentUrl();
+            if (currentUrl.find("data:") == 0) {
+                debug_output("WARNING: sessionStorage operation failed on data: URL. WebKit restricts storage on data: URLs. Consider using file:// URLs for full storage functionality.");
+            }
+        }
     }
 }
 
