@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="13" failures="10" disabled="0" errors="0" time="51.661" timestamp="2025-07-25T13:37:55.499" name="AllTests">
+  <testsuite name="BrowserFileOpsIntegrationTest" tests="13" failures="10" disabled="0" skipped="0" errors="0" time="51.605" timestamp="2025-07-25T13:37:55.555">
+    <testcase name="SessionPersistsFileUploadState" file="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp" line="122" status="run" result="completed" time="3.527" timestamp="2025-07-25T13:37:55.555" classname="BrowserFileOpsIntegrationTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:144&#x0A;Value of: customState.isMember(&quot;fileopsState&quot;)&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:144
+Value of: customState.isMember("fileopsState")
+  Actual: false
+Expected: true
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:148&#x0A;Value of: stateStr.empty()&#x0A;  Actual: true&#x0A;Expected: false&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:148
+Value of: stateStr.empty()
+  Actual: true
+Expected: false
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:149&#x0A;Expected: (stateStr.find(&quot;upload_complete&quot;)) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:149
+Expected: (stateStr.find("upload_complete")) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615
+]]></failure>
+    </testcase>
+    <testcase name="SessionRestoresFileOperationState" file="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp" line="152" status="run" result="completed" time="11.877" timestamp="2025-07-25T13:37:59.083" classname="BrowserFileOpsIntegrationTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:183&#x0A;Expected equality of these values:&#x0A;  selectedFiles&#x0A;    Which is: &quot;&quot;&#x0A;  &quot;restored_file.txt&quot;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:183
+Expected equality of these values:
+  selectedFiles
+    Which is: ""
+  "restored_file.txt"
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:184&#x0A;Expected equality of these values:&#x0A;  uploadProgress&#x0A;    Which is: &quot;&quot;&#x0A;  &quot;75%&quot;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:184
+Expected equality of these values:
+  uploadProgress
+    Which is: ""
+  "75%"
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:185&#x0A;Expected equality of these values:&#x0A;  lastAction&#x0A;    Which is: &quot;&quot;&#x0A;  &quot;upload_in_progress&quot;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:185
+Expected equality of these values:
+  lastAction
+    Which is: ""
+  "upload_in_progress"
+]]></failure>
+    </testcase>
+    <testcase name="FileUploadFormStateIntegration" file="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp" line="188" status="run" result="completed" time="2.088" timestamp="2025-07-25T13:38:10.960" classname="BrowserFileOpsIntegrationTest" />
+    <testcase name="DownloadOperationWithSessionTracking" file="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp" line="215" status="run" result="completed" time="3.547" timestamp="2025-07-25T13:38:13.049" classname="BrowserFileOpsIntegrationTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:222&#x0A;Expected: (downloadStatus.find(&quot;test_file.txt&quot;)) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:222
+Expected: (downloadStatus.find("test_file.txt")) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:237&#x0A;Value of: customState.isMember(&quot;downloadStatus&quot;)&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:237
+Value of: customState.isMember("downloadStatus")
+  Actual: false
+Expected: true
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:239&#x0A;Expected: (status.find(&quot;test_file.txt&quot;)) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:239
+Expected: (status.find("test_file.txt")) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615
+]]></failure>
+    </testcase>
+    <testcase name="UploadManagerWithBrowserIntegration" file="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp" line="244" status="run" result="completed" time="1.857" timestamp="2025-07-25T13:38:16.597" classname="BrowserFileOpsIntegrationTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:256&#x0A;Value of: browser-&gt;elementExists(&quot;#file-upload&quot;)&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:256
+Value of: browser->elementExists("#file-upload")
+  Actual: false
+Expected: true
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:261&#x0A;Value of: uploadManager.validateUploadTarget(*browser, &quot;#file-upload&quot;)&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:261
+Value of: uploadManager.validateUploadTarget(*browser, "#file-upload")
+  Actual: false
+Expected: true
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:269&#x0A;Expected: (result) != (UploadResult::ELEMENT_NOT_FOUND), actual: 4-byte object &lt;08-00 00-00&gt; vs 4-byte object &lt;08-00 00-00&gt;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:269
+Expected: (result) != (UploadResult::ELEMENT_NOT_FOUND), actual: 4-byte object <08-00 00-00> vs 4-byte object <08-00 00-00>
+]]></failure>
+    </testcase>
+    <testcase name="UploadManagerValidationIntegration" file="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp" line="272" status="run" result="completed" time="1.85" timestamp="2025-07-25T13:38:18.455" classname="BrowserFileOpsIntegrationTest" />
+    <testcase name="MultipleFileUploadIntegration" file="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp" line="300" status="run" result="completed" time="1.855" timestamp="2025-07-25T13:38:20.305" classname="BrowserFileOpsIntegrationTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:313&#x0A;Value of: browser-&gt;elementExists(&quot;#multiple-upload&quot;)&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:313
+Value of: browser->elementExists("#multiple-upload")
+  Actual: false
+Expected: true
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:326&#x0A;Expected: (result) != (UploadResult::ELEMENT_NOT_FOUND), actual: 4-byte object &lt;08-00 00-00&gt; vs 4-byte object &lt;08-00 00-00&gt;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:326
+Expected: (result) != (UploadResult::ELEMENT_NOT_FOUND), actual: 4-byte object <08-00 00-00> vs 4-byte object <08-00 00-00>
+]]></failure>
+    </testcase>
+    <testcase name="DownloadManagerBasicIntegration" file="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp" line="331" status="run" result="completed" time="1.813" timestamp="2025-07-25T13:38:22.160" classname="BrowserFileOpsIntegrationTest" />
+    <testcase name="DownloadWithBrowserTrigger" file="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp" line="353" status="run" result="completed" time="2.755" timestamp="2025-07-25T13:38:23.973" classname="BrowserFileOpsIntegrationTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:360&#x0A;Expected: (downloadStatus.find(&quot;Downloading&quot;)) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:360
+Expected: (downloadStatus.find("Downloading")) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:366&#x0A;Expected: (downloadStatus.find(&quot;complete&quot;)) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:366
+Expected: (downloadStatus.find("complete")) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615
+]]></failure>
+    </testcase>
+    <testcase name="FileOperationStateInSession" file="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp" line="371" status="run" result="completed" time="2.886" timestamp="2025-07-25T13:38:26.729" classname="BrowserFileOpsIntegrationTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:400&#x0A;Value of: customState.isMember(&quot;fileops&quot;)&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:400
+Value of: customState.isMember("fileops")
+  Actual: false
+Expected: true
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:401&#x0A;Value of: customState.isMember(&quot;downloads&quot;)&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:401
+Value of: customState.isMember("downloads")
+  Actual: false
+Expected: true
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:411&#x0A;Value of: fileopsState.isNull()&#x0A;  Actual: true&#x0A;Expected: false&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:411
+Value of: fileopsState.isNull()
+  Actual: true
+Expected: false
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:414&#x0A;Value of: downloadsState.isNull()&#x0A;  Actual: true&#x0A;Expected: false&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:414
+Value of: downloadsState.isNull()
+  Actual: true
+Expected: false
+]]></failure>
+    </testcase>
+    <testcase name="CompleteFileOpsSessionWorkflow" file="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp" line="417" status="run" result="completed" time="12.295" timestamp="2025-07-25T13:38:29.615" classname="BrowserFileOpsIntegrationTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:454&#x0A;Expected equality of these values:&#x0A;  uploadStatus&#x0A;    Which is: &quot;&quot;&#x0A;  &quot;Workflow test completed&quot;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:454
+Expected equality of these values:
+  uploadStatus
+    Which is: ""
+  "Workflow test completed"
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:458&#x0A;Expected equality of these values:&#x0A;  x&#x0A;    Which is: 39&#x0A;  100&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:458
+Expected equality of these values:
+  x
+    Which is: 39
+  100
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:459&#x0A;Expected equality of these values:&#x0A;  y&#x0A;    Which is: 192&#x0A;  150&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:459
+Expected equality of these values:
+  y
+    Which is: 192
+  150
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:466&#x0A;Expected equality of these values:&#x0A;  lastAction&#x0A;    Which is: &quot;&quot;&#x0A;  &quot;upload_complete&quot;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:466
+Expected equality of these values:
+  lastAction
+    Which is: ""
+  "upload_complete"
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:469&#x0A;Expected equality of these values:&#x0A;  selectedFiles&#x0A;    Which is: &quot;&quot;&#x0A;  &quot;workflow_test.txt&quot;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:469
+Expected equality of these values:
+  selectedFiles
+    Which is: ""
+  "workflow_test.txt"
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:472&#x0A;Expected equality of these values:&#x0A;  progress&#x0A;    Which is: &quot;&quot;&#x0A;  &quot;100%&quot;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:472
+Expected equality of these values:
+  progress
+    Which is: ""
+  "100%"
+]]></failure>
+    </testcase>
+    <testcase name="FileOpsErrorHandlingIntegration" file="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp" line="477" status="run" result="completed" time="2.367" timestamp="2025-07-25T13:38:41.911" classname="BrowserFileOpsIntegrationTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:495&#x0A;Value of: session-&gt;getCurrentUrl().empty()&#x0A;  Actual: true&#x0A;Expected: false&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:495
+Value of: session->getCurrentUrl().empty()
+  Actual: true
+Expected: false
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:496&#x0A;Expected equality of these values:&#x0A;  session-&gt;getDocumentReadyState()&#x0A;    Which is: &quot;&quot;&#x0A;  &quot;complete&quot;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:496
+Expected equality of these values:
+  session->getDocumentReadyState()
+    Which is: ""
+  "complete"
+]]></failure>
+    </testcase>
+    <testcase name="SessionHandlingWithFileOpsErrors" file="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp" line="499" status="run" result="completed" time="2.881" timestamp="2025-07-25T13:38:44.279" classname="BrowserFileOpsIntegrationTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:526&#x0A;Value of: customState.isMember(&quot;errorLog&quot;)&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:526
+Value of: customState.isMember("errorLog")
+  Actual: false
+Expected: true
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:533&#x0A;Value of: errorLog.isNull()&#x0A;  Actual: true&#x0A;Expected: false&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:533
+Value of: errorLog.isNull()
+  Actual: true
+Expected: false
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:534&#x0A;Value of: errorLog.isArray()&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:534
+Value of: errorLog.isArray()
+  Actual: false
+Expected: true
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

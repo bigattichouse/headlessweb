@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="0" disabled="0" errors="0" time="1.273" timestamp="2025-07-25T14:06:44.162" name="AllTests">
+  <testsuite name="BrowserUtilitiesTest" tests="1" failures="0" disabled="0" skipped="0" errors="0" time="1.227" timestamp="2025-07-25T14:06:44.208">
+    <testcase name="GetPageSourceBasic" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp" line="288" status="run" result="completed" time="1.227" timestamp="2025-07-25T14:06:44.208" classname="BrowserUtilitiesTest" />
+  </testsuite>
+</testsuites>

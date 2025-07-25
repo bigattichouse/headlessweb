@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="20" failures="8" disabled="0" errors="0" time="32.518" timestamp="2025-07-25T14:03:07.592" name="AllTests">
+  <testsuite name="BrowserUtilitiesTest" tests="20" failures="8" disabled="0" skipped="0" errors="0" time="32.475" timestamp="2025-07-25T14:03:07.636">
+    <testcase name="WaitWithValidDuration" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp" line="167" status="run" result="completed" time="1.612" timestamp="2025-07-25T14:03:07.636" classname="BrowserUtilitiesTest" />
+    <testcase name="WaitWithZeroDuration" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp" line="180" status="run" result="completed" time="1.514" timestamp="2025-07-25T14:03:09.248" classname="BrowserUtilitiesTest" />
+    <testcase name="WaitWithNegativeDuration" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp" line="192" status="run" result="completed" time="1.516" timestamp="2025-07-25T14:03:10.763" classname="BrowserUtilitiesTest" />
+    <testcase name="IsPageLoadedAfterSetup" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp" line="206" status="run" result="completed" time="1.553" timestamp="2025-07-25T14:03:12.279" classname="BrowserUtilitiesTest" />
+    <testcase name="GetPageLoadState" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp" line="211" status="run" result="completed" time="1.561" timestamp="2025-07-25T14:03:13.833" classname="BrowserUtilitiesTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp:217&#x0A;Expected: (loadState.find(&quot;data:&quot;)) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp:217
+Expected: (loadState.find("data:")) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615
+]]></failure>
+    </testcase>
+    <testcase name="PageStateAfterNavigation" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp" line="220" status="run" result="completed" time="2.052" timestamp="2025-07-25T14:03:15.394" classname="BrowserUtilitiesTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp:231&#x0A;Expected: (loadState.find(&quot;complete&quot;)) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp:231
+Expected: (loadState.find("complete")) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615
+]]></failure>
+    </testcase>
+    <testcase name="GetPageSourceBasic" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp" line="236" status="run" result="completed" time="1.547" timestamp="2025-07-25T14:03:17.447" classname="BrowserUtilitiesTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp:241&#x0A;Expected: (source.find(&quot;Utilities Test Page&quot;)) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp:241
+Expected: (source.find("Utilities Test Page")) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615
+]]></failure>
+    </testcase>
+    <testcase name="GetPageSourceAfterDynamicContent" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp" line="245" status="run" result="completed" time="1.654" timestamp="2025-07-25T14:03:18.994" classname="BrowserUtilitiesTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp:253&#x0A;Expected: (source.find(&quot;Dynamic content added&quot;)) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp:253
+Expected: (source.find("Dynamic content added")) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615
+]]></failure>
+    </testcase>
+    <testcase name="GetPageSourceStructure" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp" line="256" status="run" result="completed" time="1.552" timestamp="2025-07-25T14:03:20.649" classname="BrowserUtilitiesTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp:260&#x0A;Expected: (source.find(&quot;&lt;!DOCTYPE html&gt;&quot;)) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp:260
+Expected: (source.find("<!DOCTYPE html>")) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp:263&#x0A;Expected: (source.find(&quot;&lt;script&gt;&quot;)) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp:263
+Expected: (source.find("<script>")) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp:264&#x0A;Expected: (source.find(&quot;&lt;style&gt;&quot;)) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp:264
+Expected: (source.find("<style>")) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615
+]]></failure>
+    </testcase>
+    <testcase name="InitialScrollPosition" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp" line="269" status="run" result="completed" time="1.551" timestamp="2025-07-25T14:03:22.201" classname="BrowserUtilitiesTest" />
+    <testcase name="SetAndGetScrollPosition" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp" line="277" status="run" result="completed" time="1.654" timestamp="2025-07-25T14:03:23.752" classname="BrowserUtilitiesTest" />
+    <testcase name="ScrollToZero" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp" line="288" status="run" result="completed" time="1.65" timestamp="2025-07-25T14:03:25.407" classname="BrowserUtilitiesTest" />
+    <testcase name="ScrollWithNegativeValues" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp" line="302" status="run" result="completed" time="1.605" timestamp="2025-07-25T14:03:27.058" classname="BrowserUtilitiesTest" />
+    <testcase name="ExecuteEmptyActionSequence" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp" line="316" status="run" result="completed" time="1.524" timestamp="2025-07-25T14:03:28.663" classname="BrowserUtilitiesTest" />
+    <testcase name="ExecuteSingleClickAction" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp" line="324" status="run" result="completed" time="1.554" timestamp="2025-07-25T14:03:30.188" classname="BrowserUtilitiesTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp:331&#x0A;Value of: result&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp:331
+Value of: result
+  Actual: false
+Expected: true
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp:336&#x0A;Expected: (log_content.find(&quot;button clicked&quot;)) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp:336
+Expected: (log_content.find("button clicked")) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615
+]]></failure>
+    </testcase>
+    <testcase name="ExecuteTextInputAction" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp" line="339" status="run" result="completed" time="1.749" timestamp="2025-07-25T14:03:31.743" classname="BrowserUtilitiesTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp:346&#x0A;Value of: result&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp:346
+Value of: result
+  Actual: false
+Expected: true
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp:351&#x0A;Expected equality of these values:&#x0A;  input_value&#x0A;    Which is: &quot;&quot;&#x0A;  &quot;test input&quot;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp:351
+Expected equality of these values:
+  input_value
+    Which is: ""
+  "test input"
+]]></failure>
+    </testcase>
+    <testcase name="InitializeDataManagerBasic" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp" line="356" status="run" result="completed" time="1.516" timestamp="2025-07-25T14:03:33.492" classname="BrowserUtilitiesTest" />
+    <testcase name="InitializeDataManagerWithEmptyName" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp" line="363" status="run" result="completed" time="1.518" timestamp="2025-07-25T14:03:35.008" classname="BrowserUtilitiesTest" />
+    <testcase name="UtilityMethodsAfterNavigation" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp" line="370" status="run" result="completed" time="2.054" timestamp="2025-07-25T14:03:36.527" classname="BrowserUtilitiesTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp:378&#x0A;Value of: browser-&gt;getPageSource().empty()&#x0A;  Actual: true&#x0A;Expected: false&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp:378
+Value of: browser->getPageSource().empty()
+  Actual: true
+Expected: false
+]]></failure>
+    </testcase>
+    <testcase name="UtilitiesWithMinimalBrowser" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp" line="387" status="run" result="completed" time="1.529" timestamp="2025-07-25T14:03:38.582" classname="BrowserUtilitiesTest" />
+  </testsuite>
+</testsuites>
