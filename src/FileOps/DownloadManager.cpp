@@ -5,6 +5,7 @@
 #include <fstream>
 #include <iostream>
 #include <future>
+#include <gtk/gtk.h>
 
 // Platform-specific includes
 #ifdef _WIN32
@@ -47,6 +48,10 @@ namespace FileOps {
             debug_output("File already exists: " + filepath);
             
             if (verifyDownloadIntegrity(filepath, cmd.expected_size)) {
+                // CRITICAL FIX: Call completion hook for existing files too
+                if (completion_hook_) {
+                    completion_hook_(filepath);
+                }
                 return DownloadResult::SUCCESS;
             }
         }
@@ -148,7 +153,12 @@ namespace FileOps {
                 return all_complete ? DownloadResult::SUCCESS : DownloadResult::TIMEOUT;
             }
             
-            std::this_thread::sleep_for(std::chrono::milliseconds(polling_interval_ms_));
+            // SIGNAL-BASED APPROACH: Process events instead of blocking sleep
+            GMainContext *context = g_main_context_default();
+            while (g_main_context_pending(context)) {
+                g_main_context_iteration(context, FALSE);
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(std::min(polling_interval_ms_, 50)));
         }
         
         return DownloadResult::TIMEOUT;
@@ -305,9 +315,14 @@ namespace FileOps {
             });
         });
         
-        // Wait for file to be found or timeout
+        // SIGNAL-BASED APPROACH: Wait for file to be found or timeout
         while (!found_file && (std::chrono::system_clock::now() - start_time < timeout)) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            // Process GTK main loop events instead of blocking sleep
+            GMainContext *context = g_main_context_default();
+            while (g_main_context_pending(context)) {
+                g_main_context_iteration(context, FALSE);
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(25));
         }
         
         // Clean up watcher
@@ -327,7 +342,12 @@ namespace FileOps {
         
         // Check if file size is changing
         size_t size1 = PathUtils::getFileSize(filepath);
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        // SIGNAL-BASED APPROACH: Process events instead of blocking sleep
+        GMainContext *context = g_main_context_default();
+        while (g_main_context_pending(context)) {
+            g_main_context_iteration(context, FALSE);
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
         size_t size2 = PathUtils::getFileSize(filepath);
         
         return size1 != size2;
@@ -348,13 +368,23 @@ namespace FileOps {
         while (std::chrono::system_clock::now() - start_time < timeout) {
             // Check if file exists and is readable
             if (!PathUtils::exists(filepath) || !PathUtils::isReadable(filepath)) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(200));
+                // SIGNAL-BASED APPROACH: Process events instead of blocking sleep
+                GMainContext *context = g_main_context_default();
+                while (g_main_context_pending(context)) {
+                    g_main_context_iteration(context, FALSE);
+                }
+                std::this_thread::sleep_for(std::chrono::milliseconds(50));
                 continue;
             }
             
             // Check if still a temporary file
             if (isBrowserTempFile(filepath)) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(500));
+                // SIGNAL-BASED APPROACH: Process events instead of blocking sleep
+                GMainContext *context = g_main_context_default();
+                while (g_main_context_pending(context)) {
+                    g_main_context_iteration(context, FALSE);
+                }
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
                 continue;
             }
             
@@ -381,7 +411,12 @@ namespace FileOps {
                 progress_callback(progress);
             }
             
-            std::this_thread::sleep_for(std::chrono::milliseconds(200));
+            // SIGNAL-BASED APPROACH: Process events instead of blocking sleep
+            GMainContext *context = g_main_context_default();
+            while (g_main_context_pending(context)) {
+                g_main_context_iteration(context, FALSE);
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
         
         debug_output("Download completion timeout: " + filepath);
@@ -439,7 +474,12 @@ namespace FileOps {
                 auto start_time = std::chrono::system_clock::now();
         
         while (std::chrono::system_clock::now() - start_time < stability_duration) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(200));
+            // SIGNAL-BASED APPROACH: Process events instead of blocking sleep
+            GMainContext *context = g_main_context_default();
+            while (g_main_context_pending(context)) {
+                g_main_context_iteration(context, FALSE);
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
             
             size_t current_size = PathUtils::getFileSize(filepath);
             if (current_size != initial_size) {
@@ -521,7 +561,9 @@ namespace FileOps {
         int timeout_ms,
         std::function<void(const std::string&)> file_found_callback) {
         
-                auto start_time = std::chrono::system_clock::now();
+        // CRITICAL FIX: Use signal-based event loop instead of blocking wait
+        // Similar to EventLoopManager success pattern
+        auto start_time = std::chrono::system_clock::now();
         auto timeout = std::chrono::milliseconds(timeout_ms);
         
         while (std::chrono::system_clock::now() - start_time < timeout) {
@@ -533,7 +575,14 @@ namespace FileOps {
                 }
             }
             
-            std::this_thread::sleep_for(std::chrono::milliseconds(poll_interval_ms));
+            // SIGNAL-BASED APPROACH: Process GTK main loop events instead of blocking sleep
+            GMainContext *context = g_main_context_default();
+            while (g_main_context_pending(context)) {
+                g_main_context_iteration(context, FALSE);
+            }
+            
+            // Short non-blocking pause
+            std::this_thread::sleep_for(std::chrono::milliseconds(std::min(poll_interval_ms, 50)));
         }
         
         return false;

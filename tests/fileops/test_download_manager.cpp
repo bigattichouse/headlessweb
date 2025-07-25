@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include "../../src/FileOps/DownloadManager.h"
 #include "../../src/FileOps/Types.h"
+#include "../../src/Debug.h"
 #include <filesystem>
 #include <fstream>
 #include <thread>
@@ -378,17 +379,29 @@ TEST_F(DownloadManagerTest, SetDownloadCompletionHook) {
     download_manager_->setDownloadCompletionHook([&](const std::string& filename) {
         hook_called = true;
         hook_filename = filename;
+        debug_output("Download completion hook called with: " + filename);
     });
     
     // Test the hook by performing a download operation
     createTestFile("hook_test.txt");
+    
+    // DEBUG: Verify file was created
+    std::string test_file_path = (test_dir_ / "hook_test.txt").string();
+    EXPECT_TRUE(std::filesystem::exists(test_file_path)) << "Test file was not created: " << test_file_path;
     
     DownloadCommand cmd;
     cmd.filename_pattern = "hook_test.txt";
     cmd.download_dir = test_dir_.string();
     cmd.timeout_ms = 2000;
     
+    debug_output("Starting waitForDownload with pattern: " + cmd.filename_pattern + " in dir: " + cmd.download_dir);
+    
     DownloadResult result = download_manager_->waitForDownload(cmd);
+    
+    debug_output("waitForDownload returned: " + std::to_string(static_cast<int>(result)));
+    debug_output("Hook called: " + std::string(hook_called ? "true" : "false"));
+    debug_output("Hook filename: '" + hook_filename + "'");
+    
     EXPECT_EQ(result, DownloadResult::SUCCESS);
     EXPECT_TRUE(hook_called);
     EXPECT_TRUE(hook_filename.find("hook_test.txt") != std::string::npos);
