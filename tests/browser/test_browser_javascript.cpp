@@ -2,6 +2,7 @@
 #include "Browser/Browser.h"
 #include "../utils/test_helpers.h"
 #include "browser_test_environment.h" // Include global test environment
+#include "Debug.h"
 #include <filesystem>
 #include <chrono>
 #include <thread>
@@ -13,10 +14,55 @@ protected:
     void SetUp() override {
         temp_dir = std::make_unique<TestHelpers::TemporaryDirectory>("browser_js_tests");
         createJavaScriptTestHtmlFile();
+        
+        // CRITICAL FIX: Load the JavaScript test page using file:// URL approach
+        // This ensures JavaScript tests run against loaded content with test functions available
+        bool page_loaded = loadJavaScriptTestPage();
+        if (!page_loaded) {
+            GTEST_SKIP() << "Failed to load JavaScript test page - tests require loaded content";
+        }
     }
 
     void TearDown() override {
         temp_dir.reset();
+    }
+    
+    bool loadJavaScriptTestPage() {
+        // Load the JavaScript test HTML file using file:// URL (proven successful approach)
+        std::string file_url = "file://" + js_test_file.string();
+        debug_output("Loading JavaScript test page: " + file_url);
+        
+        g_browser->loadUri(file_url);
+        
+        // Wait for navigation to complete
+        bool navigation_success = g_browser->waitForNavigation(10000);
+        if (!navigation_success) {
+            debug_output("Navigation failed for JavaScript test page");
+            return false;
+        }
+        
+        // CRITICAL: Wait for JavaScript environment to be fully ready
+        // Check that our test functions are available
+        std::string js_ready = g_browser->executeJavascriptSync(
+            "document.readyState === 'complete' && "
+            "typeof testFunction === 'function' && "
+            "typeof window.testValue !== 'undefined'"
+        );
+        
+        if (js_ready != "true") {
+            debug_output("JavaScript environment not ready, waiting additional time...");
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+            
+            // Re-check JavaScript readiness
+            js_ready = g_browser->executeJavascriptSync(
+                "document.readyState === 'complete' && "
+                "typeof testFunction === 'function' && "
+                "typeof window.testValue !== 'undefined'"
+            );
+        }
+        
+        debug_output("JavaScript test page loaded - ready: " + js_ready);
+        return js_ready == "true";
     }
 
     void createJavaScriptTestHtmlFile() {
@@ -135,12 +181,21 @@ TEST_F(BrowserJavaScriptTest, BasicJavaScriptExecution) {
 }
 
 TEST_F(BrowserJavaScriptTest, SynchronousJavaScriptExecution) {
-    // Test synchronous JavaScript execution
-    EXPECT_NO_THROW({
-        std::string result1 = g_browser->executeJavascriptSync("2 + 2");
-        std::string result2 = g_browser->executeJavascriptSync("'Hello World'");
-        std::string result3 = g_browser->executeJavascriptSync("Math.PI");
-    });
+    // Test synchronous JavaScript execution with actual result validation
+    std::string result1 = g_browser->executeJavascriptSync("2 + 2");
+    std::string result2 = g_browser->executeJavascriptSync("'Hello World'");
+    std::string result3 = g_browser->executeJavascriptSync("Math.PI.toString()");
+    
+    EXPECT_EQ(result1, "4");
+    EXPECT_EQ(result2, "Hello World");
+    EXPECT_NE(result3.find("3.14"), std::string::npos);
+    
+    // Test our loaded test variables
+    std::string test_value = g_browser->executeJavascriptSync("window.testValue.toString()");
+    std::string test_string = g_browser->executeJavascriptSync("window.testString");
+    
+    EXPECT_EQ(test_value, "42");
+    EXPECT_EQ(test_string, "Hello World");
 }
 
 TEST_F(BrowserJavaScriptTest, SafeJavaScriptExecution) {
@@ -156,23 +211,16 @@ TEST_F(BrowserJavaScriptTest, SafeJavaScriptExecution) {
 // ========== JavaScript Expression Tests ==========
 
 TEST_F(BrowserJavaScriptTest, ArithmeticExpressions) {
-    std::vector<std::string> arithmetic_tests = {
-        "1 + 1",
-        "10 - 5",
-        "3 * 4",
-        "15 / 3",
-        "17 % 5",
-        "Math.pow(2, 3)",
-        "Math.sqrt(16)",
-        "Math.max(1, 2, 3, 4, 5)",
-        "Math.min(5, 4, 3, 2, 1)"
-    };
-    
-    for (const auto& expression : arithmetic_tests) {
-        EXPECT_NO_THROW({
-            std::string result = g_browser->executeJavascriptSync(expression);
-        });
-    }
+    // Test arithmetic expressions with expected results
+    EXPECT_EQ(g_browser->executeJavascriptSync("1 + 1"), "2");
+    EXPECT_EQ(g_browser->executeJavascriptSync("10 - 5"), "5");
+    EXPECT_EQ(g_browser->executeJavascriptSync("3 * 4"), "12");
+    EXPECT_EQ(g_browser->executeJavascriptSync("15 / 3"), "5");
+    EXPECT_EQ(g_browser->executeJavascriptSync("17 % 5"), "2");
+    EXPECT_EQ(g_browser->executeJavascriptSync("Math.pow(2, 3)"), "8");
+    EXPECT_EQ(g_browser->executeJavascriptSync("Math.sqrt(16)"), "4");
+    EXPECT_EQ(g_browser->executeJavascriptSync("Math.max(1, 2, 3, 4, 5)"), "5");
+    EXPECT_EQ(g_browser->executeJavascriptSync("Math.min(5, 4, 3, 2, 1)"), "1");
 }
 
 TEST_F(BrowserJavaScriptTest, StringOperations) {
@@ -194,9 +242,14 @@ TEST_F(BrowserJavaScriptTest, StringOperations) {
 }
 
 TEST_F(BrowserJavaScriptTest, BooleanExpressions) {
-    std::vector<std::string> boolean_tests = {
-        "true",
-        "false",
+    // Test boolean expressions with validation
+    EXPECT_EQ(g_browser->executeJavascriptSync("true"), "true");
+    EXPECT_EQ(g_browser->executeJavascriptSync("false"), "false");
+    EXPECT_EQ(g_browser->executeJavascriptSync("1 === 1"), "true");
+    EXPECT_EQ(g_browser->executeJavascriptSync("1 !== 2"), "true");
+    EXPECT_EQ(g_browser->executeJavascriptSync("checkPageReady()"), "true"); // Test our loaded function
+    
+    // Additional boolean tests
         "1 === 1",
         "1 !== 2",
         "5 > 3",

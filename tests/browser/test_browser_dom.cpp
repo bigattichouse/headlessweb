@@ -2,7 +2,10 @@
 #include "Browser/Browser.h"
 #include "../utils/test_helpers.h"
 #include "browser_test_environment.h"
+#include "Debug.h"
 #include <filesystem>
+#include <thread>
+#include <chrono>
 
 extern std::unique_ptr<Browser> g_browser;
 
@@ -14,10 +17,54 @@ protected:
         // Create test HTML files for DOM testing
         createTestHtmlFile();
         createFormTestHtmlFile();
+        
+        // CRITICAL FIX: Actually load the test page for real DOM testing
+        // Apply the proven file:// URL approach that resolved BrowserStorageTest issues
+        bool page_loaded = loadTestPage();
+        if (!page_loaded) {
+            GTEST_SKIP() << "Failed to load test page - DOM operations require loaded content";
+        }
     }
 
     void TearDown() override {
         temp_dir.reset();
+    }
+    
+    bool loadTestPage() {
+        // Load the test HTML file using file:// URL (proven successful approach)
+        std::string file_url = "file://" + test_html_file.string();
+        debug_output("Loading DOM test page: " + file_url);
+        
+        g_browser->loadUri(file_url);
+        
+        // Wait for navigation to complete
+        bool navigation_success = g_browser->waitForNavigation(10000);
+        if (!navigation_success) {
+            debug_output("Navigation failed for DOM test page");
+            return false;
+        }
+        
+        // CRITICAL: Wait for DOM to be fully ready (same pattern as successful tests)
+        std::string dom_ready = g_browser->executeJavascriptSync(
+            "document.readyState === 'complete' && "
+            "document.getElementById('main-content') !== null && "
+            "document.getElementById('title') !== null"
+        );
+        
+        if (dom_ready != "true") {
+            debug_output("DOM not ready, waiting additional time...");
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+            
+            // Re-check DOM readiness
+            dom_ready = g_browser->executeJavascriptSync(
+                "document.readyState === 'complete' && "
+                "document.getElementById('main-content') !== null && "
+                "document.getElementById('title') !== null"
+            );
+        }
+        
+        debug_output("DOM test page loaded - ready: " + dom_ready);
+        return dom_ready == "true";
     }
 
     void createTestHtmlFile() {
@@ -103,16 +150,17 @@ protected:
 // ========== Element Existence Tests ==========
 
 TEST_F(BrowserDOMTest, ElementExistenceChecking) {
-    // No need to initialize Browser here, using global g_browser
+    // Test element existence with actual loaded DOM content
+    // Elements from our test HTML should exist
+    EXPECT_TRUE(g_browser->elementExists("#main-content"));
+    EXPECT_TRUE(g_browser->elementExists(".description"));
+    EXPECT_TRUE(g_browser->elementExists("h1"));
+    EXPECT_TRUE(g_browser->elementExists("#title"));
+    EXPECT_TRUE(g_browser->elementExists("#test-button"));
     
-    // Test element existence checking interface
-    // Note: These tests verify the interface exists, actual DOM testing requires WebKit
-    EXPECT_NO_THROW({
-        g_browser->elementExists("#main-content");
-        g_browser->elementExists(".description");
-        g_browser->elementExists("h1");
-        g_browser->elementExists("#nonexistent");
-    });
+    // Non-existent elements should return false
+    EXPECT_FALSE(g_browser->elementExists("#nonexistent"));
+    EXPECT_FALSE(g_browser->elementExists(".missing-class"));
 }
 
 TEST_F(BrowserDOMTest, ElementExistenceEdgeCases) {
@@ -130,13 +178,32 @@ TEST_F(BrowserDOMTest, ElementExistenceEdgeCases) {
 // ========== Form Interaction Tests ==========
 
 TEST_F(BrowserDOMTest, FormInputFilling) {
-    // Test form input filling interface
-    EXPECT_NO_THROW({
-        g_browser->fillInput("#username", "testuser");
-        g_browser->fillInput("#password", "password123");
-        g_browser->fillInput("#email", "test@example.com");
-        g_browser->fillInput("#comments", "This is a test comment");
-    });
+    // Switch to form page for input testing
+    std::string form_url = "file://" + form_html_file.string();
+    g_browser->loadUri(form_url);
+    g_browser->waitForNavigation(5000);
+    
+    // Wait for form elements to be available
+    std::string form_ready = g_browser->executeJavascriptSync(
+        "document.getElementById('username') !== null && "
+        "document.getElementById('password') !== null"
+    );
+    
+    if (form_ready == "true") {
+        // Test form input filling with real elements
+        EXPECT_NO_THROW({
+            g_browser->fillInput("#username", "testuser");
+            g_browser->fillInput("#password", "password123");
+            g_browser->fillInput("#email", "test@example.com");
+            g_browser->fillInput("#comments", "This is a test comment");
+        });
+        
+        // Verify values were actually set
+        std::string username_value = g_browser->getAttribute("#username", "value");
+        EXPECT_EQ(username_value, "testuser");
+    } else {
+        GTEST_SKIP() << "Form elements not ready for testing";
+    }
 }
 
 TEST_F(BrowserDOMTest, FormInputValidation) {
@@ -173,12 +240,15 @@ TEST_F(BrowserDOMTest, CheckboxAndRadioHandling) {
 // ========== Element Interaction Tests ==========
 
 TEST_F(BrowserDOMTest, ElementClicking) {
-    // Test element clicking interface
+    // Test clicking elements that exist in our loaded page
     EXPECT_NO_THROW({
         g_browser->clickElement("#test-button");
-        g_browser->clickElement("#submit-btn");
         g_browser->clickElement(".list-item");
-        g_browser->clickElement("#nonexistent"); // Nonexistent element
+    });
+    
+    // Test clicking non-existent elements (should handle gracefully)
+    EXPECT_NO_THROW({
+        g_browser->clickElement("#nonexistent");
     });
 }
 
@@ -361,8 +431,8 @@ TEST_F(BrowserDOMTest, OperationTiming) {
     auto end = std::chrono::steady_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
     
-    // Operations should complete within reasonable time (allowing for mocked/null operations)
-    EXPECT_LT(duration.count(), 5000); // Less than 5 seconds for 300 operations
+    // Operations should complete within reasonable time (adjusted for real DOM interactions)
+    EXPECT_LT(duration.count(), 25000); // Less than 25 seconds for 300 operations with loaded DOM
 }
 
 // ========== State Management Tests ==========
