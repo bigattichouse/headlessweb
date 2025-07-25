@@ -93,8 +93,52 @@ protected:
             </html>
         )";
         
-        browser_->loadUri("data:text/html;charset=utf-8," + test_html);
+        // CRITICAL FIX: Use file:// URL instead of data: URL to enable localStorage/sessionStorage
+        auto html_file = temp_dir->createFile("service_test.html", test_html);
+        std::string file_url = "file://" + html_file.string();
+        browser_->loadUri(file_url);
+        
+        // Enhanced DOM readiness checking (proven pattern)
+        bool nav_success = browser_->waitForNavigation(10000);
+        if (!nav_success) {
+            std::cerr << "ServiceArchitectureCoordinationTest: Navigation failed" << std::endl;
+            return;
+        }
+        
+        // Check JavaScript execution readiness
+        std::string js_test = browser_->executeJavascriptSync("'test'");
+        if (js_test != "test") {
+            std::cerr << "ServiceArchitectureCoordinationTest: JavaScript not ready" << std::endl;
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        }
+        
+        // Wait for DOM elements and localStorage to be available
+        std::string dom_ready = browser_->executeJavascriptSync(
+            "document.readyState === 'complete' && "
+            "document.getElementById('test-input') !== null && "
+            "document.getElementById('test-form') !== null && "
+            "typeof updateDynamicContent === 'function' && "
+            "localStorage.getItem('test-key') === 'test-value'"
+        );
+        
+        if (dom_ready != "true") {
+            std::cerr << "ServiceArchitectureCoordinationTest: DOM/localStorage not ready, waiting..." << std::endl;
+            std::this_thread::sleep_for(std::chrono::milliseconds(1500));
+            
+            // Re-check essential elements
+            dom_ready = browser_->executeJavascriptSync(
+                "document.readyState === 'complete' && "
+                "document.getElementById('test-input') !== null"
+            );
+        }
+        
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    }
+    
+    // Helper method to create file:// URLs for simple HTML content
+    std::string createTestPageUrl(const std::string& html_content, const std::string& filename = "test.html") {
+        auto html_file = temp_dir->createFile(filename, html_content);
+        return "file://" + html_file.string();
     }
 
     std::unique_ptr<SessionManager> session_manager_;
@@ -214,7 +258,7 @@ TEST_F(ServiceArchitectureCoordinationTest, SessionService_NavigationServiceInte
     
     // Create HWebConfig for navigation planning
     HWeb::HWebConfig config;
-    config.url = "data:text/html,<h1>Test Page</h1>";
+    config.url = createTestPageUrl("<h1>Test Page</h1>", "nav_test.html");
     config.sessionName = "nav_test_session";
     
     // Test navigation planning
@@ -306,9 +350,9 @@ TEST_F(ServiceArchitectureCoordinationTest, NavigationService_StrategyDeterminat
 
 TEST_F(ServiceArchitectureCoordinationTest, NavigationService_WaitMechanisms) {
     // Test navigation waiting with real browser
-    std::string simple_html = "data:text/html,<h1>Simple Test</h1>";
+    std::string simple_html_url = createTestPageUrl("<h1>Simple Test</h1>", "simple_test.html");
     
-    bool navigated = navigation_service_->navigate_to_url(*browser_, simple_html);
+    bool navigated = navigation_service_->navigate_to_url(*browser_, simple_html_url);
     EXPECT_TRUE(navigated);
     
     // Test waiting for navigation completion
@@ -321,17 +365,17 @@ TEST_F(ServiceArchitectureCoordinationTest, NavigationService_WaitMechanisms) {
     
     // Verify navigation actually occurred
     std::string current_url = browser_->getCurrentUrl();
-    EXPECT_EQ(current_url, simple_html);
+    EXPECT_EQ(current_url, simple_html_url);
 }
 
 TEST_F(ServiceArchitectureCoordinationTest, NavigationService_ComplexNavigationPlans) {
     // Create complex navigation plan with session restore
     HWeb::HWebConfig config;
-    config.url = "data:text/html,<h1>Complex Page</h1>";
+    config.url = createTestPageUrl("<h1>Complex Page</h1>", "complex_test.html");
     config.sessionName = "complex_session";
     
     Session session_with_state("complex_session");
-    session_with_state.setCurrentUrl("data:text/html,<h1>Previous Page</h1>");
+    session_with_state.setCurrentUrl(createTestPageUrl("<h1>Previous Page</h1>", "previous_test.html"));
     session_with_state.setViewport(1024, 768);
     
     auto nav_plan = navigation_service_->create_navigation_plan(config, session_with_state);
@@ -433,7 +477,7 @@ TEST_F(ServiceArchitectureCoordinationTest, ResourceManagement_ConcurrentAccess)
     Session concurrent_session = session_service_->initialize_session("concurrent_test");
     
     // Simulate concurrent navigation and session updates
-    bool nav_started = navigation_service_->navigate_to_url(*browser_, "data:text/html,<h1>Concurrent Test</h1>");
+    bool nav_started = navigation_service_->navigate_to_url(*browser_, createTestPageUrl("<h1>Concurrent Test</h1>", "concurrent_test.html"));
     EXPECT_TRUE(nav_started);
     
     // Process GTK events while waiting for navigation
