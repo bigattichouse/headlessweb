@@ -129,24 +129,30 @@ namespace FileOps {
             return false;
         }
         
-        // Check file size
-        if (cmd.max_file_size > 0) {
-            try {
-                size_t file_size = std::filesystem::file_size(filepath);
-                if (file_size > cmd.max_file_size) {
-                    debug_output("File too large: " + std::to_string(file_size) + " > " + std::to_string(cmd.max_file_size));
-                    return false;
-                }
-                
-                // Check for empty files unless explicitly allowed
-                if (file_size == 0) {
-                    debug_output("File is empty: " + filepath);
-                    return false;
-                }
-            } catch (const std::exception& e) {
-                debug_output("Error checking file size: " + std::string(e.what()));
+        // Check file size against both per-command and global limits
+        try {
+            size_t file_size = std::filesystem::file_size(filepath);
+            
+            // Check against per-command limit
+            if (cmd.max_file_size > 0 && file_size > cmd.max_file_size) {
+                debug_output("File too large (per-command limit): " + std::to_string(file_size) + " > " + std::to_string(cmd.max_file_size));
                 return false;
             }
+            
+            // CRITICAL FIX: Check against global limit set by setMaxFileSize()
+            if (max_file_size_ > 0 && file_size > max_file_size_) {
+                debug_output("File too large (global limit): " + std::to_string(file_size) + " > " + std::to_string(max_file_size_));
+                return false;
+            }
+            
+            // Allow empty files by default - applications can set size restrictions if needed
+            // Empty files are technically valid for upload scenarios like placeholder creation
+            if (file_size == 0) {
+                debug_output("File is empty (but allowed): " + filepath);
+            }
+        } catch (const std::exception& e) {
+            debug_output("Error checking file size: " + std::string(e.what()));
+            return false;
         }
         
         // Check file type
