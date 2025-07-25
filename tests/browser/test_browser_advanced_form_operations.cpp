@@ -6,6 +6,7 @@
 #include <memory>
 #include <thread>
 #include <chrono>
+#include <fstream>
 
 extern std::unique_ptr<Browser> g_browser;
 
@@ -32,17 +33,25 @@ protected:
 
     std::unique_ptr<TestHelpers::TemporaryDirectory> temp_dir;
     
+    // Generic JavaScript wrapper function for safe execution
+    std::string executeWrappedJS(const std::string& jsCode) {
+        std::string wrapped = "(function() { " + jsCode + " })()";
+        return browser_->executeJavascriptSync(wrapped);
+    }
+    
     // Helper to check if element is checked
     bool checkElementState(const std::string& selector) {
-        std::string js = "document.querySelector('" + selector + "') ? document.querySelector('" + selector + "').checked : false";
-        std::string result = browser_->executeJavascriptSync(js);
+        std::string js = "var el = document.querySelector('" + selector + "'); "
+                        "return el ? el.checked : false;";
+        std::string result = executeWrappedJS(js);
         return result == "true";
     }
     
     // Helper to get element value
     std::string getElementValue(const std::string& selector) {
-        std::string js = "document.querySelector('" + selector + "') ? document.querySelector('" + selector + "').value : ''";
-        return browser_->executeJavascriptSync(js);
+        std::string js = "var el = document.querySelector('" + selector + "'); "
+                        "return el ? el.value : '';";
+        return executeWrappedJS(js);
     }
     
     // Helper to load complex multi-step form
@@ -240,7 +249,14 @@ protected:
         std::string file_url = "file://" + html_file.string();
         
         debug_output("Loading complex form page: " + file_url);
-        debug_output("HTML content length: " + std::to_string(complex_html.length()));  
+        debug_output("HTML content length: " + std::to_string(complex_html.length()));
+        
+        // DEBUG: Also save to persistent location for inspection
+        std::ofstream debug_file("/tmp/debug_complex_form.html");
+        debug_file << complex_html;
+        debug_file.close();
+        debug_output("Debug HTML saved to /tmp/debug_complex_form.html");
+        
         browser_->loadUri(file_url);
         
         // Wait for navigation to complete
@@ -251,26 +267,50 @@ protected:
         }
         
         // CRITICAL: Wait for JavaScript environment to be fully ready
-        // Check that JavaScript functions and DOM elements are available
-        std::string js_ready = browser_->executeJavascriptSync(
+        // Break down the checks to isolate the issue
+        debug_output("Starting JavaScript readiness checks...");
+        
+        // Check 1: Document ready state
+        std::string ready_state = browser_->executeJavascriptSync("document.readyState");
+        debug_output("Document readyState: " + ready_state);
+        
+        // Check 2: Basic function availability
+        std::string showstep_check = browser_->executeJavascriptSyncSafe("typeof showStep");
+        debug_output("typeof showStep: " + showstep_check);
+        
+        // Check 3: Element availability
+        std::string step1_check = browser_->executeJavascriptSyncSafe("document.getElementById('step1') !== null");
+        debug_output("step1 element exists: " + step1_check);
+        
+        // Try the combined check with basic execution (no wrapper yet)
+        std::string combined_check = browser_->executeJavascriptSyncSafe(
             "document.readyState === 'complete' && "
             "typeof showStep === 'function' && "
             "document.getElementById('step1') !== null"
         );
+        debug_output("Combined check (no wrapper): " + combined_check);
         
-        if (js_ready != "true") {
+        // Now try with wrapper
+        std::string js_ready = executeWrappedJS(
+            "return document.readyState === 'complete' && "
+            "typeof showStep === 'function' && "
+            "document.getElementById('step1') !== null;"
+        );
+        debug_output("Combined check (with wrapper): " + js_ready);
+        
+        if (js_ready != "true" && combined_check != "true") {
             debug_output("JavaScript environment not ready, waiting additional time...");
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+            std::this_thread::sleep_for(std::chrono::milliseconds(2000));
             
-            // Re-check JavaScript readiness
-            js_ready = browser_->executeJavascriptSync(
-                "document.readyState === 'complete' && "
-                "typeof showStep === 'function' && "
-                "document.getElementById('step1') !== null"
-            );
+            // Re-check all components
+            ready_state = browser_->executeJavascriptSync("document.readyState");
+            showstep_check = browser_->executeJavascriptSyncSafe("typeof showStep");
+            step1_check = browser_->executeJavascriptSyncSafe("document.getElementById('step1') !== null");
+            
+            debug_output("After wait - readyState: " + ready_state + ", showStep: " + showstep_check + ", step1: " + step1_check);
         }
         
-        debug_output("Complex form page loaded - ready: " + js_ready);
+        debug_output(std::string("Complex form page loaded - final ready status: ") + (js_ready == "true" || combined_check == "true" ? "true" : "false"));
     }
 
     Browser* browser_;  // Raw pointer to global browser instance
