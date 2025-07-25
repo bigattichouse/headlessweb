@@ -151,16 +151,28 @@ bool Browser::validateUrl(const std::string& url) const {
     
     // Data URL validation (safe HTML only)
     if (url.rfind("data:text/html", 0) == 0) {
-        // For data URLs, we allow multiline content but check for dangerous scripts
-        // Look for actual executable script content, not just <script> tags
+        // For data URLs, check for dangerous content patterns
         if (url.find("javascript:") != std::string::npos ||
-            url.find("data:text/javascript") != std::string::npos ||
-            (url.find("<script") != std::string::npos && 
-             (url.find("eval(") != std::string::npos || 
-              url.find("Function(") != std::string::npos ||
-              url.find("setTimeout(") != std::string::npos ||
-              url.find("setInterval(") != std::string::npos))) {
+            url.find("data:text/javascript") != std::string::npos) {
             return false;
+        }
+        
+        // Check for script tags - be more permissive for legitimate test content
+        // but block obvious XSS attempts like alert(), document.write(), etc.
+        if (url.find("<script") != std::string::npos) {
+            // Block common XSS functions
+            if (url.find("alert(") != std::string::npos ||
+                url.find("document.write(") != std::string::npos ||
+                url.find("document.writeln(") != std::string::npos ||
+                url.find("eval(") != std::string::npos || 
+                url.find("Function(") != std::string::npos ||
+                url.find("setTimeout(") != std::string::npos ||
+                url.find("setInterval(") != std::string::npos ||
+                url.find("window.open(") != std::string::npos ||
+                url.find("location.href") != std::string::npos ||
+                url.find("document.location") != std::string::npos) {
+                return false;
+            }
         }
         return true;
     }
