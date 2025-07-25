@@ -270,23 +270,23 @@ protected:
         // Break down the checks to isolate the issue
         debug_output("Starting JavaScript readiness checks...");
         
-        // Check 1: Document ready state
-        std::string ready_state = browser_->executeJavascriptSync("document.readyState");
+        // Check 1: Document ready state using wrapper
+        std::string ready_state = executeWrappedJS("return document.readyState;");
         debug_output("Document readyState: " + ready_state);
         
-        // Check 2: Basic function availability
-        std::string showstep_check = browser_->executeJavascriptSyncSafe("typeof showStep");
+        // Check 2: Basic function availability using wrapper
+        std::string showstep_check = executeWrappedJS("return typeof showStep;");
         debug_output("typeof showStep: " + showstep_check);
         
-        // Check 3: Element availability
-        std::string step1_check = browser_->executeJavascriptSyncSafe("document.getElementById('step1') !== null");
+        // Check 3: Element availability using wrapper
+        std::string step1_check = executeWrappedJS("return document.getElementById('step1') !== null;");
         debug_output("step1 element exists: " + step1_check);
         
-        // Try the combined check with basic execution (no wrapper yet)
-        std::string combined_check = browser_->executeJavascriptSyncSafe(
-            "document.readyState === 'complete' && "
+        // Try the combined check with wrapper function
+        std::string combined_check = executeWrappedJS(
+            "return document.readyState === 'complete' && "
             "typeof showStep === 'function' && "
-            "document.getElementById('step1') !== null"
+            "document.getElementById('step1') !== null;"
         );
         debug_output("Combined check (no wrapper): " + combined_check);
         
@@ -302,10 +302,10 @@ protected:
             debug_output("JavaScript environment not ready, waiting additional time...");
             std::this_thread::sleep_for(std::chrono::milliseconds(2000));
             
-            // Re-check all components
-            ready_state = browser_->executeJavascriptSync("document.readyState");
-            showstep_check = browser_->executeJavascriptSyncSafe("typeof showStep");
-            step1_check = browser_->executeJavascriptSyncSafe("document.getElementById('step1') !== null");
+            // Re-check all components using wrapper functions
+            ready_state = executeWrappedJS("return document.readyState;");
+            showstep_check = executeWrappedJS("return typeof showStep;");
+            step1_check = executeWrappedJS("return document.getElementById('step1') !== null;");
             
             debug_output("After wait - readyState: " + ready_state + ", showStep: " + showstep_check + ", step1: " + step1_check);
         }
@@ -728,7 +728,7 @@ TEST_F(BrowserAdvancedFormOperationsTest, ErrorHandling_FormSubmissionFailure) {
     loadComplexFormPage();
     
     // Navigate to final step without filling required fields
-    browser_->executeJavascript("showStep(3)");
+    executeWrappedJS("showStep(3);");
     std::this_thread::sleep_for(std::chrono::milliseconds(300));
     
     EXPECT_TRUE(browser_->elementExists("#step3"));
