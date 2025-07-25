@@ -1,23 +1,33 @@
 #include <gtest/gtest.h>
 #include "Browser/Browser.h"
 #include "../utils/test_helpers.h"
+#include "browser_test_environment.h"
+#include "Debug.h"
 #include <thread>
 #include <chrono>
 #include <filesystem>
+
+extern std::unique_ptr<Browser> g_browser;
 
 using namespace std::chrono_literals;
 
 class BrowserUtilitiesTest : public ::testing::Test {
 protected:
     void SetUp() override {
-        HWeb::HWebConfig test_config;
-        browser = std::make_unique<Browser>(test_config);
+        // Use global browser instance (properly initialized)
+        browser = g_browser.get();
+        
+        // Create temporary directory for file:// URLs
+        temp_dir = std::make_unique<TestHelpers::TemporaryDirectory>("browser_utilities_tests");
+        
+        // Reset browser to clean state before each test
+        browser->loadUri("about:blank");
+        browser->waitForNavigation(2000);
         
         // Load a test page with content for utility testing
         setupTestPage();
         
-        // Wait for page to be ready
-        std::this_thread::sleep_for(500ms);
+        debug_output("BrowserUtilitiesTest SetUp complete");
     }
     
     void setupTestPage() {
@@ -147,19 +157,60 @@ protected:
 </html>
 )HTML";
         
-        // Create data URL for the test page
-        std::string data_url = "data:text/html;charset=utf-8," + test_html;
-        browser->loadUri(data_url);
+        // CRITICAL FIX: Use file:// URL instead of data: URL
+        auto html_file = temp_dir->createFile("utilities_test.html", test_html);
+        std::string file_url = "file://" + html_file.string();
         
-        // Wait for page load
-        std::this_thread::sleep_for(1000ms);
+        debug_output("Loading utilities test page: " + file_url);
+        browser->loadUri(file_url);
+        
+        // Wait for navigation to complete
+        bool navigation_success = browser->waitForNavigation(10000);
+        if (!navigation_success) {
+            debug_output("Navigation failed for utilities test page");
+            return;
+        }
+        
+        // CRITICAL: Wait for JavaScript environment to be fully ready
+        std::string js_ready = executeWrappedJS(
+            "return document.readyState === 'complete' && "
+            "document.getElementById('status') !== null && "
+            "typeof updateState === 'function';"
+        );
+        
+        if (js_ready != "true") {
+            debug_output("JavaScript environment not ready, waiting additional time...");
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+            
+            // Re-check JavaScript readiness
+            js_ready = executeWrappedJS(
+                "return document.readyState === 'complete' && "
+                "document.getElementById('status') !== null;"
+            );
+        }
+        
+        debug_output("Utilities test page loaded - ready: " + js_ready);
     }
 
     void TearDown() override {
-        browser.reset();
+        // Clean up temporary directory (don't destroy global browser)
+        temp_dir.reset();
+    }
+    
+    // Generic JavaScript wrapper function for safe execution
+    std::string executeWrappedJS(const std::string& jsCode) {
+        std::string wrapped = "(function() { " + jsCode + " })()";
+        return browser->executeJavascriptSync(wrapped);
+    }
+    
+    // Helper to create file:// URL from HTML content
+    std::string createTestPageUrl(const std::string& html_content, const std::string& filename = "test.html") {
+        auto html_file = temp_dir->createFile(filename, html_content);
+        return "file://" + html_file.string();
     }
 
-    std::unique_ptr<Browser> browser;
+    Browser* browser;  // Raw pointer to global browser instance
+    std::unique_ptr<TestHelpers::TemporaryDirectory> temp_dir;
 };
 
 // ========== Wait Method Tests ==========
@@ -218,12 +269,13 @@ TEST_F(BrowserUtilitiesTest, GetPageLoadState) {
 }
 
 TEST_F(BrowserUtilitiesTest, PageStateAfterNavigation) {
-    // Navigate to a simple page
-    std::string simple_page = "data:text/html,<html><body><h1>Simple Page</h1></body></html>";
+    // Navigate to a simple page using file:// URL
+    std::string simple_html = "<html><body><h1>Simple Page</h1></body></html>";
+    std::string simple_page = createTestPageUrl(simple_html, "simple_page.html");
     browser->loadUri(simple_page);
     
-    // Wait for navigation
-    std::this_thread::sleep_for(500ms);
+    // Wait for navigation to complete properly
+    browser->waitForNavigation(5000);
     
     EXPECT_TRUE(browser->isPageLoaded());
     
@@ -234,7 +286,20 @@ TEST_F(BrowserUtilitiesTest, PageStateAfterNavigation) {
 // ========== Page Source Tests ==========
 
 TEST_F(BrowserUtilitiesTest, GetPageSourceBasic) {
+    debug_output("=== GetPageSourceBasic test starting ===");
+    
+    // Debug: Check page status
+    std::string current_url = browser->getCurrentUrl();
+    std::string ready_state = browser->executeJavascriptSyncSafe("document.readyState");
+    std::string title = browser->getPageTitle();
+    
+    debug_output("Current URL: " + current_url);
+    debug_output("Ready state: " + ready_state);
+    debug_output("Page title: " + title);
+    
     std::string source = browser->getPageSource();
+    debug_output("Page source length: " + std::to_string(source.length()));
+    debug_output("Page source preview: " + source.substr(0, std::min(200ul, source.length())));
     
     EXPECT_FALSE(source.empty());
     EXPECT_NE(source.find("<html>"), std::string::npos);
@@ -243,8 +308,8 @@ TEST_F(BrowserUtilitiesTest, GetPageSourceBasic) {
 }
 
 TEST_F(BrowserUtilitiesTest, GetPageSourceAfterDynamicContent) {
-    // Add dynamic content
-    browser->executeJavascriptSync("addDynamicContent();");
+    // Add dynamic content using wrapper function
+    executeWrappedJS("addDynamicContent();");
     std::this_thread::sleep_for(100ms);
     
     std::string source = browser->getPageSource();
@@ -330,9 +395,9 @@ TEST_F(BrowserUtilitiesTest, ExecuteSingleClickAction) {
     
     EXPECT_TRUE(result);
     
-    // Verify the click was registered
-    std::string log_content = browser->executeJavascriptSync(
-        "document.getElementById('action-log').textContent");
+    // Verify the click was registered using wrapper function
+    std::string log_content = executeWrappedJS(
+        "return document.getElementById('action-log') ? document.getElementById('action-log').textContent : '';");
     EXPECT_NE(log_content.find("button clicked"), std::string::npos);
 }
 
@@ -345,9 +410,9 @@ TEST_F(BrowserUtilitiesTest, ExecuteTextInputAction) {
     
     EXPECT_TRUE(result);
     
-    // Verify the text was entered
-    std::string input_value = browser->executeJavascriptSync(
-        "document.getElementById('text-input').value");
+    // Verify the text was entered using wrapper function
+    std::string input_value = executeWrappedJS(
+        "return document.getElementById('text-input') ? document.getElementById('text-input').value : '';");
     EXPECT_EQ(input_value, "test input");
 }
 
@@ -368,10 +433,11 @@ TEST_F(BrowserUtilitiesTest, InitializeDataManagerWithEmptyName) {
 // ========== Integration Tests ==========
 
 TEST_F(BrowserUtilitiesTest, UtilityMethodsAfterNavigation) {
-    // Navigate to a new page
-    std::string new_page = "data:text/html,<html><body><h1>New Page</h1><div style='height:1000px;'></div></body></html>";
+    // Navigate to a new page using file:// URL
+    std::string new_html = "<html><body><h1>New Page</h1><div style='height:1000px;'></div></body></html>";
+    std::string new_page = createTestPageUrl(new_html, "new_page.html");
     browser->loadUri(new_page);
-    std::this_thread::sleep_for(500ms);
+    browser->waitForNavigation(5000);
     
     // Test utilities still work after navigation
     EXPECT_TRUE(browser->isPageLoaded());

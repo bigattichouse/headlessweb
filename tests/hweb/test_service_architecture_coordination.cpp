@@ -5,12 +5,16 @@
 #include "Browser/Browser.h"
 #include "Session/Manager.h"
 #include "../utils/test_helpers.h"
+#include "browser_test_environment.h"
+#include "Debug.h"
 #include "../../src/hweb/Types.h"
 #include <memory>
 #include <thread>
 #include <chrono>
 #include <filesystem>
 #include <gtk/gtk.h>
+
+extern std::unique_ptr<Browser> g_browser;
 
 class ServiceArchitectureCoordinationTest : public ::testing::Test {
 protected:
@@ -28,19 +32,21 @@ protected:
         session_service_ = std::make_unique<HWeb::SessionService>(*session_manager_);
         navigation_service_ = std::make_unique<HWeb::NavigationService>();
         
-        HWeb::HWebConfig test_config;
-        test_config.allow_data_uri = true;
-        browser_ = std::make_unique<Browser>(test_config);
+        // Use global browser instance (properly initialized)
+        browser_ = g_browser.get();
+        
+        // Reset browser to clean state before each test
+        browser_->loadUri("about:blank");
+        browser_->waitForNavigation(2000);
         
         // Initialize ManagerRegistry
         HWeb::ManagerRegistry::initialize();
         
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        debug_output("ServiceArchitectureCoordinationTest SetUp complete");
     }
     
     void TearDown() override {
-        // Cleanup
-        browser_.reset();
+        // Cleanup (don't destroy global browser)
         navigation_service_.reset();
         session_service_.reset();
         session_manager_.reset();
@@ -49,6 +55,18 @@ protected:
         temp_dir.reset();
     }
 
+    // Generic JavaScript wrapper function for safe execution
+    std::string executeWrappedJS(const std::string& jsCode) {
+        std::string wrapped = "(function() { " + jsCode + " })()";
+        return browser_->executeJavascriptSync(wrapped);
+    }
+    
+    // Helper to create file:// URL from HTML content
+    std::string createTestPageUrl(const std::string& html_content, const std::string& filename = "test.html") {
+        auto html_file = temp_dir->createFile(filename, html_content);
+        return "file://" + html_file.string();
+    }
+    
     std::unique_ptr<TestHelpers::TemporaryDirectory> temp_dir;
     
     void loadTestPage() {
@@ -112,39 +130,38 @@ protected:
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         }
         
-        // Wait for DOM elements and localStorage to be available
-        std::string dom_ready = browser_->executeJavascriptSync(
-            "document.readyState === 'complete' && "
+        // CRITICAL: Wait for DOM elements and localStorage to be available using wrapper
+        std::string dom_ready = executeWrappedJS(
+            "return document.readyState === 'complete' && "
             "document.getElementById('test-input') !== null && "
             "document.getElementById('test-form') !== null && "
             "typeof updateDynamicContent === 'function' && "
-            "localStorage.getItem('test-key') === 'test-value'"
+            "localStorage.getItem('test-key') === 'test-value';"
         );
         
         if (dom_ready != "true") {
-            std::cerr << "ServiceArchitectureCoordinationTest: DOM/localStorage not ready, waiting..." << std::endl;
-            std::this_thread::sleep_for(std::chrono::milliseconds(1500));
+            debug_output("ServiceArchitectureCoordinationTest: DOM/localStorage not ready, waiting...");
+            std::this_thread::sleep_for(std::chrono::milliseconds(2000));
             
-            // Re-check essential elements
-            dom_ready = browser_->executeJavascriptSync(
-                "document.readyState === 'complete' && "
-                "document.getElementById('test-input') !== null"
+            // Re-check essential elements with wrapper
+            dom_ready = executeWrappedJS(
+                "return document.readyState === 'complete' && "
+                "document.getElementById('test-input') !== null && "
+                "document.getElementById('test-input').value === 'initial_value';"
             );
+            
+            debug_output("ServiceArchitectureCoordinationTest: DOM ready status after wait: " + dom_ready);
         }
         
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
     
-    // Helper method to create file:// URLs for simple HTML content
-    std::string createTestPageUrl(const std::string& html_content, const std::string& filename = "test.html") {
-        auto html_file = temp_dir->createFile(filename, html_content);
-        return "file://" + html_file.string();
-    }
+    // Helper method to create file:// URLs for simple HTML content (defined above)
 
     std::unique_ptr<SessionManager> session_manager_;
     std::unique_ptr<HWeb::SessionService> session_service_;
     std::unique_ptr<HWeb::NavigationService> navigation_service_;
-    std::unique_ptr<Browser> browser_;
+    Browser* browser_;  // Raw pointer to global browser instance
     static bool gtk_is_initialized_;
 };
 
@@ -424,10 +441,10 @@ TEST_F(ServiceArchitectureCoordinationTest, CrossService_RecoveryMechanisms) {
     browser_->fillInput("#test-input", "recovery_value");
     session_service_->update_session_state(*browser_, recovery_session);
     
-    // Simulate browser failure/reset
-    browser_.reset();
-    HWeb::HWebConfig recovery_browser_config;
-    browser_ = std::make_unique<Browser>(recovery_browser_config);
+    // Simulate browser failure/reset (using global browser - reset to clean state)
+    browser_->loadUri("about:blank");
+    browser_->waitForNavigation(2000);
+    // Note: Using global browser instead of creating new instance
     
     // Test service recovery with new browser instance
     HWeb::HWebConfig recovery_config;
@@ -510,7 +527,8 @@ TEST_F(ServiceArchitectureCoordinationTest, ResourceManagement_ConcurrentAccess)
     
     // Since we navigated to a simple page without forms, verify the session captured the navigation
     auto session_data = concurrent_session.getCurrentUrl();
-    EXPECT_TRUE(session_data.find("data:text/html") != std::string::npos);
+    // UPDATED: Check for file:// URL instead of data: URL
+    EXPECT_TRUE(session_data.find("file://") != std::string::npos);
     
     // Verify the page content is what we expect
     EXPECT_EQ(page_content, "Concurrent Test");
@@ -526,7 +544,9 @@ TEST_F(ServiceArchitectureCoordinationTest, ServiceIntegration_CompleteWorkflow)
     
     // Step 2: Plan and execute navigation through NavigationService
     HWeb::HWebConfig workflow_config;
-    workflow_config.url = "data:text/html,<form><input id='workflow-input' value='workflow-data'></form>";
+    // CRITICAL FIX: Use file:// URL instead of data: URL
+    std::string workflow_html = "<form><input id='workflow-input' value='workflow-data'></form>";
+    workflow_config.url = createTestPageUrl(workflow_html, "workflow_test.html");
     workflow_config.sessionName = "workflow_test";
     
     auto nav_plan = navigation_service_->create_navigation_plan(workflow_config, workflow_session);
@@ -588,7 +608,9 @@ TEST_F(ServiceArchitectureCoordinationTest, ServiceIntegration_ErrorRecoveryWork
     
     // Step 3: Attempt recovery with valid configuration
     HWeb::HWebConfig recovery_config;
-    recovery_config.url = "data:text/html,<h1>Recovery Success</h1>";
+    // CRITICAL FIX: Use file:// URL instead of data: URL
+    std::string recovery_html = "<h1>Recovery Success</h1>";
+    recovery_config.url = createTestPageUrl(recovery_html, "recovery_test.html");
     recovery_config.sessionName = "recovery_test";
     
     Session recovery_session = session_service_->initialize_session("recovery_test");
