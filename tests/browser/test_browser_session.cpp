@@ -5,6 +5,7 @@
 #include <thread>
 #include <chrono>
 #include <filesystem>
+#include <fstream>
 
 using namespace std::chrono_literals;
 
@@ -15,11 +16,14 @@ protected:
         browser = std::make_unique<Browser>(test_config);
         session = std::make_unique<Session>("test_session");
         
+        // Create temporary directory for file:// URLs
+        temp_dir = std::make_unique<TestHelpers::TemporaryDirectory>("session_tests");
+        
         // Load a comprehensive test page for session testing
         setupTestPage();
         
-        // Wait for page to be ready
-        std::this_thread::sleep_for(800ms);
+        // Enhanced page readiness waiting
+        std::this_thread::sleep_for(500ms);
     }
     
     void setupTestPage() {
@@ -43,9 +47,43 @@ protected:
 </html>
 )HTML";
         
-        // Create data URL for the test page
-        std::string data_url = "data:text/html;charset=utf-8," + simple_html;
-        browser->loadUri(data_url);
+        // CRITICAL FIX: Create HTML file and use file:// URL instead of data: URL
+        test_html_file = temp_dir->createFile("session_test.html", simple_html);
+        std::string file_url = "file://" + test_html_file.string();
+        browser->loadUri(file_url);
+        
+        // Enhanced DOM readiness checking (same pattern as other successful fixes)
+        bool nav_success = browser->waitForNavigation(10000);
+        if (!nav_success) {
+            std::cerr << "BrowserSessionTest: Navigation failed" << std::endl;
+            return;
+        }
+        
+        // Check JavaScript execution readiness
+        std::string js_test = browser->executeJavascriptSync("'test'");
+        if (js_test != "test") {
+            std::cerr << "BrowserSessionTest: JavaScript not ready" << std::endl;
+            std::this_thread::sleep_for(1000ms);
+        }
+        
+        // Wait for DOM elements to be available
+        std::string dom_ready = browser->executeJavascriptSync(
+            "document.readyState === 'complete' && "
+            "document.getElementById('text-input') !== null && "
+            "document.getElementById('checkbox1') !== null && "
+            "document.getElementById('select-single') !== null"
+        );
+        
+        if (dom_ready != "true") {
+            std::cerr << "BrowserSessionTest: DOM not fully ready, waiting..." << std::endl;
+            std::this_thread::sleep_for(1500ms);
+            
+            // Re-check readiness
+            dom_ready = browser->executeJavascriptSync(
+                "document.readyState === 'complete' && "
+                "document.getElementById('text-input') !== null"
+            );
+        }
         
         // Wait for page load
         std::this_thread::sleep_for(1000ms);
@@ -54,10 +92,13 @@ protected:
     void TearDown() override {
         browser.reset();
         session.reset();
+        temp_dir.reset();
     }
 
     std::unique_ptr<Browser> browser;
     std::unique_ptr<Session> session;
+    std::unique_ptr<TestHelpers::TemporaryDirectory> temp_dir;
+    std::filesystem::path test_html_file;
 };
 
 // ========== Session State Update Tests ==========
@@ -68,7 +109,7 @@ TEST_F(BrowserSessionTest, UpdateSessionStateBasic) {
     
     // Verify basic state was captured
     EXPECT_FALSE(session->getCurrentUrl().empty());
-    EXPECT_NE(session->getCurrentUrl().find("data:text/html"), std::string::npos);
+    EXPECT_NE(session->getCurrentUrl().find("file://"), std::string::npos);
     EXPECT_EQ(session->getDocumentReadyState(), "complete");
     EXPECT_GT(session->getLastAccessed(), 0);
 }
@@ -548,8 +589,14 @@ TEST_F(BrowserSessionTest, RestoreCustomState) {
 // ========== Error Handling Tests ==========
 
 TEST_F(BrowserSessionTest, SessionHandlingWithEmptyPage) {
-    // Load empty page
-    browser->loadUri("data:text/html,<html><body></body></html>");
+    // Load empty page using file:// URL
+    std::string empty_html = "<html><body></body></html>";
+    auto empty_file = temp_dir->createFile("empty_test.html", empty_html);
+    std::string empty_url = "file://" + empty_file.string();
+    browser->loadUri(empty_url);
+    
+    // Wait for navigation
+    browser->waitForNavigation(5000);
     std::this_thread::sleep_for(500ms);
     
     // Should not crash
