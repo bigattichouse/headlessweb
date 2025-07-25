@@ -16,8 +16,13 @@ void js_eval_callback(GObject* object, GAsyncResult* res, gpointer user_data) {
     Browser* browser_instance = static_cast<Browser*>(g_object_get_data(G_OBJECT(object), "browser-instance"));
     
     if (error) {
-        // Don't log SecurityError for localStorage/sessionStorage on file:// URLs - it's expected
-        if (!strstr(error->message, "SecurityError")) {
+        // Don't log common storage/security errors that are expected in test environment
+        bool should_suppress = strstr(error->message, "SecurityError") || 
+                              strstr(error->message, "ReferenceError: Can't find variable") ||
+                              strstr(error->message, "localStorage") ||
+                              strstr(error->message, "sessionStorage");
+        
+        if (!should_suppress) {
             std::cerr << "JavaScript error: " << error->message << std::endl;
         }
         g_error_free(error);

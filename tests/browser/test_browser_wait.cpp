@@ -4,6 +4,7 @@
 #include <thread>
 #include <chrono>
 #include <filesystem>
+#include <fstream>
 
 using namespace std::chrono_literals;
 
@@ -12,6 +13,9 @@ protected:
     void SetUp() override {
         HWeb::HWebConfig test_config;
         browser = std::make_unique<Browser>(test_config);
+        
+        // Create temporary directory for HTML test files
+        temp_dir = std::make_unique<TestHelpers::TemporaryDirectory>("wait_tests");
         
         // Load a comprehensive test page for wait method testing
         setupTestPage();
@@ -371,9 +375,10 @@ protected:
 </html>
 )HTML";
         
-        // Create data URL for the test page
-        std::string data_url = "data:text/html;charset=utf-8," + test_html;
-        browser->loadUri(data_url);
+        // CRITICAL FIX: Create HTML file and use file:// URL to avoid data: URL restrictions
+        test_html_file = temp_dir->createFile("wait_test.html", test_html);
+        std::string file_url = "file://" + test_html_file.string();
+        browser->loadUri(file_url);
         
         // Wait for page load
         std::this_thread::sleep_for(1200ms);
@@ -381,9 +386,12 @@ protected:
 
     void TearDown() override {
         browser.reset();
+        temp_dir.reset();
     }
 
     std::unique_ptr<Browser> browser;
+    std::unique_ptr<TestHelpers::TemporaryDirectory> temp_dir;
+    std::filesystem::path test_html_file;
 };
 
 // ========== Text Advanced Wait Tests ==========

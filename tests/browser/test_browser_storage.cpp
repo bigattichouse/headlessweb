@@ -5,6 +5,8 @@
 #include <chrono>
 #include <map>
 #include <vector>
+#include <fstream>
+#include <filesystem>
 
 using namespace std::chrono_literals;
 
@@ -14,32 +16,36 @@ protected:
         HWeb::HWebConfig test_config;
         browser = std::make_unique<Browser>(test_config);
         
+        // Create temporary directory for HTML test files
+        temp_dir = std::make_unique<TestHelpers::TemporaryDirectory>("storage_tests");
+        
         // Load a simple HTML page for testing storage functionality
         setupTestPage();
         
         // Wait for page to be ready
-        std::this_thread::sleep_for(500ms);
+        std::this_thread::sleep_for(1000ms);
     }
     
     void setupTestPage() {
+        // CRITICAL FIX: Create real HTML file for localStorage access
+        // WebKit requires file:// origin for localStorage to work properly
         std::string test_html = R"HTML(
 <!DOCTYPE html>
 <html>
 <head>
     <title>Storage Test Page</title>
-</head>
-<body>
-    <h1>Browser Storage Test</h1>
-    <p id="status">Ready</p>
-    
     <script>
         // Helper functions for testing
         function clearAllStorage() {
-            localStorage.clear();
-            sessionStorage.clear();
-            document.cookie.split(";").forEach(function(c) { 
-                document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
-            });
+            try {
+                localStorage.clear();
+                sessionStorage.clear();
+                document.cookie.split(";").forEach(function(c) { 
+                    document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+                });
+            } catch(e) {
+                console.log('Storage clear error:', e);
+            }
         }
         
         function getStorageInfo() {
@@ -53,31 +59,60 @@ protected:
         function updateStatus(message) {
             document.getElementById('status').textContent = message;
         }
+        
+        // Test localStorage availability on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                localStorage.setItem('test_availability', 'available');
+                var result = localStorage.getItem('test_availability');
+                console.log('localStorage test result:', result);
+                localStorage.removeItem('test_availability');
+            } catch(e) {
+                console.log('localStorage not available:', e.message);
+            }
+        });
     </script>
+</head>
+<body>
+    <h1>Browser Storage Test</h1>
+    <p id="status">Ready</p>
 </body>
 </html>
 )HTML";
         
-        // Create data URL for the test page
-        std::string data_url = "data:text/html;charset=utf-8," + test_html;
-        browser->loadUri(data_url);
+        // Create HTML file and load via file:// URL
+        test_html_file = temp_dir->createFile("storage_test.html", test_html);
+        std::string file_url = "file://" + test_html_file.string();
+        browser->loadUri(file_url);
         
         // Wait for page load
         std::this_thread::sleep_for(1000ms);
         
-        // Clear any existing storage
+        // Clear any existing storage - wait for clearing to complete
         browser->executeJavascriptSync("clearAllStorage();");
+        std::this_thread::sleep_for(200ms);
+        
+        // Verify storage is actually cleared
+        auto initial_storage = browser->getLocalStorage();
+        if (!initial_storage.empty()) {
+            // Force clear if needed
+            browser->executeJavascriptSync("localStorage.clear(); sessionStorage.clear();");
+            std::this_thread::sleep_for(200ms);
+        }
     }
 
     void TearDown() override {
         if (browser) {
             // Clean up storage before destroying browser
-            browser->executeJavascriptSync("clearAllStorage();");
+            browser->executeJavascriptSync("try { clearAllStorage(); } catch(e) {}");
         }
         browser.reset();
+        temp_dir.reset();
     }
 
     std::unique_ptr<Browser> browser;
+    std::unique_ptr<TestHelpers::TemporaryDirectory> temp_dir;
+    std::filesystem::path test_html_file;
 };
 
 // ========== Cookie Management Tests ==========

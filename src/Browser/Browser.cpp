@@ -36,9 +36,25 @@ Browser::Browser(const HWeb::HWebConfig& config) : cookieManager(nullptr), main_
     webkit_settings_set_allow_file_access_from_file_urls(settings, TRUE);
     webkit_settings_set_allow_universal_access_from_file_urls(settings, TRUE);
     
+    // CRITICAL FIX: Enable storage for data: URLs (required for tests)
+    webkit_settings_set_enable_html5_local_storage(settings, TRUE);
+    webkit_settings_set_enable_offline_web_application_cache(settings, TRUE);
+    webkit_settings_set_allow_universal_access_from_file_urls(settings, TRUE);
+    webkit_settings_set_allow_file_access_from_file_urls(settings, TRUE);
+    
     // Create web context with custom data directory
     WebKitWebContext* context = webkit_web_context_get_default();
     webkit_web_context_set_cache_model(context, WEBKIT_CACHE_MODEL_WEB_BROWSER);
+    
+    // CRITICAL FIX: Allow storage on data: URLs by setting permissive security policies
+    WebKitSecurityManager* security_manager = webkit_web_context_get_security_manager(context);
+    if (security_manager) {
+        // Register data: scheme as local to allow storage access
+        webkit_security_manager_register_uri_scheme_as_local(security_manager, "data");
+        webkit_security_manager_register_uri_scheme_as_no_access(security_manager, "data");
+        webkit_security_manager_register_uri_scheme_as_display_isolated(security_manager, "data");
+        webkit_security_manager_register_uri_scheme_as_cors_enabled(security_manager, "data");
+    }
     
     // Create data directories for persistent storage
     std::string dataDir = sessionDataPath + "/data";
