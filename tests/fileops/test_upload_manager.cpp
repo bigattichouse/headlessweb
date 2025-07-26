@@ -2,6 +2,7 @@
 #include "FileOps/UploadManager.h"
 #include "../utils/test_helpers.h"
 #include "Browser/Browser.h"
+#include "browser_test_environment.h"
 #include "Debug.h"
 #include <thread>
 #include <chrono>
@@ -16,6 +17,13 @@ protected:
     void SetUp() override {
         temp_dir = std::make_unique<TestHelpers::TemporaryDirectory>("upload_tests");
         
+        // CRITICAL FIX: Use global browser instance (properly initialized)
+        browser = g_browser.get();
+        
+        // Reset browser to clean state before each test
+        browser->loadUri("about:blank");
+        browser->waitForNavigation(2000);
+        
         // Create test files first (these don't need browser)
         test_file = temp_dir->createFile("test.txt", "test content");
         large_file = temp_dir->createFile("large.txt", std::string(1024 * 1024, 'x')); // 1MB
@@ -28,12 +36,14 @@ protected:
         
         manager = std::make_unique<UploadManager>();
         
-        // Use global browser instance
-        debug_output("Setting up test page...");
+        // Apply systematic page setup approach
+        debug_output("Setting up upload test page...");
         bool page_setup_success = setupTestPage();
         if (!page_setup_success) {
             GTEST_SKIP() << "Browser setup failed, cannot test DOM validation";
         }
+        
+        debug_output("UploadManagerTest SetUp complete");
     }
     
     bool setupTestPage() {
@@ -67,49 +77,76 @@ protected:
         auto test_html_file = temp_dir->createFile("test_page.html", test_html);
         std::string file_url = "file://" + test_html_file.string();
         
-        debug_output("Loading test page via file URL: " + file_url);
-        g_browser->loadUri(file_url);
+        debug_output("Loading upload test page: " + file_url);
         
-        // Wait for navigation to complete using the browser's internal mechanism
-        bool navigation_success = g_browser->waitForNavigation(10000);
-        if (!navigation_success) {
-            debug_output("Navigation failed");
-            return false;
+        // Apply proven systematic loadPageWithReadinessCheck approach
+        browser->loadUri(file_url);
+        
+        // Wait for navigation
+        bool nav_success = browser->waitForNavigation(5000);
+        if (!nav_success) return false;
+        
+        // Allow WebKit processing time
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        
+        // Check basic JavaScript execution with retry
+        for (int i = 0; i < 5; i++) {
+            std::string js_test = executeWrappedJS("return 'test';");
+            if (js_test == "test") break;
+            if (i == 4) return false;
+            std::this_thread::sleep_for(std::chrono::milliseconds(200));
         }
         
-        // CRITICAL FIX: Wait for DOM and JavaScript to be fully ready
-        // Check that basic JavaScript execution works
-        std::string js_test = g_browser->executeJavascriptSync("'test'");
-        if (js_test != "test") {
-            debug_output("JavaScript execution not ready");
-            return false;
+        // Verify DOM is ready
+        for (int i = 0; i < 5; i++) {
+            std::string dom_check = executeWrappedJS("return document.readyState === 'complete';");
+            if (dom_check == "true") break;
+            if (i == 4) return false;
+            std::this_thread::sleep_for(std::chrono::milliseconds(200));
         }
         
-        // Wait for all DOM elements to be available
-        std::string dom_ready = g_browser->executeJavascriptSync(
-            "document.readyState === 'complete' && "
-            "document.getElementById('file-input') !== null && "
-            "document.getElementById('upload-status') !== null"
-        );
+        // Check for required upload elements
+        std::vector<std::string> required_elements = {"#file-input", "#upload-status", "#drop-zone"};
+        for (int i = 0; i < 5; i++) {
+            bool all_elements_ready = true;
+            for (const auto& element : required_elements) {
+                std::string element_check = executeWrappedJS(
+                    "return document.querySelector('" + element + "') !== null;"
+                );
+                if (element_check != "true") {
+                    all_elements_ready = false;
+                    break;
+                }
+            }
+            if (all_elements_ready) break;
+            if (i == 4) return false;
+            std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        }
         
-        if (dom_ready != "true") {
-            debug_output("DOM not fully ready, waiting...");
-            // Give additional time for DOM to settle
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-            
-            // Re-check DOM readiness
-            dom_ready = g_browser->executeJavascriptSync(
-                "document.readyState === 'complete' && "
-                "document.getElementById('file-input') !== null && "
-                "document.getElementById('upload-status') !== null"
+        // Verify JavaScript upload functions are available
+        for (int i = 0; i < 5; i++) {
+            std::string functions_check = executeWrappedJS(
+                "return typeof hasFileInputs === 'function' && "
+                "typeof updateStatus === 'function';"
             );
+            if (functions_check == "true") break;
+            if (i == 4) {
+                debug_output("Upload JavaScript functions not ready after retries");
+                return false;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(300));
         }
         
-        debug_output("Upload test page setup complete - DOM ready: " + dom_ready);
-        return dom_ready == "true";
+        debug_output("Upload test page loaded and ready");
+        return true;
     }
 
     void TearDown() override {
+        // Clean up without destroying global browser
+        if (browser) {
+            browser->loadUri("about:blank");
+        }
+        
         // Reset UploadManager state to prevent test interference
         if (manager) {
             manager->setMaxFileSize(0); // Reset global file size limit
@@ -117,9 +154,15 @@ protected:
         manager.reset();
         temp_dir.reset();
     }
-
-    std::unique_ptr<TestHelpers::TemporaryDirectory> temp_dir;
     
+    // Generic JavaScript wrapper function for safe execution
+    std::string executeWrappedJS(const std::string& jsCode) {
+        std::string wrapped = "(function() { " + jsCode + " })()";
+        return browser->executeJavascriptSync(wrapped);
+    }
+
+    Browser* browser;  // Raw pointer to global browser instance
+    std::unique_ptr<TestHelpers::TemporaryDirectory> temp_dir;
     std::unique_ptr<UploadManager> manager;
     static bool gtk_is_initialized_;
     bool browser_ready = false;
