@@ -13,56 +13,80 @@ class BrowserJavaScriptTest : public ::testing::Test {
 protected:
     void SetUp() override {
         temp_dir = std::make_unique<TestHelpers::TemporaryDirectory>("browser_js_tests");
+        
+        // CRITICAL FIX: Use global browser instance (properly initialized)
+        browser = g_browser.get();
+        
+        // Reset browser to clean state before each test
+        browser->loadUri("about:blank");
+        browser->waitForNavigation(2000);
+        
         createJavaScriptTestHtmlFile();
         
-        // CRITICAL FIX: Load the JavaScript test page using file:// URL approach
-        // This ensures JavaScript tests run against loaded content with test functions available
+        // CRITICAL FIX: Load the JavaScript test page using proven systematic approach
         bool page_loaded = loadJavaScriptTestPage();
         if (!page_loaded) {
             GTEST_SKIP() << "Failed to load JavaScript test page - tests require loaded content";
         }
+        
+        debug_output("BrowserJavaScriptTest SetUp complete");
     }
 
     void TearDown() override {
+        // Clean up without destroying global browser
+        if (browser) {
+            browser->loadUri("about:blank");
+        }
         temp_dir.reset();
     }
     
     bool loadJavaScriptTestPage() {
-        // Load the JavaScript test HTML file using file:// URL (proven successful approach)
+        // Use proven systematic loadPageWithReadinessCheck approach
         std::string file_url = "file://" + js_test_file.string();
         debug_output("Loading JavaScript test page: " + file_url);
         
-        g_browser->loadUri(file_url);
+        // Apply systematic page loading approach
+        browser->loadUri(file_url);
         
-        // Wait for navigation to complete
-        bool navigation_success = g_browser->waitForNavigation(10000);
-        if (!navigation_success) {
-            debug_output("Navigation failed for JavaScript test page");
-            return false;
+        // Wait for navigation
+        bool nav_success = browser->waitForNavigation(5000);
+        if (!nav_success) return false;
+        
+        // Allow WebKit processing time
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        
+        // Check basic JavaScript execution with retry
+        for (int i = 0; i < 5; i++) {
+            std::string js_test = executeWrappedJS("return 'test';");
+            if (js_test == "test") break;
+            if (i == 4) return false;
+            std::this_thread::sleep_for(std::chrono::milliseconds(200));
         }
         
-        // CRITICAL: Wait for JavaScript environment to be fully ready
-        // Check that our test functions are available
-        std::string js_ready = g_browser->executeJavascriptSync(
-            "document.readyState === 'complete' && "
-            "typeof testFunction === 'function' && "
-            "typeof window.testValue !== 'undefined'"
-        );
+        // Verify DOM is ready
+        for (int i = 0; i < 5; i++) {
+            std::string dom_check = executeWrappedJS("return document.readyState === 'complete';");
+            if (dom_check == "true") break;
+            if (i == 4) return false;
+            std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        }
         
-        if (js_ready != "true") {
-            debug_output("JavaScript environment not ready, waiting additional time...");
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-            
-            // Re-check JavaScript readiness
-            js_ready = g_browser->executeJavascriptSync(
-                "document.readyState === 'complete' && "
-                "typeof testFunction === 'function' && "
-                "typeof window.testValue !== 'undefined'"
+        // Verify JavaScript test functions are available
+        for (int i = 0; i < 5; i++) {
+            std::string functions_check = executeWrappedJS(
+                "return typeof testFunction === 'function' && "
+                "typeof window.testValue !== 'undefined';"
             );
+            if (functions_check == "true") break;
+            if (i == 4) {
+                debug_output("JavaScript test functions not ready after retries");
+                return false;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(300));
         }
         
-        debug_output("JavaScript test page loaded - ready: " + js_ready);
-        return js_ready == "true";
+        debug_output("JavaScript test page loaded and ready");
+        return true;
     }
 
     void createJavaScriptTestHtmlFile() {
@@ -164,6 +188,22 @@ protected:
         js_test_file = temp_dir->createFile("jstest.html", html_content);
     }
 
+    // Generic JavaScript wrapper function for safe execution with error handling
+    std::string executeWrappedJS(const std::string& jsCode) {
+        if (!browser) {
+            return "";
+        }
+        
+        try {
+            std::string wrapped = "(function() { try { " + jsCode + " } catch(e) { return ''; } })()";
+            return browser->executeJavascriptSync(wrapped);
+        } catch (const std::exception& e) {
+            debug_output("JavaScript execution error: " + std::string(e.what()));
+            return "";
+        }
+    }
+
+    Browser* browser;  // Raw pointer to global browser instance
     std::unique_ptr<TestHelpers::TemporaryDirectory> temp_dir;
     std::filesystem::path js_test_file;
 };
@@ -171,28 +211,32 @@ protected:
 // ========== Basic JavaScript Execution Tests ==========
 
 TEST_F(BrowserJavaScriptTest, BasicJavaScriptExecution) {
-    // Test basic JavaScript execution interface
+    // Test basic JavaScript execution interface with safety checks
+    if (!browser) {
+        GTEST_SKIP() << "Browser not available for JavaScript testing";
+    }
+    
     std::string result;
     EXPECT_NO_THROW({
-        g_browser->executeJavascript("console.log('test');", &result);
-        g_browser->executeJavascript("1 + 1;", &result);
-        g_browser->executeJavascript("document.title;", &result);
+        browser->executeJavascript("console.log('test');", &result);
+        browser->executeJavascript("1 + 1;", &result);
+        browser->executeJavascript("document.title;", &result);
     });
 }
 
 TEST_F(BrowserJavaScriptTest, SynchronousJavaScriptExecution) {
-    // Test synchronous JavaScript execution with actual result validation
-    std::string result1 = g_browser->executeJavascriptSync("2 + 2");
-    std::string result2 = g_browser->executeJavascriptSync("'Hello World'");
-    std::string result3 = g_browser->executeJavascriptSync("Math.PI.toString()");
+    // Test synchronous JavaScript execution with actual result validation using safe wrapper
+    std::string result1 = executeWrappedJS("return 2 + 2;");
+    std::string result2 = executeWrappedJS("return 'Hello World';");
+    std::string result3 = executeWrappedJS("return Math.PI.toString();");
     
     EXPECT_EQ(result1, "4");
     EXPECT_EQ(result2, "Hello World");
     EXPECT_NE(result3.find("3.14"), std::string::npos);
     
-    // Test our loaded test variables
-    std::string test_value = g_browser->executeJavascriptSync("window.testValue.toString()");
-    std::string test_string = g_browser->executeJavascriptSync("window.testString");
+    // Test our loaded test variables using safe wrapper
+    std::string test_value = executeWrappedJS("return window.testValue.toString();");
+    std::string test_string = executeWrappedJS("return window.testString;");
     
     EXPECT_EQ(test_value, "42");
     EXPECT_EQ(test_string, "Hello World");
@@ -201,10 +245,10 @@ TEST_F(BrowserJavaScriptTest, SynchronousJavaScriptExecution) {
 TEST_F(BrowserJavaScriptTest, SafeJavaScriptExecution) {
     // Test safe JavaScript execution (should handle errors gracefully)
     EXPECT_NO_THROW({
-        std::string result1 = g_browser->executeJavascriptSyncSafe("document.title");
-        std::string result2 = g_browser->executeJavascriptSyncSafe("window.location.href");
-        std::string result3 = g_browser->executeJavascriptSyncSafe("nonexistentVariable");
-        std::string result4 = g_browser->executeJavascriptSyncSafe("invalid.syntax.");
+        std::string result1 = browser->executeJavascriptSyncSafe("document.title");
+        std::string result2 = browser->executeJavascriptSyncSafe("window.location.href");
+        std::string result3 = browser->executeJavascriptSyncSafe("nonexistentVariable");
+        std::string result4 = browser->executeJavascriptSyncSafe("invalid.syntax.");
     });
 }
 
@@ -212,15 +256,15 @@ TEST_F(BrowserJavaScriptTest, SafeJavaScriptExecution) {
 
 TEST_F(BrowserJavaScriptTest, ArithmeticExpressions) {
     // Test arithmetic expressions with expected results
-    EXPECT_EQ(g_browser->executeJavascriptSync("1 + 1"), "2");
-    EXPECT_EQ(g_browser->executeJavascriptSync("10 - 5"), "5");
-    EXPECT_EQ(g_browser->executeJavascriptSync("3 * 4"), "12");
-    EXPECT_EQ(g_browser->executeJavascriptSync("15 / 3"), "5");
-    EXPECT_EQ(g_browser->executeJavascriptSync("17 % 5"), "2");
-    EXPECT_EQ(g_browser->executeJavascriptSync("Math.pow(2, 3)"), "8");
-    EXPECT_EQ(g_browser->executeJavascriptSync("Math.sqrt(16)"), "4");
-    EXPECT_EQ(g_browser->executeJavascriptSync("Math.max(1, 2, 3, 4, 5)"), "5");
-    EXPECT_EQ(g_browser->executeJavascriptSync("Math.min(5, 4, 3, 2, 1)"), "1");
+    EXPECT_EQ(executeWrappedJS("return 1 + 1;"), "2");
+    EXPECT_EQ(executeWrappedJS("return 10 - 5;"), "5");
+    EXPECT_EQ(executeWrappedJS("return 3 * 4;"), "12");
+    EXPECT_EQ(executeWrappedJS("return 15 / 3;"), "5");
+    EXPECT_EQ(executeWrappedJS("return 17 % 5;"), "2");
+    EXPECT_EQ(executeWrappedJS("return Math.pow(2, 3);"), "8");
+    EXPECT_EQ(executeWrappedJS("return Math.sqrt(16);"), "4");
+    EXPECT_EQ(executeWrappedJS("return Math.max(1, 2, 3, 4, 5);"), "5");
+    EXPECT_EQ(executeWrappedJS("return Math.min(5, 4, 3, 2, 1);"), "1");
 }
 
 TEST_F(BrowserJavaScriptTest, StringOperations) {
@@ -236,18 +280,18 @@ TEST_F(BrowserJavaScriptTest, StringOperations) {
     
     for (const auto& expression : string_tests) {
         EXPECT_NO_THROW({
-            std::string result = g_browser->executeJavascriptSync(expression);
+            std::string result = browser->executeJavascriptSync(expression);
         });
     }
 }
 
 TEST_F(BrowserJavaScriptTest, BooleanExpressions) {
     // Test boolean expressions with validation
-    EXPECT_EQ(g_browser->executeJavascriptSync("true"), "true");
-    EXPECT_EQ(g_browser->executeJavascriptSync("false"), "false");
-    EXPECT_EQ(g_browser->executeJavascriptSync("1 === 1"), "true");
-    EXPECT_EQ(g_browser->executeJavascriptSync("1 !== 2"), "true");
-    EXPECT_EQ(g_browser->executeJavascriptSync("checkPageReady()"), "true"); // Test our loaded function
+    EXPECT_EQ(executeWrappedJS("return true;"), "true");
+    EXPECT_EQ(executeWrappedJS("return false;"), "false");
+    EXPECT_EQ(executeWrappedJS("return 1 === 1;"), "true");
+    EXPECT_EQ(executeWrappedJS("return 1 !== 2;"), "true");
+    EXPECT_EQ(executeWrappedJS("return checkPageReady();"), "true"); // Test our loaded function
     
     // Additional boolean expression tests
     std::vector<std::string> additional_tests = {
@@ -264,7 +308,7 @@ TEST_F(BrowserJavaScriptTest, BooleanExpressions) {
     
     for (const auto& expression : additional_tests) {
         EXPECT_NO_THROW({
-            std::string result = g_browser->executeJavascriptSync(expression);
+            std::string result = browser->executeJavascriptSync(expression);
         });
     }
 }
@@ -285,7 +329,7 @@ TEST_F(BrowserJavaScriptTest, DOMQueryOperations) {
     
     for (const auto& expression : dom_tests) {
         EXPECT_NO_THROW({
-            std::string result = g_browser->executeJavascriptSyncSafe(expression);
+            std::string result = browser->executeJavascriptSyncSafe(expression);
         });
     }
 }
@@ -300,7 +344,7 @@ TEST_F(BrowserJavaScriptTest, DOMModificationOperations) {
     
     for (const auto& expression : modification_tests) {
         EXPECT_NO_THROW({
-            std::string result = g_browser->executeJavascriptSyncSafe(expression);
+            std::string result = browser->executeJavascriptSyncSafe(expression);
         });
     }
 }
@@ -320,7 +364,7 @@ TEST_F(BrowserJavaScriptTest, FunctionCalling) {
     
     for (const auto& expression : function_tests) {
         EXPECT_NO_THROW({
-            std::string result = g_browser->executeJavascriptSyncSafe(expression);
+            std::string result = browser->executeJavascriptSyncSafe(expression);
         });
     }
 }
@@ -335,7 +379,7 @@ TEST_F(BrowserJavaScriptTest, AnonymousFunctionExecution) {
     
     for (const auto& expression : anonymous_tests) {
         EXPECT_NO_THROW({
-            std::string result = g_browser->executeJavascriptSync(expression);
+            std::string result = browser->executeJavascriptSync(expression);
         });
     }
 }
@@ -355,7 +399,7 @@ TEST_F(BrowserJavaScriptTest, SyntaxErrorHandling) {
     
     for (const auto& invalid_script : syntax_errors) {
         EXPECT_NO_THROW({
-            std::string result = g_browser->executeJavascriptSyncSafe(invalid_script);
+            std::string result = browser->executeJavascriptSyncSafe(invalid_script);
         });
     }
 }
@@ -371,7 +415,7 @@ TEST_F(BrowserJavaScriptTest, RuntimeErrorHandling) {
     
     for (const auto& error_script : runtime_errors) {
         EXPECT_NO_THROW({
-            std::string result = g_browser->executeJavascriptSyncSafe(error_script);
+            std::string result = browser->executeJavascriptSyncSafe(error_script);
         });
     }
 }
@@ -391,7 +435,7 @@ TEST_F(BrowserJavaScriptTest, ArrayOperations) {
     
     for (const auto& expression : array_tests) {
         EXPECT_NO_THROW({
-            std::string result = g_browser->executeJavascriptSync(expression);
+            std::string result = browser->executeJavascriptSync(expression);
         });
     }
 }
@@ -408,7 +452,7 @@ TEST_F(BrowserJavaScriptTest, ObjectOperations) {
     
     for (const auto& expression : object_tests) {
         EXPECT_NO_THROW({
-            std::string result = g_browser->executeJavascriptSync(expression);
+            std::string result = browser->executeJavascriptSync(expression);
         });
     }
 }
@@ -418,9 +462,9 @@ TEST_F(BrowserJavaScriptTest, ObjectOperations) {
 TEST_F(BrowserJavaScriptTest, JavaScriptCompletionWaiting) {
     // Test JavaScript completion waiting
     EXPECT_NO_THROW({
-        g_browser->waitForJavaScriptCompletion(1000);   // 1 second timeout
-        g_browser->waitForJavaScriptCompletion(5000);   // 5 second timeout
-        g_browser->waitForJavaScriptCompletion(100);    // Short timeout
+        browser->waitForJavaScriptCompletion(1000);   // 1 second timeout
+        browser->waitForJavaScriptCompletion(5000);   // 5 second timeout
+        browser->waitForJavaScriptCompletion(100);    // Short timeout
     });
 }
 
@@ -435,7 +479,7 @@ TEST_F(BrowserJavaScriptTest, TimeBasedOperations) {
     
     for (const auto& expression : time_tests) {
         EXPECT_NO_THROW({
-            std::string result = g_browser->executeJavascriptSync(expression);
+            std::string result = browser->executeJavascriptSync(expression);
         });
     }
 }
@@ -455,7 +499,7 @@ TEST_F(BrowserJavaScriptTest, BrowserEnvironmentAccess) {
     
     for (const auto& expression : browser_tests) {
         EXPECT_NO_THROW({
-            std::string result = g_browser->executeJavascriptSyncSafe(expression);
+            std::string result = browser->executeJavascriptSyncSafe(expression);
         });
     }
 }
@@ -468,9 +512,9 @@ TEST_F(BrowserJavaScriptTest, JavaScriptExecutionPerformance) {
     // Execute multiple JavaScript operations
     EXPECT_NO_THROW({
         for (int i = 0; i < 50; ++i) {
-            g_browser->executeJavascriptSync("Math.random()");
-            g_browser->executeJavascriptSync("1 + " + std::to_string(i));
-            g_browser->executeJavascriptSyncSafe("document.title");
+            executeWrappedJS("return Math.random();");
+            executeWrappedJS("return 1 + " + std::to_string(i) + ";");
+            browser->executeJavascriptSyncSafe("document.title");
         }
     });
     
@@ -496,8 +540,8 @@ TEST_F(BrowserJavaScriptTest, UnicodeStringHandling) {
     
     for (const auto& unicode_str : unicode_tests) {
         EXPECT_NO_THROW({
-            std::string result = g_browser->executeJavascriptSync(unicode_str);
-            std::string length_check = g_browser->executeJavascriptSync(unicode_str + ".length");
+            std::string result = browser->executeJavascriptSync(unicode_str);
+            std::string length_check = browser->executeJavascriptSync(unicode_str + ".length");
         });
     }
 }
@@ -507,12 +551,12 @@ TEST_F(BrowserJavaScriptTest, UnicodeStringHandling) {
 TEST_F(BrowserJavaScriptTest, EdgeCaseInputs) {
     // Test edge case inputs
     EXPECT_NO_THROW({
-        g_browser->executeJavascriptSyncSafe(std::string(10000, 'a')); // Very long script
-        g_browser->executeJavascriptSyncSafe("null");
-        g_browser->executeJavascriptSyncSafe("undefined");
-        g_browser->executeJavascriptSyncSafe("Infinity");
-        g_browser->executeJavascriptSyncSafe("NaN");
-        g_browser->executeJavascriptSyncSafe("0");
-        g_browser->executeJavascriptSyncSafe("-0");
+        browser->executeJavascriptSyncSafe(std::string(10000, 'a')); // Very long script
+        browser->executeJavascriptSyncSafe("null");
+        browser->executeJavascriptSyncSafe("undefined");
+        browser->executeJavascriptSyncSafe("Infinity");
+        browser->executeJavascriptSyncSafe("NaN");
+        browser->executeJavascriptSyncSafe("0");
+        browser->executeJavascriptSyncSafe("-0");
     });
 }
