@@ -463,7 +463,7 @@ bool Browser::waitForNavigationEvent(int timeout_ms) {
     std::string observerScript = setupNavigationObserver(timeout_ms);
     
     executeJavascriptSync("window._hweb_event_result = undefined;");
-    executeJavascript(observerScript);
+    executeJavascriptSync(observerScript);
     
     int elapsed = 0;
     const int check_interval = 200; // Longer interval for navigation
@@ -577,7 +577,7 @@ bool Browser::waitForVisibilityEvent(const std::string& selector, int timeout_ms
     std::string observerScript = setupVisibilityObserver(selector, timeout_ms);
     
     executeJavascriptSync("window._hweb_event_result = undefined;");
-    executeJavascript(observerScript);
+    executeJavascriptSync(observerScript);
     
     int elapsed = 0;
     const int check_interval = 100;
@@ -603,7 +603,7 @@ bool Browser::waitForConditionEvent(const std::string& js_condition, int timeout
     std::string observerScript = setupConditionObserver(js_condition, timeout_ms);
     
     executeJavascriptSync("window._hweb_event_result = undefined;");
-    executeJavascript(observerScript);
+    executeJavascriptSync(observerScript);
     
     int elapsed = 0;
     const int check_interval = 100;

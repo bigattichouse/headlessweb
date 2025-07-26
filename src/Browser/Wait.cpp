@@ -100,7 +100,7 @@ bool Browser::waitForNetworkIdle(int idle_time_ms, int timeout_ms) {
     )";
     
     executeJavascriptSync("window._hweb_event_result = undefined;");
-    executeJavascript(networkScript);
+    executeJavascriptSync(networkScript);
     
     int elapsed = 0;
     const int check_interval = 200;
@@ -181,7 +181,7 @@ bool Browser::waitForNetworkRequest(const std::string& url_pattern, int timeout_
     )";
     
     executeJavascriptSync("window._hweb_event_result = undefined;");
-    executeJavascript(networkScript);
+    executeJavascriptSync(networkScript);
     
     int elapsed = 0;
     const int check_interval = 100;
@@ -457,7 +457,7 @@ bool Browser::waitForDOMChange(const std::string& selector, int timeout_ms) {
     )";
     
     executeJavascriptSync("window._hweb_event_result = undefined;");
-    executeJavascript(observerScript);
+    executeJavascriptSync(observerScript);
     
     int elapsed = 0;
     const int check_interval = 100;
@@ -551,7 +551,7 @@ bool Browser::waitForContentChange(const std::string& selector, const std::strin
     )";
     
     executeJavascriptSync("window._hweb_event_result = undefined;");
-    executeJavascript(observerScript);
+    executeJavascriptSync(observerScript);
     
     int elapsed = 0;
     const int check_interval = 100;

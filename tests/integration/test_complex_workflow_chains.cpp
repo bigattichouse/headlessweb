@@ -605,7 +605,7 @@ TEST_F(ComplexWorkflowChainsTest, FileOperationWorkflow_UploadProcessDownload) {
     EXPECT_FALSE(file_info.filepath.empty()); // FileInfo should have valid data
     
     // Simulate file selection and processing
-    browser_->executeJavascript("document.getElementById('file-input').setAttribute('data-file', 'test_document.txt');");
+    browser_->executeJavascriptSync("document.getElementById('file-input').setAttribute('data-file', 'test_document.txt');");
     browser_->clickElement("button[onclick='processFile()']");
     
     // Step 4: Wait for processing to complete

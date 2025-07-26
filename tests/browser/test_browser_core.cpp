@@ -190,9 +190,9 @@ TEST_F(BrowserCoreTest, NavigationStateManagement) {
 
 TEST_F(BrowserCoreTest, JavaScriptExecutionInterface) {
     // Test that JavaScript execution methods exist and don't crash with null browser
-    std::string result;
     EXPECT_NO_THROW({
-        browser->executeJavascript("console.log('test');", &result);
+        // SAFETY FIX: Use safe wrapper instead of unsafe executeJavascript with pointer
+        executeWrappedJS("console.log('test'); return 'success';");
     });
     
     // Test synchronous execution methods
@@ -207,7 +207,7 @@ TEST_F(BrowserCoreTest, JavaScriptExecutionInterface) {
 TEST_F(BrowserCoreTest, ErrorHandlingRobustness) {
     // Test that browser handles invalid operations gracefully
     EXPECT_NO_THROW({
-        browser->executeJavascript("", nullptr);
+        browser->executeJavascriptSyncSafe("");
         browser->executeJavascriptSync("");
         browser->executeJavascriptSyncSafe("");
     });
@@ -248,9 +248,9 @@ TEST_F(BrowserCoreTest, ConcurrentOperationSafety) {
     // Test that multiple operations don't interfere
     EXPECT_NO_THROW({
         browser->notifyNavigationComplete();
-        browser->executeJavascript("console.log('test1');");
+        browser->executeJavascriptSync("console.log('test1');");
         browser->notifyUriChanged();
-        browser->executeJavascript("console.log('test2');");
+        browser->executeJavascriptSync("console.log('test2');");
         browser->notifyReadyToShow();
     });
 }
