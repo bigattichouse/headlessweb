@@ -92,36 +92,22 @@ void js_eval_callback(GObject* object, GAsyncResult* res, gpointer user_data) {
 // ========== JavaScript Execution Methods ==========
 
 void Browser::executeJavascript(const std::string& script, std::string* result) {
-    if (result) {
-        result->clear();
-    }
+    // SAFETY FIX: Deprecate this unsafe method by routing to safe implementation
+    // This maintains backward compatibility while eliminating memory corruption
     
-    if (script.empty()) {
-        std::cerr << "Warning: Empty JavaScript script" << std::endl;
-        if (result) {
-            *result = "";
-        }
+    if (!result) {
+        // If no result is needed, just execute without storing result
+        executeJavascriptSyncSafe(script);
         return;
     }
     
-    if (!webView) {
-        std::cerr << "Error: WebView is null" << std::endl;
-        if (result) {
-            *result = "";
-        }
-        return;
+    // Route to safe synchronous implementation
+    try {
+        *result = executeJavascriptSyncSafe(script);
+    } catch (const std::exception& e) {
+        std::cerr << "Error in JavaScript execution: " << e.what() << std::endl;
+        *result = "";
     }
-    
-    webkit_web_view_evaluate_javascript(
-        webView, 
-        script.c_str(), 
-        -1,
-        NULL, 
-        NULL, 
-        NULL, 
-        js_eval_callback, 
-        result
-    );
 }
 
 bool Browser::waitForJavaScriptCompletion(int timeout_ms) {
@@ -166,36 +152,50 @@ std::string Browser::executeJavascriptSync(const std::string& script) {
     const gchar* uri = webkit_web_view_get_uri(webView);
     if (!uri || strlen(uri) == 0) {
         debug_output("No URI loaded, JavaScript execution may hang. Script: " + script.substr(0, 50) + "...");
-        // For now, return empty to prevent hangs
         return "";
     }
     
-    js_result_buffer.clear();
-    
+    // SAFETY FIX: Use proper memory-safe implementation with member buffer
     try {
-        executeJavascript(script, &js_result_buffer);
+        // Clear our member buffer before execution
+        js_result_buffer.clear();
+        
+        // Use our member buffer instead of raw pointer to avoid corruption
+        webkit_web_view_evaluate_javascript(
+            webView, 
+            script.c_str(), 
+            -1,
+            NULL, 
+            NULL, 
+            NULL, 
+            js_eval_callback, 
+            &js_result_buffer
+        );
+        
+        // Wait for completion with timeout
         if (!waitForJavaScriptCompletion(5000)) {
             debug_output("JavaScript execution timeout for: " + script.substr(0, 50) + "...");
             return "";
         }
         
-        // Clean up the result buffer
-        std::string result = js_result_buffer;
+        // Get result from our member buffer and clear it
+        std::string return_value = js_result_buffer;
+        js_result_buffer.clear();
         
         // Handle common problematic return values
-        if (result.empty() || result == "undefined" || result == "null") {
+        if (return_value == "undefined" || return_value == "null") {
             return "";
         }
         
         // Ensure we don't have a ridiculously long result
-        if (result.length() > 100000) {
-            return result.substr(0, 100000);
+        if (return_value.length() > 100000) {
+            return return_value.substr(0, 100000);
         }
         
-        return result;
+        return return_value;
         
     } catch (const std::exception& e) {
-        std::cerr << "Exception in JavaScript execution: " << e.what() << std::endl;
+        debug_output("Error in JavaScript execution: " + std::string(e.what()));
         return "";
     }
 }

@@ -102,6 +102,7 @@ public:
     void ensureProperViewportForScreenshots();
 
     // ========== JavaScript Execution - BrowserJavaScript.cpp ==========
+    [[deprecated("Use executeJavascriptSync() or executeJavascriptSyncSafe() instead for memory safety")]]
     void executeJavascript(const std::string& script, std::string* result = nullptr);
     bool waitForJavaScriptCompletion(int timeout_ms = 5000);
     std::string executeJavascriptSync(const std::string& script);
