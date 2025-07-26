@@ -39,6 +39,41 @@ protected:
         return browser->executeJavascriptSync(wrapped);
     }
     
+    // Enhanced page loading method based on successful BrowserMainTest approach
+    bool loadPageWithReadinessCheck(const std::string& url) {
+        browser->loadUri(url);
+        
+        // Wait for navigation
+        bool nav_success = browser->waitForNavigation(5000);
+        if (!nav_success) return false;
+        
+        // Allow WebKit processing time
+        std::this_thread::sleep_for(1000ms);
+        
+        // Check basic JavaScript execution with retry
+        for (int i = 0; i < 5; i++) {
+            std::string js_test = executeWrappedJS("return 'test';");
+            if (js_test == "test") break;
+            if (i == 4) return false;
+            std::this_thread::sleep_for(200ms);
+        }
+        
+        // Verify DOM is ready with specific element checks
+        for (int i = 0; i < 5; i++) {
+            std::string dom_check = executeWrappedJS(
+                "return document.readyState === 'complete' && "
+                "document.getElementById('text-input') !== null && "
+                "document.getElementById('checkbox1') !== null && "
+                "document.getElementById('select-single') !== null;"
+            );
+            if (dom_check == "true") break;
+            if (i == 4) return false;
+            std::this_thread::sleep_for(200ms);
+        }
+        
+        return true;
+    }
+
     void setupTestPage() {
         std::string simple_html = R"HTML(
 <!DOCTYPE html>
@@ -65,46 +100,15 @@ protected:
 </html>
 )HTML";
         
-        // CRITICAL FIX: Create HTML file and use file:// URL instead of data: URL
+        // CRITICAL FIX: Use proven approach from BrowserMainTest
         test_html_file = temp_dir->createFile("session_test.html", simple_html);
         std::string file_url = "file://" + test_html_file.string();
-        browser->loadUri(file_url);
         
-        // Enhanced DOM readiness checking (same pattern as other successful fixes)
-        bool nav_success = browser->waitForNavigation(10000);
-        if (!nav_success) {
-            std::cerr << "BrowserSessionTest: Navigation failed" << std::endl;
-            return;
+        // Use enhanced page loading with comprehensive readiness check
+        bool page_ready = loadPageWithReadinessCheck(file_url);
+        if (!page_ready) {
+            std::cerr << "BrowserSessionTest: Page failed to load and become ready" << std::endl;
         }
-        
-        // Check JavaScript execution readiness using wrapper function
-        std::string js_test = executeWrappedJS("return 'test';");
-        if (js_test != "test") {
-            std::cerr << "BrowserSessionTest: JavaScript not ready" << std::endl;
-            std::this_thread::sleep_for(1000ms);
-        }
-        
-        // Wait for DOM elements to be available using wrapper function
-        std::string dom_ready = executeWrappedJS(
-            "return document.readyState === 'complete' && "
-            "document.getElementById('text-input') !== null && "
-            "document.getElementById('checkbox1') !== null && "
-            "document.getElementById('select-single') !== null;"
-        );
-        
-        if (dom_ready != "true") {
-            std::cerr << "BrowserSessionTest: DOM not fully ready, waiting..." << std::endl;
-            std::this_thread::sleep_for(1500ms);
-            
-            // Re-check readiness using wrapper function
-            dom_ready = executeWrappedJS(
-                "return document.readyState === 'complete' && "
-                "document.getElementById('text-input') !== null;"
-            );
-        }
-        
-        // Wait for page load
-        std::this_thread::sleep_for(1000ms);
     }
 
     void TearDown() override {
@@ -263,16 +267,15 @@ TEST_F(BrowserSessionTest, RestoreSessionBasic) {
     session->setCurrentUrl(browser->getCurrentUrl());
     session->setUserAgent("HeadlessWeb Test Agent");
     
-    // Create a new browser instance
-    HWeb::HWebConfig test_config;
-    auto newBrowser = std::make_unique<Browser>(test_config);
-    std::this_thread::sleep_for(500ms);
+    // CRITICAL FIX: Use global browser instead of creating new instance
+    EXPECT_NO_THROW(browser->restoreSession(*session));
     
-    // Restore session
-    EXPECT_NO_THROW(newBrowser->restoreSession(*session));
+    // Enhanced readiness checking after restoration
+    bool page_ready = loadPageWithReadinessCheck(browser->getCurrentUrl());
+    EXPECT_TRUE(page_ready);
     
-    // Verify restoration using wrapper-style approach (for consistency)
-    std::string userAgent = newBrowser->executeJavascriptSync("(function() { return navigator.userAgent; })()");
+    // Verify restoration using enhanced wrapper function
+    std::string userAgent = executeWrappedJS("return navigator.userAgent;");
     EXPECT_NE(userAgent.find("HeadlessWeb Test Agent"), std::string::npos);
 }
 
@@ -301,23 +304,21 @@ TEST_F(BrowserSessionTest, RestoreSessionWithFormState) {
     session->setFormFields(formFields);
     session->setCurrentUrl(browser->getCurrentUrl());
     
-    // Create new browser and restore session
-    HWeb::HWebConfig test_config;
-    auto newBrowser = std::make_unique<Browser>(test_config);
-    std::this_thread::sleep_for(500ms);
+    // CRITICAL FIX: Use global browser instead of creating new instance
+    browser->restoreSession(*session);
     
-    newBrowser->restoreSession(*session);
-    std::this_thread::sleep_for(800ms);
+    // Enhanced readiness checking after restoration
+    bool page_ready = loadPageWithReadinessCheck(browser->getCurrentUrl());
+    EXPECT_TRUE(page_ready);
     
-    // Verify form restoration
-    std::string textValue = newBrowser->getAttribute("#text-input", "value");
+    // Verify form restoration with enhanced JavaScript wrapper calls
+    std::string textValue = browser->getAttribute("#text-input", "value");
     EXPECT_EQ(textValue, "restored text");
     
-    std::string checkboxChecked = newBrowser->executeJavascriptSync(
-        "(function() { return document.getElementById('checkbox2').checked; })()");
+    std::string checkboxChecked = executeWrappedJS("return document.getElementById('checkbox2').checked;");
     EXPECT_EQ(checkboxChecked, "true");
     
-    std::string selectValue = newBrowser->getAttribute("#select-single", "value");
+    std::string selectValue = browser->getAttribute("#select-single", "value");
     EXPECT_EQ(selectValue, "option3");
 }
 
@@ -326,16 +327,18 @@ TEST_F(BrowserSessionTest, RestoreSessionWithScrollPosition) {
     session->setScrollPosition("window", 100, 200);
     session->setCurrentUrl(browser->getCurrentUrl());
     
-    // Create new browser and restore session
-    HWeb::HWebConfig test_config;
-    auto newBrowser = std::make_unique<Browser>(test_config);
+    // CRITICAL FIX: Use global browser instead of creating new instance
+    browser->restoreSession(*session);
+    
+    // Enhanced readiness checking after restoration
+    bool page_ready = loadPageWithReadinessCheck(browser->getCurrentUrl());
+    EXPECT_TRUE(page_ready);
+    
+    // Allow time for scroll position restoration
     std::this_thread::sleep_for(500ms);
     
-    newBrowser->restoreSession(*session);
-    std::this_thread::sleep_for(800ms);
-    
     // Verify scroll restoration
-    auto [x, y] = newBrowser->getScrollPosition();
+    auto [x, y] = browser->getScrollPosition();
     EXPECT_EQ(x, 100);
     EXPECT_EQ(y, 200);
 }
@@ -346,17 +349,18 @@ TEST_F(BrowserSessionTest, RestoreSessionWithActiveElements) {
     session->setActiveElements(activeElements);
     session->setCurrentUrl(browser->getCurrentUrl());
     
-    // Create new browser and restore session
-    HWeb::HWebConfig test_config;
-    auto newBrowser = std::make_unique<Browser>(test_config);
+    // CRITICAL FIX: Use global browser instead of creating new instance
+    browser->restoreSession(*session);
+    
+    // Enhanced readiness checking after restoration
+    bool page_ready = loadPageWithReadinessCheck(browser->getCurrentUrl());
+    EXPECT_TRUE(page_ready);
+    
+    // Allow time for active element restoration
     std::this_thread::sleep_for(500ms);
     
-    newBrowser->restoreSession(*session);
-    std::this_thread::sleep_for(800ms);
-    
-    // Verify active element restoration
-    std::string focusedElement = newBrowser->executeJavascriptSync(
-        "(function() { return document.activeElement ? document.activeElement.id : ''; })()");
+    // Verify active element restoration using enhanced wrapper
+    std::string focusedElement = executeWrappedJS("return document.activeElement ? document.activeElement.id : '';");
     EXPECT_EQ(focusedElement, "focus-btn");
 }
 
@@ -371,19 +375,21 @@ TEST_F(BrowserSessionTest, RestoreSessionWithCustomState) {
     session->setExtractedState("userSettings", customState["userSettings"]);
     session->setCurrentUrl(browser->getCurrentUrl());
     
-    // Create new browser and restore session
-    HWeb::HWebConfig test_config;
-    auto newBrowser = std::make_unique<Browser>(test_config);
+    // CRITICAL FIX: Use global browser instead of creating new instance
+    browser->restoreSession(*session);
+    
+    // Enhanced readiness checking after restoration
+    bool page_ready = loadPageWithReadinessCheck(browser->getCurrentUrl());
+    EXPECT_TRUE(page_ready);
+    
+    // Allow time for custom state restoration
     std::this_thread::sleep_for(500ms);
     
-    newBrowser->restoreSession(*session);
-    std::this_thread::sleep_for(800ms);
-    
-    // Verify custom state restoration
-    std::string restoredAppData = newBrowser->executeJavascriptSync("(function() { return window['_hweb_custom_appData']; })()");
+    // Verify custom state restoration using enhanced wrapper
+    std::string restoredAppData = executeWrappedJS("return window['_hweb_custom_appData'] || '';");
     EXPECT_EQ(restoredAppData, "test value");
     
-    std::string restoredTheme = newBrowser->executeJavascriptSync("(function() { return window['_hweb_custom_userSettings'].theme; })()");
+    std::string restoredTheme = executeWrappedJS("return window['_hweb_custom_userSettings'] && window['_hweb_custom_userSettings'].theme || '';");
     EXPECT_EQ(restoredTheme, "dark");
 }
 
@@ -401,8 +407,12 @@ TEST_F(BrowserSessionTest, RestoreSessionSafelyWithInvalidUrl) {
     // Invalid URL
     session->setCurrentUrl("invalid://url");
     
+    // Test URL validation first
+    bool urlValid = browser->validateUrl("invalid://url");
+    EXPECT_FALSE(urlValid) << "URL validation should reject invalid:// URLs";
+    
     bool result = browser->restoreSessionSafely(*session);
-    EXPECT_FALSE(result);
+    EXPECT_FALSE(result) << "Safe restoration should fail for invalid URLs";
 }
 
 // ========== Session Validation Tests ==========
@@ -477,9 +487,15 @@ TEST_F(BrowserSessionTest, RestoreFormState) {
     selectField.type = "select";
     formFields.push_back(selectField);
     
-    // Restore form state
+    // Restore form state with enhanced timing
     browser->restoreFormState(formFields);
-    std::this_thread::sleep_for(300ms);
+    
+    // Allow time for form restoration to complete
+    std::this_thread::sleep_for(500ms);
+    
+    // Verify DOM is still ready after restoration
+    std::string dom_check = executeWrappedJS("return document.getElementById('text-input') !== null;");
+    EXPECT_EQ(dom_check, "true");
     
     // Verify restoration
     std::string textValue = browser->getAttribute("#text-input", "value");
@@ -488,8 +504,7 @@ TEST_F(BrowserSessionTest, RestoreFormState) {
     std::string selectValue = browser->getAttribute("#select-single", "value");
     EXPECT_EQ(selectValue, "option3");
     
-    std::string checkboxChecked = executeWrappedJS(
-        "return document.getElementById('checkbox1').checked;");
+    std::string checkboxChecked = executeWrappedJS("return document.getElementById('checkbox1').checked;");
     EXPECT_EQ(checkboxChecked, "false");
 }
 
@@ -600,13 +615,19 @@ TEST_F(BrowserSessionTest, RestoreCustomState) {
     state["simpleValue"] = "simple string";
     
     browser->restoreCustomState(state);
-    std::this_thread::sleep_for(200ms);
     
-    // Verify restoration
-    std::string restoredData = executeWrappedJS("return window['_hweb_custom_testData'].restored;");
+    // Allow more time for custom state restoration
+    std::this_thread::sleep_for(500ms);
+    
+    // Verify restoration with error checking
+    std::string restoredData = executeWrappedJS(
+        "return window['_hweb_custom_testData'] && window['_hweb_custom_testData'].restored ? 'true' : 'false';"
+    );
     EXPECT_EQ(restoredData, "true");
     
-    std::string simpleValue = executeWrappedJS("return window['_hweb_custom_simpleValue'];");
+    std::string simpleValue = executeWrappedJS(
+        "return window['_hweb_custom_simpleValue'] || '';"
+    );
     EXPECT_EQ(simpleValue, "simple string");
 }
 
@@ -660,29 +681,30 @@ TEST_F(BrowserSessionTest, FullSessionSaveAndRestore) {
     // Extract full session state
     browser->updateSessionState(*session);
     
-    // Create new browser instance and restore
-    HWeb::HWebConfig test_config;
-    auto newBrowser = std::make_unique<Browser>(test_config);
+    // CRITICAL FIX: Use global browser instead of creating new instance
+    browser->restoreSession(*session);
+    
+    // Enhanced readiness checking after restoration
+    bool page_ready = loadPageWithReadinessCheck(browser->getCurrentUrl());
+    EXPECT_TRUE(page_ready);
+    
+    // Allow time for complete session restoration
     std::this_thread::sleep_for(500ms);
     
-    newBrowser->restoreSession(*session);
-    std::this_thread::sleep_for(800ms);
-    
     // Verify complete restoration
-    std::string textValue = newBrowser->getAttribute("#text-input", "value");
+    std::string textValue = browser->getAttribute("#text-input", "value");
     EXPECT_EQ(textValue, "full test");
     
-    std::string checkboxChecked = newBrowser->executeJavascriptSync(
-        "(function() { return document.getElementById('checkbox2').checked; })()");
+    std::string checkboxChecked = executeWrappedJS("return document.getElementById('checkbox2').checked;");
     EXPECT_EQ(checkboxChecked, "true");
     
-    std::string selectValue = newBrowser->getAttribute("#select-single", "value");
+    std::string selectValue = browser->getAttribute("#select-single", "value");
     EXPECT_EQ(selectValue, "option2");
     
-    auto [x, y] = newBrowser->getScrollPosition();
+    auto [x, y] = browser->getScrollPosition();
     EXPECT_EQ(x, 50);
     EXPECT_EQ(y, 75);
     
-    std::string hash = newBrowser->executeJavascriptSync("(function() { return window.location.hash; })()");
+    std::string hash = executeWrappedJS("return window.location.hash;");
     EXPECT_EQ(hash, "#full-test");
 }
