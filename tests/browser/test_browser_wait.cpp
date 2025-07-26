@@ -37,6 +37,52 @@ protected:
         return browser->executeJavascriptSync(wrapped);
     }
     
+    // Enhanced page loading method based on successful BrowserMainTest approach
+    bool loadPageWithReadinessCheck(const std::string& url) {
+        browser->loadUri(url);
+        
+        // Wait for navigation
+        bool nav_success = browser->waitForNavigation(5000);
+        if (!nav_success) return false;
+        
+        // Allow WebKit processing time
+        std::this_thread::sleep_for(1000ms);
+        
+        // Check basic JavaScript execution with retry
+        for (int i = 0; i < 5; i++) {
+            std::string js_test = executeWrappedJS("return 'test';");
+            if (js_test == "test") break;
+            if (i == 4) return false;
+            std::this_thread::sleep_for(200ms);
+        }
+        
+        // Verify DOM is ready with essential element checks
+        for (int i = 0; i < 5; i++) {
+            std::string dom_check = executeWrappedJS(
+                "return document.readyState === 'complete' && "
+                "document.getElementById('text-content') !== null && "
+                "document.getElementById('visibility-target') !== null;"
+            );
+            if (dom_check == "true") break;
+            if (i == 4) return false;
+            std::this_thread::sleep_for(200ms);
+        }
+        
+        // Check for essential JavaScript functions
+        for (int i = 0; i < 5; i++) {
+            std::string functions_check = executeWrappedJS(
+                "return typeof changeTextContent === 'function' && "
+                "typeof simulateXHRRequest === 'function' && "
+                "typeof showElement === 'function';"
+            );
+            if (functions_check == "true") break;
+            if (i == 4) return false;
+            std::this_thread::sleep_for(300ms);
+        }
+        
+        return true;
+    }
+
     void setupTestPage() {
         std::string test_html = R"HTML(
 <!DOCTYPE html>
@@ -388,46 +434,14 @@ protected:
 </html>
 )HTML";
         
-        // CRITICAL FIX: Create HTML file and use file:// URL to avoid data: URL restrictions
+        // CRITICAL FIX: Use proven approach from BrowserMainTest
         test_html_file = temp_dir->createFile("wait_test.html", test_html);
         std::string file_url = "file://" + test_html_file.string();
-        browser->loadUri(file_url);
         
-        // Enhanced DOM readiness checking (same pattern as UploadManagerTest)
-        // Wait for navigation to complete first
-        bool nav_success = browser->waitForNavigation(10000);
-        if (!nav_success) {
-            std::cerr << "BrowserWaitTest: Navigation failed" << std::endl;
-            return;
-        }
-        
-        // Check JavaScript execution readiness using wrapper function
-        std::string js_test = executeWrappedJS("return 'test';");
-        if (js_test != "test") {
-            std::cerr << "BrowserWaitTest: JavaScript not ready" << std::endl;
-            std::this_thread::sleep_for(1000ms);
-        }
-        
-        // Wait for critical DOM elements and functions to be available using wrapper function
-        std::string dom_ready = executeWrappedJS(
-            "return document.readyState === 'complete' && "
-            "typeof changeTextContent === 'function' && "
-            "typeof simulateXHRRequest === 'function' && "
-            "typeof showElement === 'function' && "
-            "document.getElementById('text-content') !== null && "
-            "document.getElementById('visibility-target') !== null;"
-        );
-        
-        if (dom_ready != "true") {
-            std::cerr << "BrowserWaitTest: DOM not fully ready, waiting..." << std::endl;
-            std::this_thread::sleep_for(1500ms);
-            
-            // Re-check readiness using wrapper function
-            dom_ready = executeWrappedJS(
-                "return document.readyState === 'complete' && "
-                "typeof changeTextContent === 'function';"
-            );
-            std::cerr << "BrowserWaitTest: Final DOM ready state: " << dom_ready << std::endl;
+        // Use enhanced page loading with comprehensive readiness check
+        bool page_ready = loadPageWithReadinessCheck(file_url);
+        if (!page_ready) {
+            std::cerr << "BrowserWaitTest: Page failed to load and become ready" << std::endl;
         }
     }
 
