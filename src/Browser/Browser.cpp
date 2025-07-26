@@ -39,8 +39,7 @@ Browser::Browser(const HWeb::HWebConfig& config) : cookieManager(nullptr), main_
     // CRITICAL FIX: Enable storage for data: URLs (required for tests)
     webkit_settings_set_enable_html5_local_storage(settings, TRUE);
     // Note: webkit_settings_set_enable_offline_web_application_cache is deprecated in WebKit 6.0+
-    // but we keep it for compatibility with test environments
-    webkit_settings_set_enable_offline_web_application_cache(settings, TRUE);
+    // and has been removed as modern browsers use Service Workers instead
     webkit_settings_set_allow_universal_access_from_file_urls(settings, TRUE);
     webkit_settings_set_allow_file_access_from_file_urls(settings, TRUE);
     
