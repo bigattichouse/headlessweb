@@ -311,14 +311,14 @@ TEST_F(BrowserSessionTest, RestoreSessionWithFormState) {
     bool page_ready = loadPageWithReadinessCheck(browser->getCurrentUrl());
     EXPECT_TRUE(page_ready);
     
-    // Verify form restoration with enhanced JavaScript wrapper calls
-    std::string textValue = browser->getAttribute("#text-input", "value");
+    // CRITICAL FIX: Use JavaScript to read DOM properties instead of getAttribute
+    std::string textValue = executeWrappedJS("return document.getElementById('text-input').value;");
     EXPECT_EQ(textValue, "restored text");
     
     std::string checkboxChecked = executeWrappedJS("return document.getElementById('checkbox2').checked;");
     EXPECT_EQ(checkboxChecked, "true");
     
-    std::string selectValue = browser->getAttribute("#select-single", "value");
+    std::string selectValue = executeWrappedJS("return document.getElementById('select-single').value;");
     EXPECT_EQ(selectValue, "option3");
 }
 
@@ -497,14 +497,15 @@ TEST_F(BrowserSessionTest, RestoreFormState) {
     std::string dom_check = executeWrappedJS("return document.getElementById('text-input') !== null;");
     EXPECT_EQ(dom_check, "true");
     
-    // Verify restoration
-    std::string textValue = browser->getAttribute("#text-input", "value");
-    EXPECT_EQ(textValue, "restored text");
-    
-    std::string selectValue = browser->getAttribute("#select-single", "value");
-    EXPECT_EQ(selectValue, "option3");
-    
+    // CRITICAL FIX: Use JavaScript to read DOM properties instead of getAttribute
+    // getAttribute reads HTML attributes, but form values are stored as DOM properties
+    std::string textValue = executeWrappedJS("return document.getElementById('text-input').value;");
+    std::string selectValue = executeWrappedJS("return document.getElementById('select-single').value;");
     std::string checkboxChecked = executeWrappedJS("return document.getElementById('checkbox1').checked;");
+    
+    // Verify restoration
+    EXPECT_EQ(textValue, "restored text");
+    EXPECT_EQ(selectValue, "option3");
     EXPECT_EQ(checkboxChecked, "false");
 }
 
@@ -691,14 +692,14 @@ TEST_F(BrowserSessionTest, FullSessionSaveAndRestore) {
     // Allow time for complete session restoration
     std::this_thread::sleep_for(500ms);
     
-    // Verify complete restoration
-    std::string textValue = browser->getAttribute("#text-input", "value");
+    // CRITICAL FIX: Use JavaScript to read DOM properties instead of getAttribute
+    std::string textValue = executeWrappedJS("return document.getElementById('text-input').value;");
     EXPECT_EQ(textValue, "full test");
     
     std::string checkboxChecked = executeWrappedJS("return document.getElementById('checkbox2').checked;");
     EXPECT_EQ(checkboxChecked, "true");
     
-    std::string selectValue = browser->getAttribute("#select-single", "value");
+    std::string selectValue = executeWrappedJS("return document.getElementById('select-single').value;");
     EXPECT_EQ(selectValue, "option2");
     
     auto [x, y] = browser->getScrollPosition();
