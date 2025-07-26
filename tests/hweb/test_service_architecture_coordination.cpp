@@ -12,6 +12,7 @@
 #include <thread>
 #include <chrono>
 #include <filesystem>
+#include <vector>
 #include <gtk/gtk.h>
 
 extern std::unique_ptr<Browser> g_browser;
@@ -43,6 +44,55 @@ protected:
         HWeb::ManagerRegistry::initialize();
         
         debug_output("ServiceArchitectureCoordinationTest SetUp complete");
+    }
+    
+    // Enhanced page loading method based on successful BrowserMainTest approach
+    bool loadPageWithReadinessCheck(const std::string& url, const std::vector<std::string>& required_elements = {}) {
+        browser_->loadUri(url);
+        
+        // Wait for navigation
+        bool nav_success = browser_->waitForNavigation(5000);
+        if (!nav_success) return false;
+        
+        // Allow WebKit processing time
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        
+        // Check basic JavaScript execution with retry
+        for (int i = 0; i < 5; i++) {
+            std::string js_test = executeWrappedJS("return 'test';");
+            if (js_test == "test") break;
+            if (i == 4) return false;
+            std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        }
+        
+        // Verify DOM is ready
+        for (int i = 0; i < 5; i++) {
+            std::string dom_check = executeWrappedJS("return document.readyState === 'complete';");
+            if (dom_check == "true") break;
+            if (i == 4) return false;
+            std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        }
+        
+        // Check for required elements if specified
+        if (!required_elements.empty()) {
+            for (int i = 0; i < 5; i++) {
+                bool all_elements_ready = true;
+                for (const auto& element : required_elements) {
+                    std::string element_check = executeWrappedJS(
+                        "return document.querySelector('" + element + "') !== null;"
+                    );
+                    if (element_check != "true") {
+                        all_elements_ready = false;
+                        break;
+                    }
+                }
+                if (all_elements_ready) break;
+                if (i == 4) return false;
+                std::this_thread::sleep_for(std::chrono::milliseconds(200));
+            }
+        }
+        
+        return true;
     }
     
     void TearDown() override {
@@ -111,49 +161,31 @@ protected:
             </html>
         )";
         
-        // CRITICAL FIX: Use file:// URL instead of data: URL to enable localStorage/sessionStorage
+        // CRITICAL FIX: Use proven loadPageWithReadinessCheck approach
         auto html_file = temp_dir->createFile("service_test.html", test_html);
         std::string file_url = "file://" + html_file.string();
-        browser_->loadUri(file_url);
         
-        // Enhanced DOM readiness checking (proven pattern)
-        bool nav_success = browser_->waitForNavigation(10000);
-        if (!nav_success) {
-            std::cerr << "ServiceArchitectureCoordinationTest: Navigation failed" << std::endl;
+        std::vector<std::string> required_elements = {"#test-input", "#test-form", "#dynamic-content", "#test-checkbox"};
+        bool page_ready = loadPageWithReadinessCheck(file_url, required_elements);
+        if (!page_ready) {
+            debug_output("Service test page failed to load and become ready");
             return;
         }
         
-        // Check JavaScript execution readiness
-        std::string js_test = browser_->executeJavascriptSync("'test'");
-        if (js_test != "test") {
-            std::cerr << "ServiceArchitectureCoordinationTest: JavaScript not ready" << std::endl;
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-        }
-        
-        // CRITICAL: Wait for DOM elements and localStorage to be available using wrapper
-        std::string dom_ready = executeWrappedJS(
-            "return document.readyState === 'complete' && "
-            "document.getElementById('test-input') !== null && "
-            "document.getElementById('test-form') !== null && "
-            "typeof updateDynamicContent === 'function' && "
-            "localStorage.getItem('test-key') === 'test-value';"
-        );
-        
-        if (dom_ready != "true") {
-            debug_output("ServiceArchitectureCoordinationTest: DOM/localStorage not ready, waiting...");
-            std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-            
-            // Re-check essential elements with wrapper
-            dom_ready = executeWrappedJS(
-                "return document.readyState === 'complete' && "
-                "document.getElementById('test-input') !== null && "
-                "document.getElementById('test-input').value === 'initial_value';"
+        // Wait for JavaScript functions and localStorage to be available
+        for (int i = 0; i < 5; i++) {
+            std::string functions_and_storage_check = executeWrappedJS(
+                "return typeof updateDynamicContent === 'function' && "
+                "localStorage.getItem('test-key') === 'test-value' && "
+                "window.testState && window.testState.initialized === true;"
             );
-            
-            debug_output("ServiceArchitectureCoordinationTest: DOM ready status after wait: " + dom_ready);
+            if (functions_and_storage_check == "true") break;
+            if (i == 4) {
+                debug_output("JavaScript functions and localStorage not ready after retries");
+                return;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(300));
         }
-        
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
     
     // Helper method to create file:// URLs for simple HTML content (defined above)
