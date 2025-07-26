@@ -14,19 +14,31 @@ protected:
     void SetUp() override {
         temp_dir = std::make_unique<TestHelpers::TemporaryDirectory>("browser_dom_tests");
         
+        // CRITICAL FIX: Use global browser instance (properly initialized)
+        browser = g_browser.get();
+        
+        // Reset browser to clean state before each test
+        browser->loadUri("about:blank");
+        browser->waitForNavigation(2000);
+        
         // Create test HTML files for DOM testing
         createTestHtmlFile();
         createFormTestHtmlFile();
         
-        // CRITICAL FIX: Actually load the test page for real DOM testing
-        // Apply the proven file:// URL approach that resolved BrowserStorageTest issues
+        // Apply systematic page loading approach
         bool page_loaded = loadTestPage();
         if (!page_loaded) {
             GTEST_SKIP() << "Failed to load test page - DOM operations require loaded content";
         }
+        
+        debug_output("BrowserDOMTest SetUp complete");
     }
 
     void TearDown() override {
+        // Clean up without destroying global browser
+        if (browser) {
+            browser->loadUri("about:blank");
+        }
         temp_dir.reset();
     }
     
@@ -35,36 +47,52 @@ protected:
         std::string file_url = "file://" + test_html_file.string();
         debug_output("Loading DOM test page: " + file_url);
         
-        g_browser->loadUri(file_url);
+        // Apply systematic page loading approach
+        browser->loadUri(file_url);
         
-        // Wait for navigation to complete
-        bool navigation_success = g_browser->waitForNavigation(10000);
-        if (!navigation_success) {
-            debug_output("Navigation failed for DOM test page");
-            return false;
+        // Wait for navigation
+        bool nav_success = browser->waitForNavigation(5000);
+        if (!nav_success) return false;
+        
+        // Allow WebKit processing time
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        
+        // Check basic JavaScript execution with retry
+        for (int i = 0; i < 5; i++) {
+            std::string js_test = executeWrappedJS("return 'test';");
+            if (js_test == "test") break;
+            if (i == 4) return false;
+            std::this_thread::sleep_for(std::chrono::milliseconds(200));
         }
         
-        // CRITICAL: Wait for DOM to be fully ready (same pattern as successful tests)
-        std::string dom_ready = g_browser->executeJavascriptSync(
-            "document.readyState === 'complete' && "
-            "document.getElementById('main-content') !== null && "
-            "document.getElementById('title') !== null"
-        );
-        
-        if (dom_ready != "true") {
-            debug_output("DOM not ready, waiting additional time...");
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-            
-            // Re-check DOM readiness
-            dom_ready = g_browser->executeJavascriptSync(
-                "document.readyState === 'complete' && "
-                "document.getElementById('main-content') !== null && "
-                "document.getElementById('title') !== null"
-            );
+        // Verify DOM is ready
+        for (int i = 0; i < 5; i++) {
+            std::string dom_check = executeWrappedJS("return document.readyState === 'complete';");
+            if (dom_check == "true") break;
+            if (i == 4) return false;
+            std::this_thread::sleep_for(std::chrono::milliseconds(200));
         }
         
-        debug_output("DOM test page loaded - ready: " + dom_ready);
-        return dom_ready == "true";
+        // Check for required DOM elements
+        std::vector<std::string> required_elements = {"#main-content", "#title", "#test-button"};
+        for (int i = 0; i < 5; i++) {
+            bool all_elements_ready = true;
+            for (const auto& element : required_elements) {
+                std::string element_check = executeWrappedJS(
+                    "return document.querySelector('" + element + "') !== null;"
+                );
+                if (element_check != "true") {
+                    all_elements_ready = false;
+                    break;
+                }
+            }
+            if (all_elements_ready) break;
+            if (i == 4) return false;
+            std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        }
+        
+        debug_output("DOM test page loaded and ready");
+        return true;
     }
 
     void createTestHtmlFile() {
@@ -141,7 +169,14 @@ protected:
 )";
         form_html_file = temp_dir->createFile("form.html", form_content);
     }
+    
+    // Generic JavaScript wrapper function for safe execution
+    std::string executeWrappedJS(const std::string& jsCode) {
+        std::string wrapped = "(function() { " + jsCode + " })()";
+        return browser->executeJavascriptSync(wrapped);
+    }
 
+    Browser* browser;  // Raw pointer to global browser instance
     std::unique_ptr<TestHelpers::TemporaryDirectory> temp_dir;
     std::filesystem::path test_html_file;
     std::filesystem::path form_html_file;
@@ -152,26 +187,26 @@ protected:
 TEST_F(BrowserDOMTest, ElementExistenceChecking) {
     // Test element existence with actual loaded DOM content
     // Elements from our test HTML should exist
-    EXPECT_TRUE(g_browser->elementExists("#main-content"));
-    EXPECT_TRUE(g_browser->elementExists(".description"));
-    EXPECT_TRUE(g_browser->elementExists("h1"));
-    EXPECT_TRUE(g_browser->elementExists("#title"));
-    EXPECT_TRUE(g_browser->elementExists("#test-button"));
+    EXPECT_TRUE(browser->elementExists("#main-content"));
+    EXPECT_TRUE(browser->elementExists(".description"));
+    EXPECT_TRUE(browser->elementExists("h1"));
+    EXPECT_TRUE(browser->elementExists("#title"));
+    EXPECT_TRUE(browser->elementExists("#test-button"));
     
     // Non-existent elements should return false
-    EXPECT_FALSE(g_browser->elementExists("#nonexistent"));
-    EXPECT_FALSE(g_browser->elementExists(".missing-class"));
+    EXPECT_FALSE(browser->elementExists("#nonexistent"));
+    EXPECT_FALSE(browser->elementExists(".missing-class"));
 }
 
 TEST_F(BrowserDOMTest, ElementExistenceEdgeCases) {
     // Test edge cases for element existence
     EXPECT_NO_THROW({
-        g_browser->elementExists(""); // Empty selector
-        g_browser->elementExists("#"); // Invalid ID selector
-        g_browser->elementExists("."); // Invalid class selector
-        g_browser->elementExists("div.class#id"); // Complex selector
-        g_browser->elementExists("div > p + span"); // CSS combinator
-        g_browser->elementExists("input[type='text']"); // Attribute selector
+        browser->elementExists(""); // Empty selector
+        browser->elementExists("#"); // Invalid ID selector
+        browser->elementExists("."); // Invalid class selector
+        browser->elementExists("div.class#id"); // Complex selector
+        browser->elementExists("div > p + span"); // CSS combinator
+        browser->elementExists("input[type='text']"); // Attribute selector
     });
 }
 
@@ -180,26 +215,26 @@ TEST_F(BrowserDOMTest, ElementExistenceEdgeCases) {
 TEST_F(BrowserDOMTest, FormInputFilling) {
     // Switch to form page for input testing
     std::string form_url = "file://" + form_html_file.string();
-    g_browser->loadUri(form_url);
-    g_browser->waitForNavigation(5000);
+    browser->loadUri(form_url);
+    browser->waitForNavigation(5000);
     
     // Wait for form elements to be available
-    std::string form_ready = g_browser->executeJavascriptSync(
-        "document.getElementById('username') !== null && "
-        "document.getElementById('password') !== null"
+    std::string form_ready = executeWrappedJS(
+        "return document.getElementById('username') !== null && "
+        "document.getElementById('password') !== null;"
     );
     
     if (form_ready == "true") {
         // Test form input filling with real elements
         EXPECT_NO_THROW({
-            g_browser->fillInput("#username", "testuser");
-            g_browser->fillInput("#password", "password123");
-            g_browser->fillInput("#email", "test@example.com");
-            g_browser->fillInput("#comments", "This is a test comment");
+            browser->fillInput("#username", "testuser");
+            browser->fillInput("#password", "password123");
+            browser->fillInput("#email", "test@example.com");
+            browser->fillInput("#comments", "This is a test comment");
         });
         
         // Verify values were actually set
-        std::string username_value = g_browser->getAttribute("#username", "value");
+        std::string username_value = browser->getAttribute("#username", "value");
         EXPECT_EQ(username_value, "testuser");
     } else {
         GTEST_SKIP() << "Form elements not ready for testing";
@@ -209,31 +244,31 @@ TEST_F(BrowserDOMTest, FormInputFilling) {
 TEST_F(BrowserDOMTest, FormInputValidation) {
     // Test input validation and edge cases
     EXPECT_NO_THROW({
-        g_browser->fillInput("#username", ""); // Empty value
-        g_browser->fillInput("#password", std::string(1000, 'a')); // Very long value
-        g_browser->fillInput("#email", "unicode测试@example.com"); // Unicode content
-        g_browser->fillInput("#nonexistent", "value"); // Nonexistent element
+        browser->fillInput("#username", ""); // Empty value
+        browser->fillInput("#password", std::string(1000, 'a')); // Very long value
+        browser->fillInput("#email", "unicode测试@example.com"); // Unicode content
+        browser->fillInput("#nonexistent", "value"); // Nonexistent element
     });
 }
 
 TEST_F(BrowserDOMTest, SelectOptionHandling) {
     // Test select option handling
     EXPECT_NO_THROW({
-        g_browser->selectOption("#country", "us");
-        g_browser->selectOption("#country", "uk");
-        g_browser->selectOption("#country", ""); // Reset to default
-        g_browser->selectOption("#country", "invalid"); // Invalid option
-        g_browser->selectOption("#nonexistent", "value"); // Nonexistent select
+        browser->selectOption("#country", "us");
+        browser->selectOption("#country", "uk");
+        browser->selectOption("#country", ""); // Reset to default
+        browser->selectOption("#country", "invalid"); // Invalid option
+        browser->selectOption("#nonexistent", "value"); // Nonexistent select
     });
 }
 
 TEST_F(BrowserDOMTest, CheckboxAndRadioHandling) {
     // Test checkbox and radio button operations
     EXPECT_NO_THROW({
-        g_browser->checkElement("#subscribe");
-        g_browser->uncheckElement("#subscribe");
-        g_browser->checkElement("#nonexistent"); // Nonexistent element
-        g_browser->uncheckElement("#nonexistent");
+        browser->checkElement("#subscribe");
+        browser->uncheckElement("#subscribe");
+        browser->checkElement("#nonexistent"); // Nonexistent element
+        browser->uncheckElement("#nonexistent");
     });
 }
 
@@ -242,23 +277,23 @@ TEST_F(BrowserDOMTest, CheckboxAndRadioHandling) {
 TEST_F(BrowserDOMTest, ElementClicking) {
     // Test clicking elements that exist in our loaded page
     EXPECT_NO_THROW({
-        g_browser->clickElement("#test-button");
-        g_browser->clickElement(".list-item");
+        browser->clickElement("#test-button");
+        browser->clickElement(".list-item");
     });
     
     // Test clicking non-existent elements (should handle gracefully)
     EXPECT_NO_THROW({
-        g_browser->clickElement("#nonexistent");
+        browser->clickElement("#nonexistent");
     });
 }
 
 TEST_F(BrowserDOMTest, ElementFocusing) {
     // Test element focusing
     EXPECT_NO_THROW({
-        g_browser->focusElement("#username");
-        g_browser->focusElement("#password");
-        g_browser->focusElement("#search-input");
-        g_browser->focusElement("#nonexistent"); // Nonexistent element
+        browser->focusElement("#username");
+        browser->focusElement("#password");
+        browser->focusElement("#search-input");
+        browser->focusElement("#nonexistent"); // Nonexistent element
     });
 }
 
@@ -267,20 +302,20 @@ TEST_F(BrowserDOMTest, ElementFocusing) {
 TEST_F(BrowserDOMTest, FormSubmission) {
     // Test form submission interface
     EXPECT_NO_THROW({
-        g_browser->submitForm("#test-form");
-        g_browser->submitForm("#search-form");
-        g_browser->submitForm(); // Default form submission
-        g_browser->submitForm("#nonexistent"); // Nonexistent form
+        browser->submitForm("#test-form");
+        browser->submitForm("#search-form");
+        browser->submitForm(); // Default form submission
+        browser->submitForm("#nonexistent"); // Nonexistent form
     });
 }
 
 TEST_F(BrowserDOMTest, SearchFormHandling) {
     // Test search form functionality
     EXPECT_NO_THROW({
-        g_browser->searchForm("test query");
-        g_browser->searchForm(""); // Empty query
-        g_browser->searchForm("unicode测试query");
-        g_browser->searchForm(std::string(1000, 'x')); // Very long query
+        browser->searchForm("test query");
+        browser->searchForm(""); // Empty query
+        browser->searchForm("unicode测试query");
+        browser->searchForm(std::string(1000, 'x')); // Very long query
     });
 }
 
@@ -289,22 +324,22 @@ TEST_F(BrowserDOMTest, SearchFormHandling) {
 TEST_F(BrowserDOMTest, AttributeGetting) {
     // Test attribute retrieval interface
     EXPECT_NO_THROW({
-        std::string value = g_browser->getAttribute("#username", "name");
-        std::string type = g_browser->getAttribute("#password", "type");
-        std::string placeholder = g_browser->getAttribute("#text-input", "placeholder");
-        std::string nonexistent = g_browser->getAttribute("#nonexistent", "value");
-        std::string invalid_attr = g_browser->getAttribute("#username", "");
+        std::string value = browser->getAttribute("#username", "name");
+        std::string type = browser->getAttribute("#password", "type");
+        std::string placeholder = browser->getAttribute("#text-input", "placeholder");
+        std::string nonexistent = browser->getAttribute("#nonexistent", "value");
+        std::string invalid_attr = browser->getAttribute("#username", "");
     });
 }
 
 TEST_F(BrowserDOMTest, AttributeSetting) {
     // Test attribute setting interface
     EXPECT_NO_THROW({
-        g_browser->setAttribute("#text-input", "value", "new value");
-        g_browser->setAttribute("#test-button", "disabled", "true");
-        g_browser->setAttribute("#dynamic-content", "style", "display: block;");
-        g_browser->setAttribute("#nonexistent", "value", "test"); // Nonexistent element
-        g_browser->setAttribute("#username", "", "value"); // Empty attribute name
+        browser->setAttribute("#text-input", "value", "new value");
+        browser->setAttribute("#test-button", "disabled", "true");
+        browser->setAttribute("#dynamic-content", "style", "display: block;");
+        browser->setAttribute("#nonexistent", "value", "test"); // Nonexistent element
+        browser->setAttribute("#username", "", "value"); // Empty attribute name
     });
 }
 
@@ -329,9 +364,9 @@ TEST_F(BrowserDOMTest, ComplexSelectorHandling) {
     
     for (const auto& selector : complex_selectors) {
         EXPECT_NO_THROW({
-            g_browser->elementExists(selector);
-            g_browser->clickElement(selector);
-            g_browser->getAttribute(selector, "id");
+            browser->elementExists(selector);
+            browser->clickElement(selector);
+            browser->getAttribute(selector, "id");
         });
     }
 }
@@ -350,8 +385,8 @@ TEST_F(BrowserDOMTest, XPathSelectorSupport) {
     
     for (const auto& xpath : xpath_selectors) {
         EXPECT_NO_THROW({
-            g_browser->elementExists(xpath);
-            g_browser->clickElement(xpath);
+            browser->elementExists(xpath);
+            browser->clickElement(xpath);
         });
     }
 }
@@ -374,9 +409,9 @@ TEST_F(BrowserDOMTest, RejectInvalidUrls) {
     
     for (const auto& selector : invalid_selectors) {
         EXPECT_NO_THROW({
-            g_browser->elementExists(selector);
-            g_browser->clickElement(selector);
-            g_browser->fillInput(selector, "value");
+            browser->elementExists(selector);
+            browser->clickElement(selector);
+            browser->fillInput(selector, "value");
         });
     }
 }
@@ -395,9 +430,9 @@ TEST_F(BrowserDOMTest, UnicodeContentHandling) {
     
     for (const auto& value : unicode_values) {
         EXPECT_NO_THROW({
-            g_browser->fillInput("#username", value);
-            g_browser->fillInput("#comments", value);
-            g_browser->searchForm(value);
+            browser->fillInput("#username", value);
+            browser->fillInput("#comments", value);
+            browser->searchForm(value);
         });
     }
 }
@@ -408,9 +443,9 @@ TEST_F(BrowserDOMTest, LargeContentHandling) {
     std::string very_large_text(100000, 'B');
     
     EXPECT_NO_THROW({
-        g_browser->fillInput("#comments", large_text);
-        g_browser->fillInput("#comments", very_large_text);
-        g_browser->searchForm(large_text);
+        browser->fillInput("#comments", large_text);
+        browser->fillInput("#comments", very_large_text);
+        browser->searchForm(large_text);
     });
 }
 
@@ -422,9 +457,9 @@ TEST_F(BrowserDOMTest, OperationTiming) {
     
     EXPECT_NO_THROW({
         for (int i = 0; i < 100; ++i) {
-            g_browser->elementExists("#test-button");
-            g_browser->getAttribute("#username", "name");
-            g_browser->fillInput("#search-input", "test" + std::to_string(i));
+            browser->elementExists("#test-button");
+            browser->getAttribute("#username", "name");
+            browser->fillInput("#search-input", "test" + std::to_string(i));
         }
     });
     
@@ -440,16 +475,16 @@ TEST_F(BrowserDOMTest, OperationTiming) {
 TEST_F(BrowserDOMTest, ConsistentStateHandling) {
     // Test that multiple operations maintain consistent state
     EXPECT_NO_THROW({
-        g_browser->fillInput("#username", "testuser");
-        std::string username = g_browser->getAttribute("#username", "value");
+        browser->fillInput("#username", "testuser");
+        std::string username = browser->getAttribute("#username", "value");
         
-        g_browser->selectOption("#country", "us");
-        std::string country = g_browser->getAttribute("#country", "value");
+        browser->selectOption("#country", "us");
+        std::string country = browser->getAttribute("#country", "value");
         
-        g_browser->checkElement("#subscribe");
-        std::string checked = g_browser->getAttribute("#subscribe", "checked");
+        browser->checkElement("#subscribe");
+        std::string checked = browser->getAttribute("#subscribe", "checked");
         
-        g_browser->focusElement("#password");
-        g_browser->fillInput("#password", "secure123");
+        browser->focusElement("#password");
+        browser->fillInput("#password", "secure123");
     });
 }
