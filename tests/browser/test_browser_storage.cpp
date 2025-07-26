@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 #include "Browser/Browser.h"
 #include "../utils/test_helpers.h"
+#include "browser_test_environment.h"
+#include "Debug.h"
 #include <thread>
 #include <chrono>
 #include <map>
@@ -8,22 +10,82 @@
 #include <fstream>
 #include <filesystem>
 
+extern std::unique_ptr<Browser> g_browser;
+
 using namespace std::chrono_literals;
 
 class BrowserStorageTest : public ::testing::Test {
 protected:
     void SetUp() override {
-        HWeb::HWebConfig test_config;
-        browser = std::make_unique<Browser>(test_config);
+        // CRITICAL FIX: Use global browser instance (properly initialized)
+        browser = g_browser.get();
         
         // Create temporary directory for HTML test files
         temp_dir = std::make_unique<TestHelpers::TemporaryDirectory>("storage_tests");
         
+        // Reset browser to clean state before each test
+        browser->loadUri("about:blank");
+        browser->waitForNavigation(2000);
+        
         // Load a simple HTML page for testing storage functionality
         setupTestPage();
         
-        // Wait for page to be ready
+        debug_output("BrowserStorageTest SetUp complete");
+    }
+    
+    // Generic JavaScript wrapper function for safe execution
+    std::string executeWrappedJS(const std::string& jsCode) {
+        std::string wrapped = "(function() { " + jsCode + " })()";
+        return browser->executeJavascriptSync(wrapped);
+    }
+    
+    // Enhanced page loading method based on successful BrowserMainTest approach
+    bool loadPageWithReadinessCheck(const std::string& url, const std::vector<std::string>& required_elements = {}) {
+        browser->loadUri(url);
+        
+        // Wait for navigation
+        bool nav_success = browser->waitForNavigation(5000);
+        if (!nav_success) return false;
+        
+        // Allow WebKit processing time
         std::this_thread::sleep_for(1000ms);
+        
+        // Check basic JavaScript execution with retry
+        for (int i = 0; i < 5; i++) {
+            std::string js_test = executeWrappedJS("return 'test';");
+            if (js_test == "test") break;
+            if (i == 4) return false;
+            std::this_thread::sleep_for(200ms);
+        }
+        
+        // Verify DOM is ready
+        for (int i = 0; i < 5; i++) {
+            std::string dom_check = executeWrappedJS("return document.readyState === 'complete';");
+            if (dom_check == "true") break;
+            if (i == 4) return false;
+            std::this_thread::sleep_for(200ms);
+        }
+        
+        // Check for required elements if specified
+        if (!required_elements.empty()) {
+            for (int i = 0; i < 5; i++) {
+                bool all_elements_ready = true;
+                for (const auto& element : required_elements) {
+                    std::string element_check = executeWrappedJS(
+                        "return document.querySelector('" + element + "') !== null;"
+                    );
+                    if (element_check != "true") {
+                        all_elements_ready = false;
+                        break;
+                    }
+                }
+                if (all_elements_ready) break;
+                if (i == 4) return false;
+                std::this_thread::sleep_for(200ms);
+            }
+        }
+        
+        return true;
     }
     
     void setupTestPage() {
@@ -80,16 +142,33 @@ protected:
 </html>
 )HTML";
         
-        // Create HTML file and load via file:// URL
+        // CRITICAL FIX: Use proven loadPageWithReadinessCheck approach
         test_html_file = temp_dir->createFile("storage_test.html", test_html);
         std::string file_url = "file://" + test_html_file.string();
-        browser->loadUri(file_url);
         
-        // Wait for page load
-        std::this_thread::sleep_for(1000ms);
+        std::vector<std::string> required_elements = {"#status", "h1"};
+        bool page_ready = loadPageWithReadinessCheck(file_url, required_elements);
+        if (!page_ready) {
+            debug_output("Storage test page failed to load and become ready");
+            return;
+        }
         
-        // Clear any existing storage - wait for clearing to complete
-        browser->executeJavascriptSync("clearAllStorage();");
+        // Wait for JavaScript functions to be available
+        for (int i = 0; i < 5; i++) {
+            std::string functions_check = executeWrappedJS(
+                "return typeof clearAllStorage === 'function' && "
+                "typeof updateStatus === 'function';"
+            );
+            if (functions_check == "true") break;
+            if (i == 4) {
+                debug_output("JavaScript functions not ready after retries");
+                return;
+            }
+            std::this_thread::sleep_for(300ms);
+        }
+        
+        // Clear any existing storage - use wrapper function
+        executeWrappedJS("clearAllStorage();");
         std::this_thread::sleep_for(200ms);
         
         // Verify storage is actually cleared
@@ -102,15 +181,14 @@ protected:
     }
 
     void TearDown() override {
+        // Clean up storage before ending test (don't destroy global browser)
         if (browser) {
-            // Clean up storage before destroying browser
-            browser->executeJavascriptSync("try { clearAllStorage(); } catch(e) {}");
+            executeWrappedJS("try { clearAllStorage(); } catch(e) {}");
         }
-        browser.reset();
         temp_dir.reset();
     }
 
-    std::unique_ptr<Browser> browser;
+    Browser* browser;  // Raw pointer to global browser instance
     std::unique_ptr<TestHelpers::TemporaryDirectory> temp_dir;
     std::filesystem::path test_html_file;
 };
