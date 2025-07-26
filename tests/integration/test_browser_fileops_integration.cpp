@@ -10,6 +10,7 @@
 #include <chrono>
 #include <filesystem>
 #include <fstream>
+#include <vector>
 
 extern std::unique_ptr<Browser> g_browser;
 
@@ -41,6 +42,55 @@ protected:
         setupFileOpsTestPage();
         
         debug_output("BrowserFileOpsIntegrationTest SetUp complete");
+    }
+    
+    // Enhanced page loading method based on successful BrowserMainTest approach
+    bool loadPageWithReadinessCheck(const std::string& url, const std::vector<std::string>& required_elements = {}) {
+        browser->loadUri(url);
+        
+        // Wait for navigation
+        bool nav_success = browser->waitForNavigation(5000);
+        if (!nav_success) return false;
+        
+        // Allow WebKit processing time
+        std::this_thread::sleep_for(1000ms);
+        
+        // Check basic JavaScript execution with retry
+        for (int i = 0; i < 5; i++) {
+            std::string js_test = executeWrappedJS("return 'test';");
+            if (js_test == "test") break;
+            if (i == 4) return false;
+            std::this_thread::sleep_for(200ms);
+        }
+        
+        // Verify DOM is ready
+        for (int i = 0; i < 5; i++) {
+            std::string dom_check = executeWrappedJS("return document.readyState === 'complete';");
+            if (dom_check == "true") break;
+            if (i == 4) return false;
+            std::this_thread::sleep_for(200ms);
+        }
+        
+        // Check for required elements if specified
+        if (!required_elements.empty()) {
+            for (int i = 0; i < 5; i++) {
+                bool all_elements_ready = true;
+                for (const auto& element : required_elements) {
+                    std::string element_check = executeWrappedJS(
+                        "return document.querySelector('" + element + "') !== null;"
+                    );
+                    if (element_check != "true") {
+                        all_elements_ready = false;
+                        break;
+                    }
+                }
+                if (all_elements_ready) break;
+                if (i == 4) return false;
+                std::this_thread::sleep_for(200ms);
+            }
+        }
+        
+        return true;
     }
     
     void createTestFiles() {
@@ -171,35 +221,31 @@ protected:
         std::string file_url = "file://" + html_file.string();
         
         debug_output("Loading FileOps test page: " + file_url);
-        browser->loadUri(file_url);
         
-        // Wait for navigation to complete
-        bool navigation_success = browser->waitForNavigation(10000);
-        if (!navigation_success) {
-            debug_output("Navigation failed for FileOps test page");
+        // CRITICAL FIX: Use proven loadPageWithReadinessCheck approach
+        std::vector<std::string> required_elements = {"#file-upload", "#upload-btn", "#download-link", "#upload-status"};
+        bool page_ready = loadPageWithReadinessCheck(file_url, required_elements);
+        if (!page_ready) {
+            debug_output("FileOps test page failed to load and become ready");
             return;
         }
         
-        // CRITICAL: Wait for JavaScript environment to be fully ready
-        std::string js_ready = executeWrappedJS(
-            "return document.readyState === 'complete' && "
-            "typeof simulateUpload === 'function' && "
-            "document.getElementById('file-upload') !== null;"
-        );
-        
-        if (js_ready != "true") {
-            debug_output("JavaScript environment not ready, waiting additional time...");
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-            
-            // Re-check JavaScript readiness
-            js_ready = executeWrappedJS(
-                "return document.readyState === 'complete' && "
-                "typeof simulateUpload === 'function' && "
-                "document.getElementById('file-upload') !== null;"
+        // Wait for JavaScript functions to be available
+        for (int i = 0; i < 5; i++) {
+            std::string functions_check = executeWrappedJS(
+                "return typeof simulateUpload === 'function' && "
+                "typeof simulateDownload === 'function' && "
+                "typeof updateDisplay === 'function';"
             );
+            if (functions_check == "true") break;
+            if (i == 4) {
+                debug_output("JavaScript functions not ready after retries");
+                return;
+            }
+            std::this_thread::sleep_for(200ms);
         }
         
-        debug_output("FileOps test page loaded - ready: " + js_ready);
+        debug_output("FileOps test page successfully loaded and ready");
     }
 
     void TearDown() override {
