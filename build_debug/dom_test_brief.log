@@ -1,0 +1,27 @@
+Starting HeadlessWeb Unit Tests
+=================================
+
+** (process:1214468): WARNING **: 09:22:08.703: webkit_settings_set_enable_offline_web_application_cache is deprecated and does nothing.
+/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_dom.cpp:205: Skipped
+Form elements not ready for testing
+
+/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_dom.cpp:25: Skipped
+Failed to load test page - DOM operations require loaded content
+
+JavaScript error: file:///tmp/browser_dom_tests_1753539731738_3200/test.html:1: SyntaxError: Unexpected end of script
+JavaScript error: file:///tmp/browser_dom_tests_1753539731738_3200/test.html:1: SyntaxError: Unexpected end of script
+JavaScript error: file:///tmp/browser_dom_tests_1753539731824_4484/test.html:1: SyntaxError: Unexpected end of script
+JavaScript error: file:///tmp/browser_dom_tests_1753539731957_9744/test.html:1: SyntaxError: Unexpected end of script
+JavaScript error: file:///tmp/browser_dom_tests_1753539731957_9744/test.html:1: SyntaxError: Unexpected end of script
+JavaScript error: file:///tmp/browser_dom_tests_1753539731957_9744/test.html:1: SyntaxError: Unexpected end of script
+JavaScript error: file:///tmp/browser_dom_tests_1753539731957_9744/test.html:1: SyntaxError: Unexpected end of script
+JavaScript error: file:///tmp/browser_dom_tests_1753539731957_9744/test.html:1: SyntaxError: Unexpected end of script
+JavaScript error: file:///tmp/browser_dom_tests_1753539731957_9744/test.html:1: SyntaxError: Unexpected end of script
+JavaScript error: file:///tmp/browser_dom_tests_1753539731957_9744/test.html:1: SyntaxError: Unexpected end of script
+JavaScript error: file:///tmp/browser_dom_tests_1753539731957_9744/test.html:1: SyntaxError: Unexpected end of script
+JavaScript error: file:///tmp/browser_dom_tests_1753539731957_9744/test.html:1: SyntaxError: Unexpected end of script
+[==========] 19 tests from 1 test suite ran. (29076 ms total)
+[  PASSED  ] 17 tests.
+[  SKIPPED ] 2 tests.
+
+All tests passed successfully!

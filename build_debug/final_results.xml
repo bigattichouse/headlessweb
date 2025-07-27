@@ -1,0 +1,1180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="562" failures="49" disabled="0" errors="0" time="568.448" timestamp="2025-07-26T15:11:14.106" name="AllTests">
+  <testsuite name="SessionTest" tests="38" failures="0" disabled="0" skipped="0" errors="0" time="1.001" timestamp="2025-07-26T15:11:14.152">
+    <testcase name="ConstructorSetsName" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session.cpp" line="23" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:14.152" classname="SessionTest" />
+    <testcase name="SetAndGetCurrentUrl" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session.cpp" line="27" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:14.152" classname="SessionTest" />
+    <testcase name="InitialHistoryIsEmpty" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session.cpp" line="34" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:14.152" classname="SessionTest" />
+    <testcase name="AddToHistoryUpdatesState" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session.cpp" line="41" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:14.152" classname="SessionTest" />
+    <testcase name="HistoryNavigationLogic" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session.cpp" line="52" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:14.152" classname="SessionTest" />
+    <testcase name="InitialCookiesEmpty" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session.cpp" line="75" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:14.152" classname="SessionTest" />
+    <testcase name="AddSingleCookie" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session.cpp" line="79" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:14.152" classname="SessionTest" />
+    <testcase name="SetMultipleCookies" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session.cpp" line="100" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:14.152" classname="SessionTest" />
+    <testcase name="ClearCookies" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session.cpp" line="119" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:14.152" classname="SessionTest" />
+    <testcase name="LocalStorageOperations" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session.cpp" line="133" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:14.152" classname="SessionTest" />
+    <testcase name="SessionStorageOperations" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session.cpp" line="145" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:14.152" classname="SessionTest" />
+    <testcase name="SetCompleteStorageMaps" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session.cpp" line="155" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:14.152" classname="SessionTest" />
+    <testcase name="FormFieldOperations" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session.cpp" line="172" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:14.152" classname="SessionTest" />
+    <testcase name="CheckboxFormField" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session.cpp" line="193" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:14.152" classname="SessionTest" />
+    <testcase name="ClearFormFields" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session.cpp" line="207" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:14.152" classname="SessionTest" />
+    <testcase name="ActiveElementsOperations" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session.cpp" line="220" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:14.152" classname="SessionTest" />
+    <testcase name="SetActiveElements" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session.cpp" line="233" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:14.152" classname="SessionTest" />
+    <testcase name="ScrollPositionOperations" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session.cpp" line="246" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:14.152" classname="SessionTest" />
+    <testcase name="DefaultScrollPosition" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session.cpp" line="262" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:14.152" classname="SessionTest" />
+    <testcase name="PageHashOperations" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session.cpp" line="270" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:14.152" classname="SessionTest" />
+    <testcase name="DocumentReadyState" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session.cpp" line="275" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:14.152" classname="SessionTest" />
+    <testcase name="ReadyConditionsOperations" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session.cpp" line="282" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:14.152" classname="SessionTest" />
+    <testcase name="ClearReadyConditions" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session.cpp" line="306" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:14.152" classname="SessionTest" />
+    <testcase name="ViewportOperations" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session.cpp" line="320" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:14.152" classname="SessionTest" />
+    <testcase name="UserAgentOperations" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session.cpp" line="330" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:14.152" classname="SessionTest" />
+    <testcase name="CustomVariableOperations" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session.cpp" line="338" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:14.152" classname="SessionTest" />
+    <testcase name="MultipleCustomVariables" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session.cpp" line="348" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:14.152" classname="SessionTest" />
+    <testcase name="StateExtractorOperations" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session.cpp" line="365" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:14.152" classname="SessionTest" />
+    <testcase name="ExtractedStateOperations" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session.cpp" line="377" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:14.152" classname="SessionTest" />
+    <testcase name="ActionRecordingOperations" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session.cpp" line="398" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:14.152" classname="SessionTest" />
+    <testcase name="ClearRecordedActions" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session.cpp" line="428" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:14.152" classname="SessionTest" />
+    <testcase name="LastAccessedOperations" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session.cpp" line="445" status="run" result="completed" time="1.001" timestamp="2025-07-26T15:11:14.152" classname="SessionTest" />
+    <testcase name="ApproximateSize" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session.cpp" line="458" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.153" classname="SessionTest" />
+    <testcase name="SerializationRoundTrip" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session.cpp" line="474" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.153" classname="SessionTest" />
+    <testcase name="SerializationWithComplexData" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session.cpp" line="510" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.153" classname="SessionTest" />
+    <testcase name="EmptyStringHandling" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session.cpp" line="566" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.154" classname="SessionTest" />
+    <testcase name="LargeDataHandling" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session.cpp" line="576" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.154" classname="SessionTest" />
+    <testcase name="UnicodeHandling" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session.cpp" line="594" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.154" classname="SessionTest" />
+  </testsuite>
+  <testsuite name="SessionManagerTest" tests="19" failures="0" disabled="0" skipped="0" errors="0" time="0.114" timestamp="2025-07-26T15:11:15.154">
+    <testcase name="ConstructorCreatesDirectory" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session_manager.cpp" line="31" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.154" classname="SessionManagerTest" />
+    <testcase name="LoadOrCreateNewSession" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session_manager.cpp" line="37" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.154" classname="SessionManagerTest" />
+    <testcase name="SaveAndLoadSession" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session_manager.cpp" line="47" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.154" classname="SessionManagerTest" />
+    <testcase name="SessionFileCreation" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session_manager.cpp" line="83" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.154" classname="SessionManagerTest" />
+    <testcase name="DeleteSession" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session_manager.cpp" line="110" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.155" classname="SessionManagerTest" />
+    <testcase name="DeleteNonexistentSession" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session_manager.cpp" line="127" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.155" classname="SessionManagerTest" />
+    <testcase name="ListEmptySessions" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session_manager.cpp" line="134" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.155" classname="SessionManagerTest" />
+    <testcase name="ListSingleSession" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session_manager.cpp" line="139" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.155" classname="SessionManagerTest" />
+    <testcase name="ListMultipleSessions" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session_manager.cpp" line="153" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.155" classname="SessionManagerTest" />
+    <testcase name="SessionSizeTracking" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session_manager.cpp" line="195" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.156" classname="SessionManagerTest" />
+    <testcase name="InvalidSessionNames" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session_manager.cpp" line="232" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.157" classname="SessionManagerTest" />
+    <testcase name="VeryLargeSession" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session_manager.cpp" line="247" status="run" result="completed" time="0.094" timestamp="2025-07-26T15:11:15.157" classname="SessionManagerTest" />
+    <testcase name="ConcurrentAccess" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session_manager.cpp" line="274" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.252" classname="SessionManagerTest" />
+    <testcase name="CorruptedSessionFile" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session_manager.cpp" line="291" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.252" classname="SessionManagerTest" />
+    <testcase name="ReadOnlyDirectory" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session_manager.cpp" line="304" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.253" classname="SessionManagerTest" />
+    <testcase name="SessionFileNaming" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session_manager.cpp" line="332" status="run" result="completed" time="0.001" timestamp="2025-07-26T15:11:15.253" classname="SessionManagerTest" />
+    <testcase name="NestedDirectoryCreation" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session_manager.cpp" line="360" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.255" classname="SessionManagerTest" />
+    <testcase name="SessionLastAccessedTime" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session_manager.cpp" line="376" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.255" classname="SessionManagerTest" />
+    <testcase name="ManySessionsPerformance" file="/home/bigattichouse/workspace/headlessweb/tests/session/test_session_manager.cpp" line="396" status="run" result="completed" time="0.013" timestamp="2025-07-26T15:11:15.255" classname="SessionManagerTest" />
+  </testsuite>
+  <testsuite name="AssertionTypesTest" tests="22" failures="0" disabled="0" skipped="0" errors="0" time="0.01" timestamp="2025-07-26T15:11:15.268">
+    <testcase name="ResultEnumValues" file="/home/bigattichouse/workspace/headlessweb/tests/assertion/test_assertion_types.cpp" line="18" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.268" classname="AssertionTypesTest" />
+    <testcase name="ComparisonOperatorEnumValues" file="/home/bigattichouse/workspace/headlessweb/tests/assertion/test_assertion_types.cpp" line="26" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.268" classname="AssertionTypesTest" />
+    <testcase name="CommandDefaultConstruction" file="/home/bigattichouse/workspace/headlessweb/tests/assertion/test_assertion_types.cpp" line="46" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.268" classname="AssertionTypesTest" />
+    <testcase name="CommandInitialization" file="/home/bigattichouse/workspace/headlessweb/tests/assertion/test_assertion_types.cpp" line="62" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.268" classname="AssertionTypesTest" />
+    <testcase name="CommandWithDifferentTypes" file="/home/bigattichouse/workspace/headlessweb/tests/assertion/test_assertion_types.cpp" line="85" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.268" classname="AssertionTypesTest" />
+    <testcase name="CommandWithComplexSelectors" file="/home/bigattichouse/workspace/headlessweb/tests/assertion/test_assertion_types.cpp" line="97" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.268" classname="AssertionTypesTest" />
+    <testcase name="TestResultDefaultConstruction" file="/home/bigattichouse/workspace/headlessweb/tests/assertion/test_assertion_types.cpp" line="118" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.268" classname="AssertionTypesTest" />
+    <testcase name="TestResultInitialization" file="/home/bigattichouse/workspace/headlessweb/tests/assertion/test_assertion_types.cpp" line="132" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.268" classname="AssertionTypesTest" />
+    <testcase name="TestResultWithAllResults" file="/home/bigattichouse/workspace/headlessweb/tests/assertion/test_assertion_types.cpp" line="153" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.268" classname="AssertionTypesTest" />
+    <testcase name="TestResultDurationHandling" file="/home/bigattichouse/workspace/headlessweb/tests/assertion/test_assertion_types.cpp" line="163" status="run" result="completed" time="0.01" timestamp="2025-07-26T15:11:15.268" classname="AssertionTypesTest" />
+    <testcase name="SuiteResultDefaultConstruction" file="/home/bigattichouse/workspace/headlessweb/tests/assertion/test_assertion_types.cpp" line="188" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.279" classname="AssertionTypesTest" />
+    <testcase name="SuiteResultInitialization" file="/home/bigattichouse/workspace/headlessweb/tests/assertion/test_assertion_types.cpp" line="200" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.279" classname="AssertionTypesTest" />
+    <testcase name="SuiteResultWithTestResults" file="/home/bigattichouse/workspace/headlessweb/tests/assertion/test_assertion_types.cpp" line="220" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.279" classname="AssertionTypesTest" />
+    <testcase name="SuiteResultStatisticsConsistency" file="/home/bigattichouse/workspace/headlessweb/tests/assertion/test_assertion_types.cpp" line="250" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.279" classname="AssertionTypesTest" />
+    <testcase name="EmptyStringHandling" file="/home/bigattichouse/workspace/headlessweb/tests/assertion/test_assertion_types.cpp" line="287" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.279" classname="AssertionTypesTest" />
+    <testcase name="LargeStringHandling" file="/home/bigattichouse/workspace/headlessweb/tests/assertion/test_assertion_types.cpp" line="301" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.279" classname="AssertionTypesTest" />
+    <testcase name="UnicodeStringHandling" file="/home/bigattichouse/workspace/headlessweb/tests/assertion/test_assertion_types.cpp" line="311" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.279" classname="AssertionTypesTest" />
+    <testcase name="SpecialCharacterHandling" file="/home/bigattichouse/workspace/headlessweb/tests/assertion/test_assertion_types.cpp" line="322" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.279" classname="AssertionTypesTest" />
+    <testcase name="ExtremeTimeoutValues" file="/home/bigattichouse/workspace/headlessweb/tests/assertion/test_assertion_types.cpp" line="346" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.279" classname="AssertionTypesTest" />
+    <testcase name="SuiteResultTimeCalculations" file="/home/bigattichouse/workspace/headlessweb/tests/assertion/test_assertion_types.cpp" line="364" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.279" classname="AssertionTypesTest" />
+    <testcase name="CommandCopyAndAssignment" file="/home/bigattichouse/workspace/headlessweb/tests/assertion/test_assertion_types.cpp" line="381" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.279" classname="AssertionTypesTest" />
+    <testcase name="TestResultCopyAndAssignment" file="/home/bigattichouse/workspace/headlessweb/tests/assertion/test_assertion_types.cpp" line="407" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.279" classname="AssertionTypesTest" />
+  </testsuite>
+  <testsuite name="OutputFormatterTest" tests="18" failures="0" disabled="0" skipped="0" errors="0" time="0." timestamp="2025-07-26T15:11:15.279">
+    <testcase name="FormatPassingTestResult" file="/home/bigattichouse/workspace/headlessweb/tests/assertion/test_output_formatter.cpp" line="51" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.279" classname="OutputFormatterTest" />
+    <testcase name="FormatFailingTestResult" file="/home/bigattichouse/workspace/headlessweb/tests/assertion/test_output_formatter.cpp" line="61" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.279" classname="OutputFormatterTest" />
+    <testcase name="FormatErrorTestResult" file="/home/bigattichouse/workspace/headlessweb/tests/assertion/test_output_formatter.cpp" line="73" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.279" classname="OutputFormatterTest" />
+    <testcase name="FormatTestResultAsJson" file="/home/bigattichouse/workspace/headlessweb/tests/assertion/test_output_formatter.cpp" line="85" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.279" classname="OutputFormatterTest" />
+    <testcase name="FormatErrorMessage" file="/home/bigattichouse/workspace/headlessweb/tests/assertion/test_output_formatter.cpp" line="110" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.279" classname="OutputFormatterTest" />
+    <testcase name="FormatErrorMessageAsJson" file="/home/bigattichouse/workspace/headlessweb/tests/assertion/test_output_formatter.cpp" line="118" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.279" classname="OutputFormatterTest" />
+    <testcase name="FormatBasicSuiteResult" file="/home/bigattichouse/workspace/headlessweb/tests/assertion/test_output_formatter.cpp" line="131" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.279" classname="OutputFormatterTest" />
+    <testcase name="FormatSuiteResultAsJson" file="/home/bigattichouse/workspace/headlessweb/tests/assertion/test_output_formatter.cpp" line="147" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.279" classname="OutputFormatterTest" />
+    <testcase name="FormatSuiteWithTestResults" file="/home/bigattichouse/workspace/headlessweb/tests/assertion/test_output_formatter.cpp" line="165" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.279" classname="OutputFormatterTest" />
+    <testcase name="FormatJUnitXMLBasic" file="/home/bigattichouse/workspace/headlessweb/tests/assertion/test_output_formatter.cpp" line="188" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.279" classname="OutputFormatterTest" />
+    <testcase name="FormatJUnitXMLWithErrors" file="/home/bigattichouse/workspace/headlessweb/tests/assertion/test_output_formatter.cpp" line="213" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.279" classname="OutputFormatterTest" />
+    <testcase name="FormatResultWithSpecialCharacters" file="/home/bigattichouse/workspace/headlessweb/tests/assertion/test_output_formatter.cpp" line="233" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.279" classname="OutputFormatterTest" />
+    <testcase name="FormatLongTestNames" file="/home/bigattichouse/workspace/headlessweb/tests/assertion/test_output_formatter.cpp" line="243" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.279" classname="OutputFormatterTest" />
+    <testcase name="FormatEmptySuite" file="/home/bigattichouse/workspace/headlessweb/tests/assertion/test_output_formatter.cpp" line="255" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.279" classname="OutputFormatterTest" />
+    <testcase name="FormatResultWithEmptyValues" file="/home/bigattichouse/workspace/headlessweb/tests/assertion/test_output_formatter.cpp" line="269" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.279" classname="OutputFormatterTest" />
+    <testcase name="FormatResultWithUnicodeCharacters" file="/home/bigattichouse/workspace/headlessweb/tests/assertion/test_output_formatter.cpp" line="282" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.279" classname="OutputFormatterTest" />
+    <testcase name="FormatDurationInResults" file="/home/bigattichouse/workspace/headlessweb/tests/assertion/test_output_formatter.cpp" line="295" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.279" classname="OutputFormatterTest" />
+    <testcase name="FormatSuiteDuration" file="/home/bigattichouse/workspace/headlessweb/tests/assertion/test_output_formatter.cpp" line="309" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.279" classname="OutputFormatterTest" />
+  </testsuite>
+  <testsuite name="FileOpsTypesTest" tests="30" failures="0" disabled="0" skipped="0" errors="0" time="0.003" timestamp="2025-07-26T15:11:15.279">
+    <testcase name="UploadResultEnumValues" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_types.cpp" line="37" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.279" classname="FileOpsTypesTest" />
+    <testcase name="DownloadResultEnumValues" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_types.cpp" line="50" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.279" classname="FileOpsTypesTest" />
+    <testcase name="WaitConditionEnumValues" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_types.cpp" line="60" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.279" classname="FileOpsTypesTest" />
+    <testcase name="ComparisonOperatorEnumValues" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_types.cpp" line="74" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.279" classname="FileOpsTypesTest" />
+    <testcase name="UploadCommandDefaultValues" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_types.cpp" line="87" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.279" classname="FileOpsTypesTest" />
+    <testcase name="UploadCommandCustomization" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_types.cpp" line="102" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.279" classname="FileOpsTypesTest" />
+    <testcase name="UploadCommandFileTypeValidation" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_types.cpp" line="127" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.279" classname="FileOpsTypesTest" />
+    <testcase name="UploadCommandAllowAllTypes" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_types.cpp" line="138" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.280" classname="FileOpsTypesTest" />
+    <testcase name="UploadCommandFileExtraction" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_types.cpp" line="148" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.280" classname="FileOpsTypesTest" />
+    <testcase name="DownloadCommandDefaultValues" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_types.cpp" line="162" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.280" classname="FileOpsTypesTest" />
+    <testcase name="DownloadCommandCustomization" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_types.cpp" line="175" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.280" classname="FileOpsTypesTest" />
+    <testcase name="DownloadCommandPatternMatching" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_types.cpp" line="198" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.280" classname="FileOpsTypesTest" />
+    <testcase name="DownloadCommandPatternTypes" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_types.cpp" line="218" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.280" classname="FileOpsTypesTest" />
+    <testcase name="WaitCommandDefaultValues" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_types.cpp" line="242" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.280" classname="FileOpsTypesTest" />
+    <testcase name="WaitCommandCustomization" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_types.cpp" line="257" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.280" classname="FileOpsTypesTest" />
+    <testcase name="WaitCommandValidation" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_types.cpp" line="284" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.280" classname="FileOpsTypesTest" />
+    <testcase name="FileInfoCreation" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_types.cpp" line="312" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.280" classname="FileOpsTypesTest" />
+    <testcase name="FileInfoNonexistentFile" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_types.cpp" line="326" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.280" classname="FileOpsTypesTest" />
+    <testcase name="FileInfoSizeString" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_types.cpp" line="338" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.280" classname="FileOpsTypesTest" />
+    <testcase name="FileInfoAgeCheck" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_types.cpp" line="357" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.281" classname="FileOpsTypesTest" />
+    <testcase name="DownloadProgressCalculations" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_types.cpp" line="374" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.281" classname="FileOpsTypesTest" />
+    <testcase name="DownloadProgressZeroSize" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_types.cpp" line="390" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.281" classname="FileOpsTypesTest" />
+    <testcase name="DownloadProgressStability" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_types.cpp" line="400" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.281" classname="FileOpsTypesTest" />
+    <testcase name="NetworkRequestLifecycle" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_types.cpp" line="413" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.281" classname="FileOpsTypesTest" />
+    <testcase name="NetworkStateManagement" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_types.cpp" line="436" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.282" classname="FileOpsTypesTest" />
+    <testcase name="NetworkStateIdleDetection" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_types.cpp" line="461" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.282" classname="FileOpsTypesTest" />
+    <testcase name="ResultToStringConversions" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_types.cpp" line="478" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.282" classname="FileOpsTypesTest" />
+    <testcase name="ValidationUtilities" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_types.cpp" line="496" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.282" classname="FileOpsTypesTest" />
+    <testcase name="PlatformUtilities" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_types.cpp" line="524" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.282" classname="FileOpsTypesTest" />
+    <testcase name="TimeUtilities" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_types.cpp" line="539" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.282" classname="FileOpsTypesTest" />
+  </testsuite>
+  <testsuite name="PathUtilsTest" tests="54" failures="0" disabled="0" skipped="0" errors="0" time="0.011" timestamp="2025-07-26T15:11:15.282">
+    <testcase name="NormalizePathBasic" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="37" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.282" classname="PathUtilsTest" />
+    <testcase name="NormalizePathWithDots" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="44" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.282" classname="PathUtilsTest" />
+    <testcase name="NormalizePathWindows" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="51" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.283" classname="PathUtilsTest" />
+    <testcase name="ToAbsolutePath" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="63" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.283" classname="PathUtilsTest" />
+    <testcase name="ToAbsolutePathAlreadyAbsolute" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="71" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.283" classname="PathUtilsTest" />
+    <testcase name="GetFileName" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="80" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.283" classname="PathUtilsTest" />
+    <testcase name="GetDirectory" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="87" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.283" classname="PathUtilsTest" />
+    <testcase name="GetExtension" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="93" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.284" classname="PathUtilsTest" />
+    <testcase name="JoinPaths" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="101" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.284" classname="PathUtilsTest" />
+    <testcase name="JoinPathsWithEmpty" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="110" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.284" classname="PathUtilsTest" />
+    <testcase name="JoinPathsEmpty" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="118" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.284" classname="PathUtilsTest" />
+    <testcase name="GetDefaultDownloadDirectory" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="127" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.285" classname="PathUtilsTest" />
+    <testcase name="GetHomeDirectory" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="137" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.285" classname="PathUtilsTest" />
+    <testcase name="GetTempDirectory" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="145" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.285" classname="PathUtilsTest" />
+    <testcase name="CreateDirectoriesIfNeeded" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="153" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.285" classname="PathUtilsTest" />
+    <testcase name="CreateDirectoriesIfNeededAlreadyExists" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="163" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.286" classname="PathUtilsTest" />
+    <testcase name="ExistsFile" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="171" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.286" classname="PathUtilsTest" />
+    <testcase name="IsFile" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="176" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.286" classname="PathUtilsTest" />
+    <testcase name="IsDirectory" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="182" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.286" classname="PathUtilsTest" />
+    <testcase name="IsReadable" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="188" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.286" classname="PathUtilsTest" />
+    <testcase name="IsWritable" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="193" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.287" classname="PathUtilsTest" />
+    <testcase name="GetFileSize" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="198" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.287" classname="PathUtilsTest" />
+    <testcase name="GetFileSizeNonExistent" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="205" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.287" classname="PathUtilsTest" />
+    <testcase name="GetModificationTime" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="211" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.287" classname="PathUtilsTest" />
+    <testcase name="IsSecurePathValid" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="219" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.287" classname="PathUtilsTest" />
+    <testcase name="IsSecurePathDangerous" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="224" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.288" classname="PathUtilsTest" />
+    <testcase name="SanitizeFileName" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="236" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.288" classname="PathUtilsTest" />
+    <testcase name="IsValidPathLength" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="248" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.288" classname="PathUtilsTest" />
+    <testcase name="IsAllowedFileType" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="256" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.288" classname="PathUtilsTest" />
+    <testcase name="IsAllowedFileTypeWildcard" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="264" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.288" classname="PathUtilsTest" />
+    <testcase name="FindFilesMatchingPattern" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="273" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.289" classname="PathUtilsTest" />
+    <testcase name="MatchesGlobPattern" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="288" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.289" classname="PathUtilsTest" />
+    <testcase name="MatchesRegexPattern" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="295" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.289" classname="PathUtilsTest" />
+    <testcase name="IsGlobPattern" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="300" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.290" classname="PathUtilsTest" />
+    <testcase name="IsRegexPattern" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="307" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.290" classname="PathUtilsTest" />
+    <testcase name="CopyFile" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="315" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.290" classname="PathUtilsTest" />
+    <testcase name="CopyFileNonExistent" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="325" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.290" classname="PathUtilsTest" />
+    <testcase name="MoveFile" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="333" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.290" classname="PathUtilsTest" />
+    <testcase name="DeleteFile" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="344" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.291" classname="PathUtilsTest" />
+    <testcase name="DeleteFileNonExistent" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="353" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.291" classname="PathUtilsTest" />
+    <testcase name="CreateEmptyFile" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="359" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.291" classname="PathUtilsTest" />
+    <testcase name="FormatFileSize" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="371" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.291" classname="PathUtilsTest" />
+    <testcase name="PathToUri" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="378" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.291" classname="PathUtilsTest" />
+    <testcase name="UriToPath" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="386" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.292" classname="PathUtilsTest" />
+    <testcase name="GenerateUniqueFileName" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="394" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.292" classname="PathUtilsTest" />
+    <testcase name="EscapeForShell" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="404" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.292" classname="PathUtilsTest" />
+    <testcase name="GetPathSeparator" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="414" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.292" classname="PathUtilsTest" />
+    <testcase name="IsValidFileNameChar" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="424" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.292" classname="PathUtilsTest" />
+    <testcase name="GetForbiddenChars" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="435" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.293" classname="PathUtilsTest" />
+    <testcase name="GlobToRegex" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="444" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.293" classname="PathUtilsTest" />
+    <testcase name="GetPlatformType" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="453" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.293" classname="PathUtilsTest" />
+    <testcase name="HandleEmptyPaths" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="462" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.293" classname="PathUtilsTest" />
+    <testcase name="HandleUnicodePaths" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="469" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.293" classname="PathUtilsTest" />
+    <testcase name="HandleVeryLongPaths" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_path_utils.cpp" line="478" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.294" classname="PathUtilsTest" />
+  </testsuite>
+  <testsuite name="UploadValidationTest" tests="6" failures="0" disabled="0" skipped="0" errors="0" time="0.003" timestamp="2025-07-26T15:11:15.294">
+    <testcase name="ValidateExistingFile" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp" line="287" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.294" classname="UploadValidationTest" />
+    <testcase name="ValidateNonExistentFile" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp" line="295" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.295" classname="UploadValidationTest" />
+    <testcase name="ValidateFileSize" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp" line="303" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.295" classname="UploadValidationTest" />
+    <testcase name="ValidateFileTypeAllowed" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp" line="313" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.296" classname="UploadValidationTest" />
+    <testcase name="ValidateFileTypeRestricted" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp" line="323" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.296" classname="UploadValidationTest" />
+    <testcase name="ValidateFileTypeWildcard" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp" line="333" status="run" result="completed" time="0." timestamp="2025-07-26T15:11:15.297" classname="UploadValidationTest" />
+  </testsuite>
+  <testsuite name="UploadManagerTest" tests="38" failures="0" disabled="0" skipped="3" errors="0" time="58.577" timestamp="2025-07-26T15:11:15.297">
+    <testcase name="ValidateUploadTargetExists" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp" line="343" status="run" result="completed" time="1.687" timestamp="2025-07-26T15:11:15.297" classname="UploadManagerTest" />
+    <testcase name="ValidateUploadTargetNotExists" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp" line="395" status="run" result="completed" time="1.52" timestamp="2025-07-26T15:11:16.985" classname="UploadManagerTest" />
+    <testcase name="PrepareValidFile" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp" line="408" status="run" result="completed" time="1.521" timestamp="2025-07-26T15:11:18.505" classname="UploadManagerTest" />
+    <testcase name="PrepareNonExistentFile" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp" line="418" status="run" result="completed" time="1.518" timestamp="2025-07-26T15:11:20.026" classname="UploadManagerTest" />
+    <testcase name="DetectMimeTypeByExtension" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp" line="426" status="run" result="completed" time="1.521" timestamp="2025-07-26T15:11:21.545" classname="UploadManagerTest" />
+    <testcase name="SanitizeFileName" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp" line="434" status="run" result="completed" time="1.517" timestamp="2025-07-26T15:11:23.066" classname="UploadManagerTest" />
+    <testcase name="SimulateFileSelection" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp" line="444" status="run" result="completed" time="1.528" timestamp="2025-07-26T15:11:24.584" classname="UploadManagerTest" />
+    <testcase name="TriggerFileInputEvents" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp" line="455" status="run" result="completed" time="1.52" timestamp="2025-07-26T15:11:26.112" classname="UploadManagerTest" />
+    <testcase name="SimulateFileDrop" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp" line="461" status="run" result="completed" time="1.522" timestamp="2025-07-26T15:11:27.633" classname="UploadManagerTest" />
+    <testcase name="WaitForUploadCompletion" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp" line="473" status="run" result="completed" time="1.517" timestamp="2025-07-26T15:11:29.155" classname="UploadManagerTest" />
+    <testcase name="MonitorUploadProgress" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp" line="485" status="run" result="completed" time="1.521" timestamp="2025-07-26T15:11:30.673" classname="UploadManagerTest" />
+    <testcase name="VerifyUploadSuccess" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp" line="499" status="run" result="completed" time="1.523" timestamp="2025-07-26T15:11:32.194" classname="UploadManagerTest" />
+    <testcase name="UploadMultipleFiles" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp" line="512" status="run" result="completed" time="1.721" timestamp="2025-07-26T15:11:33.718" classname="UploadManagerTest" />
+    <testcase name="UploadMultipleFilesWithMissing" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp" line="523" status="run" result="completed" time="1.522" timestamp="2025-07-26T15:11:35.439" classname="UploadManagerTest" />
+    <testcase name="UploadWithRetrySuccess" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp" line="536" status="run" result="completed" time="1.519" timestamp="2025-07-26T15:11:36.962" classname="UploadManagerTest" />
+    <testcase name="UploadWithRetryTimeout" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp" line="547" status="run" result="completed" time="1.509" timestamp="2025-07-26T15:11:38.481" classname="UploadManagerTest" />
+    <testcase name="ClearUploadState" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp" line="556" status="run" result="completed" time="1.521" timestamp="2025-07-26T15:11:39.991" classname="UploadManagerTest" />
+    <testcase name="GetErrorMessage" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp" line="565" status="run" result="completed" time="1.522" timestamp="2025-07-26T15:11:41.512" classname="UploadManagerTest" />
+    <testcase name="SetDefaultTimeout" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp" line="574" status="run" result="completed" time="1.513" timestamp="2025-07-26T15:11:43.034" classname="UploadManagerTest" />
+    <testcase name="SetMaxFileSize" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp" line="581" status="run" result="completed" time="1.52" timestamp="2025-07-26T15:11:44.548" classname="UploadManagerTest" />
+    <testcase name="SetProgressMonitoringEnabled" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp" line="592" status="run" result="completed" time="1.713" timestamp="2025-07-26T15:11:46.069" classname="UploadManagerTest" />
+    <testcase name="GetCommonFileInputSelectors" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp" line="600" status="run" result="completed" time="1.521" timestamp="2025-07-26T15:11:47.783" classname="UploadManagerTest" />
+    <testcase name="HasFileInputs" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp" line="607" status="run" result="completed" time="1.523" timestamp="2025-07-26T15:11:49.305" classname="UploadManagerTest" />
+    <testcase name="FindFileInputs" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp" line="616" status="run" result="completed" time="1.527" timestamp="2025-07-26T15:11:50.828" classname="UploadManagerTest" />
+    <testcase name="UploadResultToString" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp" line="626" status="run" result="completed" time="1.518" timestamp="2025-07-26T15:11:52.356" classname="UploadManagerTest" />
+    <testcase name="UploadEmptyFile" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp" line="636" status="run" result="completed" time="1.52" timestamp="2025-07-26T15:11:53.874" classname="UploadManagerTest" />
+    <testcase name="UploadFileWithSpecialCharacters" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp" line="645" status="run" result="completed" time="1.522" timestamp="2025-07-26T15:11:55.395" classname="UploadManagerTest" />
+    <testcase name="UploadWithInvalidSelector" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp" line="656" status="run" result="completed" time="1.521" timestamp="2025-07-26T15:11:56.917" classname="UploadManagerTest" />
+    <testcase name="EndToEndUploadWorkflow" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp" line="667" status="run" result="completed" time="1.528" timestamp="2025-07-26T15:11:58.439" classname="UploadManagerTest" />
+    <testcase name="BrowserPageInteraction" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp" line="692" status="run" result="completed" time="1.719" timestamp="2025-07-26T15:11:59.967" classname="UploadManagerTest" />
+    <testcase name="EnhancedFileValidation" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp" line="703" status="run" result="completed" time="1.521" timestamp="2025-07-26T15:12:01.687" classname="UploadManagerTest" />
+    <testcase name="EnhancedMimeTypeDetection" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp" line="725" status="run" result="completed" time="1.523" timestamp="2025-07-26T15:12:03.208" classname="UploadManagerTest" />
+    <testcase name="Base64Encoding" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp" line="750" status="run" result="skipped" time="1.521" timestamp="2025-07-26T15:12:04.732" classname="UploadManagerTest">
+      <skipped message="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp:753&#x0A;Base64 encoding method is private&#x0A;"><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp:753
+Base64 encoding method is private
+]]></skipped>
+    </testcase>
+    <testcase name="JavaScriptGeneration" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp" line="756" status="run" result="skipped" time="1.521" timestamp="2025-07-26T15:12:06.254" classname="UploadManagerTest">
+      <skipped message="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp:759&#x0A;JavaScript generation method is private&#x0A;"><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp:759
+JavaScript generation method is private
+]]></skipped>
+    </testcase>
+    <testcase name="JavaScriptEscaping" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp" line="762" status="run" result="skipped" time="1.529" timestamp="2025-07-26T15:12:07.776" classname="UploadManagerTest">
+      <skipped message="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp:765&#x0A;JavaScript escaping method is private&#x0A;"><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp:765
+JavaScript escaping method is private
+]]></skipped>
+    </testcase>
+    <testcase name="EnhancedFileSimulation" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp" line="768" status="run" result="completed" time="1.527" timestamp="2025-07-26T15:12:09.305" classname="UploadManagerTest" />
+    <testcase name="FilePreparationWithMetadata" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp" line="780" status="run" result="completed" time="1.521" timestamp="2025-07-26T15:12:10.833" classname="UploadManagerTest" />
+    <testcase name="SecurityValidation" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp" line="798" status="run" result="completed" time="1.52" timestamp="2025-07-26T15:12:12.354" classname="UploadManagerTest" />
+  </testsuite>
+  <testsuite name="DownloadManagerTest" tests="47" failures="0" disabled="0" skipped="1" errors="0" time="25.006" timestamp="2025-07-26T15:12:13.875">
+    <testcase name="GetDownloadDirectory" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="100" status="run" result="completed" time="0.2" timestamp="2025-07-26T15:12:13.875" classname="DownloadManagerTest" />
+    <testcase name="SetDownloadDirectory_ValidDirectory" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="105" status="run" result="completed" time="0.2" timestamp="2025-07-26T15:12:14.075" classname="DownloadManagerTest" />
+    <testcase name="SetDownloadDirectory_NonExistentDirectory" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="113" status="run" result="completed" time="0.201" timestamp="2025-07-26T15:12:14.276" classname="DownloadManagerTest" />
+    <testcase name="EnsureDownloadDirectoryExists" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="120" status="run" result="completed" time="0.2" timestamp="2025-07-26T15:12:14.478" classname="DownloadManagerTest" />
+    <testcase name="GetPotentialDownloadDirectories" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="127" status="run" result="completed" time="0.2" timestamp="2025-07-26T15:12:14.679" classname="DownloadManagerTest" />
+    <testcase name="FindMatchingFiles_ExactMatch" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="141" status="run" result="completed" time="0.201" timestamp="2025-07-26T15:12:14.880" classname="DownloadManagerTest" />
+    <testcase name="FindMatchingFiles_GlobPattern" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="150" status="run" result="completed" time="0.201" timestamp="2025-07-26T15:12:15.081" classname="DownloadManagerTest" />
+    <testcase name="FileMatchesPattern_ExactMatch" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="159" status="run" result="completed" time="0.2" timestamp="2025-07-26T15:12:15.283" classname="DownloadManagerTest" />
+    <testcase name="FileMatchesPattern_GlobPattern" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="164" status="run" result="completed" time="0.2" timestamp="2025-07-26T15:12:15.483" classname="DownloadManagerTest" />
+    <testcase name="GetMostRecentMatchingFile" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="170" status="run" result="completed" time="0.301" timestamp="2025-07-26T15:12:15.684" classname="DownloadManagerTest" />
+    <testcase name="IsGlobPattern" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="181" status="run" result="completed" time="0.2" timestamp="2025-07-26T15:12:15.986" classname="DownloadManagerTest" />
+    <testcase name="IsRegexPattern" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="188" status="run" result="completed" time="0.2" timestamp="2025-07-26T15:12:16.186" classname="DownloadManagerTest" />
+    <testcase name="GlobToRegex" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="193" status="run" result="completed" time="0.2" timestamp="2025-07-26T15:12:16.387" classname="DownloadManagerTest" />
+    <testcase name="IsBrowserTempFile" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="202" status="run" result="completed" time="0.2" timestamp="2025-07-26T15:12:16.588" classname="DownloadManagerTest" />
+    <testcase name="ResolveBrowserTempFile" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="211" status="run" result="completed" time="0.2" timestamp="2025-07-26T15:12:16.789" classname="DownloadManagerTest" />
+    <testcase name="GetBrowserDownloadPatterns" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="218" status="run" result="completed" time="0.2" timestamp="2025-07-26T15:12:16.989" classname="DownloadManagerTest" />
+    <testcase name="IsFileSizeStable_StableFile" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="236" status="run" result="completed" time="0.704" timestamp="2025-07-26T15:12:17.190" classname="DownloadManagerTest" />
+    <testcase name="IsFileSizeStable_ChangingFile" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="246" status="run" result="skipped" time="0.2" timestamp="2025-07-26T15:12:17.895" classname="DownloadManagerTest">
+      <skipped message="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp:252&#x0A;Timing-dependent test skipped - covered by integration tests&#x0A;"><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp:252
+Timing-dependent test skipped - covered by integration tests
+]]></skipped>
+    </testcase>
+    <testcase name="IsDownloadInProgress_RegularFile" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="255" status="run" result="completed" time="0.3" timestamp="2025-07-26T15:12:18.096" classname="DownloadManagerTest" />
+    <testcase name="IsDownloadInProgress_TempFile" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="261" status="run" result="completed" time="0.2" timestamp="2025-07-26T15:12:18.396" classname="DownloadManagerTest" />
+    <testcase name="WaitForDownloadCompletion_ImmediateComplete" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="267" status="run" result="completed" time="2.207" timestamp="2025-07-26T15:12:18.597" classname="DownloadManagerTest" />
+    <testcase name="WaitForDownloadCompletion_DelayedComplete" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="277" status="run" result="completed" time="2.709" timestamp="2025-07-26T15:12:20.805" classname="DownloadManagerTest" />
+    <testcase name="WaitForDownloadCompletion_Timeout" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="287" status="run" result="completed" time="0.705" timestamp="2025-07-26T15:12:23.515" classname="DownloadManagerTest" />
+    <testcase name="VerifyDownloadIntegrity_ValidFile" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="297" status="run" result="completed" time="0.2" timestamp="2025-07-26T15:12:24.220" classname="DownloadManagerTest" />
+    <testcase name="VerifyDownloadIntegrity_WrongSize" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="308" status="run" result="completed" time="0.201" timestamp="2025-07-26T15:12:24.421" classname="DownloadManagerTest" />
+    <testcase name="VerifyDownloadIntegrity_NonExistentFile" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="318" status="run" result="completed" time="0.2" timestamp="2025-07-26T15:12:24.622" classname="DownloadManagerTest" />
+    <testcase name="VerifyDownloadIntegrity_ZeroByteFile" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="326" status="run" result="completed" time="0.2" timestamp="2025-07-26T15:12:24.823" classname="DownloadManagerTest" />
+    <testcase name="GetDownloadProgress_ValidFile" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="338" status="run" result="completed" time="0.201" timestamp="2025-07-26T15:12:25.024" classname="DownloadManagerTest" />
+    <testcase name="GetDownloadProgress_NonExistentFile" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="348" status="run" result="completed" time="0.2" timestamp="2025-07-26T15:12:25.225" classname="DownloadManagerTest" />
+    <testcase name="GetDownloadStatistics" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="356" status="run" result="completed" time="0.2" timestamp="2025-07-26T15:12:25.425" classname="DownloadManagerTest" />
+    <testcase name="SetDefaultTimeout" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="365" status="run" result="completed" time="0.201" timestamp="2025-07-26T15:12:25.626" classname="DownloadManagerTest" />
+    <testcase name="SetStabilityCheckDuration" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="371" status="run" result="completed" time="0.2" timestamp="2025-07-26T15:12:25.827" classname="DownloadManagerTest" />
+    <testcase name="SetIntegrityVerificationEnabled" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="376" status="run" result="completed" time="0.2" timestamp="2025-07-26T15:12:26.028" classname="DownloadManagerTest" />
+    <testcase name="SetPollingInterval" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="388" status="run" result="completed" time="0.2" timestamp="2025-07-26T15:12:26.229" classname="DownloadManagerTest" />
+    <testcase name="DownloadResultToString" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="395" status="run" result="completed" time="0.2" timestamp="2025-07-26T15:12:26.430" classname="DownloadManagerTest" />
+    <testcase name="GetErrorMessage" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="401" status="run" result="completed" time="0.2" timestamp="2025-07-26T15:12:26.630" classname="DownloadManagerTest" />
+    <testcase name="SetDownloadCompletionHook" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="409" status="run" result="completed" time="0.2" timestamp="2025-07-26T15:12:26.831" classname="DownloadManagerTest" />
+    <testcase name="CreateAndCheckDownloadManifest" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="444" status="run" result="completed" time="0.201" timestamp="2025-07-26T15:12:27.032" classname="DownloadManagerTest" />
+    <testcase name="StartPollingFileMonitor_FileFound" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="456" status="run" result="completed" time="0.401" timestamp="2025-07-26T15:12:27.233" classname="DownloadManagerTest" />
+    <testcase name="StartPollingFileMonitor_Timeout" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="482" status="run" result="completed" time="0.703" timestamp="2025-07-26T15:12:27.635" classname="DownloadManagerTest" />
+    <testcase name="IsNativeFileWatchingAvailable" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="503" status="run" result="completed" time="0.2" timestamp="2025-07-26T15:12:28.338" classname="DownloadManagerTest" />
+    <testcase name="WaitForDownload_ExistingFile" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="515" status="run" result="completed" time="0.2" timestamp="2025-07-26T15:12:28.538" classname="DownloadManagerTest" />
+    <testcase name="WaitForDownload_NewFile" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="528" status="run" result="completed" time="4.22" timestamp="2025-07-26T15:12:28.739" classname="DownloadManagerTest" />
+    <testcase name="WaitForDownload_DirectoryNotFound" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="542" status="run" result="completed" time="0.2" timestamp="2025-07-26T15:12:32.960" classname="DownloadManagerTest" />
+    <testcase name="WaitForMultipleDownloads_Success" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="552" status="run" result="completed" time="4.817" timestamp="2025-07-26T15:12:33.160" classname="DownloadManagerTest" />
+    <testcase name="WaitForMultipleDownloads_Timeout" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="568" status="run" result="completed" time="0.702" timestamp="2025-07-26T15:12:37.978" classname="DownloadManagerTest" />
+    <testcase name="EnhancedBrowserTempFileDetection" file="/home/bigattichouse/workspace/headlessweb/tests/fileops/test_download_manager.cpp" line="582" status="run" result="completed" time="0.2" timestamp="2025-07-26T15:12:38.681" classname="DownloadManagerTest" />
+  </testsuite>
+  <testsuite name="CommandParsingTest" tests="11" failures="0" disabled="0" skipped="0" errors="0" time="0." timestamp="2025-07-26T15:12:38.882">
+    <testcase name="BasicArgumentParsing" file="/home/bigattichouse/workspace/headlessweb/tests/main/test_command_parsing.cpp" line="55" status="run" result="completed" time="0." timestamp="2025-07-26T15:12:38.882" classname="CommandParsingTest" />
+    <testcase name="URLValidation" file="/home/bigattichouse/workspace/headlessweb/tests/main/test_command_parsing.cpp" line="75" status="run" result="completed" time="0." timestamp="2025-07-26T15:12:38.882" classname="CommandParsingTest" />
+    <testcase name="SessionNameValidation" file="/home/bigattichouse/workspace/headlessweb/tests/main/test_command_parsing.cpp" line="99" status="run" result="completed" time="0." timestamp="2025-07-26T15:12:38.882" classname="CommandParsingTest" />
+    <testcase name="CommandStructureValidation" file="/home/bigattichouse/workspace/headlessweb/tests/main/test_command_parsing.cpp" line="128" status="run" result="completed" time="0." timestamp="2025-07-26T15:12:38.882" classname="CommandParsingTest" />
+    <testcase name="InvalidCommandStructures" file="/home/bigattichouse/workspace/headlessweb/tests/main/test_command_parsing.cpp" line="142" status="run" result="completed" time="0." timestamp="2025-07-26T15:12:38.882" classname="CommandParsingTest" />
+    <testcase name="OptionParsing" file="/home/bigattichouse/workspace/headlessweb/tests/main/test_command_parsing.cpp" line="159" status="run" result="completed" time="0." timestamp="2025-07-26T15:12:38.882" classname="CommandParsingTest" />
+    <testcase name="ErrorHandling" file="/home/bigattichouse/workspace/headlessweb/tests/main/test_command_parsing.cpp" line="209" status="run" result="completed" time="0." timestamp="2025-07-26T15:12:38.882" classname="CommandParsingTest" />
+    <testcase name="UsageInformation" file="/home/bigattichouse/workspace/headlessweb/tests/main/test_command_parsing.cpp" line="229" status="run" result="completed" time="0." timestamp="2025-07-26T15:12:38.882" classname="CommandParsingTest" />
+    <testcase name="DefaultConfiguration" file="/home/bigattichouse/workspace/headlessweb/tests/main/test_command_parsing.cpp" line="252" status="run" result="completed" time="0." timestamp="2025-07-26T15:12:38.882" classname="CommandParsingTest" />
+    <testcase name="CommandExecutionPatterns" file="/home/bigattichouse/workspace/headlessweb/tests/main/test_command_parsing.cpp" line="275" status="run" result="completed" time="0." timestamp="2025-07-26T15:12:38.882" classname="CommandParsingTest" />
+    <testcase name="SecurityValidation" file="/home/bigattichouse/workspace/headlessweb/tests/main/test_command_parsing.cpp" line="307" status="run" result="completed" time="0." timestamp="2025-07-26T15:12:38.882" classname="CommandParsingTest" />
+  </testsuite>
+  <testsuite name="OutputTest" tests="6" failures="0" disabled="0" skipped="0" errors="0" time="0." timestamp="2025-07-26T15:12:38.882">
+    <testcase name="InfoOutputInNormalMode" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_output.cpp" line="27" status="run" result="completed" time="0." timestamp="2025-07-26T15:12:38.882" classname="OutputTest" />
+    <testcase name="InfoOutputInSilentMode" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_output.cpp" line="33" status="run" result="completed" time="0." timestamp="2025-07-26T15:12:38.882" classname="OutputTest" />
+    <testcase name="ErrorOutputAlwaysShows" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_output.cpp" line="40" status="run" result="completed" time="0." timestamp="2025-07-26T15:12:38.882" classname="OutputTest" />
+    <testcase name="ModeGettersSetters" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_output.cpp" line="47" status="run" result="completed" time="0." timestamp="2025-07-26T15:12:38.882" classname="OutputTest" />
+    <testcase name="FormatErrorWithContext" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_output.cpp" line="58" status="run" result="completed" time="0." timestamp="2025-07-26T15:12:38.882" classname="OutputTest" />
+    <testcase name="FormatErrorInJsonMode" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_output.cpp" line="64" status="run" result="completed" time="0." timestamp="2025-07-26T15:12:38.882" classname="OutputTest" />
+  </testsuite>
+  <testsuite name="ConfigParserTest" tests="8" failures="0" disabled="0" skipped="0" errors="0" time="0." timestamp="2025-07-26T15:12:38.882">
+    <testcase name="ParseBasicOptions" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_config_parser.cpp" line="9" status="run" result="completed" time="0." timestamp="2025-07-26T15:12:38.882" classname="ConfigParserTest" />
+    <testcase name="ParseBrowserWidth" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_config_parser.cpp" line="22" status="run" result="completed" time="0." timestamp="2025-07-26T15:12:38.882" classname="ConfigParserTest" />
+    <testcase name="ParseFormInteractionCommands" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_config_parser.cpp" line="30" status="run" result="completed" time="0." timestamp="2025-07-26T15:12:38.882" classname="ConfigParserTest" />
+    <testcase name="ParseNavigationCommands" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_config_parser.cpp" line="61" status="run" result="completed" time="0." timestamp="2025-07-26T15:12:38.882" classname="ConfigParserTest" />
+    <testcase name="ParseDataExtractionCommands" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_config_parser.cpp" line="72" status="run" result="completed" time="0." timestamp="2025-07-26T15:12:38.882" classname="ConfigParserTest" />
+    <testcase name="ParseAdvancedWaitCommands" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_config_parser.cpp" line="102" status="run" result="completed" time="0." timestamp="2025-07-26T15:12:38.882" classname="ConfigParserTest" />
+    <testcase name="ParseFileOperationSettings" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_config_parser.cpp" line="128" status="run" result="completed" time="0." timestamp="2025-07-26T15:12:38.882" classname="ConfigParserTest" />
+    <testcase name="ParseAssertionCommands" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_config_parser.cpp" line="145" status="run" result="completed" time="0." timestamp="2025-07-26T15:12:38.882" classname="ConfigParserTest" />
+  </testsuite>
+  <testsuite name="ManagerRegistryTest" tests="4" failures="0" disabled="0" skipped="0" errors="0" time="0." timestamp="2025-07-26T15:12:38.882">
+    <testcase name="InitializationAndCleanup" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_manager_registry.cpp" line="16" status="run" result="completed" time="0." timestamp="2025-07-26T15:12:38.882" classname="ManagerRegistryTest" />
+    <testcase name="ManagerAccess" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_manager_registry.cpp" line="26" status="run" result="completed" time="0." timestamp="2025-07-26T15:12:38.882" classname="ManagerRegistryTest" />
+    <testcase name="AccessWithoutInitializationThrows" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_manager_registry.cpp" line="42" status="run" result="completed" time="0." timestamp="2025-07-26T15:12:38.882" classname="ManagerRegistryTest" />
+    <testcase name="MultipleInitializationsAreHandled" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_manager_registry.cpp" line="48" status="run" result="completed" time="0." timestamp="2025-07-26T15:12:38.882" classname="ManagerRegistryTest" />
+  </testsuite>
+  <testsuite name="NavigationServiceTest" tests="4" failures="0" disabled="0" skipped="0" errors="0" time="0." timestamp="2025-07-26T15:12:38.882">
+    <testcase name="DetermineNavigationStrategy" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_navigation_service.cpp" line="9" status="run" result="completed" time="0." timestamp="2025-07-26T15:12:38.882" classname="NavigationServiceTest" />
+    <testcase name="CreateNavigationPlan" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_navigation_service.cpp" line="44" status="run" result="completed" time="0." timestamp="2025-07-26T15:12:38.882" classname="NavigationServiceTest" />
+    <testcase name="CreateNavigationPlanForSessionRestore" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_navigation_service.cpp" line="58" status="run" result="completed" time="0." timestamp="2025-07-26T15:12:38.882" classname="NavigationServiceTest" />
+    <testcase name="CreateNavigationPlanForNoNavigation" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_navigation_service.cpp" line="72" status="run" result="completed" time="0." timestamp="2025-07-26T15:12:38.882" classname="NavigationServiceTest" />
+  </testsuite>
+  <testsuite name="ServiceArchitectureCoordinationTest" tests="15" failures="7" disabled="0" skipped="0" errors="0" time="41.904" timestamp="2025-07-26T15:12:38.882">
+    <testcase name="ManagerRegistry_InitializationAndAccess" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp" line="204" status="run" result="completed" time="0.001" timestamp="2025-07-26T15:12:38.882" classname="ServiceArchitectureCoordinationTest" />
+    <testcase name="ManagerRegistry_SingletonBehavior" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp" line="220" status="run" result="completed" time="0." timestamp="2025-07-26T15:12:38.884" classname="ServiceArchitectureCoordinationTest" />
+    <testcase name="ManagerRegistry_CrossServiceCoordination" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp" line="238" status="run" result="completed" time="1.022" timestamp="2025-07-26T15:12:38.884" classname="ServiceArchitectureCoordinationTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:260&#x0A;Value of: assertions_passed&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:260
+Value of: assertions_passed
+  Actual: false
+Expected: true
+]]></failure>
+    </testcase>
+    <testcase name="SessionService_BrowserStateIntegration" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp" line="269" status="run" result="completed" time="2.084" timestamp="2025-07-26T15:12:39.907" classname="ServiceArchitectureCoordinationTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:274&#x0A;Value of: test_session.getCurrentUrl().empty()&#x0A;  Actual: true&#x0A;Expected: false&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:274
+Value of: test_session.getCurrentUrl().empty()
+  Actual: true
+Expected: false
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:297&#x0A;Value of: found_field&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:297
+Value of: found_field
+  Actual: false
+Expected: true
+]]></failure>
+    </testcase>
+    <testcase name="SessionService_NavigationServiceIntegration" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp" line="304" status="run" result="completed" time="5.359" timestamp="2025-07-26T15:12:41.991" classname="ServiceArchitectureCoordinationTest" />
+    <testcase name="SessionService_MultiSessionIsolation" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp" line="330" status="run" result="completed" time="3.081" timestamp="2025-07-26T15:12:47.351" classname="ServiceArchitectureCoordinationTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:372&#x0A;Expected: (session1_value) != (session2_value), actual: &quot;&quot; vs &quot;&quot;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:372
+Expected: (session1_value) != (session2_value), actual: "" vs ""
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:373&#x0A;Expected equality of these values:&#x0A;  session1_value&#x0A;    Which is: &quot;&quot;&#x0A;  &quot;session1_value&quot;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:373
+Expected equality of these values:
+  session1_value
+    Which is: ""
+  "session1_value"
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:374&#x0A;Expected equality of these values:&#x0A;  session2_value&#x0A;    Which is: &quot;&quot;&#x0A;  &quot;session2_value&quot;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:374
+Expected equality of these values:
+  session2_value
+    Which is: ""
+  "session2_value"
+]]></failure>
+    </testcase>
+    <testcase name="NavigationService_StrategyDetermination" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp" line="379" status="run" result="completed" time="0.001" timestamp="2025-07-26T15:12:50.432" classname="ServiceArchitectureCoordinationTest" />
+    <testcase name="NavigationService_WaitMechanisms" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp" line="400" status="run" result="completed" time="2.031" timestamp="2025-07-26T15:12:50.433" classname="ServiceArchitectureCoordinationTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:413&#x0A;Value of: page_ready&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:413
+Value of: page_ready
+  Actual: false
+Expected: true
+]]></failure>
+    </testcase>
+    <testcase name="NavigationService_ComplexNavigationPlans" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp" line="420" status="run" result="completed" time="4.351" timestamp="2025-07-26T15:12:52.465" classname="ServiceArchitectureCoordinationTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:444&#x0A;Expected equality of these values:&#x0A;  viewport.first&#x0A;    Which is: 1920&#x0A;  1024&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:444
+Expected equality of these values:
+  viewport.first
+    Which is: 1920
+  1024
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:445&#x0A;Expected equality of these values:&#x0A;  viewport.second&#x0A;    Which is: 1080&#x0A;  768&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:445
+Expected equality of these values:
+  viewport.second
+    Which is: 1080
+  768
+]]></failure>
+    </testcase>
+    <testcase name="CrossService_ErrorPropagation" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp" line="450" status="run" result="completed" time="1.02" timestamp="2025-07-26T15:12:56.817" classname="ServiceArchitectureCoordinationTest" />
+    <testcase name="CrossService_RecoveryMechanisms" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp" line="468" status="run" result="completed" time="9.672" timestamp="2025-07-26T15:12:57.837" classname="ServiceArchitectureCoordinationTest" />
+    <testcase name="ResourceManagement_ServiceLifecycle" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp" line="496" status="run" result="completed" time="0.005" timestamp="2025-07-26T15:13:07.510" classname="ServiceArchitectureCoordinationTest" />
+    <testcase name="ResourceManagement_ConcurrentAccess" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp" line="521" status="run" result="completed" time="3.045" timestamp="2025-07-26T15:13:07.515" classname="ServiceArchitectureCoordinationTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:552&#x0A;Expected equality of these values:&#x0A;  page_content&#x0A;    Which is: &quot;Service Architecture Test&quot;&#x0A;  &quot;Concurrent Test&quot;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:552
+Expected equality of these values:
+  page_content
+    Which is: "Service Architecture Test"
+  "Concurrent Test"
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:566&#x0A;Expected equality of these values:&#x0A;  page_content&#x0A;    Which is: &quot;Service Architecture Test&quot;&#x0A;  &quot;Concurrent Test&quot;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:566
+Expected equality of these values:
+  page_content
+    Which is: "Service Architecture Test"
+  "Concurrent Test"
+]]></failure>
+    </testcase>
+    <testcase name="ServiceIntegration_CompleteWorkflow" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp" line="571" status="run" result="completed" time="5.871" timestamp="2025-07-26T15:13:10.561" classname="ServiceArchitectureCoordinationTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:603&#x0A;Value of: assertions_passed&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:603
+Value of: assertions_passed
+  Actual: false
+Expected: true
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:622&#x0A;Value of: found_workflow_data&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:622
+Value of: found_workflow_data
+  Actual: false
+Expected: true
+]]></failure>
+    </testcase>
+    <testcase name="ServiceIntegration_ErrorRecoveryWorkflow" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp" line="625" status="run" result="completed" time="4.353" timestamp="2025-07-26T15:13:16.433" classname="ServiceArchitectureCoordinationTest" />
+  </testsuite>
+  <testsuite name="BrowserCoreTest" tests="17" failures="0" disabled="0" skipped="0" errors="0" time="3.649" timestamp="2025-07-26T15:13:20.786">
+    <testcase name="BrowserDefaultConstruction" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_core.cpp" line="61" status="run" result="completed" time="0.002" timestamp="2025-07-26T15:13:20.786" classname="BrowserCoreTest" />
+    <testcase name="BrowserSessionInitialization" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_core.cpp" line="69" status="run" result="completed" time="0.006" timestamp="2025-07-26T15:13:20.789" classname="BrowserCoreTest" />
+    <testcase name="ValidateHttpUrls" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_core.cpp" line="79" status="run" result="completed" time="0.006" timestamp="2025-07-26T15:13:20.795" classname="BrowserCoreTest" />
+    <testcase name="ValidateFileUrls" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_core.cpp" line="88" status="run" result="completed" time="0.006" timestamp="2025-07-26T15:13:20.801" classname="BrowserCoreTest" />
+    <testcase name="RejectInvalidUrls" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_core.cpp" line="108" status="run" result="completed" time="0.005" timestamp="2025-07-26T15:13:20.808" classname="BrowserCoreTest" />
+    <testcase name="ValidateFileUrlSecurity" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_core.cpp" line="119" status="run" result="completed" time="0.005" timestamp="2025-07-26T15:13:20.813" classname="BrowserCoreTest" />
+    <testcase name="DetectFileUrls" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_core.cpp" line="129" status="run" result="completed" time="0.005" timestamp="2025-07-26T15:13:20.819" classname="BrowserCoreTest" />
+    <testcase name="ValidateFileUrlPaths" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_core.cpp" line="137" status="run" result="completed" time="0.001" timestamp="2025-07-26T15:13:20.825" classname="BrowserCoreTest" />
+    <testcase name="GetDefaultViewport" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_core.cpp" line="152" status="run" result="completed" time="0.003" timestamp="2025-07-26T15:13:20.827" classname="BrowserCoreTest" />
+    <testcase name="ViewportForScreenshots" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_core.cpp" line="162" status="run" result="completed" time="0.218" timestamp="2025-07-26T15:13:20.830" classname="BrowserCoreTest" />
+    <testcase name="NavigationStateManagement" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_core.cpp" line="176" status="run" result="completed" time="0." timestamp="2025-07-26T15:13:21.049" classname="BrowserCoreTest" />
+    <testcase name="JavaScriptExecutionInterface" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_core.cpp" line="191" status="run" result="completed" time="0.004" timestamp="2025-07-26T15:13:21.050" classname="BrowserCoreTest" />
+    <testcase name="ErrorHandlingRobustness" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_core.cpp" line="207" status="run" result="completed" time="0.101" timestamp="2025-07-26T15:13:21.055" classname="BrowserCoreTest" />
+    <testcase name="SessionIntegrationBasics" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_core.cpp" line="223" status="run" result="completed" time="3.215" timestamp="2025-07-26T15:13:21.157" classname="BrowserCoreTest" />
+    <testcase name="EdgeCaseUrlHandling" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_core.cpp" line="240" status="run" result="completed" time="0.001" timestamp="2025-07-26T15:13:24.372" classname="BrowserCoreTest" />
+    <testcase name="ConcurrentOperationSafety" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_core.cpp" line="247" status="run" result="completed" time="0.006" timestamp="2025-07-26T15:13:24.374" classname="BrowserCoreTest" />
+    <testcase name="ResourceCleanupSafety" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_core.cpp" line="258" status="run" result="completed" time="0.056" timestamp="2025-07-26T15:13:24.380" classname="BrowserCoreTest" />
+  </testsuite>
+  <testsuite name="BrowserDOMTest" tests="19" failures="1" disabled="0" skipped="1" errors="0" time="47.68" timestamp="2025-07-26T15:13:24.436">
+    <testcase name="ElementExistenceChecking" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_dom.cpp" line="187" status="run" result="completed" time="1.413" timestamp="2025-07-26T15:13:24.436" classname="BrowserDOMTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_dom.cpp:197&#x0A;Value of: browser-&gt;elementExists(&quot;#nonexistent&quot;)&#x0A;  Actual: true&#x0A;Expected: false&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_dom.cpp:197
+Value of: browser->elementExists("#nonexistent")
+  Actual: true
+Expected: false
+]]></failure>
+    </testcase>
+    <testcase name="ElementExistenceEdgeCases" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_dom.cpp" line="201" status="run" result="completed" time="1.468" timestamp="2025-07-26T15:13:25.850" classname="BrowserDOMTest" />
+    <testcase name="FormInputFilling" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_dom.cpp" line="215" status="run" result="skipped" time="1.024" timestamp="2025-07-26T15:13:27.318" classname="BrowserDOMTest">
+      <skipped message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_dom.cpp:240&#x0A;Form elements not ready for testing&#x0A;"><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_dom.cpp:240
+Form elements not ready for testing
+]]></skipped>
+    </testcase>
+    <testcase name="FormInputValidation" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_dom.cpp" line="244" status="run" result="completed" time="1.829" timestamp="2025-07-26T15:13:28.343" classname="BrowserDOMTest" />
+    <testcase name="SelectOptionHandling" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_dom.cpp" line="254" status="run" result="completed" time="1.079" timestamp="2025-07-26T15:13:30.172" classname="BrowserDOMTest" />
+    <testcase name="CheckboxAndRadioHandling" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_dom.cpp" line="265" status="run" result="completed" time="1.074" timestamp="2025-07-26T15:13:31.252" classname="BrowserDOMTest" />
+    <testcase name="ElementClicking" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_dom.cpp" line="277" status="run" result="completed" time="1.024" timestamp="2025-07-26T15:13:32.327" classname="BrowserDOMTest" />
+    <testcase name="ElementFocusing" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_dom.cpp" line="290" status="run" result="completed" time="1.026" timestamp="2025-07-26T15:13:33.351" classname="BrowserDOMTest" />
+    <testcase name="FormSubmission" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_dom.cpp" line="302" status="run" result="completed" time="1.218" timestamp="2025-07-26T15:13:34.378" classname="BrowserDOMTest" />
+    <testcase name="SearchFormHandling" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_dom.cpp" line="312" status="run" result="completed" time="1.217" timestamp="2025-07-26T15:13:35.596" classname="BrowserDOMTest" />
+    <testcase name="AttributeGetting" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_dom.cpp" line="324" status="run" result="completed" time="1.027" timestamp="2025-07-26T15:13:36.813" classname="BrowserDOMTest" />
+    <testcase name="AttributeSetting" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_dom.cpp" line="335" status="run" result="completed" time="1.153" timestamp="2025-07-26T15:13:37.841" classname="BrowserDOMTest" />
+    <testcase name="ComplexSelectorHandling" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_dom.cpp" line="348" status="run" result="completed" time="1.065" timestamp="2025-07-26T15:13:38.995" classname="BrowserDOMTest" />
+    <testcase name="XPathSelectorSupport" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_dom.cpp" line="376" status="run" result="completed" time="1.033" timestamp="2025-07-26T15:13:40.060" classname="BrowserDOMTest" />
+    <testcase name="RejectInvalidUrls" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_dom.cpp" line="396" status="run" result="completed" time="2.865" timestamp="2025-07-26T15:13:41.093" classname="BrowserDOMTest" />
+    <testcase name="UnicodeContentHandling" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_dom.cpp" line="419" status="run" result="completed" time="3.898" timestamp="2025-07-26T15:13:43.959" classname="BrowserDOMTest" />
+    <testcase name="LargeContentHandling" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_dom.cpp" line="440" status="run" result="completed" time="1.43" timestamp="2025-07-26T15:13:47.857" classname="BrowserDOMTest" />
+    <testcase name="OperationTiming" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_dom.cpp" line="454" status="run" result="completed" time="21.379" timestamp="2025-07-26T15:13:49.288" classname="BrowserDOMTest" />
+    <testcase name="ConsistentStateHandling" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_dom.cpp" line="475" status="run" result="completed" time="1.449" timestamp="2025-07-26T15:14:10.667" classname="BrowserDOMTest" />
+  </testsuite>
+  <testsuite name="BrowserJavaScriptTest" tests="20" failures="0" disabled="0" skipped="0" errors="0" time="26.872" timestamp="2025-07-26T15:14:12.117">
+    <testcase name="BasicJavaScriptExecution" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_javascript.cpp" line="213" status="run" result="completed" time="1.021" timestamp="2025-07-26T15:14:12.117" classname="BrowserJavaScriptTest" />
+    <testcase name="SynchronousJavaScriptExecution" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_javascript.cpp" line="227" status="run" result="completed" time="1.023" timestamp="2025-07-26T15:14:13.138" classname="BrowserJavaScriptTest" />
+    <testcase name="SafeJavaScriptExecution" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_javascript.cpp" line="245" status="run" result="completed" time="1.026" timestamp="2025-07-26T15:14:14.162" classname="BrowserJavaScriptTest" />
+    <testcase name="ArithmeticExpressions" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_javascript.cpp" line="257" status="run" result="completed" time="1.026" timestamp="2025-07-26T15:14:15.189" classname="BrowserJavaScriptTest" />
+    <testcase name="StringOperations" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_javascript.cpp" line="270" status="run" result="completed" time="1.025" timestamp="2025-07-26T15:14:16.215" classname="BrowserJavaScriptTest" />
+    <testcase name="BooleanExpressions" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_javascript.cpp" line="288" status="run" result="completed" time="1.027" timestamp="2025-07-26T15:14:17.240" classname="BrowserJavaScriptTest" />
+    <testcase name="DOMQueryOperations" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_javascript.cpp" line="318" status="run" result="completed" time="1.021" timestamp="2025-07-26T15:14:18.268" classname="BrowserJavaScriptTest" />
+    <testcase name="DOMModificationOperations" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_javascript.cpp" line="337" status="run" result="completed" time="1.021" timestamp="2025-07-26T15:14:19.290" classname="BrowserJavaScriptTest" />
+    <testcase name="FunctionCalling" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_javascript.cpp" line="354" status="run" result="completed" time="1.03" timestamp="2025-07-26T15:14:20.312" classname="BrowserJavaScriptTest" />
+    <testcase name="AnonymousFunctionExecution" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_javascript.cpp" line="372" status="run" result="completed" time="1.016" timestamp="2025-07-26T15:14:21.342" classname="BrowserJavaScriptTest" />
+    <testcase name="SyntaxErrorHandling" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_javascript.cpp" line="389" status="run" result="completed" time="1.021" timestamp="2025-07-26T15:14:22.359" classname="BrowserJavaScriptTest" />
+    <testcase name="RuntimeErrorHandling" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_javascript.cpp" line="407" status="run" result="completed" time="1.012" timestamp="2025-07-26T15:14:23.380" classname="BrowserJavaScriptTest" />
+    <testcase name="ArrayOperations" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_javascript.cpp" line="425" status="run" result="completed" time="1.01" timestamp="2025-07-26T15:14:24.393" classname="BrowserJavaScriptTest" />
+    <testcase name="ObjectOperations" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_javascript.cpp" line="443" status="run" result="completed" time="1.313" timestamp="2025-07-26T15:14:25.404" classname="BrowserJavaScriptTest" />
+    <testcase name="JavaScriptCompletionWaiting" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_javascript.cpp" line="462" status="run" result="completed" time="7.126" timestamp="2025-07-26T15:14:26.717" classname="BrowserJavaScriptTest" />
+    <testcase name="TimeBasedOperations" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_javascript.cpp" line="471" status="run" result="completed" time="1.024" timestamp="2025-07-26T15:14:33.843" classname="BrowserJavaScriptTest" />
+    <testcase name="BrowserEnvironmentAccess" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_javascript.cpp" line="489" status="run" result="completed" time="1.025" timestamp="2025-07-26T15:14:34.868" classname="BrowserJavaScriptTest" />
+    <testcase name="JavaScriptExecutionPerformance" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_javascript.cpp" line="509" status="run" result="completed" time="1.041" timestamp="2025-07-26T15:14:35.894" classname="BrowserJavaScriptTest" />
+    <testcase name="UnicodeStringHandling" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_javascript.cpp" line="530" status="run" result="completed" time="1.022" timestamp="2025-07-26T15:14:36.936" classname="BrowserJavaScriptTest" />
+    <testcase name="EdgeCaseInputs" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_javascript.cpp" line="551" status="run" result="completed" time="1.03" timestamp="2025-07-26T15:14:37.958" classname="BrowserJavaScriptTest" />
+  </testsuite>
+  <testsuite name="BrowserEventsTest" tests="22" failures="1" disabled="0" skipped="0" errors="0" time="74.986" timestamp="2025-07-26T15:14:38.989">
+    <testcase name="NavigationEventWaiting" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_events.cpp" line="226" status="run" result="completed" time="1.627" timestamp="2025-07-26T15:14:38.989" classname="BrowserEventsTest" />
+    <testcase name="NavigationSignalWaiting" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_events.cpp" line="246" status="run" result="completed" time="1.12" timestamp="2025-07-26T15:14:40.617" classname="BrowserEventsTest" />
+    <testcase name="PageReadyEventWaiting" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_events.cpp" line="267" status="run" result="completed" time="7.437" timestamp="2025-07-26T15:14:41.737" classname="BrowserEventsTest" />
+    <testcase name="SelectorEventWaiting" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_events.cpp" line="288" status="run" result="completed" time="3.643" timestamp="2025-07-26T15:14:49.175" classname="BrowserEventsTest" />
+    <testcase name="VisibilityEventWaiting" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_events.cpp" line="316" status="run" result="completed" time="2.436" timestamp="2025-07-26T15:14:52.818" classname="BrowserEventsTest" />
+    <testcase name="ElementContentWaiting" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_events.cpp" line="343" status="run" result="completed" time="1.437" timestamp="2025-07-26T15:14:55.255" classname="BrowserEventsTest" />
+    <testcase name="JavaScriptConditionWaiting" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_events.cpp" line="371" status="run" result="completed" time="6.606" timestamp="2025-07-26T15:14:56.692" classname="BrowserEventsTest" />
+    <testcase name="ComplexJavaScriptConditions" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_events.cpp" line="404" status="run" result="completed" time="1.632" timestamp="2025-07-26T15:15:03.299" classname="BrowserEventsTest" />
+    <testcase name="TextAppearanceWaiting" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_events.cpp" line="434" status="run" result="completed" time="3.557" timestamp="2025-07-26T15:15:04.931" classname="BrowserEventsTest" />
+    <testcase name="UnicodeTextWaiting" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_events.cpp" line="463" status="run" result="completed" time="5.067" timestamp="2025-07-26T15:15:08.489" classname="BrowserEventsTest" />
+    <testcase name="TimeoutVariations" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_events.cpp" line="492" status="run" result="completed" time="1.528" timestamp="2025-07-26T15:15:13.556" classname="BrowserEventsTest" />
+    <testcase name="NegativeTimeoutHandling" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_events.cpp" line="522" status="run" result="completed" time="1.065" timestamp="2025-07-26T15:15:15.085" classname="BrowserEventsTest" />
+    <testcase name="ConcurrentEventWaiting" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_events.cpp" line="544" status="run" result="completed" time="1.563" timestamp="2025-07-26T15:15:16.151" classname="BrowserEventsTest" />
+    <testcase name="SequentialEventOperations" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_events.cpp" line="565" status="run" result="completed" time="3.083" timestamp="2025-07-26T15:15:17.714" classname="BrowserEventsTest" />
+    <testcase name="EventNotificationMethods" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_events.cpp" line="589" status="run" result="completed" time="1.024" timestamp="2025-07-26T15:15:20.797" classname="BrowserEventsTest" />
+    <testcase name="RepeatedEventNotifications" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_events.cpp" line="610" status="run" result="completed" time="1.019" timestamp="2025-07-26T15:15:21.821" classname="BrowserEventsTest" />
+    <testcase name="InvalidSelectorEventHandling" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_events.cpp" line="635" status="run" result="completed" time="10.506" timestamp="2025-07-26T15:15:22.841" classname="BrowserEventsTest" />
+    <testcase name="InvalidJavaScriptConditionHandling" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_events.cpp" line="665" status="run" result="completed" time="6.694" timestamp="2025-07-26T15:15:33.348" classname="BrowserEventsTest" />
+    <testcase name="EventWaitingPerformance" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_events.cpp" line="696" status="run" result="completed" time="5.136" timestamp="2025-07-26T15:15:40.043" classname="BrowserEventsTest" />
+    <testcase name="TimingAccuracy" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_events.cpp" line="726" status="run" result="completed" time="2.831" timestamp="2025-07-26T15:15:45.179" classname="BrowserEventsTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_events.cpp:753&#x0A;Expected: (actual_duration.count()) &lt;= (timeout * 2), actual: 201 vs 200&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_events.cpp:753
+Expected: (actual_duration.count()) <= (timeout * 2), actual: 201 vs 200
+]]></failure>
+    </testcase>
+    <testcase name="ComplexEventScenarios" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_events.cpp" line="759" status="run" result="completed" time="4.537" timestamp="2025-07-26T15:15:48.010" classname="BrowserEventsTest" />
+    <testcase name="EdgeCaseEventHandling" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_events.cpp" line="795" status="run" result="completed" time="1.427" timestamp="2025-07-26T15:15:52.548" classname="BrowserEventsTest" />
+  </testsuite>
+  <testsuite name="BrowserStorageTest" tests="18" failures="0" disabled="0" skipped="0" errors="0" time="23.735" timestamp="2025-07-26T15:15:53.975">
+    <testcase name="SetAndGetSingleCookie" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_storage.cpp" line="198" status="run" result="completed" time="1.231" timestamp="2025-07-26T15:15:53.975" classname="BrowserStorageTest" />
+    <testcase name="SetMultipleCookies" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_storage.cpp" line="236" status="run" result="completed" time="1.226" timestamp="2025-07-26T15:15:55.207" classname="BrowserStorageTest" />
+    <testcase name="SetCookieSafe" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_storage.cpp" line="278" status="run" result="completed" time="1.422" timestamp="2025-07-26T15:15:56.433" classname="BrowserStorageTest" />
+    <testcase name="ClearCookies" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_storage.cpp" line="308" status="run" result="completed" time="1.423" timestamp="2025-07-26T15:15:57.856" classname="BrowserStorageTest" />
+    <testcase name="CookieWithSpecialCharacters" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_storage.cpp" line="334" status="run" result="completed" time="1.226" timestamp="2025-07-26T15:15:59.279" classname="BrowserStorageTest" />
+    <testcase name="SetAndGetLocalStorage" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_storage.cpp" line="367" status="run" result="completed" time="1.219" timestamp="2025-07-26T15:16:00.506" classname="BrowserStorageTest" />
+    <testcase name="LocalStorageEmpty" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_storage.cpp" line="385" status="run" result="completed" time="1.219" timestamp="2025-07-26T15:16:01.725" classname="BrowserStorageTest" />
+    <testcase name="LocalStorageOverwrite" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_storage.cpp" line="390" status="run" result="completed" time="1.422" timestamp="2025-07-26T15:16:02.945" classname="BrowserStorageTest" />
+    <testcase name="LocalStorageWithSpecialCharacters" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_storage.cpp" line="407" status="run" result="completed" time="1.228" timestamp="2025-07-26T15:16:04.367" classname="BrowserStorageTest" />
+    <testcase name="LocalStorageLargeData" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_storage.cpp" line="426" status="run" result="completed" time="1.226" timestamp="2025-07-26T15:16:05.596" classname="BrowserStorageTest" />
+    <testcase name="SetAndGetSessionStorage" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_storage.cpp" line="444" status="run" result="completed" time="1.224" timestamp="2025-07-26T15:16:06.822" classname="BrowserStorageTest" />
+    <testcase name="SessionStorageEmpty" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_storage.cpp" line="461" status="run" result="completed" time="1.221" timestamp="2025-07-26T15:16:08.047" classname="BrowserStorageTest" />
+    <testcase name="SessionStorageIndependentFromLocal" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_storage.cpp" line="466" status="run" result="completed" time="1.422" timestamp="2025-07-26T15:16:09.268" classname="BrowserStorageTest" />
+    <testcase name="SessionStorageWithSpecialCharacters" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_storage.cpp" line="482" status="run" result="completed" time="1.222" timestamp="2025-07-26T15:16:10.691" classname="BrowserStorageTest" />
+    <testcase name="StorageAfterNavigation" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_storage.cpp" line="497" status="run" result="completed" time="1.922" timestamp="2025-07-26T15:16:11.913" classname="BrowserStorageTest" />
+    <testcase name="CombinedStorageOperations" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_storage.cpp" line="515" status="run" result="completed" time="1.227" timestamp="2025-07-26T15:16:13.835" classname="BrowserStorageTest" />
+    <testcase name="StorageWithEmptyBrowser" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_storage.cpp" line="553" status="run" result="completed" time="1.421" timestamp="2025-07-26T15:16:15.062" classname="BrowserStorageTest" />
+    <testcase name="StorageErrorRecovery" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_storage.cpp" line="570" status="run" result="completed" time="1.227" timestamp="2025-07-26T15:16:16.483" classname="BrowserStorageTest" />
+  </testsuite>
+  <testsuite name="BrowserUtilitiesTest" tests="20" failures="3" disabled="0" skipped="0" errors="0" time="20.984" timestamp="2025-07-26T15:16:17.711">
+    <testcase name="WaitWithValidDuration" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp" line="218" status="run" result="completed" time="1.109" timestamp="2025-07-26T15:16:17.711" classname="BrowserUtilitiesTest" />
+    <testcase name="WaitWithZeroDuration" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp" line="231" status="run" result="completed" time="1.014" timestamp="2025-07-26T15:16:18.821" classname="BrowserUtilitiesTest" />
+    <testcase name="WaitWithNegativeDuration" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp" line="243" status="run" result="completed" time="1.031" timestamp="2025-07-26T15:16:19.835" classname="BrowserUtilitiesTest" />
+    <testcase name="IsPageLoadedAfterSetup" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp" line="257" status="run" result="completed" time="1.025" timestamp="2025-07-26T15:16:20.867" classname="BrowserUtilitiesTest" />
+    <testcase name="GetPageLoadState" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp" line="262" status="run" result="completed" time="1.026" timestamp="2025-07-26T15:16:21.892" classname="BrowserUtilitiesTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp:268&#x0A;Expected: (loadState.find(&quot;data:&quot;)) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp:268
+Expected: (loadState.find("data:")) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615
+]]></failure>
+    </testcase>
+    <testcase name="PageStateAfterNavigation" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp" line="271" status="run" result="completed" time="1.025" timestamp="2025-07-26T15:16:22.919" classname="BrowserUtilitiesTest" />
+    <testcase name="GetPageSourceBasic" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp" line="288" status="run" result="completed" time="1.027" timestamp="2025-07-26T15:16:23.945" classname="BrowserUtilitiesTest" />
+    <testcase name="GetPageSourceAfterDynamicContent" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp" line="310" status="run" result="completed" time="1.114" timestamp="2025-07-26T15:16:24.972" classname="BrowserUtilitiesTest" />
+    <testcase name="GetPageSourceStructure" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp" line="321" status="run" result="completed" time="1.011" timestamp="2025-07-26T15:16:26.087" classname="BrowserUtilitiesTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp:325&#x0A;Expected: (source.find(&quot;&lt;!DOCTYPE html&gt;&quot;)) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp:325
+Expected: (source.find("<!DOCTYPE html>")) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp:328&#x0A;Expected: (source.find(&quot;&lt;script&gt;&quot;)) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp:328
+Expected: (source.find("<script>")) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp:329&#x0A;Expected: (source.find(&quot;&lt;style&gt;&quot;)) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp:329
+Expected: (source.find("<style>")) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615
+]]></failure>
+    </testcase>
+    <testcase name="InitialScrollPosition" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp" line="334" status="run" result="completed" time="1.023" timestamp="2025-07-26T15:16:27.098" classname="BrowserUtilitiesTest" />
+    <testcase name="SetAndGetScrollPosition" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp" line="342" status="run" result="completed" time="1.125" timestamp="2025-07-26T15:16:28.122" classname="BrowserUtilitiesTest" />
+    <testcase name="ScrollToZero" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp" line="353" status="run" result="completed" time="1.113" timestamp="2025-07-26T15:16:29.247" classname="BrowserUtilitiesTest" />
+    <testcase name="ScrollWithNegativeValues" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp" line="367" status="run" result="completed" time="1.063" timestamp="2025-07-26T15:16:30.361" classname="BrowserUtilitiesTest" />
+    <testcase name="ExecuteEmptyActionSequence" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp" line="381" status="run" result="completed" time="1.009" timestamp="2025-07-26T15:16:31.425" classname="BrowserUtilitiesTest" />
+    <testcase name="ExecuteSingleClickAction" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp" line="389" status="run" result="completed" time="1.032" timestamp="2025-07-26T15:16:32.435" classname="BrowserUtilitiesTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp:396&#x0A;Value of: result&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp:396
+Value of: result
+  Actual: false
+Expected: true
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp:401&#x0A;Expected: (log_content.find(&quot;button clicked&quot;)) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp:401
+Expected: (log_content.find("button clicked")) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615
+]]></failure>
+    </testcase>
+    <testcase name="ExecuteTextInputAction" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp" line="404" status="run" result="completed" time="1.142" timestamp="2025-07-26T15:16:33.467" classname="BrowserUtilitiesTest" />
+    <testcase name="InitializeDataManagerBasic" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp" line="421" status="run" result="completed" time="1.009" timestamp="2025-07-26T15:16:34.610" classname="BrowserUtilitiesTest" />
+    <testcase name="InitializeDataManagerWithEmptyName" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp" line="428" status="run" result="completed" time="1.017" timestamp="2025-07-26T15:16:35.619" classname="BrowserUtilitiesTest" />
+    <testcase name="UtilityMethodsAfterNavigation" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp" line="435" status="run" result="completed" time="1.03" timestamp="2025-07-26T15:16:36.637" classname="BrowserUtilitiesTest" />
+    <testcase name="UtilitiesWithMinimalBrowser" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_utilities.cpp" line="453" status="run" result="completed" time="1.027" timestamp="2025-07-26T15:16:37.668" classname="BrowserUtilitiesTest" />
+  </testsuite>
+  <testsuite name="BrowserWaitTest" tests="39" failures="5" disabled="0" skipped="0" errors="0" time="68.711" timestamp="2025-07-26T15:16:38.695">
+    <testcase name="WaitForTextAdvancedBasic" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="460" status="run" result="completed" time="1.316" timestamp="2025-07-26T15:16:38.695" classname="BrowserWaitTest" />
+    <testcase name="WaitForTextAdvancedCaseSensitive" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="466" status="run" result="completed" time="2.328" timestamp="2025-07-26T15:16:40.012" classname="BrowserWaitTest" />
+    <testcase name="WaitForTextAdvancedCaseInsensitive" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="476" status="run" result="completed" time="1.313" timestamp="2025-07-26T15:16:42.340" classname="BrowserWaitTest" />
+    <testcase name="WaitForTextAdvancedExactMatch" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="482" status="run" result="completed" time="4.251" timestamp="2025-07-26T15:16:43.654" classname="BrowserWaitTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp:485&#x0A;Value of: result&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp:485
+Value of: result
+  Actual: false
+Expected: true
+]]></failure>
+    </testcase>
+    <testcase name="WaitForTextAdvancedDynamic" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="492" status="run" result="completed" time="1.864" timestamp="2025-07-26T15:16:47.906" classname="BrowserWaitTest" />
+    <testcase name="WaitForNetworkIdleImmediate" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="502" status="run" result="completed" time="1.414" timestamp="2025-07-26T15:16:49.770" classname="BrowserWaitTest" />
+    <testcase name="WaitForNetworkIdleAfterActivity" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="508" status="run" result="completed" time="3.228" timestamp="2025-07-26T15:16:51.185" classname="BrowserWaitTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp:513&#x0A;Value of: result&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp:513
+Value of: result
+  Actual: false
+Expected: true
+]]></failure>
+    </testcase>
+    <testcase name="WaitForNetworkRequestPattern" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="518" status="run" result="completed" time="3.241" timestamp="2025-07-26T15:16:54.413" classname="BrowserWaitTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp:523&#x0A;Value of: result&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp:523
+Value of: result
+  Actual: false
+Expected: true
+]]></failure>
+    </testcase>
+    <testcase name="WaitForNetworkRequestTimeout" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="526" status="run" result="completed" time="1.72" timestamp="2025-07-26T15:16:57.654" classname="BrowserWaitTest" />
+    <testcase name="WaitForElementVisibleInitiallyHidden" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="534" status="run" result="completed" time="2.021" timestamp="2025-07-26T15:16:59.375" classname="BrowserWaitTest" />
+    <testcase name="WaitForElementVisibleAlreadyVisible" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="546" status="run" result="completed" time="1.412" timestamp="2025-07-26T15:17:01.396" classname="BrowserWaitTest" />
+    <testcase name="WaitForElementCountEqual" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="557" status="run" result="completed" time="1.315" timestamp="2025-07-26T15:17:02.809" classname="BrowserWaitTest" />
+    <testcase name="WaitForElementCountGreaterThan" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="563" status="run" result="completed" time="1.518" timestamp="2025-07-26T15:17:04.125" classname="BrowserWaitTest" />
+    <testcase name="WaitForElementCountLessThan" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="571" status="run" result="completed" time="1.618" timestamp="2025-07-26T15:17:05.644" classname="BrowserWaitTest" />
+    <testcase name="WaitForElementCountNotEqual" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="579" status="run" result="completed" time="1.518" timestamp="2025-07-26T15:17:07.262" classname="BrowserWaitTest" />
+    <testcase name="WaitForAttributeChange" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="589" status="run" result="completed" time="1.615" timestamp="2025-07-26T15:17:08.781" classname="BrowserWaitTest" />
+    <testcase name="WaitForAttributeExisting" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="597" status="run" result="completed" time="1.315" timestamp="2025-07-26T15:17:10.396" classname="BrowserWaitTest" />
+    <testcase name="WaitForAttributeNonexistent" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="603" status="run" result="completed" time="1.717" timestamp="2025-07-26T15:17:11.712" classname="BrowserWaitTest" />
+    <testcase name="WaitForUrlChangeHash" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="611" status="run" result="completed" time="1.522" timestamp="2025-07-26T15:17:13.429" classname="BrowserWaitTest" />
+    <testcase name="WaitForUrlChangeAny" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="619" status="run" result="completed" time="1.519" timestamp="2025-07-26T15:17:14.952" classname="BrowserWaitTest" />
+    <testcase name="WaitForTitleChange" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="629" status="run" result="completed" time="1.721" timestamp="2025-07-26T15:17:16.471" classname="BrowserWaitTest" />
+    <testcase name="WaitForTitleChangeAny" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="637" status="run" result="completed" time="1.52" timestamp="2025-07-26T15:17:18.192" classname="BrowserWaitTest" />
+    <testcase name="WaitForSPANavigationSpecific" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="647" status="run" result="completed" time="3.237" timestamp="2025-07-26T15:17:19.713" classname="BrowserWaitTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp:652&#x0A;Value of: result&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp:652
+Value of: result
+  Actual: false
+Expected: true
+]]></failure>
+    </testcase>
+    <testcase name="WaitForSPANavigationAny" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="655" status="run" result="completed" time="1.317" timestamp="2025-07-26T15:17:22.950" classname="BrowserWaitTest" />
+    <testcase name="WaitForFrameworkReadyJQuery" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="665" status="run" result="completed" time="1.514" timestamp="2025-07-26T15:17:24.268" classname="BrowserWaitTest" />
+    <testcase name="WaitForFrameworkReadyReact" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="673" status="run" result="completed" time="1.518" timestamp="2025-07-26T15:17:25.782" classname="BrowserWaitTest" />
+    <testcase name="WaitForFrameworkReadyAuto" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="681" status="run" result="completed" time="1.315" timestamp="2025-07-26T15:17:27.300" classname="BrowserWaitTest" />
+    <testcase name="WaitForFrameworkReadyCustom" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="687" status="run" result="completed" time="1.315" timestamp="2025-07-26T15:17:28.615" classname="BrowserWaitTest" />
+    <testcase name="WaitForDOMChangeAddElement" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="697" status="run" result="completed" time="1.618" timestamp="2025-07-26T15:17:29.930" classname="BrowserWaitTest" />
+    <testcase name="WaitForDOMChangeModifyElement" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="705" status="run" result="completed" time="1.518" timestamp="2025-07-26T15:17:31.549" classname="BrowserWaitTest" />
+    <testcase name="WaitForDOMChangeRemoveElement" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="713" status="run" result="completed" time="1.621" timestamp="2025-07-26T15:17:33.067" classname="BrowserWaitTest" />
+    <testcase name="WaitForDOMChangeTimeout" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="724" status="run" result="completed" time="1.313" timestamp="2025-07-26T15:17:34.689" classname="BrowserWaitTest" />
+    <testcase name="WaitForContentChangeText" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="732" status="run" result="completed" time="1.619" timestamp="2025-07-26T15:17:36.003" classname="BrowserWaitTest" />
+    <testcase name="WaitForContentChangeHTML" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="740" status="run" result="completed" time="1.515" timestamp="2025-07-26T15:17:37.622" classname="BrowserWaitTest" />
+    <testcase name="WaitForContentChangeInputValue" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="748" status="run" result="completed" time="1.519" timestamp="2025-07-26T15:17:39.138" classname="BrowserWaitTest" />
+    <testcase name="WaitForContentChangeTimeout" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="756" status="run" result="completed" time="1.72" timestamp="2025-07-26T15:17:40.657" classname="BrowserWaitTest" />
+    <testcase name="WaitMethodsWithNonexistentElements" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="764" status="run" result="completed" time="1.827" timestamp="2025-07-26T15:17:42.378" classname="BrowserWaitTest" />
+    <testcase name="WaitMethodsWithZeroTimeout" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="772" status="run" result="completed" time="1.231" timestamp="2025-07-26T15:17:44.205" classname="BrowserWaitTest" />
+    <testcase name="WaitMethodsIntegration" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="779" status="run" result="completed" time="1.97" timestamp="2025-07-26T15:17:45.437" classname="BrowserWaitTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp:797&#x0A;Expected equality of these values:&#x0A;  count_result&#x0A;    Which is: &quot;&quot;&#x0A;  &quot;3&quot;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp:797
+Expected equality of these values:
+  count_result
+    Which is: ""
+  "3"
+]]></failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="BrowserMainTest" tests="23" failures="3" disabled="0" skipped="0" errors="0" time="16.705" timestamp="2025-07-26T15:17:47.407">
+    <testcase name="ConstructorInitializesWebView" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_main.cpp" line="125" status="run" result="completed" time="0.804" timestamp="2025-07-26T15:17:47.407" classname="BrowserMainTest" />
+    <testcase name="ConstructorCreatesSessionDataPath" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_main.cpp" line="133" status="run" result="completed" time="0.805" timestamp="2025-07-26T15:17:48.212" classname="BrowserMainTest" />
+    <testcase name="WindowConfiguration" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_main.cpp" line="143" status="run" result="completed" time="0.002" timestamp="2025-07-26T15:17:49.017" classname="BrowserMainTest" />
+    <testcase name="DefaultViewportSize" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_main.cpp" line="149" status="run" result="completed" time="0.006" timestamp="2025-07-26T15:17:49.020" classname="BrowserMainTest" />
+    <testcase name="MultipleBrowserInstances" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_main.cpp" line="161" status="run" result="completed" time="0.011" timestamp="2025-07-26T15:17:49.026" classname="BrowserMainTest" />
+    <testcase name="BrowserLifecycleRapidCreateDestroy" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_main.cpp" line="180" status="run" result="completed" time="0.002" timestamp="2025-07-26T15:17:49.038" classname="BrowserMainTest" />
+    <testcase name="LoadSimplePage" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_main.cpp" line="192" status="run" result="completed" time="1.014" timestamp="2025-07-26T15:17:49.041" classname="BrowserMainTest" />
+    <testcase name="GetCurrentUrlInitial" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_main.cpp" line="221" status="run" result="completed" time="0.001" timestamp="2025-07-26T15:17:50.055" classname="BrowserMainTest" />
+    <testcase name="GetPageTitleInitial" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_main.cpp" line="227" status="run" result="completed" time="0.005" timestamp="2025-07-26T15:17:50.056" classname="BrowserMainTest" />
+    <testcase name="ViewportManagement" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_main.cpp" line="233" status="run" result="completed" time="0.206" timestamp="2025-07-26T15:17:50.062" classname="BrowserMainTest" />
+    <testcase name="UserAgentSetting" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_main.cpp" line="247" status="run" result="completed" time="1.017" timestamp="2025-07-26T15:17:50.269" classname="BrowserMainTest" />
+    <testcase name="BasicJavaScriptExecution" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_main.cpp" line="276" status="run" result="completed" time="1.12" timestamp="2025-07-26T15:17:51.287" classname="BrowserMainTest" />
+    <testcase name="JavaScriptErrorHandling" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_main.cpp" line="301" status="run" result="completed" time="1.017" timestamp="2025-07-26T15:17:52.408" classname="BrowserMainTest" />
+    <testcase name="BasicDOMInteraction" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_main.cpp" line="316" status="run" result="completed" time="1.256" timestamp="2025-07-26T15:17:53.425" classname="BrowserMainTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_main.cpp:351&#x0A;Value of: browser-&gt;clickElement(&quot;#test-btn&quot;)&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_main.cpp:351
+Value of: browser->clickElement("#test-btn")
+  Actual: false
+Expected: true
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_main.cpp:356&#x0A;Expected equality of these values:&#x0A;  result&#x0A;    Which is: &quot;&quot;&#x0A;  &quot;Button clicked!&quot;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_main.cpp:356
+Expected equality of these values:
+  result
+    Which is: ""
+  "Button clicked!"
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_main.cpp:360&#x0A;Expected equality of these values:&#x0A;  name_value&#x0A;    Which is: &quot;&quot;&#x0A;  &quot;John Doe&quot;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_main.cpp:360
+Expected equality of these values:
+  name_value
+    Which is: ""
+  "John Doe"
+]]></failure>
+    </testcase>
+    <testcase name="ElementCounting" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_main.cpp" line="363" status="run" result="completed" time="1.021" timestamp="2025-07-26T15:17:54.682" classname="BrowserMainTest" />
+    <testcase name="BasicNavigation" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_main.cpp" line="392" status="run" result="completed" time="4.032" timestamp="2025-07-26T15:17:55.703" classname="BrowserMainTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_main.cpp:413&#x0A;Expected equality of these values:&#x0A;  getPageTitleReliable()&#x0A;    Which is: &quot;Page 2&quot;&#x0A;  &quot;Page 1&quot;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_main.cpp:413
+Expected equality of these values:
+  getPageTitleReliable()
+    Which is: "Page 2"
+  "Page 1"
+]]></failure>
+    </testcase>
+    <testcase name="PageReload" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_main.cpp" line="422" status="run" result="completed" time="2.125" timestamp="2025-07-26T15:17:59.735" classname="BrowserMainTest" />
+    <testcase name="URLValidation" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_main.cpp" line="460" status="run" result="completed" time="0." timestamp="2025-07-26T15:18:01.861" classname="BrowserMainTest" />
+    <testcase name="FileURLValidation" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_main.cpp" line="476" status="run" result="completed" time="0.001" timestamp="2025-07-26T15:18:01.862" classname="BrowserMainTest" />
+    <testcase name="InvalidOperationsHandling" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_main.cpp" line="486" status="run" result="completed" time="0.205" timestamp="2025-07-26T15:18:01.864" classname="BrowserMainTest" />
+    <testcase name="EmptyPageOperations" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_main.cpp" line="499" status="run" result="completed" time="1.015" timestamp="2025-07-26T15:18:02.069" classname="BrowserMainTest" />
+    <testcase name="BrowserStateConsistency" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_main.cpp" line="518" status="run" result="completed" time="1.021" timestamp="2025-07-26T15:18:03.084" classname="BrowserMainTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_main.cpp:542&#x0A;Expected equality of these values:&#x0A;  ready_state&#x0A;    Which is: &quot;loading&quot;&#x0A;  &quot;complete&quot;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_main.cpp:542
+Expected equality of these values:
+  ready_state
+    Which is: "loading"
+  "complete"
+]]></failure>
+    </testcase>
+    <testcase name="ResourceCleanupOnDestruction" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_main.cpp" line="554" status="run" result="completed" time="0.006" timestamp="2025-07-26T15:18:04.105" classname="BrowserMainTest" />
+  </testsuite>
+  <testsuite name="BrowserSessionTest" tests="28" failures="11" disabled="0" skipped="0" errors="0" time="70.48" timestamp="2025-07-26T15:18:04.112">
+    <testcase name="UpdateSessionStateBasic" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp" line="128" status="run" result="completed" time="2.225" timestamp="2025-07-26T15:18:04.112" classname="BrowserSessionTest" />
+    <testcase name="UpdateSessionStateWithFormData" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp" line="139" status="run" result="completed" time="2.531" timestamp="2025-07-26T15:18:06.338" classname="BrowserSessionTest" />
+    <testcase name="UpdateSessionStateWithStorage" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp" line="181" status="run" result="completed" time="2.421" timestamp="2025-07-26T15:18:08.870" classname="BrowserSessionTest" />
+    <testcase name="UpdateSessionStateWithScrollPosition" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp" line="206" status="run" result="completed" time="2.425" timestamp="2025-07-26T15:18:11.292" classname="BrowserSessionTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp:216&#x0A;Expected equality of these values:&#x0A;  scrollPos.first&#x0A;    Which is: 0&#x0A;  50&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp:216
+Expected equality of these values:
+  scrollPos.first
+    Which is: 0
+  50
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp:217&#x0A;Expected equality of these values:&#x0A;  scrollPos.second&#x0A;    Which is: 0&#x0A;  100&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp:217
+Expected equality of these values:
+  scrollPos.second
+    Which is: 0
+  100
+]]></failure>
+    </testcase>
+    <testcase name="UpdateSessionStateWithActiveElements" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp" line="220" status="run" result="completed" time="2.423" timestamp="2025-07-26T15:18:13.718" classname="BrowserSessionTest" />
+    <testcase name="UpdateSessionStateWithPageHash" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp" line="234" status="run" result="completed" time="2.422" timestamp="2025-07-26T15:18:16.141" classname="BrowserSessionTest" />
+    <testcase name="UpdateSessionStateWithCustomAttributes" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp" line="246" status="run" result="completed" time="2.42" timestamp="2025-07-26T15:18:18.563" classname="BrowserSessionTest" />
+    <testcase name="RestoreSessionBasic" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp" line="265" status="run" result="completed" time="3.832" timestamp="2025-07-26T15:18:20.983" classname="BrowserSessionTest" />
+    <testcase name="RestoreSessionWithFormState" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp" line="282" status="run" result="completed" time="4.54" timestamp="2025-07-26T15:18:24.816" classname="BrowserSessionTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp:316&#x0A;Expected equality of these values:&#x0A;  textValue&#x0A;    Which is: &quot;initial&quot;&#x0A;  &quot;restored text&quot;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp:316
+Expected equality of these values:
+  textValue
+    Which is: "initial"
+  "restored text"
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp:319&#x0A;Expected equality of these values:&#x0A;  checkboxChecked&#x0A;    Which is: &quot;false&quot;&#x0A;  &quot;true&quot;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp:319
+Expected equality of these values:
+  checkboxChecked
+    Which is: "false"
+  "true"
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp:322&#x0A;Expected equality of these values:&#x0A;  selectValue&#x0A;    Which is: &quot;opt1&quot;&#x0A;  &quot;option3&quot;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp:322
+Expected equality of these values:
+  selectValue
+    Which is: "opt1"
+  "option3"
+]]></failure>
+    </testcase>
+    <testcase name="RestoreSessionWithScrollPosition" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp" line="325" status="run" result="completed" time="4.324" timestamp="2025-07-26T15:18:29.357" classname="BrowserSessionTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp:342&#x0A;Expected equality of these values:&#x0A;  x&#x0A;    Which is: 0&#x0A;  100&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp:342
+Expected equality of these values:
+  x
+    Which is: 0
+  100
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp:343&#x0A;Expected equality of these values:&#x0A;  y&#x0A;    Which is: 0&#x0A;  200&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp:343
+Expected equality of these values:
+  y
+    Which is: 0
+  200
+]]></failure>
+    </testcase>
+    <testcase name="RestoreSessionWithActiveElements" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp" line="346" status="run" result="completed" time="4.524" timestamp="2025-07-26T15:18:33.681" classname="BrowserSessionTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp:364&#x0A;Expected equality of these values:&#x0A;  focusedElement&#x0A;    Which is: &quot;&quot;&#x0A;  &quot;focus-btn&quot;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp:364
+Expected equality of these values:
+  focusedElement
+    Which is: ""
+  "focus-btn"
+]]></failure>
+    </testcase>
+    <testcase name="RestoreSessionWithCustomState" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp" line="367" status="run" result="completed" time="4.526" timestamp="2025-07-26T15:18:38.206" classname="BrowserSessionTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp:390&#x0A;Expected equality of these values:&#x0A;  restoredAppData&#x0A;    Which is: &quot;&quot;&#x0A;  &quot;test value&quot;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp:390
+Expected equality of these values:
+  restoredAppData
+    Which is: ""
+  "test value"
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp:393&#x0A;Expected equality of these values:&#x0A;  restoredTheme&#x0A;    Which is: &quot;&quot;&#x0A;  &quot;dark&quot;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp:393
+Expected equality of these values:
+  restoredTheme
+    Which is: ""
+  "dark"
+]]></failure>
+    </testcase>
+    <testcase name="RestoreSessionSafely" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp" line="398" status="run" result="completed" time="2.815" timestamp="2025-07-26T15:18:42.732" classname="BrowserSessionTest" />
+    <testcase name="RestoreSessionSafelyWithInvalidUrl" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp" line="406" status="run" result="completed" time="1.309" timestamp="2025-07-26T15:18:45.548" classname="BrowserSessionTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp:415&#x0A;Value of: result&#x0A;  Actual: true&#x0A;Expected: false&#x0A;Safe restoration should fail for invalid URLs&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp:415
+Value of: result
+  Actual: true
+Expected: false
+Safe restoration should fail for invalid URLs
+]]></failure>
+    </testcase>
+    <testcase name="ValidateSession" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp" line="420" status="run" result="completed" time="1.213" timestamp="2025-07-26T15:18:46.858" classname="BrowserSessionTest" />
+    <testcase name="ExtractFormState" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp" line="431" status="run" result="completed" time="1.475" timestamp="2025-07-26T15:18:48.072" classname="BrowserSessionTest" />
+    <testcase name="RestoreFormState" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp" line="468" status="run" result="completed" time="1.91" timestamp="2025-07-26T15:18:49.548" classname="BrowserSessionTest" />
+    <testcase name="ExtractActiveElements" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp" line="514" status="run" result="completed" time="1.416" timestamp="2025-07-26T15:18:51.458" classname="BrowserSessionTest" />
+    <testcase name="RestoreActiveElements" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp" line="526" status="run" result="completed" time="1.415" timestamp="2025-07-26T15:18:52.875" classname="BrowserSessionTest" />
+    <testcase name="ExtractPageHash" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp" line="541" status="run" result="completed" time="1.317" timestamp="2025-07-26T15:18:54.291" classname="BrowserSessionTest" />
+    <testcase name="ExtractDocumentReadyState" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp" line="550" status="run" result="completed" time="1.212" timestamp="2025-07-26T15:18:55.608" classname="BrowserSessionTest" />
+    <testcase name="ExtractAllScrollPositions" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp" line="557" status="run" result="completed" time="1.415" timestamp="2025-07-26T15:18:56.821" classname="BrowserSessionTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp:568&#x0A;Expected equality of these values:&#x0A;  windowPos.first&#x0A;    Which is: 0&#x0A;  100&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp:568
+Expected equality of these values:
+  windowPos.first
+    Which is: 0
+  100
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp:569&#x0A;Expected equality of these values:&#x0A;  windowPos.second&#x0A;    Which is: 0&#x0A;  200&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp:569
+Expected equality of these values:
+  windowPos.second
+    Which is: 0
+  200
+]]></failure>
+    </testcase>
+    <testcase name="RestoreScrollPositions" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp" line="572" status="run" result="completed" time="1.415" timestamp="2025-07-26T15:18:58.237" classname="BrowserSessionTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp:582&#x0A;Expected equality of these values:&#x0A;  x&#x0A;    Which is: 0&#x0A;  150&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp:582
+Expected equality of these values:
+  x
+    Which is: 0
+  150
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp:583&#x0A;Expected equality of these values:&#x0A;  y&#x0A;    Which is: 0&#x0A;  250&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp:583
+Expected equality of these values:
+  y
+    Which is: 0
+  250
+]]></failure>
+    </testcase>
+    <testcase name="ExtractCustomState" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp" line="588" status="run" result="completed" time="1.316" timestamp="2025-07-26T15:18:59.652" classname="BrowserSessionTest">
+      <failure message="unknown file&#x0A;C++ exception with description &quot;in Json::Value::resolveReference(key, end): requires objectValue&quot; thrown in the test body.&#x0A;" type=""><![CDATA[unknown file
+C++ exception with description "in Json::Value::resolveReference(key, end): requires objectValue" thrown in the test body.
+]]></failure>
+    </testcase>
+    <testcase name="RestoreCustomState" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp" line="607" status="run" result="completed" time="1.717" timestamp="2025-07-26T15:19:00.969" classname="BrowserSessionTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp:632&#x0A;Expected equality of these values:&#x0A;  simpleValue&#x0A;    Which is: &quot;&quot;&#x0A;  &quot;simple string&quot;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp:632
+Expected equality of these values:
+  simpleValue
+    Which is: ""
+  "simple string"
+]]></failure>
+    </testcase>
+    <testcase name="SessionHandlingWithEmptyPage" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp" line="637" status="run" result="completed" time="4.333" timestamp="2025-07-26T15:19:02.686" classname="BrowserSessionTest" />
+    <testcase name="SessionHandlingWithInvalidOperations" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp" line="653" status="run" result="completed" time="1.461" timestamp="2025-07-26T15:19:07.019" classname="BrowserSessionTest" />
+    <testcase name="FullSessionSaveAndRestore" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp" line="671" status="run" result="completed" time="6.112" timestamp="2025-07-26T15:19:08.481" classname="BrowserSessionTest">
+      <failure message="unknown file&#x0A;C++ exception with description &quot;Error: Invalid or unsafe URL: file:///tmp/session_tests_1753561148481_1231/session_test.html#full-test&quot; thrown in the test body.&#x0A;" type=""><![CDATA[unknown file
+C++ exception with description "Error: Invalid or unsafe URL: file:///tmp/session_tests_1753561148481_1231/session_test.html#full-test" thrown in the test body.
+]]></failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="BrowserAdvancedFormOperationsTest" tests="16" failures="8" disabled="0" skipped="0" errors="0" time="32.344" timestamp="2025-07-26T15:19:14.593">
+    <testcase name="MultiStepFormNavigation_StepProgression" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp" line="340" status="run" result="completed" time="1.579" timestamp="2025-07-26T15:19:14.593" classname="BrowserAdvancedFormOperationsTest" />
+    <testcase name="MultiStepFormNavigation_StepValidation" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp" line="364" status="run" result="completed" time="1.905" timestamp="2025-07-26T15:19:16.173" classname="BrowserAdvancedFormOperationsTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:376&#x0A;Value of: browser_-&gt;elementExists(&quot;#step2&quot;)&#x0A;  Actual: true&#x0A;Expected: false&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:376
+Value of: browser_->elementExists("#step2")
+  Actual: true
+Expected: false
+]]></failure>
+    </testcase>
+    <testcase name="MultiStepFormNavigation_BackNavigation" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp" line="390" status="run" result="completed" time="1.878" timestamp="2025-07-26T15:19:18.079" classname="BrowserAdvancedFormOperationsTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:408&#x0A;Value of: browser_-&gt;elementExists(&quot;#step2&quot;)&#x0A;  Actual: true&#x0A;Expected: false&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:408
+Value of: browser_->elementExists("#step2")
+  Actual: true
+Expected: false
+]]></failure>
+    </testcase>
+    <testcase name="ConditionalFieldLogic_CountryStateLogic" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp" line="417" status="run" result="completed" time="2.566" timestamp="2025-07-26T15:19:19.957" classname="BrowserAdvancedFormOperationsTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:429&#x0A;Value of: browser_-&gt;elementExists(&quot;#state-field&quot;)&#x0A;  Actual: true&#x0A;Expected: false&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:429
+Value of: browser_->elementExists("#state-field")
+  Actual: true
+Expected: false
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:454&#x0A;Value of: browser_-&gt;elementExists(&quot;#state-field&quot;)&#x0A;  Actual: true&#x0A;Expected: false&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:454
+Value of: browser_->elementExists("#state-field")
+  Actual: true
+Expected: false
+]]></failure>
+    </testcase>
+    <testcase name="ConditionalFieldLogic_DependentValidation" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp" line="457" status="run" result="completed" time="2.258" timestamp="2025-07-26T15:19:22.524" classname="BrowserAdvancedFormOperationsTest" />
+    <testcase name="ComplexFieldGroups_CheckboxArrays" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp" line="490" status="run" result="completed" time="1.992" timestamp="2025-07-26T15:19:24.783" classname="BrowserAdvancedFormOperationsTest" />
+    <testcase name="ComplexFieldGroups_RadioButtonLogic" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp" line="522" status="run" result="completed" time="1.979" timestamp="2025-07-26T15:19:26.775" classname="BrowserAdvancedFormOperationsTest" />
+    <testcase name="DynamicFormElements_AddRemoveFields" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp" line="560" status="run" result="completed" time="1.823" timestamp="2025-07-26T15:19:28.754" classname="BrowserAdvancedFormOperationsTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:572&#x0A;Expected equality of these values:&#x0A;  field_count_after_add&#x0A;    Which is: 0&#x0A;  1&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:572
+Expected equality of these values:
+  field_count_after_add
+    Which is: 0
+  1
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:576&#x0A;Value of: field_exists&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:576
+Value of: field_exists
+  Actual: false
+Expected: true
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:589&#x0A;Expected equality of these values:&#x0A;  field_count_after_add&#x0A;    Which is: 0&#x0A;  2&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:589
+Expected equality of these values:
+  field_count_after_add
+    Which is: 0
+  2
+]]></failure>
+    </testcase>
+    <testcase name="DynamicFormElements_CheckboxGeneration" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp" line="592" status="run" result="completed" time="1.824" timestamp="2025-07-26T15:19:30.578" classname="BrowserAdvancedFormOperationsTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:600&#x0A;Expected equality of these values:&#x0A;  checkbox_count&#x0A;    Which is: 0&#x0A;  1&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:600
+Expected equality of these values:
+  checkbox_count
+    Which is: 0
+  1
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:604&#x0A;Value of: checkbox_exists&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:604
+Value of: checkbox_exists
+  Actual: false
+Expected: true
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:618&#x0A;Expected equality of these values:&#x0A;  checkbox_count&#x0A;    Which is: 0&#x0A;  3&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:618
+Expected equality of these values:
+  checkbox_count
+    Which is: 0
+  3
+]]></failure>
+    </testcase>
+    <testcase name="FormStatePersistence_CrossStepData" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp" line="623" status="run" result="completed" time="2.459" timestamp="2025-07-26T15:19:32.402" classname="BrowserAdvancedFormOperationsTest" />
+    <testcase name="ComplexValidation_PasswordMatching" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp" line="660" status="run" result="completed" time="1.891" timestamp="2025-07-26T15:19:34.862" classname="BrowserAdvancedFormOperationsTest" />
+    <testcase name="ComplexValidation_EmailFormat" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp" line="684" status="run" result="completed" time="2.971" timestamp="2025-07-26T15:19:36.753" classname="BrowserAdvancedFormOperationsTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:710&#x0A;Value of: browser_-&gt;elementExists(&quot;#step2&quot;)&#x0A;  Actual: true&#x0A;Expected: false&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:710
+Value of: browser_->elementExists("#step2")
+  Actual: true
+Expected: false
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:710&#x0A;Value of: browser_-&gt;elementExists(&quot;#step2&quot;)&#x0A;  Actual: true&#x0A;Expected: false&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:710
+Value of: browser_->elementExists("#step2")
+  Actual: true
+Expected: false
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:710&#x0A;Value of: browser_-&gt;elementExists(&quot;#step2&quot;)&#x0A;  Actual: true&#x0A;Expected: false&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:710
+Value of: browser_->elementExists("#step2")
+  Actual: true
+Expected: false
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:710&#x0A;Value of: browser_-&gt;elementExists(&quot;#step2&quot;)&#x0A;  Actual: true&#x0A;Expected: false&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:710
+Value of: browser_->elementExists("#step2")
+  Actual: true
+Expected: false
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:710&#x0A;Value of: browser_-&gt;elementExists(&quot;#step2&quot;)&#x0A;  Actual: true&#x0A;Expected: false&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:710
+Value of: browser_->elementExists("#step2")
+  Actual: true
+Expected: false
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:710&#x0A;Value of: browser_-&gt;elementExists(&quot;#step2&quot;)&#x0A;  Actual: true&#x0A;Expected: false&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:710
+Value of: browser_->elementExists("#step2")
+  Actual: true
+Expected: false
+]]></failure>
+    </testcase>
+    <testcase name="ErrorHandling_InvalidFormOperations" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp" line="725" status="run" result="completed" time="1.443" timestamp="2025-07-26T15:19:39.725" classname="BrowserAdvancedFormOperationsTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:730&#x0A;Value of: browser_-&gt;checkElement(&quot;#terms&quot;)&#x0A;  Actual: true&#x0A;Expected: false&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:730
+Value of: browser_->checkElement("#terms")
+  Actual: true
+Expected: false
+]]></failure>
+    </testcase>
+    <testcase name="ErrorHandling_FormSubmissionFailure" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp" line="746" status="run" result="completed" time="1.822" timestamp="2025-07-26T15:19:41.168" classname="BrowserAdvancedFormOperationsTest" />
+    <testcase name="Performance_ManyDynamicFields" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp" line="768" status="run" result="completed" time="1.649" timestamp="2025-07-26T15:19:42.991" classname="BrowserAdvancedFormOperationsTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:789&#x0A;Expected equality of these values:&#x0A;  field_count&#x0A;    Which is: 0&#x0A;  20&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:789
+Expected equality of these values:
+  field_count
+    Which is: 0
+  20
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:794&#x0A;Expected equality of these values:&#x0A;  value&#x0A;    Which is: &quot;&quot;&#x0A;  &quot;performance test&quot;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:794
+Expected equality of these values:
+  value
+    Which is: ""
+  "performance test"
+]]></failure>
+    </testcase>
+    <testcase name="Performance_RapidFormNavigation" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp" line="797" status="run" result="completed" time="2.297" timestamp="2025-07-26T15:19:44.640" classname="BrowserAdvancedFormOperationsTest" />
+  </testsuite>
+  <testsuite name="BrowserFileOpsIntegrationTest" tests="13" failures="6" disabled="0" skipped="0" errors="0" time="32.722" timestamp="2025-07-26T15:19:46.938">
+    <testcase name="SessionPersistsFileUploadState" file="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp" line="279" status="run" result="completed" time="2.834" timestamp="2025-07-26T15:19:46.938" classname="BrowserFileOpsIntegrationTest" />
+    <testcase name="SessionRestoresFileOperationState" file="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp" line="345" status="run" result="completed" time="6.068" timestamp="2025-07-26T15:19:49.773" classname="BrowserFileOpsIntegrationTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:372&#x0A;Expected equality of these values:&#x0A;  selectedFiles&#x0A;    Which is: &quot;None&quot;&#x0A;  &quot;restored_file.txt&quot;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:372
+Expected equality of these values:
+  selectedFiles
+    Which is: "None"
+  "restored_file.txt"
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:373&#x0A;Expected equality of these values:&#x0A;  uploadProgress&#x0A;    Which is: &quot;0%&quot;&#x0A;  &quot;75%&quot;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:373
+Expected equality of these values:
+  uploadProgress
+    Which is: "0%"
+  "75%"
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:374&#x0A;Expected equality of these values:&#x0A;  lastAction&#x0A;    Which is: &quot;none&quot;&#x0A;  &quot;upload_in_progress&quot;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:374
+Expected equality of these values:
+  lastAction
+    Which is: "none"
+  "upload_in_progress"
+]]></failure>
+    </testcase>
+    <testcase name="FileUploadFormStateIntegration" file="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp" line="377" status="run" result="completed" time="1.433" timestamp="2025-07-26T15:19:55.842" classname="BrowserFileOpsIntegrationTest" />
+    <testcase name="DownloadOperationWithSessionTracking" file="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp" line="404" status="run" result="completed" time="2.83" timestamp="2025-07-26T15:19:57.275" classname="BrowserFileOpsIntegrationTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:411&#x0A;Expected: (downloadStatus.find(&quot;test_file.txt&quot;)) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:411
+Expected: (downloadStatus.find("test_file.txt")) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:428&#x0A;Expected: (status.find(&quot;test_file.txt&quot;)) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:428
+Expected: (status.find("test_file.txt")) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615
+]]></failure>
+    </testcase>
+    <testcase name="UploadManagerWithBrowserIntegration" file="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp" line="433" status="run" result="completed" time="1.037" timestamp="2025-07-26T15:20:00.105" classname="BrowserFileOpsIntegrationTest" />
+    <testcase name="UploadManagerValidationIntegration" file="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp" line="461" status="run" result="completed" time="1.029" timestamp="2025-07-26T15:20:01.142" classname="BrowserFileOpsIntegrationTest" />
+    <testcase name="MultipleFileUploadIntegration" file="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp" line="489" status="run" result="completed" time="1.035" timestamp="2025-07-26T15:20:02.172" classname="BrowserFileOpsIntegrationTest" />
+    <testcase name="DownloadManagerBasicIntegration" file="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp" line="520" status="run" result="completed" time="1.025" timestamp="2025-07-26T15:20:03.207" classname="BrowserFileOpsIntegrationTest" />
+    <testcase name="DownloadWithBrowserTrigger" file="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp" line="542" status="run" result="completed" time="1.928" timestamp="2025-07-26T15:20:04.233" classname="BrowserFileOpsIntegrationTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:549&#x0A;Expected: (downloadStatus.find(&quot;Downloading&quot;)) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:549
+Expected: (downloadStatus.find("Downloading")) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:555&#x0A;Expected: (downloadStatus.find(&quot;complete&quot;)) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:555
+Expected: (downloadStatus.find("complete")) != (std::string::npos), actual: 18446744073709551615 vs 18446744073709551615
+]]></failure>
+    </testcase>
+    <testcase name="FileOperationStateInSession" file="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp" line="560" status="run" result="completed" time="2.041" timestamp="2025-07-26T15:20:06.161" classname="BrowserFileOpsIntegrationTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:590&#x0A;Value of: customState.isMember(&quot;downloads&quot;)&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:590
+Value of: customState.isMember("downloads")
+  Actual: false
+Expected: true
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:603&#x0A;Value of: downloadsState.isNull()&#x0A;  Actual: true&#x0A;Expected: false&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:603
+Value of: downloadsState.isNull()
+  Actual: true
+Expected: false
+]]></failure>
+    </testcase>
+    <testcase name="CompleteFileOpsSessionWorkflow" file="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp" line="606" status="run" result="completed" time="6.484" timestamp="2025-07-26T15:20:08.203" classname="BrowserFileOpsIntegrationTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:639&#x0A;Expected equality of these values:&#x0A;  uploadStatus&#x0A;    Which is: &quot;&quot;&#x0A;  &quot;Workflow test completed&quot;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:639
+Expected equality of these values:
+  uploadStatus
+    Which is: ""
+  "Workflow test completed"
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:643&#x0A;Expected equality of these values:&#x0A;  x&#x0A;    Which is: 0&#x0A;  100&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:643
+Expected equality of these values:
+  x
+    Which is: 0
+  100
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:644&#x0A;Expected equality of these values:&#x0A;  y&#x0A;    Which is: 0&#x0A;  150&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:644
+Expected equality of these values:
+  y
+    Which is: 0
+  150
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:651&#x0A;Expected equality of these values:&#x0A;  lastAction&#x0A;    Which is: &quot;none&quot;&#x0A;  &quot;upload_complete&quot;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:651
+Expected equality of these values:
+  lastAction
+    Which is: "none"
+  "upload_complete"
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:654&#x0A;Expected equality of these values:&#x0A;  selectedFiles&#x0A;    Which is: &quot;None&quot;&#x0A;  &quot;workflow_test.txt&quot;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:654
+Expected equality of these values:
+  selectedFiles
+    Which is: "None"
+  "workflow_test.txt"
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:657&#x0A;Expected equality of these values:&#x0A;  progress&#x0A;    Which is: &quot;0%&quot;&#x0A;  &quot;100%&quot;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:657
+Expected equality of these values:
+  progress
+    Which is: "0%"
+  "100%"
+]]></failure>
+    </testcase>
+    <testcase name="FileOpsErrorHandlingIntegration" file="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp" line="662" status="run" result="completed" time="2.739" timestamp="2025-07-26T15:20:14.688" classname="BrowserFileOpsIntegrationTest" />
+    <testcase name="SessionHandlingWithFileOpsErrors" file="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp" line="684" status="run" result="completed" time="2.233" timestamp="2025-07-26T15:20:17.427" classname="BrowserFileOpsIntegrationTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:719&#x0A;Value of: errorLog.isArray()&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp:719
+Value of: errorLog.isArray()
+  Actual: false
+Expected: true
+]]></failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="ComplexWorkflowChainsTest" tests="7" failures="4" disabled="0" skipped="0" errors="0" time="22.893" timestamp="2025-07-26T15:20:19.660">
+    <testcase name="ECommerceWorkflow_BrowseToCheckout" file="/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp" line="318" status="run" result="completed" time="3.41" timestamp="2025-07-26T15:20:19.660" classname="ComplexWorkflowChainsTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp:344&#x0A;Expected equality of these values:&#x0A;  cart_count&#x0A;    Which is: &quot;0&quot;&#x0A;  &quot;2&quot;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp:344
+Expected equality of these values:
+  cart_count
+    Which is: "0"
+  "2"
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp:353&#x0A;Value of: browser_-&gt;elementExists(&quot;#product-list&quot;)&#x0A;  Actual: true&#x0A;Expected: false&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp:353
+Value of: browser_->elementExists("#product-list")
+  Actual: true
+Expected: false
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp:368&#x0A;Value of: confirmation_text.find(&quot;Order #1 Confirmed!&quot;) != std::string::npos&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp:368
+Value of: confirmation_text.find("Order #1 Confirmed!") != std::string::npos
+  Actual: false
+Expected: true
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp:369&#x0A;Value of: confirmation_text.find(&quot;Test Customer&quot;) != std::string::npos&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp:369
+Value of: confirmation_text.find("Test Customer") != std::string::npos
+  Actual: false
+Expected: true
+]]></failure>
+    </testcase>
+    <testcase name="ECommerceWorkflow_WithSessionPersistence" file="/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp" line="372" status="run" result="completed" time="5.803" timestamp="2025-07-26T15:20:23.071" classname="ComplexWorkflowChainsTest" />
+    <testcase name="MultiPageNavigation_WithFormData" file="/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp" line="413" status="run" result="completed" time="3.08" timestamp="2025-07-26T15:20:28.874" classname="ComplexWorkflowChainsTest" />
+    <testcase name="FileOperationWorkflow_UploadProcessDownload" file="/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp" line="522" status="run" result="completed" time="3.012" timestamp="2025-07-26T15:20:31.954" classname="ComplexWorkflowChainsTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp:615&#x0A;Value of: browser_-&gt;elementExists(&quot;#results&quot;)&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp:615
+Value of: browser_->elementExists("#results")
+  Actual: false
+Expected: true
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp:617&#x0A;Value of: results_text.find(&quot;File processed successfully!&quot;) != std::string::npos&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp:617
+Value of: results_text.find("File processed successfully!") != std::string::npos
+  Actual: false
+Expected: true
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp:620&#x0A;Value of: browser_-&gt;elementExists(&quot;#download-link&quot;)&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp:620
+Value of: browser_->elementExists("#download-link")
+  Actual: false
+Expected: true
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp:622&#x0A;Value of: download_href.find(&quot;data:text/plain&quot;) != std::string::npos&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp:622
+Value of: download_href.find("data:text/plain") != std::string::npos
+  Actual: false
+Expected: true
+]]></failure>
+    </testcase>
+    <testcase name="ScreenshotSessionAssertionWorkflow" file="/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp" line="627" status="run" result="completed" time="4.617" timestamp="2025-07-26T15:20:34.967" classname="ComplexWorkflowChainsTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp:733&#x0A;Expected: (size1) != (size2), actual: 21686 vs 21686&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp:733
+Expected: (size1) != (size2), actual: 21686 vs 21686
+]]></failure>
+    </testcase>
+    <testcase name="ErrorRecoveryWorkflow_NavigationFailureRecovery" file="/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp" line="738" status="run" result="completed" time="1.025" timestamp="2025-07-26T15:20:39.584" classname="ComplexWorkflowChainsTest" />
+    <testcase name="PerformanceStressWorkflow_RapidOperations" file="/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp" line="790" status="run" result="completed" time="1.943" timestamp="2025-07-26T15:20:40.610" classname="ComplexWorkflowChainsTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp:834&#x0A;Value of: browser_-&gt;elementExists(&quot;#counter&quot;)&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp:834
+Value of: browser_->elementExists("#counter")
+  Actual: false
+Expected: true
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp:848&#x0A;Expected equality of these values:&#x0A;  final_counter&#x0A;    Which is: &quot;0&quot;&#x0A;  std::to_string(num_operations)&#x0A;    Which is: &quot;50&quot;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp:848
+Expected equality of these values:
+  final_counter
+    Which is: "0"
+  std::to_string(num_operations)
+    Which is: "50"
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

@@ -1,0 +1,87 @@
+Starting HeadlessWeb Unit Tests
+=================================
+Note: Google Test filter = BrowserEventsTest.*
+[==========] Running 22 tests from 1 test suite.
+[----------] Global test environment set-up.
+
+** (process:1212923): WARNING **: 09:18:56.736: webkit_settings_set_enable_offline_web_application_cache is deprecated and does nothing.
+[----------] 22 tests from BrowserEventsTest
+[ RUN      ] BrowserEventsTest.NavigationEventWaiting
+[       OK ] BrowserEventsTest.NavigationEventWaiting (1830 ms)
+[ RUN      ] BrowserEventsTest.NavigationSignalWaiting
+[       OK ] BrowserEventsTest.NavigationSignalWaiting (1120 ms)
+[ RUN      ] BrowserEventsTest.PageReadyEventWaiting
+JavaScript error: file:///tmp/browser_events_tests_1753539539691_2909/events.html:1: SyntaxError: Unexpected end of script
+JavaScript error: file:///tmp/browser_events_tests_1753539539691_2909/events.html:1: SyntaxError: Unexpected end of script
+[       OK ] BrowserEventsTest.PageReadyEventWaiting (7438 ms)
+[ RUN      ] BrowserEventsTest.SelectorEventWaiting
+[       OK ] BrowserEventsTest.SelectorEventWaiting (3615 ms)
+[ RUN      ] BrowserEventsTest.VisibilityEventWaiting
+[       OK ] BrowserEventsTest.VisibilityEventWaiting (4226 ms)
+[ RUN      ] BrowserEventsTest.ElementContentWaiting
+[       OK ] BrowserEventsTest.ElementContentWaiting (1418 ms)
+[ RUN      ] BrowserEventsTest.JavaScriptConditionWaiting
+[       OK ] BrowserEventsTest.JavaScriptConditionWaiting (6559 ms)
+[ RUN      ] BrowserEventsTest.ComplexJavaScriptConditions
+[       OK ] BrowserEventsTest.ComplexJavaScriptConditions (1625 ms)
+[ RUN      ] BrowserEventsTest.TextAppearanceWaiting
+/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_events.cpp:442: Skipped
+Browser not ready for events testing
+
+[  SKIPPED ] BrowserEventsTest.TextAppearanceWaiting (1015 ms)
+[ RUN      ] BrowserEventsTest.UnicodeTextWaiting
+[       OK ] BrowserEventsTest.UnicodeTextWaiting (6071 ms)
+[ RUN      ] BrowserEventsTest.TimeoutVariations
+/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_events.cpp:500: Skipped
+Browser not ready for events testing
+
+[  SKIPPED ] BrowserEventsTest.TimeoutVariations (1016 ms)
+[ RUN      ] BrowserEventsTest.NegativeTimeoutHandling
+[       OK ] BrowserEventsTest.NegativeTimeoutHandling (1011 ms)
+[ RUN      ] BrowserEventsTest.ConcurrentEventWaiting
+[       OK ] BrowserEventsTest.ConcurrentEventWaiting (1566 ms)
+[ RUN      ] BrowserEventsTest.SequentialEventOperations
+/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_events.cpp:573: Skipped
+Browser not ready for events testing
+
+[  SKIPPED ] BrowserEventsTest.SequentialEventOperations (1026 ms)
+[ RUN      ] BrowserEventsTest.EventNotificationMethods
+[       OK ] BrowserEventsTest.EventNotificationMethods (1018 ms)
+[ RUN      ] BrowserEventsTest.RepeatedEventNotifications
+[       OK ] BrowserEventsTest.RepeatedEventNotifications (1018 ms)
+[ RUN      ] BrowserEventsTest.InvalidSelectorEventHandling
+JavaScript error: file:///tmp/browser_events_tests_1753539578323_6916/events.html:5:51: SyntaxError: '' is not a valid selector.
+JavaScript error: file:///tmp/browser_events_tests_1753539578323_6916/events.html:5:51: SyntaxError: '#' is not a valid selector.
+JavaScript error: file:///tmp/browser_events_tests_1753539578323_6916/events.html:5:51: SyntaxError: '.' is not a valid selector.
+JavaScript error: file:///tmp/browser_events_tests_1753539578323_6916/events.html:5:51: SyntaxError: '>>bad' is not a valid selector.
+[       OK ] BrowserEventsTest.InvalidSelectorEventHandling (10685 ms)
+[ RUN      ] BrowserEventsTest.InvalidJavaScriptConditionHandling
+[       OK ] BrowserEventsTest.InvalidJavaScriptConditionHandling (7088 ms)
+[ RUN      ] BrowserEventsTest.EventWaitingPerformance
+[       OK ] BrowserEventsTest.EventWaitingPerformance (5110 ms)
+[ RUN      ] BrowserEventsTest.TimingAccuracy
+/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_events.cpp:753: Failure
+Expected: (actual_duration.count()) <= (timeout * 2), actual: 201 vs 200
+
+[  FAILED  ] BrowserEventsTest.TimingAccuracy (2828 ms)
+[ RUN      ] BrowserEventsTest.ComplexEventScenarios
+JavaScript error: file:///tmp/browser_events_tests_1753539604036_9329/events.html:1: SyntaxError: Unexpected end of script
+[       OK ] BrowserEventsTest.ComplexEventScenarios (4529 ms)
+[ RUN      ] BrowserEventsTest.EdgeCaseEventHandling
+JavaScript error: file:///tmp/browser_events_tests_1753539608566_7033/events.html:44: SyntaxError: Unexpected EOF
+[       OK ] BrowserEventsTest.EdgeCaseEventHandling (1413 ms)
+[----------] 22 tests from BrowserEventsTest (73239 ms total)
+
+[----------] Global test environment tear-down
+[==========] 22 tests from 1 test suite ran. (73305 ms total)
+[  PASSED  ] 18 tests.
+[  SKIPPED ] 3 tests, listed below:
+[  SKIPPED ] BrowserEventsTest.TextAppearanceWaiting
+[  SKIPPED ] BrowserEventsTest.TimeoutVariations
+[  SKIPPED ] BrowserEventsTest.SequentialEventOperations
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] BrowserEventsTest.TimingAccuracy
+
+ 1 FAILED TEST
+
+Some tests failed. Check output above for details.

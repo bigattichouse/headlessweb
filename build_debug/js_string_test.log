@@ -1,0 +1,17 @@
+Starting HeadlessWeb Unit Tests
+=================================
+Note: Google Test filter = BrowserJavaScriptTest.StringOperations
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+
+** (process:1218134): WARNING **: 10:31:32.283: webkit_settings_set_enable_offline_web_application_cache is deprecated and does nothing.
+[----------] 1 test from BrowserJavaScriptTest
+[ RUN      ] BrowserJavaScriptTest.StringOperations
+[       OK ] BrowserJavaScriptTest.StringOperations (1192 ms)
+[----------] 1 test from BrowserJavaScriptTest (1192 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (1257 ms total)
+[  PASSED  ] 1 test.
+
+All tests passed successfully!

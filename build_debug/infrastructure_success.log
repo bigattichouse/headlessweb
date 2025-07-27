@@ -1,0 +1,140 @@
+Starting HeadlessWeb Unit Tests
+=================================
+Note: Google Test filter = BrowserStorageTest.*:BrowserEventsTest.*:UploadManagerTest.*
+[==========] Running 78 tests from 3 test suites.
+[----------] Global test environment set-up.
+
+** (process:1234492): WARNING **: 13:52:32.472: webkit_settings_set_enable_offline_web_application_cache is deprecated and does nothing.
+[----------] 38 tests from UploadManagerTest
+[ RUN      ] UploadManagerTest.ValidateUploadTargetExists
+[       OK ] UploadManagerTest.ValidateUploadTargetExists (1711 ms)
+[ RUN      ] UploadManagerTest.ValidateUploadTargetNotExists
+[       OK ] UploadManagerTest.ValidateUploadTargetNotExists (1514 ms)
+[ RUN      ] UploadManagerTest.PrepareValidFile
+[       OK ] UploadManagerTest.PrepareValidFile (1713 ms)
+[ RUN      ] UploadManagerTest.PrepareNonExistentFile
+[       OK ] UploadManagerTest.PrepareNonExistentFile (1512 ms)
+[ RUN      ] UploadManagerTest.DetectMimeTypeByExtension
+[       OK ] UploadManagerTest.DetectMimeTypeByExtension (1711 ms)
+[ RUN      ] UploadManagerTest.SanitizeFileName
+[       OK ] UploadManagerTest.SanitizeFileName (1708 ms)
+[ RUN      ] UploadManagerTest.SimulateFileSelection
+[       OK ] UploadManagerTest.SimulateFileSelection (1508 ms)
+[ RUN      ] UploadManagerTest.TriggerFileInputEvents
+[       OK ] UploadManagerTest.TriggerFileInputEvents (1512 ms)
+[ RUN      ] UploadManagerTest.SimulateFileDrop
+[       OK ] UploadManagerTest.SimulateFileDrop (1512 ms)
+[ RUN      ] UploadManagerTest.WaitForUploadCompletion
+[       OK ] UploadManagerTest.WaitForUploadCompletion (1511 ms)
+[ RUN      ] UploadManagerTest.MonitorUploadProgress
+[       OK ] UploadManagerTest.MonitorUploadProgress (1507 ms)
+[ RUN      ] UploadManagerTest.VerifyUploadSuccess
+[       OK ] UploadManagerTest.VerifyUploadSuccess (1508 ms)
+[ RUN      ] UploadManagerTest.UploadMultipleFiles
+[       OK ] UploadManagerTest.UploadMultipleFiles (1512 ms)
+[ RUN      ] UploadManagerTest.UploadMultipleFilesWithMissing
+[       OK ] UploadManagerTest.UploadMultipleFilesWithMissing (1509 ms)
+[ RUN      ] UploadManagerTest.UploadWithRetrySuccess
+[       OK ] UploadManagerTest.UploadWithRetrySuccess (1709 ms)
+[ RUN      ] UploadManagerTest.UploadWithRetryTimeout
+[       OK ] UploadManagerTest.UploadWithRetryTimeout (1706 ms)
+[ RUN      ] UploadManagerTest.ClearUploadState
+[       OK ] UploadManagerTest.ClearUploadState (1507 ms)
+[ RUN      ] UploadManagerTest.GetErrorMessage
+[       OK ] UploadManagerTest.GetErrorMessage (1511 ms)
+[ RUN      ] UploadManagerTest.SetDefaultTimeout
+[       OK ] UploadManagerTest.SetDefaultTimeout (1513 ms)
+[ RUN      ] UploadManagerTest.SetMaxFileSize
+[       OK ] UploadManagerTest.SetMaxFileSize (1522 ms)
+[ RUN      ] UploadManagerTest.SetProgressMonitoringEnabled
+[       OK ] UploadManagerTest.SetProgressMonitoringEnabled (1520 ms)
+[ RUN      ] UploadManagerTest.GetCommonFileInputSelectors
+[       OK ] UploadManagerTest.GetCommonFileInputSelectors (1519 ms)
+[ RUN      ] UploadManagerTest.HasFileInputs
+[       OK ] UploadManagerTest.HasFileInputs (1523 ms)
+[ RUN      ] UploadManagerTest.FindFileInputs
+[       OK ] UploadManagerTest.FindFileInputs (1523 ms)
+[ RUN      ] UploadManagerTest.UploadResultToString
+[       OK ] UploadManagerTest.UploadResultToString (1517 ms)
+[ RUN      ] UploadManagerTest.UploadEmptyFile
+[       OK ] UploadManagerTest.UploadEmptyFile (1520 ms)
+[ RUN      ] UploadManagerTest.UploadFileWithSpecialCharacters
+[       OK ] UploadManagerTest.UploadFileWithSpecialCharacters (1522 ms)
+[ RUN      ] UploadManagerTest.UploadWithInvalidSelector
+[       OK ] UploadManagerTest.UploadWithInvalidSelector (1520 ms)
+[ RUN      ] UploadManagerTest.EndToEndUploadWorkflow
+[       OK ] UploadManagerTest.EndToEndUploadWorkflow (1718 ms)
+[ RUN      ] UploadManagerTest.BrowserPageInteraction
+[       OK ] UploadManagerTest.BrowserPageInteraction (1516 ms)
+[ RUN      ] UploadManagerTest.EnhancedFileValidation
+[       OK ] UploadManagerTest.EnhancedFileValidation (1521 ms)
+[ RUN      ] UploadManagerTest.EnhancedMimeTypeDetection
+[       OK ] UploadManagerTest.EnhancedMimeTypeDetection (1520 ms)
+[ RUN      ] UploadManagerTest.Base64Encoding
+/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp:753: Skipped
+Base64 encoding method is private
+
+[  SKIPPED ] UploadManagerTest.Base64Encoding (1523 ms)
+[ RUN      ] UploadManagerTest.JavaScriptGeneration
+/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp:759: Skipped
+JavaScript generation method is private
+
+[  SKIPPED ] UploadManagerTest.JavaScriptGeneration (1513 ms)
+[ RUN      ] UploadManagerTest.JavaScriptEscaping
+/home/bigattichouse/workspace/headlessweb/tests/fileops/test_upload_manager.cpp:765: Skipped
+JavaScript escaping method is private
+
+[  SKIPPED ] UploadManagerTest.JavaScriptEscaping (1520 ms)
+[ RUN      ] UploadManagerTest.EnhancedFileSimulation
+[       OK ] UploadManagerTest.EnhancedFileSimulation (1524 ms)
+[ RUN      ] UploadManagerTest.FilePreparationWithMetadata
+[       OK ] UploadManagerTest.FilePreparationWithMetadata (1519 ms)
+[ RUN      ] UploadManagerTest.SecurityValidation
+[       OK ] UploadManagerTest.SecurityValidation (1522 ms)
+[----------] 38 tests from UploadManagerTest (58997 ms total)
+
+[----------] 22 tests from BrowserEventsTest
+[ RUN      ] BrowserEventsTest.NavigationEventWaiting
+[       OK ] BrowserEventsTest.NavigationEventWaiting (1653 ms)
+[ RUN      ] BrowserEventsTest.NavigationSignalWaiting
+/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_events.cpp:254: Skipped
+Browser not ready for navigation signal testing
+
+[  SKIPPED ] BrowserEventsTest.NavigationSignalWaiting (1021 ms)
+[ RUN      ] BrowserEventsTest.PageReadyEventWaiting
+JavaScript error: file:///tmp/browser_events_tests_1753556014148_8420/events.html:1: SyntaxError: Unexpected end of script
+JavaScript error: file:///tmp/browser_events_tests_1753556014148_8420/events.html:1: SyntaxError: Unexpected end of script
+[       OK ] BrowserEventsTest.PageReadyEventWaiting (7435 ms)
+[ RUN      ] BrowserEventsTest.SelectorEventWaiting
+[       OK ] BrowserEventsTest.SelectorEventWaiting (3644 ms)
+[ RUN      ] BrowserEventsTest.VisibilityEventWaiting
+[       OK ] BrowserEventsTest.VisibilityEventWaiting (4255 ms)
+[ RUN      ] BrowserEventsTest.ElementContentWaiting
+[       OK ] BrowserEventsTest.ElementContentWaiting (1437 ms)
+[ RUN      ] BrowserEventsTest.JavaScriptConditionWaiting
+[       OK ] BrowserEventsTest.JavaScriptConditionWaiting (6685 ms)
+[ RUN      ] BrowserEventsTest.ComplexJavaScriptConditions
+[       OK ] BrowserEventsTest.ComplexJavaScriptConditions (1621 ms)
+[ RUN      ] BrowserEventsTest.TextAppearanceWaiting
+[       OK ] BrowserEventsTest.TextAppearanceWaiting (3535 ms)
+[ RUN      ] BrowserEventsTest.UnicodeTextWaiting
+[       OK ] BrowserEventsTest.UnicodeTextWaiting (6040 ms)
+[ RUN      ] BrowserEventsTest.TimeoutVariations
+[       OK ] BrowserEventsTest.TimeoutVariations (1517 ms)
+[ RUN      ] BrowserEventsTest.NegativeTimeoutHandling
+[       OK ] BrowserEventsTest.NegativeTimeoutHandling (1055 ms)
+[ RUN      ] BrowserEventsTest.ConcurrentEventWaiting
+[       OK ] BrowserEventsTest.ConcurrentEventWaiting (1558 ms)
+[ RUN      ] BrowserEventsTest.SequentialEventOperations
+[       OK ] BrowserEventsTest.SequentialEventOperations (3073 ms)
+[ RUN      ] BrowserEventsTest.EventNotificationMethods
+[       OK ] BrowserEventsTest.EventNotificationMethods (1019 ms)
+[ RUN      ] BrowserEventsTest.RepeatedEventNotifications
+[       OK ] BrowserEventsTest.RepeatedEventNotifications (1020 ms)
+[ RUN      ] BrowserEventsTest.InvalidSelectorEventHandling
+JavaScript error: file:///tmp/browser_events_tests_1753556058050_9563/events.html:5:51: SyntaxError: '' is not a valid selector.
+JavaScript error: file:///tmp/browser_events_tests_1753556058050_9563/events.html:5:51: SyntaxError: '#' is not a valid selector.
+JavaScript error: file:///tmp/browser_events_tests_1753556058050_9563/events.html:5:51: SyntaxError: '.' is not a valid selector.
+JavaScript error: file:///tmp/browser_events_tests_1753556058050_9563/events.html:5:51: SyntaxError: '>>bad' is not a valid selector.
+[       OK ] BrowserEventsTest.InvalidSelectorEventHandling (10498 ms)
+[ RUN      ] BrowserEventsTest.InvalidJavaScriptConditionHandling
