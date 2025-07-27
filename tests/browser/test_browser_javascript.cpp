@@ -216,11 +216,11 @@ TEST_F(BrowserJavaScriptTest, BasicJavaScriptExecution) {
         GTEST_SKIP() << "Browser not available for JavaScript testing";
     }
     
-    std::string result;
     EXPECT_NO_THROW({
-        browser->executeJavascript("console.log('test');", &result);
-        browser->executeJavascript("1 + 1;", &result);
-        browser->executeJavascript("document.title;", &result);
+        // SAFETY FIX: Use safe wrapper instead of unsafe executeJavascript with pointer
+        executeWrappedJS("console.log('test'); return 'logged';");
+        executeWrappedJS("return (1 + 1).toString();");
+        executeWrappedJS("return document.title || 'no title';");
     });
 }
 

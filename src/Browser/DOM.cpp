@@ -44,33 +44,39 @@ bool Browser::fillInput(const std::string& selector, const std::string& value) {
         "(function() { "
         "  try { "
         "    var element = document.querySelector('" + selector + "'); "
-        "    if (element) { "
-        "      element.focus(); "
-        "      element.value = '" + escaped_value + "'; "
-        "      element.dispatchEvent(new Event('input', { bubbles: true })); "
-        "      element.dispatchEvent(new Event('change', { bubbles: true })); "
-        "      element.dispatchEvent(new Event('blur', { bubbles: true })); "
-        "      return 'true'; "
-        "    } "
-        "    return 'false'; "
+        "    if (!element) return 'ELEMENT_NOT_FOUND'; "
+        "    element.focus(); "
+        "    element.value = '" + escaped_value + "'; "
+        "    element.dispatchEvent(new Event('input', { bubbles: true })); "
+        "    element.dispatchEvent(new Event('change', { bubbles: true })); "
+        "    element.dispatchEvent(new Event('blur', { bubbles: true })); "
+        "    return 'FILL_SUCCESS'; "
         "  } catch(e) { "
-        "    return 'error: ' + e.message; "
+        "    return 'FILL_ERROR: ' + e.message; "
         "  } "
         "})()";
     
     std::string result = executeJavascriptSync(js_script);
     
+    // DEBUG: Log fillInput result  
+    std::cerr << "FillInput DEBUG: selector='" << selector << "' value='" << value << "' result='" << result << "'" << std::endl;
+    
     // Add verification step with delay (optimized for tests)
-    if (result == "true") {
+    if (result == "FILL_SUCCESS") {
         wait(5); // Optimized for tests - allow time for the value to be processed
         
         // Verify the value was actually set
         std::string verifyJs = "document.querySelector('" + selector + "') ? document.querySelector('" + selector + "').value : 'NOT_FOUND'";
         std::string actualValue = executeJavascriptSync(verifyJs);
         
+        // DEBUG: Log verification result
+        std::cerr << "FillInput VERIFY: expected='" << value << "' actual='" << actualValue << "'" << std::endl;
+        
         if (actualValue == escaped_value || actualValue == value) {
+            std::cerr << "FillInput VERIFY: SUCCESS" << std::endl;
             return true;
         } else {
+            std::cerr << "FillInput VERIFY: FAILED" << std::endl;
             debug_output("Warning: Value verification failed. Expected: '" + value + "', Got: '" + actualValue + "'");
             
             // Try alternative method using setAttribute
@@ -124,42 +130,42 @@ bool Browser::clickElement(const std::string& selector) {
         pos += 2;
     }
     
+    // SIMPLIFIED DEBUG VERSION - test step by step
     std::string js_script = 
         "(function() { "
         "  try { "
-        "    if (!document || !document.querySelector) return 'NO_DOCUMENT'; "
+        "    if (!document) return 'NO_DOCUMENT'; "
+        "    if (!document.querySelector) return 'NO_QUERYSELECTOR'; "
         "    var element = document.querySelector('" + escaped_selector + "'); "
-        "    if (element) { "
-        "      // Check if element is visible before clicking "
-        "      var rect = element.getBoundingClientRect(); "
-        "      if (rect.width > 0 && rect.height > 0) { "
-        "        element.click(); "
-        "        return 'clicked'; "
-        "      } else { "
-        "        return 'not_visible'; "
-        "      } "
-        "    } "
-        "    return 'not_found'; "
+        "    if (!element) return 'ELEMENT_NOT_FOUND'; "
+        "    var rect = element.getBoundingClientRect(); "
+        "    if (rect.width <= 0 || rect.height <= 0) return 'ELEMENT_NOT_VISIBLE'; "
+        "    element.click(); "
+        "    return 'CLICKED_SUCCESS'; "
         "  } catch(e) { "
-        "    return 'error:' + e.message; "
+        "    return 'JS_ERROR: ' + e.message; "
         "  } "
         "})()";
     
     std::string result = executeJavascriptSync(js_script);
     
-    if (result == "clicked") {
+    // DEBUG: Always log the result for debugging
+    std::cerr << "ClickElement DEBUG: selector='" << selector << "' result='" << result << "'" << std::endl;
+    
+    if (result == "CLICKED_SUCCESS") {
+        std::cerr << "ClickElement SUCCESS: " << selector << std::endl;
         return true;
     } else if (result == "not_visible") {
-        debug_output("Element not visible: " + selector);
+        std::cerr << "ClickElement FAIL: Element not visible: " << selector << std::endl;
         return false;
     } else if (result == "not_found") {
-        debug_output("Element not found during click: " + selector);
+        std::cerr << "ClickElement FAIL: Element not found: " << selector << std::endl;
         return false;
     } else if (result == "NO_DOCUMENT") {
-        debug_output("Document not ready for click: " + selector);
+        std::cerr << "ClickElement FAIL: Document not ready: " << selector << std::endl;
         return false;
     } else {
-        debug_output("Click failed: " + result);
+        std::cerr << "ClickElement FAIL: Unexpected result: " << result << std::endl;
         return false;
     }
 }
@@ -619,31 +625,16 @@ std::string Browser::getAttribute(const std::string& selector, const std::string
     
     std::string js_script = 
         "(function() { "
-        "  try { "
-        "    if (!document || !document.querySelector) return 'NO_DOCUMENT'; "
-        "    var element = document.querySelector('" + escaped_selector + "'); "
-        "    if (element) { "
-        "      var attr = element.getAttribute('" + escaped_attribute + "'); "
-        "      return attr !== null ? attr : ''; "
-        "    } "
-        "    return ''; "
-        "  } catch(e) { "
-        "    return 'ERROR:' + e.message; "
+        "  if (!document) return ''; "
+        "  var element = document.querySelector('" + escaped_selector + "'); "
+        "  if (!element) return ''; "
+        "  if ('" + escaped_attribute + "' === 'value') { "
+        "    return element.value || ''; "
         "  } "
+        "  return element.getAttribute('" + escaped_attribute + "') || ''; "
         "})()";
     
     std::string result = executeJavascriptSync(js_script);
-    
-    if (result == "NO_DOCUMENT") {
-        debug_output("Document not ready for getAttribute: " + selector);
-        return "";
-    }
-    
-    if (result.find("ERROR:") == 0) {
-        debug_output("getAttribute error: " + result.substr(6));
-        return "";
-    }
-    
     return result;
 }
 bool Browser::setAttribute(const std::string& selector, const std::string& attribute, const std::string& value) {

@@ -38,6 +38,15 @@ protected:
     
     // Generic JavaScript wrapper function for safe execution
     std::string executeWrappedJS(const std::string& jsCode) {
+        // Try direct execution first (for simple expressions)
+        if (jsCode.find("return ") == 0) {
+            // Remove "return " and execute as expression
+            std::string expression = jsCode.substr(7); // Remove "return "
+            std::string result = browser->executeJavascriptSync(expression);
+            if (!result.empty()) return result;
+        }
+        
+        // Fallback to wrapped function approach
         std::string wrapped = "(function() { " + jsCode + " })()";
         return browser->executeJavascriptSync(wrapped);
     }
@@ -347,6 +356,10 @@ TEST_F(BrowserMainTest, BasicDOMInteraction) {
     EXPECT_TRUE(browser->fillInput("#name-input", "John Doe"));
     EXPECT_TRUE(browser->fillInput("#email-input", "john@example.com"));
     
+    // Test getting input values BEFORE button click
+    std::string name_value_before = browser->getAttribute("#name-input", "value");
+    EXPECT_EQ(name_value_before, "John Doe");
+    
     // Test clicking
     EXPECT_TRUE(browser->clickElement("#test-btn"));
     std::this_thread::sleep_for(200ms);
@@ -355,7 +368,7 @@ TEST_F(BrowserMainTest, BasicDOMInteraction) {
     std::string result = browser->getInnerText("#result");
     EXPECT_EQ(result, "Button clicked!");
     
-    // Test getting input values
+    // Test getting input values AFTER button click
     std::string name_value = browser->getAttribute("#name-input", "value");
     EXPECT_EQ(name_value, "John Doe");
 }

@@ -342,54 +342,76 @@ TEST_F(UploadValidationTest, ValidateFileTypeWildcard) {
 
 TEST_F(UploadManagerTest, ValidateUploadTargetExists) {
     debug_output("=== ValidateUploadTargetExists START ===");
+    std::cout << "DEBUG CHECKPOINT 1: Test started" << std::endl;
     
     // SAFETY: Verify browser is still in good state
+    std::cout << "DEBUG CHECKPOINT 2: Checking browser state" << std::endl;
     if (!browser) {
+        std::cout << "DEBUG: Browser not available, skipping" << std::endl;
         GTEST_SKIP() << "Browser instance not available";
         return;
     }
+    std::cout << "DEBUG CHECKPOINT 3: Browser state OK" << std::endl;
     
     // SAFETY: Check basic JavaScript execution using safe wrapper
+    std::cout << "DEBUG CHECKPOINT 4: About to test JavaScript execution" << std::endl;
     std::string basic_test = executeWrappedJS("return 'hello';");
+    std::cout << "DEBUG CHECKPOINT 5: JavaScript execution completed" << std::endl;
     debug_output("Basic JS test result: '" + basic_test + "'");
     if (basic_test != "hello") {
+        std::cout << "DEBUG: JavaScript execution failed, skipping" << std::endl;
         debug_output("WARNING: Basic JavaScript execution failed - browser may be corrupted");
         GTEST_SKIP() << "Browser JavaScript execution not working";
         return;
     }
+    std::cout << "DEBUG CHECKPOINT 6: JavaScript execution OK" << std::endl;
     
     // SAFETY: Check document ready state with timeout
+    std::cout << "DEBUG CHECKPOINT 7: About to check document ready state" << std::endl;
     std::string ready_state = executeWrappedJS("return document.readyState;");
+    std::cout << "DEBUG CHECKPOINT 8: Document ready state completed" << std::endl;
     debug_output("Document ready state: '" + ready_state + "'");
     
     // SAFETY: Check direct element query with error handling
+    std::cout << "DEBUG CHECKPOINT 9: About to check direct element query" << std::endl;
     std::string direct_query = executeWrappedJS("return document.querySelector('#file-input') !== null;");
+    std::cout << "DEBUG CHECKPOINT 10: Direct element query completed" << std::endl;
     debug_output("Direct query result: '" + direct_query + "'");
     
     // SAFETY: Verify target exists using real browser DOM query with retry
+    std::cout << "DEBUG CHECKPOINT 11: About to check elementExists" << std::endl;
     std::string exists_result = "";
     for (int i = 0; i < 3; i++) {
+        std::cout << "DEBUG: elementExists attempt " << (i + 1) << std::endl;
         exists_result = executeWrappedJS("return elementExists('#file-input').toString();");
+        std::cout << "DEBUG: elementExists attempt " << (i + 1) << " completed" << std::endl;
         debug_output("elementExists attempt " + std::to_string(i + 1) + " result: '" + exists_result + "'");
         if (!exists_result.empty()) break;
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
+    std::cout << "DEBUG CHECKPOINT 12: elementExists loop completed" << std::endl;
     
     if (exists_result.empty()) {
+        std::cout << "DEBUG: elementExists returned empty, skipping" << std::endl;
         debug_output("ERROR: elementExists returned empty - DOM may not be ready");
         GTEST_SKIP() << "DOM element query failed";
         return;
     }
+    std::cout << "DEBUG CHECKPOINT 13: elementExists validation passed" << std::endl;
     
     // MAIN TEST: Call the actual validation method
+    std::cout << "DEBUG CHECKPOINT 14: About to call validateUploadTarget" << std::endl;
     debug_output("Calling validateUploadTarget...");
     bool result = manager->validateUploadTarget(*browser, "#file-input");
+    std::cout << "DEBUG CHECKPOINT 15: validateUploadTarget completed" << std::endl;
     debug_output("validateUploadTarget result: " + std::string(result ? "true" : "false"));
     
+    std::cout << "DEBUG CHECKPOINT 16: About to run final assertions" << std::endl;
     debug_output("=== ValidateUploadTargetExists END ===");
     
     EXPECT_TRUE(result);
     EXPECT_EQ(exists_result, "true");
+    std::cout << "DEBUG CHECKPOINT 17: Test completed successfully" << std::endl;
 }
 
 TEST_F(UploadManagerTest, ValidateUploadTargetNotExists) {

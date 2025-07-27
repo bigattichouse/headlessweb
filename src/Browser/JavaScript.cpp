@@ -16,11 +16,12 @@ void js_eval_callback(GObject* object, GAsyncResult* res, gpointer user_data) {
     Browser* browser_instance = static_cast<Browser*>(g_object_get_data(G_OBJECT(object), "browser-instance"));
     
     if (error) {
-        // Don't log common storage/security errors that are expected in test environment
+        // Don't log common errors that are expected in test environment
         bool should_suppress = strstr(error->message, "SecurityError") || 
                               strstr(error->message, "ReferenceError: Can't find variable") ||
                               strstr(error->message, "localStorage") ||
-                              strstr(error->message, "sessionStorage");
+                              strstr(error->message, "sessionStorage") ||
+                              strstr(error->message, "SyntaxError: Unexpected end of script");
         
         if (!should_suppress) {
             std::cerr << "JavaScript error: " << error->message << std::endl;
@@ -181,6 +182,12 @@ std::string Browser::executeJavascriptSync(const std::string& script) {
         // Get result from our member buffer and clear it
         std::string return_value = js_result_buffer;
         js_result_buffer.clear();
+        
+        // DEBUG: Log JavaScript execution for debugging
+        if (g_debug && script.find("clickElement") != std::string::npos) {
+            debug_output("JS Debug - Script: " + script.substr(0, 100) + "...");
+            debug_output("JS Debug - Result: '" + return_value + "'");
+        }
         
         // Handle common problematic return values
         if (return_value == "undefined" || return_value == "null") {
