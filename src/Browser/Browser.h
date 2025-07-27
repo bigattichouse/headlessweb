@@ -232,5 +232,5 @@ public:
 protected:
     WebKitCookieManager* cookieManager;
     std::string sessionDataPath;
-    std::string js_result_buffer;  // Buffer for JavaScript results
+    // js_result_buffer removed - using local buffers for thread safety
 };

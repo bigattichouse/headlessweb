@@ -243,11 +243,62 @@ Result Manager::assertJavaScript(Browser& browser, const Command& cmd) {
     }
 }
 
+Result Manager::assertElementValue(Browser& browser, const Command& cmd) {
+    auto start_time = std::chrono::steady_clock::now();
+    
+    try {
+        // Get actual element value (for form inputs and other elements with value attribute)
+        std::string actual_value = browser.getAttribute(cmd.selector, "value");
+        
+        auto end_time = std::chrono::steady_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
+        
+        // Parse operator from expected value
+        ComparisonOperator op = cmd.op;
+        std::string expected = cmd.expected_value;
+        
+        // If no explicit operator, try to parse from value
+        if (op == ComparisonOperator::EQUALS) {
+            expected = extractOperatorFromValue(cmd.expected_value, op);
+        }
+        
+        bool matches = compareValues(actual_value, expected, op, cmd.case_sensitive);
+        
+        Result result = matches ? Result::PASS : Result::FAIL;
+        
+        TestResult test_result = createResult(cmd, result, actual_value);
+        test_result.duration = duration;
+        
+        if (!silent_mode) {
+            outputResult(test_result);
+        }
+        
+        addResult(test_result);
+        return result;
+        
+    } catch (const std::exception& e) {
+        auto end_time = std::chrono::steady_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
+        
+        TestResult test_result = createResult(cmd, Result::ERROR, "", e.what());
+        test_result.duration = duration;
+        
+        if (!silent_mode) {
+            outputResult(test_result);
+        }
+        
+        addResult(test_result);
+        return Result::ERROR;
+    }
+}
+
 Result Manager::executeAssertion(Browser& browser, const Command& cmd) {
-    if (cmd.type == "exists") {
+    if (cmd.type == "exists" || cmd.type == "element-exists") {
         return assertExists(browser, cmd);
     } else if (cmd.type == "text") {
         return assertText(browser, cmd);
+    } else if (cmd.type == "element-value") {
+        return assertElementValue(browser, cmd);
     } else if (cmd.type == "count") {
         return assertCount(browser, cmd);
     } else if (cmd.type == "js") {

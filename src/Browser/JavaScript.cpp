@@ -156,12 +156,12 @@ std::string Browser::executeJavascriptSync(const std::string& script) {
         return "";
     }
     
-    // SAFETY FIX: Use proper memory-safe implementation with member buffer
+    // MEMORY SAFETY FIX: Use local buffer to avoid concurrent access corruption
     try {
-        // Clear our member buffer before execution
-        js_result_buffer.clear();
+        // Use a local string buffer for this specific execution
+        std::string local_result_buffer;
         
-        // Use our member buffer instead of raw pointer to avoid corruption
+        // Use local buffer to avoid race conditions with member buffer
         webkit_web_view_evaluate_javascript(
             webView, 
             script.c_str(), 
@@ -170,7 +170,7 @@ std::string Browser::executeJavascriptSync(const std::string& script) {
             NULL, 
             NULL, 
             js_eval_callback, 
-            &js_result_buffer
+            &local_result_buffer
         );
         
         // Wait for completion with timeout
@@ -179,9 +179,8 @@ std::string Browser::executeJavascriptSync(const std::string& script) {
             return "";
         }
         
-        // Get result from our member buffer and clear it
-        std::string return_value = js_result_buffer;
-        js_result_buffer.clear();
+        // Get result from our local buffer (no need to clear member buffer)
+        std::string return_value = local_result_buffer;
         
         // DEBUG: Log JavaScript execution for debugging
         if (g_debug && script.find("clickElement") != std::string::npos) {

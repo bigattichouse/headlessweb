@@ -17,6 +17,7 @@ public:
     // Core assertion methods
     Result assertExists(Browser& browser, const Command& cmd);
     Result assertText(Browser& browser, const Command& cmd);
+    Result assertElementValue(Browser& browser, const Command& cmd);
     Result assertCount(Browser& browser, const Command& cmd);
     Result assertJavaScript(Browser& browser, const Command& cmd);
     
