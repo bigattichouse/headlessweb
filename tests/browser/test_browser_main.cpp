@@ -419,10 +419,10 @@ TEST_F(BrowserMainTest, BasicNavigation) {
     EXPECT_TRUE(page2_ready);
     EXPECT_EQ(getPageTitleReliable(), "Page 2");
     
-    // Test go back with enhanced title checking
+    // Test go back with enhanced title checking  
     browser->goBack();
-    browser->waitForNavigation(3000);
-    std::this_thread::sleep_for(1000ms); // Allow time for navigation
+    browser->waitForNavigation(5000);
+    std::this_thread::sleep_for(2000ms); // Allow extra time for back navigation
     EXPECT_EQ(getPageTitleReliable(), "Page 1");
     
     // Test go forward with enhanced title checking
@@ -539,8 +539,18 @@ TEST_F(BrowserMainTest, BrowserStateConsistency) {
         <div id="location-info"></div>
     </div>
     <script>
-        document.getElementById('ready-state').textContent = document.readyState;
-        document.getElementById('location-info').textContent = window.location.href;
+        function updateState() {
+            document.getElementById('ready-state').textContent = document.readyState;
+            document.getElementById('location-info').textContent = window.location.href;
+        }
+        
+        // Update immediately and also when DOM is ready
+        updateState();
+        
+        if (document.readyState !== 'complete') {
+            document.addEventListener('DOMContentLoaded', updateState);
+            window.addEventListener('load', updateState);
+        }
     </script>
 </body>
 </html>

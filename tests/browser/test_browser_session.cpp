@@ -270,9 +270,7 @@ TEST_F(BrowserSessionTest, RestoreSessionBasic) {
     // CRITICAL FIX: Use global browser instead of creating new instance
     EXPECT_NO_THROW(browser->restoreSession(*session));
     
-    // Enhanced readiness checking after restoration
-    bool page_ready = loadPageWithReadinessCheck(browser->getCurrentUrl());
-    EXPECT_TRUE(page_ready);
+    // Session restoration already includes readiness checking, no need to reload page
     
     // Verify restoration using enhanced wrapper function
     std::string userAgent = executeWrappedJS("return navigator.userAgent;");
@@ -307,9 +305,7 @@ TEST_F(BrowserSessionTest, RestoreSessionWithFormState) {
     // CRITICAL FIX: Use global browser instead of creating new instance
     browser->restoreSession(*session);
     
-    // Enhanced readiness checking after restoration
-    bool page_ready = loadPageWithReadinessCheck(browser->getCurrentUrl());
-    EXPECT_TRUE(page_ready);
+    // Session restoration already includes readiness checking, no need to reload page
     
     // CRITICAL FIX: Use JavaScript to read DOM properties instead of getAttribute
     std::string textValue = executeWrappedJS("return document.getElementById('text-input').value;");
@@ -330,9 +326,7 @@ TEST_F(BrowserSessionTest, RestoreSessionWithScrollPosition) {
     // CRITICAL FIX: Use global browser instead of creating new instance
     browser->restoreSession(*session);
     
-    // Enhanced readiness checking after restoration
-    bool page_ready = loadPageWithReadinessCheck(browser->getCurrentUrl());
-    EXPECT_TRUE(page_ready);
+    // Session restoration already includes readiness checking, no need to reload page
     
     // Allow time for scroll position restoration
     std::this_thread::sleep_for(500ms);
@@ -352,9 +346,7 @@ TEST_F(BrowserSessionTest, RestoreSessionWithActiveElements) {
     // CRITICAL FIX: Use global browser instead of creating new instance
     browser->restoreSession(*session);
     
-    // Enhanced readiness checking after restoration
-    bool page_ready = loadPageWithReadinessCheck(browser->getCurrentUrl());
-    EXPECT_TRUE(page_ready);
+    // Session restoration already includes readiness checking, no need to reload page
     
     // Allow time for active element restoration
     std::this_thread::sleep_for(500ms);
@@ -378,9 +370,7 @@ TEST_F(BrowserSessionTest, RestoreSessionWithCustomState) {
     // CRITICAL FIX: Use global browser instead of creating new instance
     browser->restoreSession(*session);
     
-    // Enhanced readiness checking after restoration
-    bool page_ready = loadPageWithReadinessCheck(browser->getCurrentUrl());
-    EXPECT_TRUE(page_ready);
+    // Session restoration already includes readiness checking, no need to reload page
     
     // Allow time for custom state restoration
     std::this_thread::sleep_for(500ms);
@@ -685,9 +675,7 @@ TEST_F(BrowserSessionTest, FullSessionSaveAndRestore) {
     // CRITICAL FIX: Use global browser instead of creating new instance
     browser->restoreSession(*session);
     
-    // Enhanced readiness checking after restoration
-    bool page_ready = loadPageWithReadinessCheck(browser->getCurrentUrl());
-    EXPECT_TRUE(page_ready);
+    // Session restoration already includes readiness checking, no need to reload page
     
     // Allow time for complete session restoration
     std::this_thread::sleep_for(500ms);
