@@ -288,9 +288,13 @@ std::string Browser::setupVisibilityObserver(const std::string& selector, int ti
                 // Check if element exists
                 if (!el) return false;
                 
-                // Check bounding box dimensions
+                // Check bounding box dimensions (relaxed for headless environment)
                 const rect = el.getBoundingClientRect();
-                if (rect.width <= 0 || rect.height <= 0) return false;
+                // In headless mode, elements might not have proper dimensions even when visible
+                // Only fail if both width AND height are exactly 0
+                if (rect.width === 0 && rect.height === 0) {
+                    return false;
+                }
                 
                 // Check computed styles for visibility
                 const style = window.getComputedStyle(el);

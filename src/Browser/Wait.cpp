@@ -34,15 +34,46 @@ bool Browser::waitForTextAdvanced(const std::string& text, int timeout_ms, bool 
         pos += 2;
     }
     
-    // Simplified but robust condition for text matching
+    // Proper text matching with exact match requiring complete phrase boundaries
     std::string condition;
     if (exact_match) {
+        // Exact match: search text must match complete text content of at least one element
+        // This means "Exact" should NOT match any element containing "Exact Match Text"
         if (case_sensitive) {
-            condition = "document.body && document.body.innerText.trim() === '" + escaped_text + "'";
+            condition = "(function() { "
+                       "if (!document.body) return false; "
+                       "var searchText = '" + escaped_text + "'; "
+                       "var elements = document.querySelectorAll('*'); "
+                       "for (var i = 0; i < elements.length; i++) { "
+                       "  var el = elements[i]; "
+                       "  if (el.children.length === 0) { "  // Only check leaf elements (no child elements)
+                       "    var text = (el.innerText || el.textContent || '').trim(); "
+                       "    if (text === searchText) { "
+                       "      return true; "
+                       "    } "
+                       "  } "
+                       "} "
+                       "return false; "
+                       "})()";
         } else {
-            condition = "document.body && document.body.innerText.trim().toLowerCase() === '" + escaped_text + "'.toLowerCase()";
+            condition = "(function() { "
+                       "if (!document.body) return false; "
+                       "var searchText = '" + escaped_text + "'.toLowerCase(); "
+                       "var elements = document.querySelectorAll('*'); "
+                       "for (var i = 0; i < elements.length; i++) { "
+                       "  var el = elements[i]; "
+                       "  if (el.children.length === 0) { "  // Only check leaf elements (no child elements)
+                       "    var text = (el.innerText || el.textContent || '').trim().toLowerCase(); "
+                       "    if (text === searchText) { "
+                       "      return true; "
+                       "    } "
+                       "  } "
+                       "} "
+                       "return false; "
+                       "})()";
         }
     } else {
+        // Non-exact match: simple substring search
         if (case_sensitive) {
             condition = "document.body && document.body.innerText.includes('" + escaped_text + "')";
         } else {
@@ -71,12 +102,12 @@ bool Browser::waitForNetworkIdle(int idle_time_ms, int timeout_ms) {
             // Override XMLHttpRequest to track requests with enhanced error handling
             if (!window._hweb_xhr_overridden) {
                 try {
-                    const originalXHR = XMLHttpRequest.prototype.open;
+                    const originalOpen = XMLHttpRequest.prototype.open;
+                    const originalSend = XMLHttpRequest.prototype.send;
+                    
+                    // Override open to set up event listeners
                     XMLHttpRequest.prototype.open = function() {
                         try {
-                            window._hweb_network_requests = (window._hweb_network_requests || 0) + 1;
-                            window._hweb_last_activity = Date.now();
-                            
                             // Add event listeners for request completion
                             this.addEventListener('loadend', function() {
                                 try {
@@ -100,7 +131,16 @@ bool Browser::waitForNetworkIdle(int idle_time_ms, int timeout_ms) {
                             });
                             
                         } catch(e) {}
-                        return originalXHR.apply(this, arguments);
+                        return originalOpen.apply(this, arguments);
+                    };
+                    
+                    // Override send to actually count the request
+                    XMLHttpRequest.prototype.send = function() {
+                        try {
+                            window._hweb_network_requests = (window._hweb_network_requests || 0) + 1;
+                            window._hweb_last_activity = Date.now();
+                        } catch(e) {}
+                        return originalSend.apply(this, arguments);
                     };
                     
                     // Override fetch with enhanced error handling
@@ -513,10 +553,17 @@ bool Browser::waitForSPANavigation(const std::string& route, int timeout_ms) {
             "    return true; "
             "  } "
             "  "
-            "  // Also check for hash-only changes within the same page"
+            "  // Simplified hash checking - just check if hash changed"
             "  var initialHash = initialUrl.split('#')[1] || ''; "
             "  var currentHashOnly = currentHash.replace('#', ''); "
-            "  return currentHashOnly !== initialHash; ";
+            "  if (currentHashOnly !== initialHash) { "
+            "    return true; "
+            "  } "
+            "  "
+            "  // Also check pathname changes from history.pushState"
+            "  var initialPath = initialUrl.split('?')[0].split('#')[0]; "
+            "  var currentFullPath = currentUrl.split('?')[0].split('#')[0]; "
+            "  return currentFullPath !== initialPath; ";
     } else {
         // Wait for specific route
         condition += "  // Check if current path contains the route "

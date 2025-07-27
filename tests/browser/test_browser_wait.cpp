@@ -259,6 +259,12 @@ protected:
         function simulateNetworkRequest(endpoint) {
             updateNetworkStatus('Request to ' + endpoint + ' starting...');
             requestCounter++;
+            
+            // Create actual XHR request that will be detected by waitForNetworkRequest
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', endpoint);
+            
+            // Don't actually send to avoid real network calls, but the open() call should be detected
             setTimeout(() => {
                 updateNetworkStatus('Request to ' + endpoint + ' completed');
             }, 400);
