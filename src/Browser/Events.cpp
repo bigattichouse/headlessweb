@@ -283,30 +283,94 @@ std::string Browser::setupVisibilityObserver(const std::string& selector, int ti
                 return;
             }
             
+            // Enhanced visibility checking function
+            const isElementVisible = (el) => {
+                // Check if element exists
+                if (!el) return false;
+                
+                // Check bounding box dimensions
+                const rect = el.getBoundingClientRect();
+                if (rect.width <= 0 || rect.height <= 0) return false;
+                
+                // Check computed styles for visibility
+                const style = window.getComputedStyle(el);
+                if (style.display === 'none') return false;
+                if (style.visibility === 'hidden') return false;
+                if (style.opacity === '0' || style.opacity === 0) return false;
+                
+                // Check if element is positioned off-screen
+                if (rect.left < -1000 || rect.top < -1000) return false;
+                
+                // Check parent chain for visibility
+                let parent = el.parentElement;
+                while (parent && parent !== document.body) {
+                    const parentStyle = window.getComputedStyle(parent);
+                    if (parentStyle.display === 'none') return false;
+                    if (parentStyle.visibility === 'hidden') return false;
+                    parent = parent.parentElement;
+                }
+                
+                return true;
+            };
+            
             // Check if already visible
-            const rect = element.getBoundingClientRect();
-            if (rect.width > 0 && rect.height > 0) {
+            if (isElementVisible(element)) {
                 window._hweb_event_result = true;
                 return;
             }
             
-            // Simple polling for visibility
+            // Enhanced polling for visibility with MutationObserver fallback
             let attempts = 0;
             const maxAttempts = timeout / 100;
             
+            // Set up MutationObserver for style changes
+            const observer = new MutationObserver((mutations) => {
+                if (isElementVisible(element)) {
+                    observer.disconnect();
+                    window._hweb_event_result = true;
+                }
+            });
+            
+            // Observe the element and its ancestors for attribute and style changes
+            observer.observe(element, {
+                attributes: true,
+                attributeFilter: ['style', 'class'],
+                subtree: false
+            });
+            
+            // Also observe the parent for changes that might affect visibility
+            if (element.parentElement) {
+                observer.observe(element.parentElement, {
+                    attributes: true,
+                    attributeFilter: ['style', 'class'],
+                    childList: true,
+                    subtree: true
+                });
+            }
+            
             const checkVisibility = () => {
                 attempts++;
-                const rect = element.getBoundingClientRect();
-                if (rect.width > 0 && rect.height > 0) {
+                if (isElementVisible(element)) {
+                    observer.disconnect();
                     window._hweb_event_result = true;
                 } else if (attempts >= maxAttempts) {
+                    observer.disconnect();
                     window._hweb_event_result = false;
                 } else {
                     setTimeout(checkVisibility, 100);
                 }
             };
             
+            // Start polling after a small delay
             setTimeout(checkVisibility, 100);
+            
+            // Cleanup timeout
+            setTimeout(() => {
+                observer.disconnect();
+                if (window._hweb_event_result === undefined) {
+                    window._hweb_event_result = false;
+                }
+            }, timeout);
             
         })(')" + selector + "', " + std::to_string(timeout_ms) + R"();
     )";
@@ -358,55 +422,132 @@ std::string Browser::setupNavigationObserver(int timeout_ms) {
 }
 
 std::string Browser::setupConditionObserver(const std::string& condition, int timeout_ms) {
-    // Escape quotes in the condition string
+    // Enhanced escaping for JavaScript strings - escape backslashes first, then quotes
     std::string escaped_condition = condition;
     size_t pos = 0;
+    
+    // Escape backslashes first
+    while ((pos = escaped_condition.find("\\", pos)) != std::string::npos) {
+        escaped_condition.replace(pos, 1, "\\\\");
+        pos += 2;
+    }
+    
+    // Then escape single quotes
+    pos = 0;
     while ((pos = escaped_condition.find("'", pos)) != std::string::npos) {
         escaped_condition.replace(pos, 1, "\\'");
         pos += 2;
     }
     
+    // Enhanced condition observer with comprehensive debugging and error handling
     return R"(
         (function(condition, timeout) {
             window._hweb_event_result = undefined;
+            window._hweb_debug_info = {
+                condition: condition,
+                timeout: timeout,
+                startTime: Date.now(),
+                attempts: 0,
+                lastError: null,
+                lastResult: null
+            };
             
+            // Enhanced condition checking with better error reporting
             const checkCondition = () => {
                 try {
-                    return eval(condition);
+                    window._hweb_debug_info.attempts++;
+                    
+                    // Debug logging
+                    if (window.console && window.console.log && window._hweb_debug_info.attempts <= 3) {
+                        console.log('Condition check attempt', window._hweb_debug_info.attempts, ':', condition);
+                    }
+                    
+                    // Evaluate the condition
+                    const result = eval(condition);
+                    window._hweb_debug_info.lastResult = result;
+                    
+                    if (window.console && window.console.log && window._hweb_debug_info.attempts <= 3) {
+                        console.log('Condition result:', result, 'Type:', typeof result);
+                    }
+                    
+                    return result;
                 } catch(e) {
+                    window._hweb_debug_info.lastError = e.message || e.toString();
+                    if (window.console && window.console.log) {
+                        console.log('Condition evaluation error:', e.message, 'Condition:', condition);
+                    }
                     return false;
                 }
             };
             
-            // Check immediately
-            if (checkCondition()) {
+            // Check immediately with enhanced logging
+            if (window.console && window.console.log) {
+                console.log('Setting up condition observer - Condition:', condition, 'Timeout:', timeout);
+            }
+            
+            const initialResult = checkCondition();
+            if (initialResult) {
                 window._hweb_event_result = true;
+                if (window.console && window.console.log) {
+                    console.log('Condition immediately satisfied!');
+                }
                 return;
             }
             
-            // Simple polling approach
-            let attempts = 0;
-            const maxAttempts = timeout / 100;
+            // Enhanced polling with better timeout management
+            const startTime = Date.now();
+            const maxAttempts = Math.max(timeout / 100, 10); // At least 10 attempts
             
             const poll = () => {
-                attempts++;
                 try {
-                    if (checkCondition()) {
-                        window._hweb_event_result = true;
-                    } else if (attempts >= maxAttempts) {
+                    const elapsed = Date.now() - startTime;
+                    
+                    // Check timeout first
+                    if (elapsed >= timeout) {
                         window._hweb_event_result = false;
-                    } else {
-                        setTimeout(poll, 100);
+                        if (window.console && window.console.log) {
+                            console.log('Condition timeout after', elapsed, 'ms, attempts:', window._hweb_debug_info.attempts);
+                        }
+                        return;
                     }
-                } catch(e) {
-                    if (attempts >= maxAttempts) {
+                    
+                    // Check condition
+                    const conditionResult = checkCondition();
+                    if (conditionResult) {
+                        window._hweb_event_result = true;
+                        if (window.console && window.console.log) {
+                            console.log('Condition satisfied after', elapsed, 'ms, attempts:', window._hweb_debug_info.attempts);
+                        }
+                        return;
+                    }
+                    
+                    // Continue polling if we haven't exceeded attempts or timeout
+                    if (window._hweb_debug_info.attempts < maxAttempts) {
+                        setTimeout(poll, 100);
+                    } else {
+                        window._hweb_event_result = false;
+                        if (window.console && window.console.log) {
+                            console.log('Condition failed after max attempts:', maxAttempts);
+                        }
+                    }
+                    
+                } catch(pollError) {
+                    window._hweb_debug_info.lastError = pollError.message || pollError.toString();
+                    if (window.console && window.console.log) {
+                        console.log('Polling error:', pollError.message);
+                    }
+                    
+                    // Try to continue or fail
+                    const elapsed = Date.now() - startTime;
+                    if (elapsed >= timeout || window._hweb_debug_info.attempts >= maxAttempts) {
                         window._hweb_event_result = false;
                     } else {
-                        setTimeout(poll, 100);
+                        setTimeout(poll, 200); // Slower retry on error
                     }
                 }
             };
             
+            // Start polling after a small delay
             setTimeout(poll, 100);
             
         })(')" + escaped_condition + "', " + std::to_string(timeout_ms) + R"();

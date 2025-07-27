@@ -13,14 +13,28 @@ bool Browser::waitForTextAdvanced(const std::string& text, int timeout_ms, bool 
                 " (case_sensitive=" + std::to_string(case_sensitive) + 
                 ", exact_match=" + std::to_string(exact_match) + ")");
     
-    // Escape the text for JavaScript
+    // Enhanced text escaping for JavaScript
     std::string escaped_text = text;
     size_t pos = 0;
+    // Escape single quotes
     while ((pos = escaped_text.find("'", pos)) != std::string::npos) {
         escaped_text.replace(pos, 1, "\\'");
         pos += 2;
     }
+    // Escape double quotes
+    pos = 0;
+    while ((pos = escaped_text.find("\"", pos)) != std::string::npos) {
+        escaped_text.replace(pos, 1, "\\\"");
+        pos += 2;
+    }
+    // Escape backslashes
+    pos = 0;
+    while ((pos = escaped_text.find("\\", pos)) != std::string::npos && escaped_text.substr(pos, 2) != "\\'") {
+        escaped_text.replace(pos, 1, "\\\\");
+        pos += 2;
+    }
     
+    // Simplified but robust condition for text matching
     std::string condition;
     if (exact_match) {
         if (case_sensitive) {
@@ -42,59 +56,116 @@ bool Browser::waitForTextAdvanced(const std::string& text, int timeout_ms, bool 
 bool Browser::waitForNetworkIdle(int idle_time_ms, int timeout_ms) {
     debug_output("Waiting for network idle: " + std::to_string(idle_time_ms) + "ms idle time");
     
-    // JavaScript to monitor network activity
+    // Enhanced JavaScript to monitor network activity with better reliability
     std::string networkScript = R"(
         (function(idleTime, totalTimeout) {
             window._hweb_event_result = undefined;
-            window._hweb_network_requests = window._hweb_network_requests || 0;
-            window._hweb_last_activity = Date.now();
             
-            // Override XMLHttpRequest to track requests
+            // Initialize network tracking variables
+            if (typeof window._hweb_network_requests === 'undefined') {
+                window._hweb_network_requests = 0;
+            }
+            window._hweb_last_activity = Date.now();
+            window._hweb_start_time = Date.now();
+            
+            // Override XMLHttpRequest to track requests with enhanced error handling
             if (!window._hweb_xhr_overridden) {
-                const originalXHR = XMLHttpRequest.prototype.open;
-                XMLHttpRequest.prototype.open = function() {
-                    window._hweb_network_requests++;
-                    window._hweb_last_activity = Date.now();
+                try {
+                    const originalXHR = XMLHttpRequest.prototype.open;
+                    XMLHttpRequest.prototype.open = function() {
+                        try {
+                            window._hweb_network_requests = (window._hweb_network_requests || 0) + 1;
+                            window._hweb_last_activity = Date.now();
+                            
+                            // Add event listeners for request completion
+                            this.addEventListener('loadend', function() {
+                                try {
+                                    window._hweb_network_requests = Math.max(0, (window._hweb_network_requests || 1) - 1);
+                                    window._hweb_last_activity = Date.now();
+                                } catch(e) {}
+                            });
+                            
+                            this.addEventListener('error', function() {
+                                try {
+                                    window._hweb_network_requests = Math.max(0, (window._hweb_network_requests || 1) - 1);
+                                    window._hweb_last_activity = Date.now();
+                                } catch(e) {}
+                            });
+                            
+                            this.addEventListener('abort', function() {
+                                try {
+                                    window._hweb_network_requests = Math.max(0, (window._hweb_network_requests || 1) - 1);
+                                    window._hweb_last_activity = Date.now();
+                                } catch(e) {}
+                            });
+                            
+                        } catch(e) {}
+                        return originalXHR.apply(this, arguments);
+                    };
                     
-                    this.addEventListener('loadend', function() {
-                        window._hweb_network_requests = Math.max(0, window._hweb_network_requests - 1);
-                        window._hweb_last_activity = Date.now();
-                    });
+                    // Override fetch with enhanced error handling
+                    if (window.fetch) {
+                        const originalFetch = window.fetch;
+                        window.fetch = function() {
+                            try {
+                                window._hweb_network_requests = (window._hweb_network_requests || 0) + 1;
+                                window._hweb_last_activity = Date.now();
+                                
+                                return originalFetch.apply(this, arguments).finally(() => {
+                                    try {
+                                        window._hweb_network_requests = Math.max(0, (window._hweb_network_requests || 1) - 1);
+                                        window._hweb_last_activity = Date.now();
+                                    } catch(e) {}
+                                });
+                            } catch(e) {
+                                window._hweb_network_requests = Math.max(0, (window._hweb_network_requests || 1) - 1);
+                                window._hweb_last_activity = Date.now();
+                                return originalFetch.apply(this, arguments);
+                            }
+                        };
+                    }
                     
-                    return originalXHR.apply(this, arguments);
-                };
-                
-                // Override fetch too
-                const originalFetch = window.fetch;
-                window.fetch = function() {
-                    window._hweb_network_requests++;
-                    window._hweb_last_activity = Date.now();
-                    
-                    return originalFetch.apply(this, arguments).finally(() => {
-                        window._hweb_network_requests = Math.max(0, window._hweb_network_requests - 1);
-                        window._hweb_last_activity = Date.now();
-                    });
-                };
-                
-                window._hweb_xhr_overridden = true;
+                    window._hweb_xhr_overridden = true;
+                } catch(e) {
+                    // Fallback if we can't override network calls
+                    window._hweb_xhr_overridden = true;
+                }
             }
             
-            // Check for idle state
+            // Enhanced idle checking with better timeout handling
             const checkIdle = () => {
-                const now = Date.now();
-                const timeSinceActivity = now - window._hweb_last_activity;
-                
-                if (window._hweb_network_requests === 0 && timeSinceActivity >= idleTime) {
-                    window._hweb_event_result = true;
-                } else if (now - window._hweb_start_time >= totalTimeout) {
-                    window._hweb_event_result = false;
-                } else {
+                try {
+                    const now = Date.now();
+                    const timeSinceActivity = now - window._hweb_last_activity;
+                    const totalElapsed = now - window._hweb_start_time;
+                    
+                    // Debug logging
+                    if (window.console && window.console.log) {
+                        console.log('Network Idle Check - Requests:', window._hweb_network_requests, 
+                                  'Time since activity:', timeSinceActivity, 'Total elapsed:', totalElapsed);
+                    }
+                    
+                    // Check if we're truly idle
+                    if ((window._hweb_network_requests || 0) === 0 && timeSinceActivity >= idleTime) {
+                        window._hweb_event_result = true;
+                        return;
+                    }
+                    
+                    // Check for timeout
+                    if (totalElapsed >= totalTimeout) {
+                        window._hweb_event_result = false;
+                        return;
+                    }
+                    
+                    // Continue checking
                     setTimeout(checkIdle, 100);
+                } catch(e) {
+                    window._hweb_event_result = false;
                 }
             };
             
-            window._hweb_start_time = Date.now();
-            setTimeout(checkIdle, idleTime);
+            // Start checking after initial idle time
+            setTimeout(checkIdle, Math.min(idleTime, 500));
             
         })()" + std::to_string(idle_time_ms) + ", " + std::to_string(timeout_ms) + R"();
     )";
@@ -120,60 +191,111 @@ bool Browser::waitForNetworkIdle(int idle_time_ms, int timeout_ms) {
         }
     }
     
-    debug_output("Network idle timeout");
+    debug_output("Network idle timeout - C++ side timeout");
     return false;
 }
 
 bool Browser::waitForNetworkRequest(const std::string& url_pattern, int timeout_ms) {
     debug_output("Waiting for network request matching: " + url_pattern);
     
-    // JavaScript to monitor for specific network requests
+    // Enhanced JavaScript escaping for URL patterns
     std::string escaped_pattern = url_pattern;
     size_t pos = 0;
+    // Escape backslashes first
+    while ((pos = escaped_pattern.find("\\", pos)) != std::string::npos) {
+        escaped_pattern.replace(pos, 1, "\\\\");
+        pos += 2;
+    }
+    // Then escape quotes
+    pos = 0;
     while ((pos = escaped_pattern.find("'", pos)) != std::string::npos) {
         escaped_pattern.replace(pos, 1, "\\'");
         pos += 2;
     }
     
+    // Enhanced JavaScript to monitor for specific network requests
     std::string networkScript = R"(
         (function(pattern, totalTimeout) {
             window._hweb_event_result = undefined;
             
-            if (!window._hweb_request_monitor) {
-                const originalXHR = XMLHttpRequest.prototype.open;
-                XMLHttpRequest.prototype.open = function(method, url) {
-                    try {
-                        if (url.includes(pattern) || url.match(new RegExp(pattern))) {
-                            window._hweb_event_result = true;
-                        }
-                    } catch(e) {
-                        if (url.includes(pattern)) {
-                            window._hweb_event_result = true;
+            // Enhanced pattern matching function
+            const matchesPattern = (url) => {
+                try {
+                    if (!url) return false;
+                    
+                    // Convert URL to string if it's a URL object
+                    const urlStr = (typeof url === 'string') ? url : url.toString();
+                    
+                    // Simple string inclusion check first
+                    if (urlStr.indexOf(pattern) !== -1) {
+                        return true;
+                    }
+                    
+                    // Try regex matching if pattern looks like regex
+                    if (pattern.indexOf('[') !== -1 || pattern.indexOf('*') !== -1 || pattern.indexOf('(') !== -1) {
+                        try {
+                            const regexPattern = pattern.replace(/\*/g, '.*');
+                            const regex = new RegExp(regexPattern);
+                            return regex.test(urlStr);
+                        } catch(regexError) {
+                            return false;
                         }
                     }
-                    return originalXHR.apply(this, arguments);
-                };
-                
-                const originalFetch = window.fetch;
-                window.fetch = function(url) {
-                    try {
-                        if (url.includes && (url.includes(pattern) || url.match(new RegExp(pattern)))) {
-                            window._hweb_event_result = true;
-                        }
-                    } catch(e) {
-                        if (url.includes && url.includes(pattern)) {
-                            window._hweb_event_result = true;
-                        }
+                    
+                    return false;
+                } catch(e) {
+                    return false;
+                }
+            };
+            
+            // Set up monitoring if not already done
+            if (!window._hweb_request_monitor_)" + std::to_string(timeout_ms) + R"() {
+                try {
+                    // Monitor XMLHttpRequest
+                    const originalXHR = XMLHttpRequest.prototype.open;
+                    XMLHttpRequest.prototype.open = function(method, url) {
+                        try {
+                            if (matchesPattern(url)) {
+                                window._hweb_event_result = true;
+                                if (window.console && window.console.log) {
+                                    console.log('Network request detected (XHR):', url, 'matches pattern:', pattern);
+                                }
+                            }
+                        } catch(e) {}
+                        return originalXHR.apply(this, arguments);
+                    };
+                    
+                    // Monitor fetch API
+                    if (window.fetch) {
+                        const originalFetch = window.fetch;
+                        window.fetch = function(url) {
+                            try {
+                                if (matchesPattern(url)) {
+                                    window._hweb_event_result = true;
+                                    if (window.console && window.console.log) {
+                                        console.log('Network request detected (fetch):', url, 'matches pattern:', pattern);
+                                    }
+                                }
+                            } catch(e) {}
+                            return originalFetch.apply(this, arguments);
+                        };
                     }
-                    return originalFetch.apply(this, arguments);
-                };
-                
-                window._hweb_request_monitor = true;
+                    
+                    window._hweb_request_monitor_)" + std::to_string(timeout_ms) + R"( = true;
+                } catch(setupError) {
+                    if (window.console && window.console.log) {
+                        console.log('Error setting up network monitoring:', setupError);
+                    }
+                }
             }
             
+            // Timeout handler
             setTimeout(() => {
                 if (window._hweb_event_result === undefined) {
                     window._hweb_event_result = false;
+                    if (window.console && window.console.log) {
+                        console.log('Network request timeout for pattern:', pattern);
+                    }
                 }
             }, totalTimeout);
             
@@ -201,7 +323,7 @@ bool Browser::waitForNetworkRequest(const std::string& url_pattern, int timeout_
         }
     }
     
-    debug_output("Network request timeout: " + url_pattern);
+    debug_output("Network request timeout - C++ side timeout: " + url_pattern);
     return false;
 }
 
@@ -343,11 +465,25 @@ bool Browser::waitForSPANavigation(const std::string& route, int timeout_ms) {
     
     std::string initial_url = getCurrentUrl();
     
+    // Enhanced escaping for JavaScript strings
     std::string escaped_route = route;
     std::string escaped_initial = initial_url;
+    
+    // Escape both single quotes and backslashes
     size_t pos = 0;
+    while ((pos = escaped_route.find("\\", pos)) != std::string::npos) {
+        escaped_route.replace(pos, 1, "\\\\");
+        pos += 2;
+    }
+    pos = 0;
     while ((pos = escaped_route.find("'", pos)) != std::string::npos) {
         escaped_route.replace(pos, 1, "\\'");
+        pos += 2;
+    }
+    
+    pos = 0;
+    while ((pos = escaped_initial.find("\\", pos)) != std::string::npos) {
+        escaped_initial.replace(pos, 1, "\\\\");
         pos += 2;
     }
     pos = 0;
@@ -356,21 +492,68 @@ bool Browser::waitForSPANavigation(const std::string& route, int timeout_ms) {
         pos += 2;
     }
     
-    std::string condition;
+    // Enhanced condition with better URL change detection
+    std::string condition = "(function() { "
+        "try { "
+        "  var initialUrl = '" + escaped_initial + "'; "
+        "  var currentUrl = window.location.href; "
+        "  var currentPath = window.location.pathname; "
+        "  var currentHash = window.location.hash; "
+        "  var searchRoute = '" + escaped_route + "'; "
+        "  "
+        "  // Debug logging for troubleshooting"
+        "  if (window.console && window.console.log) { "
+        "    console.log('SPA Nav Check - Initial:', initialUrl, 'Current:', currentUrl, 'Route:', searchRoute); "
+        "  } ";
+    
     if (route.empty()) {
         // Wait for any URL change (including hash changes)
-        condition = "(function() { "
-            "return window.location.href !== '" + escaped_initial + "' || "
-            "       window.location.hash !== '" + getCurrentUrl() + "'.split('#')[1] || ''; "
-            "})()";
+        condition += "  // Check for any URL change "
+            "  if (currentUrl !== initialUrl) { "
+            "    return true; "
+            "  } "
+            "  "
+            "  // Also check for hash-only changes within the same page"
+            "  var initialHash = initialUrl.split('#')[1] || ''; "
+            "  var currentHashOnly = currentHash.replace('#', ''); "
+            "  return currentHashOnly !== initialHash; ";
     } else {
         // Wait for specific route
-        condition = "(function() { "
-            "var currentPath = window.location.pathname + window.location.hash; "
-            "return currentPath.includes('" + escaped_route + "') || "
-            "       (function() { try { return currentPath.match(new RegExp('" + escaped_route + "')); } catch(e) { return false; } })(); "
-            "})()";
+        condition += "  // Check if current path contains the route "
+            "  var fullPath = currentPath + currentHash; "
+            "  "
+            "  // Simple string match first"
+            "  if (fullPath.indexOf(searchRoute) !== -1) { "
+            "    return true; "
+            "  } "
+            "  "
+            "  // Check pathname only"
+            "  if (currentPath.indexOf(searchRoute) !== -1) { "
+            "    return true; "
+            "  } "
+            "  "
+            "  // Check hash only"
+            "  if (currentHash && currentHash.indexOf(searchRoute) !== -1) { "
+            "    return true; "
+            "  } "
+            "  "
+            "  // Try regex match if it looks like a pattern"
+            "  if (searchRoute.indexOf('[') !== -1 || searchRoute.indexOf('*') !== -1 || searchRoute.indexOf('(') !== -1) { "
+            "    try { "
+            "      var pattern = searchRoute.replace(/\\*/g, '.*').replace(/\\[/g, '\\\\[').replace(/\\]/g, '\\\\]'); "
+            "      var regex = new RegExp(pattern); "
+            "      return regex.test(fullPath) || regex.test(currentPath) || regex.test(currentHash); "
+            "    } catch(e) { "
+            "      return false; "
+            "    } "
+            "  } ";
     }
+    
+    condition += "  return false; "
+        "} catch(e) { "
+        "  return false; "
+        "} "
+        "})()";
     
     return waitForConditionEvent(condition, timeout_ms);
 }
