@@ -265,7 +265,8 @@ TEST_F(BrowserUtilitiesTest, GetPageLoadState) {
     // Should contain readyState and URL
     EXPECT_FALSE(loadState.empty());
     EXPECT_NE(loadState.find("complete"), std::string::npos);
-    EXPECT_NE(loadState.find("data:"), std::string::npos);
+    // Test environment starts with about:blank before setupTestPage() creates file:// URL
+    EXPECT_NE(loadState.find("about:blank"), std::string::npos);
 }
 
 TEST_F(BrowserUtilitiesTest, PageStateAfterNavigation) {
@@ -319,10 +320,34 @@ TEST_F(BrowserUtilitiesTest, GetPageSourceAfterDynamicContent) {
 }
 
 TEST_F(BrowserUtilitiesTest, GetPageSourceStructure) {
+    // Load a page with complete HTML structure for testing
+    std::string test_html = R"HTML(<!DOCTYPE html>
+<html>
+<head>
+    <title>Source Structure Test</title>
+    <style>
+        body { font-family: Arial; }
+    </style>
+</head>
+<body>
+    <h1>Test Content</h1>
+    <script>
+        function testFunction() { return true; }
+    </script>
+</body>
+</html>)HTML";
+    
+    std::string test_page = createTestPageUrl(test_html, "source_test.html");
+    browser->loadUri(test_page);
+    bool nav_success = browser->waitForNavigation(5000);
+    
+    // Signal-based wait for DOM readiness instead of arbitrary sleep
+    browser->waitForFrameworkReady("auto", 5000);
+    
     std::string source = browser->getPageSource();
     
-    // Verify basic HTML structure
-    EXPECT_NE(source.find("<!DOCTYPE html>"), std::string::npos);
+    // Verify basic HTML structure (note: outerHTML doesn't include DOCTYPE)
+    EXPECT_NE(source.find("<html>"), std::string::npos);
     EXPECT_NE(source.find("<head>"), std::string::npos);
     EXPECT_NE(source.find("<body>"), std::string::npos);
     EXPECT_NE(source.find("<script>"), std::string::npos);
@@ -387,6 +412,29 @@ TEST_F(BrowserUtilitiesTest, ExecuteEmptyActionSequence) {
 }
 
 TEST_F(BrowserUtilitiesTest, ExecuteSingleClickAction) {
+    // Load a page with clickable elements for testing
+    std::string test_html = R"HTML(<!DOCTYPE html>
+<html>
+<head><title>Click Action Test</title></head>
+<body>
+    <button type="button" id="action-btn" onclick="recordAction('button clicked')">Click Me</button>
+    <div id="action-log"></div>
+    <script>
+        function recordAction(action) {
+            document.getElementById('action-log').textContent = action;
+        }
+    </script>
+</body>
+</html>)HTML";
+    
+    std::string test_page = createTestPageUrl(test_html, "click_test.html");
+    browser->loadUri(test_page);
+    browser->waitForNavigation(5000);
+    
+    // Signal-based wait for DOM readiness and element availability
+    browser->waitForFrameworkReady("auto", 5000);
+    browser->waitForSelectorEvent("#action-btn", 2000);
+    
     std::vector<Session::RecordedAction> actions = {
         {"click", "#action-btn", "", 0}
     };

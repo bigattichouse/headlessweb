@@ -149,25 +149,7 @@ bool Browser::clickElement(const std::string& selector) {
     
     std::string result = executeJavascriptSync(js_script);
     
-    // DEBUG: Always log the result for debugging
-    std::cerr << "ClickElement DEBUG: selector='" << selector << "' result='" << result << "'" << std::endl;
-    
-    if (result == "CLICKED_SUCCESS") {
-        std::cerr << "ClickElement SUCCESS: " << selector << std::endl;
-        return true;
-    } else if (result == "not_visible") {
-        std::cerr << "ClickElement FAIL: Element not visible: " << selector << std::endl;
-        return false;
-    } else if (result == "not_found") {
-        std::cerr << "ClickElement FAIL: Element not found: " << selector << std::endl;
-        return false;
-    } else if (result == "NO_DOCUMENT") {
-        std::cerr << "ClickElement FAIL: Document not ready: " << selector << std::endl;
-        return false;
-    } else {
-        std::cerr << "ClickElement FAIL: Unexpected result: " << result << std::endl;
-        return false;
-    }
+    return result == "CLICKED_SUCCESS";
 }
 
 bool Browser::submitForm(const std::string& form_selector) {

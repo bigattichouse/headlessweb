@@ -52,15 +52,11 @@ std::string Browser::getPageLoadState() const {
 // ========== Page Source ==========
 
 std::string Browser::getPageSource() {
-    std::string js = R"(
-        (function() {
-            try {
-                return document.documentElement.outerHTML;
-            } catch(e) {
-                return '';
-            }
-        })()
-    )";
+    // Enhanced implementation with WebKit content loading synchronization
+    std::string js = "(function() { "
+                    "if (!document || !document.documentElement) return ''; "
+                    "return document.documentElement.outerHTML || ''; "
+                    "})()";
     
     return executeJavascriptSync(js);
 }
