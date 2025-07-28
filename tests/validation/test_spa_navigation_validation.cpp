@@ -67,13 +67,26 @@ protected:
         auto html_file = temp_dir->createFile("spa_test.html", spa_html);
         std::string file_url = "file://" + html_file.string();
         
+        // Load page with signal-based waiting (matching successful patterns)
         browser_->loadUri(file_url);
-        browser_->waitForNavigation(3000);
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        bool nav_success = browser_->waitForNavigation(5000);
+        ASSERT_TRUE(nav_success) << "Navigation failed for SPA test page";
         
-        // Verify page loaded
-        ASSERT_TRUE(browser_->elementExists("#status"));
-        ASSERT_TRUE(browser_->elementExists("#current-route"));
+        // Signal-based JavaScript completion wait
+        browser_->waitForJavaScriptCompletion(2000);
+        
+        // Verify page elements are ready with retry logic
+        bool status_ready = false;
+        bool route_ready = false;
+        for (int i = 0; i < 5; i++) {
+            status_ready = browser_->elementExists("#status");
+            route_ready = browser_->elementExists("#current-route");
+            if (status_ready && route_ready) break;
+            if (i < 4) std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        }
+        
+        ASSERT_TRUE(status_ready) << "Status element not found after signal-based loading";
+        ASSERT_TRUE(route_ready) << "Route element not found after signal-based loading";
     }
     
     std::unique_ptr<TestHelpers::TemporaryDirectory> temp_dir;
