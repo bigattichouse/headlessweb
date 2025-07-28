@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="0" disabled="0" errors="0" time="7.173" timestamp="2025-07-27T23:37:09.952" name="AllTests">
+  <testsuite name="BrowserFileOpsIntegrationTest" tests="1" failures="0" disabled="0" skipped="0" errors="0" time="7.127" timestamp="2025-07-27T23:37:09.998">
+    <testcase name="CompleteFileOpsSessionWorkflow" file="/home/bigattichouse/workspace/headlessweb/tests/integration/test_browser_fileops_integration.cpp" line="633" status="run" result="completed" time="7.127" timestamp="2025-07-27T23:37:09.998" classname="BrowserFileOpsIntegrationTest" />
+  </testsuite>
+</testsuites>

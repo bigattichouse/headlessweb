@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="2" failures="0" disabled="0" errors="0" time="40.557" timestamp="2025-07-28T08:10:01.072" name="AllTests">
+  <testsuite name="PerformanceValidationTest" tests="2" failures="0" disabled="0" skipped="0" errors="0" time="40.503" timestamp="2025-07-28T08:10:01.126">
+    <testcase name="PerformanceStressStatisticalAnalysis" file="/home/bigattichouse/workspace/headlessweb/tests/validation/test_performance_validation.cpp" line="110" status="run" result="completed" time="27.333" timestamp="2025-07-28T08:10:01.126" classname="PerformanceValidationTest" />
+    <testcase name="PerformanceStressTimingAnalysis" file="/home/bigattichouse/workspace/headlessweb/tests/validation/test_performance_validation.cpp" line="193" status="run" result="completed" time="13.17" timestamp="2025-07-28T08:10:28.459" classname="PerformanceValidationTest" />
+  </testsuite>
+</testsuites>

@@ -59,11 +59,20 @@ set(INTEGRATION_TEST_SOURCES
     integration/test_complex_workflow_chains.cpp
 )
 
+# Validation test sources
+set(VALIDATION_TEST_SOURCES
+    validation/test_performance_validation.cpp
+    validation/test_spa_navigation_validation.cpp
+)
+
 # Enable browser tests with WebKit integration
 list(APPEND TEST_SOURCES ${BROWSER_TEST_SOURCES})
 
 # Enable integration tests
 list(APPEND TEST_SOURCES ${INTEGRATION_TEST_SOURCES})
+
+# Enable validation tests
+list(APPEND TEST_SOURCES ${VALIDATION_TEST_SOURCES})
 
 # Create test executable
 add_executable(hweb_tests ${TEST_SOURCES})
