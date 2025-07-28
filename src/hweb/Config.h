@@ -10,10 +10,10 @@ class ConfigParser {
 public:
     HWebConfig parseArguments(const std::vector<std::string>& args);
     void print_usage();
+    bool isUrl(const std::string& str);
     
 private:
     void validate_config(const HWebConfig& config);
-    bool isUrl(const std::string& str);
     void parse_assertion_command(const std::vector<std::string>& args, size_t& i, 
                                 HWebConfig& config, Assertion::Command& current_assertion, 
                                 bool& has_pending_assertion);
