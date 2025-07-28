@@ -80,11 +80,12 @@ hweb --reload           # Reload current page
 
 ```bash
 --exists <selector>            # Check if element exists (exit 0/1)
---text <selector>              # Get text content of element
+--text <selector>              # Get text content of element (NOT --get-text)
 --html <selector>              # Get HTML of element
 --attr <selector> <attribute>  # Get attribute value
 --count <selector>             # Count matching elements
 --wait <selector>              # Wait for element to appear
+--wait-selector <selector> <timeout>  # Wait for element with timeout
 ```
 
 ### Interaction
@@ -92,6 +93,7 @@ hweb --reload           # Reload current page
 ```bash
 --click <selector>             # Click element
 --type <selector> <text>       # Type text into element
+--fill <selector> <text>       # Type text into element (alias for --type)
 --select <selector> <value>    # Select dropdown option
 --check <selector>             # Check checkbox
 --uncheck <selector>           # Uncheck checkbox
@@ -411,6 +413,37 @@ Tool HeadlessWeb {
 }
 ```
 
+## Common Issues & Debugging
+
+### Command Not Found Errors
+
+**❌ INCORRECT:**
+```bash
+hweb --get-text "h1"  # Command does not exist
+```
+
+**✅ CORRECT:**
+```bash
+hweb --text "h1"      # Use --text instead
+```
+
+### Session Restoration Issues
+
+If you see warnings like:
+- `Warning: Page load timeout during session restore`
+- `Error in session restoration: Failed to load session URL`
+- `GLib-CRITICAL: Source ID was not found`
+
+**Solutions:**
+1. **Check URL validity** - Ensure URLs are reachable
+2. **Use fresh session** - Add `--session new-name` to avoid corrupted state
+3. **Increase timeout** - Some pages need more time to load
+4. **Clear sessions** - Use `hweb --session <name> --end` to clean up
+
+### Help Documentation
+
+Current `--help` output is incomplete. For full command reference, see this blueprint document.
+
 ## Usage Examples
 
 ### Basic Web Automation
@@ -419,10 +452,10 @@ Tool HeadlessWeb {
 # Navigate and interact
 hweb https://example.com
 hweb --click '.sign-in-button'
-hweb --type '#email' 'user@example.com'
-hweb --type '#password' 'secretpass'
+hweb --fill '#email' 'user@example.com'  # or --type
+hweb --fill '#password' 'secretpass'     # or --type
 hweb --click '#login'
-hweb --wait '.dashboard'
+hweb --wait-selector '.dashboard' 5000   # Wait with timeout
 hweb --screenshot dashboard.png
 ```
 
