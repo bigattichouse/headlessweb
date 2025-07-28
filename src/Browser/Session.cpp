@@ -33,7 +33,7 @@ void Browser::restoreSession(const Session& session) {
             // Wait for load using event-driven approach
             if (!waitForNavigationSignal(15000)) {
                 std::cerr << "Warning: Page load timeout during session restore" << std::endl;
-                return; // Don't try to restore state on failed page load
+                throw std::runtime_error("Failed to load session URL: " + session.getCurrentUrl());
             }
             
             // Wait for page to be ready using event-driven approach
@@ -115,16 +115,7 @@ void Browser::restoreSession(const Session& session) {
             std::cerr << "Warning: Failed to restore form state: " << e.what() << std::endl;
         }
         
-        // Scroll positions - use the new implementation
-        try {
-            if (!session.getAllScrollPositions().empty()) {
-                restoreScrollPositions(session.getAllScrollPositions());
-                wait(500);
-                debug_output("Restored scroll positions");
-            }
-        } catch (const std::exception& e) {
-            std::cerr << "Warning: Failed to restore scroll positions: " << e.what() << std::endl;
-        }
+        // Move scroll position restoration to end (commented out for now)
         
         // Active elements
         try {
@@ -161,12 +152,25 @@ void Browser::restoreSession(const Session& session) {
             std::cerr << "Warning: Failed to restore custom state: " << e.what() << std::endl;
         }
         
+        // Scroll positions - restore at the very end after all content is loaded
+        try {
+            if (!session.getAllScrollPositions().empty()) {
+                restoreScrollPositions(session.getAllScrollPositions());
+                waitForJavaScriptCompletion(1000); // Use signal-based waiting instead of arbitrary delay
+                debug_output("Restored scroll positions");
+            }
+        } catch (const std::exception& e) {
+            std::cerr << "Warning: Failed to restore scroll positions: " << e.what() << std::endl;
+        }
+        
         // Final wait for everything to settle
-        wait(1000);
+        wait(500); // Reduced from 1000ms since we now have better synchronization
         debug_output("Session restoration complete");
         
     } catch (const std::exception& e) {
         std::cerr << "Error in session restoration: " << e.what() << std::endl;
+        // Re-throw the exception so restoreSessionSafely can handle it
+        throw;
     }
 }
 
@@ -333,8 +337,10 @@ void Browser::updateSessionState(Session& session) {
 bool Browser::restoreSessionSafely(const Session& session) {
     try {
         restoreSession(session);
-        return isPageLoaded();
+        // If restoreSession completed without exception, it was successful
+        return true;
     } catch (const std::exception& e) {
+        // Any exception during restoration means failure
         return false;
     }
 }
@@ -541,7 +547,9 @@ Json::Value Browser::extractCustomState(const std::map<std::string, std::string>
     
     for (const auto& [name, script] : extractors) {
         try {
-            std::string value = executeJavascriptSync(script);
+            // Wrap the script to ensure we get serialized JSON for objects
+            std::string wrappedScript = "(function() { var result = " + script + "; return (typeof result === 'object' && result !== null) ? JSON.stringify(result) : result; })()";
+            std::string value = executeJavascriptSync(wrappedScript);
             if (!value.empty() && value != "undefined") {
                 // Try to parse as JSON first
                 Json::Value parsed;
@@ -567,10 +575,27 @@ void Browser::restoreCustomState(const std::map<std::string, Json::Value>& state
             // Convert JSON value back to string and execute as JavaScript
             std::string valueStr;
             if (value.isString()) {
-                valueStr = value.asString();
+                // Properly escape and quote string values for JavaScript
+                std::string stringValue = value.asString();
+                // Escape quotes and special characters
+                std::string escaped = stringValue;
+                size_t pos = 0;
+                while ((pos = escaped.find("\"", pos)) != std::string::npos) {
+                    escaped.replace(pos, 1, "\\\"");
+                    pos += 2;
+                }
+                while ((pos = escaped.find("\n", pos)) != std::string::npos) {
+                    escaped.replace(pos, 1, "\\n");
+                    pos += 2;
+                }
+                valueStr = "\"" + escaped + "\""; // Add quotes for JavaScript
             } else {
                 Json::FastWriter writer;
                 valueStr = writer.write(value);
+                // Remove trailing newline that FastWriter adds
+                if (!valueStr.empty() && valueStr.back() == '\n') {
+                    valueStr.pop_back();
+                }
             }
             
             // Store in a window variable for access
