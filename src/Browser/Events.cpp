@@ -23,12 +23,14 @@ void navigation_complete_handler(WebKitWebView* webview, WebKitLoadEvent load_ev
             break;
         case WEBKIT_LOAD_COMMITTED:
             debug_output("Navigation committed (DOM available)");
+            // Check signal conditions on DOM commit
+            browser->checkSignalConditions();
             break;
         case WEBKIT_LOAD_FINISHED:
             // Use public interface to notify waiters
             browser->notifyNavigationComplete();
-            
-            
+            // Check signal conditions on load complete
+            browser->checkSignalConditions();
             break;
     }
 }
@@ -41,6 +43,8 @@ void uri_changed_handler(WebKitWebView* webview, GParamSpec* pspec, gpointer use
     
     // Use public interface to notify waiters
     browser->notifyUriChanged();
+    // Check signal conditions on URI change
+    browser->checkSignalConditions();
 }
 
 void title_changed_handler(WebKitWebView* webview, GParamSpec* pspec, gpointer user_data) {
@@ -60,6 +64,8 @@ void ready_to_show_handler(WebKitWebView* webview, gpointer user_data) {
     
     // Use public interface to notify waiters
     browser->notifyReadyToShow();
+    // Check signal conditions when page is ready
+    browser->checkSignalConditions();
 }
 
 // Callback for load-changed signal
@@ -561,7 +567,7 @@ std::string Browser::setupConditionObserver(const std::string& condition, int ti
 // ========== Event-driven Waiting Implementations ==========
 
 bool Browser::waitForSelectorEvent(const std::string& selector, int timeout_ms) {
-    // CRITICAL FIX: Use simple polling instead of nested main loop to prevent segfaults
+    // Signal-based approach: Set up DOM mutation observer and wait for signal
     
     // Handle zero or negative timeout - perform single immediate check
     if (timeout_ms <= 0) {
@@ -575,60 +581,27 @@ bool Browser::waitForSelectorEvent(const std::string& selector, int timeout_ms) 
         return result == "true";
     }
     
-    // Clear any previous result
-    executeJavascriptSync("window._hweb_event_result = undefined;");
+    // Check if element already exists
+    std::string immediate_result = executeJavascriptSync(
+        "(function() { "
+        "  try { "
+        "    const element = document.querySelector('" + selector + "'); "
+        "    return element !== null ? 'true' : 'false'; "
+        "  } catch(e) { return 'false'; } "
+        "})()");
     
-    // Simple polling approach - check if element exists repeatedly
-    int elapsed = 0;
-    const int check_interval = 200; // Check every 200ms
-    
-    while (elapsed < timeout_ms) {
-        // Direct element check without complex observers
-        std::string result = executeJavascriptSync(
-            "(function() { "
-            "  try { "
-            "    const element = document.querySelector('" + selector + "'); "
-            "    return element !== null ? 'true' : 'false'; "
-            "  } catch(e) { return 'false'; } "
-            "})()");
-        
-        if (result == "true") {
-            return true;
-        }
-        
-        // Use std::this_thread::sleep_for instead of wait() to avoid nested main loops
-        std::this_thread::sleep_for(std::chrono::milliseconds(check_interval));
-        elapsed += check_interval;
+    if (immediate_result == "true") {
+        return true;
     }
     
-    return false;
+    // Set up signal-based DOM mutation observer
+    std::string condition = "document.querySelector('" + selector + "') !== null";
+    return waitForSignalCondition("load-changed", condition, timeout_ms);
 }
 
 bool Browser::waitForNavigationEvent(int timeout_ms) {
-    std::string observerScript = setupNavigationObserver(timeout_ms);
-    
-    executeJavascriptSync("window._hweb_event_result = undefined;");
-    executeJavascriptSync(observerScript);
-    
-    int elapsed = 0;
-    const int check_interval = 200; // Longer interval for navigation
-    
-    while (elapsed < timeout_ms) {
-        // Use shorter wait intervals for better responsiveness
-        wait(check_interval);
-        elapsed += check_interval;
-        
-        std::string result = executeJavascriptSync("typeof window._hweb_event_result !== 'undefined' ? String(window._hweb_event_result) : 'undefined'");
-        
-        if (result == "true") {
-            return true;
-        } else if (result == "false") {
-            return false;
-        }
-        // If result is "undefined", continue waiting
-    }
-    
-    return false;
+    // Signal-based approach: Wait for navigation completion signal
+    return waitForWebKitSignal("load-changed", timeout_ms);
 }
 
 bool Browser::waitForNavigationSignal(int timeout_ms) {
@@ -646,34 +619,9 @@ bool Browser::waitForNavigationSignal(int timeout_ms) {
         return false;
     }
     
-    // CRITICAL SEGFAULT FIX: Use simple polling instead of complex nested main loops
-    debug_output("Waiting for navigation signal with simple polling approach");
-    
-    int elapsed = 0;
-    const int check_interval = 50; // Check every 50ms
-    
-    while (elapsed < timeout_ms) {
-        // Check object validity before each operation
-        if (!is_valid.load()) {
-            return false;
-        }
-        
-        // Check if navigation has completed by examining readyState
-        if (webView) {
-            std::string ready_state = executeJavascriptSync("document.readyState");
-            if (ready_state == "complete") {
-                debug_output("Navigation signal detected (document ready)");
-                return true;
-            }
-        }
-        
-        // Use safe sleep instead of nested main loops
-        std::this_thread::sleep_for(std::chrono::milliseconds(check_interval));
-        elapsed += check_interval;
-    }
-    
-    debug_output("Navigation signal timeout");
-    return false;
+    // Signal-based approach: Wait for document ready state
+    std::string condition = "document.readyState === 'complete'";
+    return waitForSignalCondition("load-changed", condition, timeout_ms);
 }
 
 bool Browser::waitForBackForwardNavigation(int timeout_ms) {
@@ -747,30 +695,8 @@ bool Browser::waitForVisibilityEvent(const std::string& selector, int timeout_ms
 }
 
 bool Browser::waitForConditionEvent(const std::string& js_condition, int timeout_ms) {
-    std::string observerScript = setupConditionObserver(js_condition, timeout_ms);
-    
-    executeJavascriptSync("window._hweb_event_result = undefined;");
-    executeJavascriptSync(observerScript);
-    
-    int elapsed = 0;
-    const int check_interval = 100;
-    
-    while (elapsed < timeout_ms) {
-        // Use shorter wait intervals for better responsiveness
-        wait(check_interval);
-        elapsed += check_interval;
-        
-        std::string result = executeJavascriptSync("typeof window._hweb_event_result !== 'undefined' ? String(window._hweb_event_result) : 'undefined'");
-        
-        if (result == "true") {
-            return true;
-        } else if (result == "false") {
-            return false;
-        }
-        // If result is "undefined", continue waiting
-    }
-    
-    return false;
+    // Signal-based approach: Use the signal waiting infrastructure
+    return waitForSignalCondition("load-changed", js_condition, timeout_ms);
 }
 
 bool Browser::waitForPageReadyEvent(int timeout_ms) {
@@ -884,6 +810,112 @@ bool Browser::waitForElementWithContent(const std::string& selector, int timeout
                            "document.querySelector('" + selector + "').innerText.trim().length > 0";
     
     return waitForConditionEvent(condition, timeout_ms / 2);
+}
+
+// ========== Signal-Based Waiting Infrastructure ==========
+
+bool Browser::waitForSignalCondition(const std::string& signal_name, const std::string& condition, int timeout_ms) {
+    // Check condition immediately first
+    std::string result = executeJavascriptSync(
+        "(function() { "
+        "  try { return (" + condition + ") ? 'true' : 'false'; } "
+        "  catch(e) { return 'false'; } "
+        "})()");
+    
+    if (result == "true") {
+        return true;
+    }
+    
+    // Set up signal waiter with proper synchronization
+    std::atomic<bool> condition_met{false};
+    std::atomic<bool> timed_out{false};
+    
+    // Set up timeout
+    guint timeout_id = g_timeout_add(timeout_ms, [](gpointer user_data) -> gboolean {
+        std::atomic<bool>* timeout_flag = static_cast<std::atomic<bool>*>(user_data);
+        timeout_flag->store(true);
+        return G_SOURCE_REMOVE;
+    }, &timed_out);
+    
+    // Use periodic checking with signals to avoid nested main loops
+    const int check_interval = 50;
+    int elapsed = 0;
+    
+    while (elapsed < timeout_ms && !timed_out.load()) {
+        // Check condition
+        std::string current_result = executeJavascriptSync(
+            "(function() { "
+            "  try { return (" + condition + ") ? 'true' : 'false'; } "
+            "  catch(e) { return 'false'; } "
+            "})()");
+        
+        if (current_result == "true") {
+            g_source_remove(timeout_id);
+            return true;
+        }
+        
+        // Process pending events to handle signals
+        while (g_main_context_pending(nullptr)) {
+            g_main_context_iteration(nullptr, FALSE);
+        }
+        
+        std::this_thread::sleep_for(std::chrono::milliseconds(check_interval));
+        elapsed += check_interval;
+    }
+    
+    g_source_remove(timeout_id);
+    return false;
+}
+
+bool Browser::waitForWebKitSignal(const std::string& signal_name, int timeout_ms) {
+    // Simple signal-based waiting - just wait for any load event to occur
+    std::atomic<bool> signal_received{false};
+    std::atomic<bool> timed_out{false};
+    
+    // Set up timeout
+    guint timeout_id = g_timeout_add(timeout_ms, [](gpointer user_data) -> gboolean {
+        std::atomic<bool>* timeout_flag = static_cast<std::atomic<bool>*>(user_data);
+        timeout_flag->store(true);
+        return G_SOURCE_REMOVE;
+    }, &timed_out);
+    
+    // Monitor for load-changed signals by processing main context
+    const int check_interval = 50;
+    int elapsed = 0;
+    
+    while (elapsed < timeout_ms && !timed_out.load()) {
+        // Process pending events to handle WebKit signals
+        while (g_main_context_pending(nullptr)) {
+            g_main_context_iteration(nullptr, FALSE);
+            // If any event was processed, consider signal received
+            signal_received.store(true);
+        }
+        
+        if (signal_received.load()) {
+            g_source_remove(timeout_id);
+            return true;
+        }
+        
+        std::this_thread::sleep_for(std::chrono::milliseconds(check_interval));
+        elapsed += check_interval;
+    }
+    
+    g_source_remove(timeout_id);
+    return false;
+}
+
+void Browser::checkSignalConditions() {
+    std::lock_guard<std::mutex> lock(signal_mutex);
+    
+    for (auto& waiter : signal_waiters) {
+        if (!waiter->completed && !waiter->condition.empty()) {
+            if (waiter->callback()) {
+                waiter->completed = true;
+                g_main_loop_quit(main_loop);
+                break;
+            }
+        }
+    }
 }
 
 

@@ -46,9 +46,11 @@ private:
     struct SignalWaiter {
         gulong signal_id;
         std::string signal_name;
-        std::function<void()> callback;
+        std::function<bool()> callback;  // Changed to return bool
         bool completed;
         guint timeout_id;
+        std::string condition;  // For conditional signal waiting
+        std::chrono::steady_clock::time_point start_time;
     };
     
     // Object lifetime and thread safety
@@ -67,6 +69,10 @@ private:
     std::string setupVisibilityObserver(const std::string& selector, int timeout_ms);
     std::string setupNavigationObserver(int timeout_ms);
     std::string setupConditionObserver(const std::string& condition, int timeout_ms);
+    
+    // Signal-based waiting infrastructure
+    bool waitForSignalCondition(const std::string& signal_name, const std::string& condition, int timeout_ms);
+    bool waitForWebKitSignal(const std::string& signal_name, int timeout_ms);
     
     void setupSignalHandlers();
     void cleanupWaiters();
@@ -133,6 +139,7 @@ public:
     void notifyUriChanged();
     void notifyTitleChanged();
     void notifyReadyToShow();
+    void checkSignalConditions();
     
     // Object validity checking
     bool isObjectValid() const;

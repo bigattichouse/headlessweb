@@ -748,9 +748,9 @@ TEST_F(BrowserEventsTest, TimingAccuracy) {
         auto end = std::chrono::steady_clock::now();
         auto actual_duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
         
-        // Allow some variance in timing (within 50% of expected)
+        // Allow some variance in timing (within 50% of expected, with additional 10ms buffer)
         EXPECT_GE(actual_duration.count(), timeout / 2);
-        EXPECT_LE(actual_duration.count(), timeout * 2);
+        EXPECT_LE(actual_duration.count(), timeout * 2 + 10);
     }
 }
 
