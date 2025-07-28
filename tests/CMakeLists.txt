@@ -35,6 +35,7 @@ set(TEST_SOURCES
     hweb/test_manager_registry.cpp
     hweb/test_navigation_service.cpp
     hweb/test_service_architecture_coordination.cpp
+    hweb/test_usability_improvements.cpp
     browser_test_environment.cpp
 )
 
@@ -51,6 +52,7 @@ set(BROWSER_TEST_SOURCES
     browser/test_browser_main.cpp
     browser/test_browser_session.cpp
     browser/test_browser_advanced_form_operations.cpp
+    browser/test_dom_escaping_fixes.cpp
 )
 
 # Integration test sources
