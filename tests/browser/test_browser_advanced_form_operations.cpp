@@ -371,9 +371,15 @@ TEST_F(BrowserAdvancedFormOperationsTest, MultiStepFormNavigation_StepValidation
     browser_->clickElement("#step1-next");
     std::this_thread::sleep_for(std::chrono::milliseconds(300));
     
-    // Should still be on step 1
+    // Should still be on step 1 (check active class instead of existence)
     EXPECT_TRUE(browser_->elementExists("#step1"));
-    EXPECT_FALSE(browser_->elementExists("#step2"));
+    EXPECT_TRUE(browser_->elementExists("#step2")); // Step 2 exists in DOM
+    
+    // Check that step 1 is active and step 2 is not active
+    std::string step1_class = browser_->getAttribute("#step1", "class");
+    std::string step2_class = browser_->getAttribute("#step2", "class");
+    EXPECT_TRUE(step1_class.find("active") != std::string::npos);
+    EXPECT_TRUE(step2_class.find("active") == std::string::npos);
     
     // Fix validation and proceed
     browser_->fillInput("#username", "validuser");
@@ -385,6 +391,10 @@ TEST_F(BrowserAdvancedFormOperationsTest, MultiStepFormNavigation_StepValidation
     std::this_thread::sleep_for(std::chrono::milliseconds(300));
     
     EXPECT_TRUE(browser_->elementExists("#step2"));
+    
+    // Check that step 2 is now active
+    std::string step2_class_success = browser_->getAttribute("#step2", "class");
+    EXPECT_TRUE(step2_class_success.find("active") != std::string::npos);
 }
 
 TEST_F(BrowserAdvancedFormOperationsTest, MultiStepFormNavigation_BackNavigation) {
@@ -400,12 +410,22 @@ TEST_F(BrowserAdvancedFormOperationsTest, MultiStepFormNavigation_BackNavigation
     
     EXPECT_TRUE(browser_->elementExists("#step2"));
     
+    // Check that step 2 is active
+    std::string step2_active_class = browser_->getAttribute("#step2", "class");
+    EXPECT_TRUE(step2_active_class.find("active") != std::string::npos);
+    
     // Go back to step 1
     browser_->clickElement("#step2-prev");
     std::this_thread::sleep_for(std::chrono::milliseconds(300));
     
     EXPECT_TRUE(browser_->elementExists("#step1"));
-    EXPECT_FALSE(browser_->elementExists("#step2"));
+    EXPECT_TRUE(browser_->elementExists("#step2")); // Step 2 still exists in DOM
+    
+    // Check that step 1 is active again and step 2 is not
+    std::string step1_back_class = browser_->getAttribute("#step1", "class");
+    std::string step2_back_class = browser_->getAttribute("#step2", "class");
+    EXPECT_TRUE(step1_back_class.find("active") != std::string::npos);
+    EXPECT_TRUE(step2_back_class.find("active") == std::string::npos);
     
     // Verify data preservation
     std::string username = getElementValue("#username");

@@ -476,10 +476,18 @@ int Browser::elementExistsWithValidation(const std::string& selector) {
 }
 
 int Browser::countElements(const std::string& selector) {
+    // Escape single quotes in the selector for JavaScript
+    std::string escaped_selector = selector;
+    size_t pos = 0;
+    while ((pos = escaped_selector.find("'", pos)) != std::string::npos) {
+        escaped_selector.replace(pos, 1, "\\'");
+        pos += 2;
+    }
+    
     std::string js_script = 
         "(function() { "
         "  try { "
-        "    return document.querySelectorAll('" + selector + "').length; "
+        "    return document.querySelectorAll('" + escaped_selector + "').length; "
         "  } catch(e) { "
         "    return 'SELECTOR_ERROR:' + e.message; "
         "  } "
