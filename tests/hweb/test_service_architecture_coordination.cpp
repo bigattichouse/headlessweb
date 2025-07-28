@@ -527,25 +527,17 @@ TEST_F(ServiceArchitectureCoordinationTest, ResourceManagement_ConcurrentAccess)
     Session concurrent_session = session_service_->initialize_session("concurrent_test");
     
     // Simulate concurrent navigation and session updates
-    bool nav_started = navigation_service_->navigate_to_url(*browser_, createTestPageUrl("<h1>Concurrent Test</h1>", "concurrent_test.html"));
+    std::string concurrent_url = createTestPageUrl("<h1>Concurrent Test</h1>", "concurrent_test.html");
+    bool nav_started = navigation_service_->navigate_to_url(*browser_, concurrent_url);
     EXPECT_TRUE(nav_started);
     
-    // Process GTK events while waiting for navigation
-    auto start_time = std::chrono::steady_clock::now();
-    const auto timeout = std::chrono::milliseconds(3000);
-    bool nav_complete = false;
-    GMainContext *context = g_main_context_default();
-    
-    while (!nav_complete && (std::chrono::steady_clock::now() - start_time) < timeout) {
-        while (g_main_context_pending(context)) {
-            g_main_context_iteration(context, FALSE);
-        }
-        nav_complete = navigation_service_->wait_for_navigation_complete(*browser_, 100);
-        if (!nav_complete) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(50));
-        }
-    }
+    // Use improved navigation waiting mechanism
+    bool nav_complete = navigation_service_->wait_for_navigation_complete(*browser_, 5000);
     EXPECT_TRUE(nav_complete);
+    
+    // Wait for page to be ready
+    bool page_ready = navigation_service_->wait_for_page_ready(*browser_, 3000);
+    EXPECT_TRUE(page_ready);
 
     // Note: The new page doesn't have #test-input, so we'll create a test that makes sense
     // Instead of trying to fill an input that doesn't exist, we'll check the page content
