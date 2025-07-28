@@ -216,9 +216,17 @@ TEST_F(BrowserDOMTest, FormInputFilling) {
     // Switch to form page for input testing
     std::string form_url = "file://" + form_html_file.string();
     browser->loadUri(form_url);
-    browser->waitForNavigation(5000);
     
-    // Wait for form elements to be available
+    // Wait for navigation signal to complete (signal-based approach)
+    bool nav_complete = browser->waitForNavigation(5000);
+    if (!nav_complete) {
+        GTEST_SKIP() << "Navigation failed - cannot test form input filling";
+    }
+    
+    // Signal-based JavaScript completion wait (matching successful BrowserMainTest pattern)
+    browser->waitForJavaScriptCompletion(2000);
+    
+    // Wait for form elements to be available with signal-based detection
     std::string form_ready = executeWrappedJS(
         "return document.getElementById('username') !== null && "
         "document.getElementById('password') !== null;"

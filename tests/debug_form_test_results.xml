@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="0" disabled="0" errors="0" time="5.762" timestamp="2025-07-28T08:54:33.970" name="AllTests">
+  <testsuite name="FormLoadingDebugTest" tests="1" failures="0" disabled="0" skipped="1" errors="0" time="5.715" timestamp="2025-07-28T08:54:34.017">
+    <testcase name="DebugFormElementReadiness" file="/home/bigattichouse/workspace/headlessweb/tests/debug_form_loading.cpp" line="244" status="run" result="skipped" time="5.715" timestamp="2025-07-28T08:54:34.017" classname="FormLoadingDebugTest">
+      <skipped message="/home/bigattichouse/workspace/headlessweb/tests/debug_form_loading.cpp:318&#x0A;Form elements not ready - this is the issue we&apos;re debugging&#x0A;"><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/debug_form_loading.cpp:318
+Form elements not ready - this is the issue we're debugging
+]]></skipped>
+    </testcase>
+  </testsuite>
+</testsuites>
