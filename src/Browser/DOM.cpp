@@ -29,14 +29,15 @@ bool Browser::fillInput(const std::string& selector, const std::string& value) {
     // Escape quotes and other special characters in the value
     std::string escaped_value = value;
     size_t pos = 0;
-    while ((pos = escaped_value.find("'", pos)) != std::string::npos) {
-        escaped_value.replace(pos, 1, "\\'");
-        pos += 2;
-    }
-    // Also escape backslashes
-    pos = 0;
+    // Escape backslashes first to avoid double-escaping
     while ((pos = escaped_value.find("\\", pos)) != std::string::npos) {
         escaped_value.replace(pos, 1, "\\\\");
+        pos += 2;
+    }
+    // Then escape quotes
+    pos = 0;
+    while ((pos = escaped_value.find("'", pos)) != std::string::npos) {
+        escaped_value.replace(pos, 1, "\\'");
         pos += 2;
     }
     
@@ -59,7 +60,7 @@ bool Browser::fillInput(const std::string& selector, const std::string& value) {
     std::string result = executeJavascriptSync(js_script);
     
     // DEBUG: Log fillInput result  
-    std::cerr << "FillInput DEBUG: selector='" << selector << "' value='" << value << "' result='" << result << "'" << std::endl;
+    debug_output("FillInput DEBUG: selector='" + selector + "' value='" + value + "' result='" + result + "'");
     
     // Add verification step with delay (optimized for tests)
     if (result == "FILL_SUCCESS") {
@@ -70,13 +71,13 @@ bool Browser::fillInput(const std::string& selector, const std::string& value) {
         std::string actualValue = executeJavascriptSync(verifyJs);
         
         // DEBUG: Log verification result
-        std::cerr << "FillInput VERIFY: expected='" << value << "' actual='" << actualValue << "'" << std::endl;
+        debug_output("FillInput VERIFY: expected='" + value + "' actual='" + actualValue + "'");
         
         if (actualValue == escaped_value || actualValue == value) {
-            std::cerr << "FillInput VERIFY: SUCCESS" << std::endl;
+            debug_output("FillInput VERIFY: SUCCESS");
             return true;
         } else {
-            std::cerr << "FillInput VERIFY: FAILED" << std::endl;
+            debug_output("FillInput VERIFY: FAILED");
             debug_output("Warning: Value verification failed. Expected: '" + value + "', Got: '" + actualValue + "'");
             
             // Try alternative method using setAttribute
@@ -172,13 +173,28 @@ bool Browser::submitForm(const std::string& form_selector) {
 }
 
 bool Browser::searchForm(const std::string& query) {
+    // Escape quotes and other special characters in the query
+    std::string escaped_query = query;
+    size_t pos = 0;
+    // Escape backslashes first to avoid double-escaping
+    while ((pos = escaped_query.find("\\", pos)) != std::string::npos) {
+        escaped_query.replace(pos, 1, "\\\\");
+        pos += 2;
+    }
+    // Then escape quotes
+    pos = 0;
+    while ((pos = escaped_query.find("'", pos)) != std::string::npos) {
+        escaped_query.replace(pos, 1, "\\'");
+        pos += 2;
+    }
+    
     // Implementation for search form
     std::string js_script = 
         "(function() { "
         "  try { "
         "    var inputs = document.querySelectorAll('input[type=\"search\"], input[name*=\"search\"], input[placeholder*=\"search\"]'); "
         "    if (inputs.length > 0) { "
-        "      inputs[0].value = '" + query + "'; "
+        "      inputs[0].value = '" + escaped_query + "'; "
         "      inputs[0].dispatchEvent(new Event('input', { bubbles: true })); "
         "      var form = inputs[0].closest('form'); "
         "      if (form) { "

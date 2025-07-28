@@ -3,6 +3,9 @@
 #include <string>
 #include <cstdlib>
 #include <glib.h>
+#include <random>
+#include <sstream>
+#include <iomanip>
 
 #include "Types.h"
 #include "Config.h"
@@ -27,6 +30,22 @@ void initialize_application() {
 
 void cleanup_application() {
     ManagerRegistry::cleanup();
+}
+
+std::string generateSessionUUID() {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(0, 15);
+    
+    std::stringstream ss;
+    ss << "session-";
+    
+    // Generate 8 random hex characters
+    for (int i = 0; i < 8; ++i) {
+        ss << std::hex << dis(gen);
+    }
+    
+    return ss.str();
 }
 
 int run_application(const HWebConfig& config) {
@@ -59,7 +78,20 @@ int run_application(const HWebConfig& config) {
     }
     
     // Determine session name
-    std::string sessionName = config.sessionName.empty() ? "default" : config.sessionName;
+    std::string sessionName;
+    bool auto_generated_session = false;
+    
+    if (config.sessionName.empty()) {
+        sessionName = generateSessionUUID();
+        auto_generated_session = true;
+    } else {
+        sessionName = config.sessionName;
+    }
+    
+    // Inform user about auto-generated session
+    if (auto_generated_session && !config.silent_mode) {
+        Output::info("Auto-generated session: " + sessionName);
+    }
     
     // Handle end session
     if (config.endSession) {

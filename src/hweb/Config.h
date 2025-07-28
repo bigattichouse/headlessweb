@@ -13,6 +13,7 @@ public:
     
 private:
     void validate_config(const HWebConfig& config);
+    bool isUrl(const std::string& str);
     void parse_assertion_command(const std::vector<std::string>& args, size_t& i, 
                                 HWebConfig& config, Assertion::Command& current_assertion, 
                                 bool& has_pending_assertion);

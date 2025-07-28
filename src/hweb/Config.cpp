@@ -3,6 +3,7 @@
 #include "Services/ManagerRegistry.h"
 #include <iostream>
 #include <sstream>
+#include <regex>
 
 namespace HWeb {
 
@@ -12,6 +13,7 @@ HWebConfig ConfigParser::parseArguments(const std::vector<std::string>& args) {
     // Current assertion being built
     Assertion::Command current_assertion;
     bool has_pending_assertion = false;
+    bool explicit_url_provided = false;
     
     // Parse arguments
     for (size_t i = 0; i < args.size(); ++i) {
@@ -19,6 +21,7 @@ HWebConfig ConfigParser::parseArguments(const std::vector<std::string>& args) {
             config.sessionName = args[++i];
         } else if (args[i] == "--url" && i + 1 < args.size()) {
             config.url = args[++i];
+            explicit_url_provided = true;
         } else if (args[i] == "--end") {
             config.endSession = true;
         } else if (args[i] == "--list") {
@@ -68,6 +71,16 @@ HWebConfig ConfigParser::parseArguments(const std::vector<std::string>& args) {
     // Add any final pending assertion
     if (has_pending_assertion) {
         config.assertions.push_back(current_assertion);
+    }
+    
+    // Auto-detect URL from first argument if no explicit --url provided
+    if (!explicit_url_provided && !args.empty()) {
+        for (const auto& arg : args) {
+            if (isUrl(arg)) {
+                config.url = arg;
+                break;
+            }
+        }
     }
     
     validate_config(config);
@@ -407,6 +420,12 @@ void ConfigParser::parse_regular_command(const std::vector<std::string>& args, s
     } else if (args[i] == "--wait-ready" && i + 1 < args.size()) {
         config.commands.push_back({"wait-ready", args[++i], ""});
     }
+}
+
+bool ConfigParser::isUrl(const std::string& str) {
+    // Check if string starts with http:// or https://
+    std::regex url_pattern(R"(^https?://[^\s/$.?#].[^\s]*$)", std::regex_constants::icase);
+    return std::regex_match(str, url_pattern);
 }
 
 void ConfigParser::validate_config(const HWebConfig& config) {
