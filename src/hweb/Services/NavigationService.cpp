@@ -27,7 +27,33 @@ bool NavigationService::wait_for_navigation_complete(Browser& browser, int timeo
 }
 
 bool NavigationService::wait_for_page_ready(Browser& browser, int timeout_ms) {
-    return browser.waitForPageReadyEvent(timeout_ms);
+    // Use a simpler, more reliable approach for service coordination
+    // Check if we can execute basic JavaScript and the document is ready
+    int elapsed = 0;
+    const int check_interval = 200;
+    
+    while (elapsed < timeout_ms) {
+        try {
+            // Simple JavaScript readiness test
+            std::string test_result = browser.executeJavascriptSync("(function() { return document.readyState; })()");
+            if (test_result == "complete" || test_result == "interactive") {
+                // Additional basic checks
+                std::string body_check = browser.executeJavascriptSync("(function() { return document.body ? 'ready' : 'not-ready'; })()");
+                if (body_check == "ready") {
+                    // Small additional wait for any final page setup
+                    browser.wait(100);
+                    return true;
+                }
+            }
+        } catch (const std::exception& e) {
+            // JavaScript not ready yet, continue waiting
+        }
+        
+        browser.wait(check_interval);
+        elapsed += check_interval;
+    }
+    
+    return false;
 }
 
 NavigationStrategy NavigationService::determine_navigation_strategy(const HWebConfig& config, const Session& session) {
@@ -126,8 +152,8 @@ bool NavigationService::execute_navigation_plan(Browser& browser, Session& sessi
         Output::info("Navigated to " + plan.navigation_url);
     }
     
-    // Restore session state if this is a session restore
-    if (plan.is_session_restore) {
+    // Restore session state if this is a session restore OR if session has explicit state
+    if (plan.is_session_restore || (session.getViewport().first > 0 && session.getViewport().second > 0)) {
         browser.restoreSession(session);
     }
     

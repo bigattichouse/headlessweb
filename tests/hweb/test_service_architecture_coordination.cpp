@@ -269,8 +269,9 @@ TEST_F(ServiceArchitectureCoordinationTest, ManagerRegistry_CrossServiceCoordina
 TEST_F(ServiceArchitectureCoordinationTest, SessionService_BrowserStateIntegration) {
     loadTestPage();
     
-    // Create a test session
+    // Create a test session and capture initial browser state
     Session test_session = session_service_->initialize_session("service_test_session");
+    session_service_->update_session_state(*browser_, test_session); // Capture initial state
     EXPECT_FALSE(test_session.getCurrentUrl().empty());
     
     // Modify browser state

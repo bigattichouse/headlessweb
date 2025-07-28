@@ -16,6 +16,15 @@ void Browser::restoreSession(const Session& session) {
             wait(100); // Small delay for user agent to take effect
         }
         
+        // Restore viewport if present
+        auto viewport = session.getViewport();
+        if (viewport.first > 0 && viewport.second > 0) {
+            setViewport(viewport.first, viewport.second);
+            // Wait for viewport change to complete using proper signals instead of arbitrary delay
+            waitForJavaScriptCompletion(500); // Short timeout for viewport change
+            debug_output("Restored viewport: " + std::to_string(viewport.first) + "x" + std::to_string(viewport.second));
+        }
+        
         // Navigate to current URL if present and not already there
         if (!session.getCurrentUrl().empty() && session.getCurrentUrl() != getCurrentUrl()) {
             debug_output("Loading URL: " + session.getCurrentUrl());
@@ -350,6 +359,8 @@ std::vector<FormField> Browser::extractFormState() {
                 field.selector = el.id ? '#' + el.id : 
                                 (el.name ? '[name="' + el.name + '"]' : 
                                 ':nth-child(' + (Array.from(el.parentNode.children).indexOf(el) + 1) + ')');
+                field.name = el.name || '';
+                field.id = el.id || '';
                 field.value = el.value || '';
                 field.checked = el.type === 'checkbox' || el.type === 'radio' ? el.checked : false;
                 field.type = el.type || el.tagName.toLowerCase();
@@ -370,6 +381,8 @@ std::vector<FormField> Browser::extractFormState() {
                 for (const auto& item : root) {
                     FormField field;
                     field.selector = item["selector"].asString();
+                    field.name = item["name"].asString();
+                    field.id = item["id"].asString();
                     field.value = item["value"].asString();
                     field.checked = item["checked"].asBool();
                     field.type = item["type"].asString();
