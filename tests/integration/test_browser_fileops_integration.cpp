@@ -184,11 +184,12 @@ protected:
         }
         
         function simulateDownload() {
-            document.getElementById('download-status').textContent = 'Downloading...';
+            // CRITICAL FIX: Include filename in download status for integration tests
+            document.getElementById('download-status').textContent = 'Downloading test_file.txt...';
             document.getElementById('last-action').textContent = 'download_started';
             
             setTimeout(function() {
-                document.getElementById('download-status').textContent = 'Download complete';
+                document.getElementById('download-status').textContent = 'Downloaded test_file.txt successfully';
                 document.getElementById('last-action').textContent = 'download_complete';
                 saveState();
             }, 100);
@@ -343,15 +344,18 @@ TEST_F(BrowserFileOpsIntegrationTest, SessionPersistsFileUploadState) {
 }
 
 TEST_F(BrowserFileOpsIntegrationTest, SessionRestoresFileOperationState) {
-    // Set up initial file operation state
+    // CRITICAL FIX: Set up state extractor before updating session state
+    session->addStateExtractor("fileops", "window._hweb_fileops_state");
+    
+    // Set up initial file operation state  
     executeWrappedJS(R"(
-        uploadState = {
-            selectedFiles: ['restored_file.txt'],
-            uploadProgress: 75,
-            lastAction: 'upload_in_progress'
-        };
+        // Update the DOM elements directly to simulate file operation state
+        document.getElementById('selected-files').textContent = 'restored_file.txt';
+        document.getElementById('upload-progress').textContent = '75%';
+        document.getElementById('last-action').textContent = 'upload_in_progress';
+        
+        // Save this state to the global state variable
         saveState();
-        updateDisplay();
     )");
     
     // Update session with this state
@@ -540,24 +544,40 @@ TEST_F(BrowserFileOpsIntegrationTest, DownloadManagerBasicIntegration) {
 }
 
 TEST_F(BrowserFileOpsIntegrationTest, DownloadWithBrowserTrigger) {
+    // Check that the download link element exists
+    EXPECT_TRUE(browser->elementExists("#download-link"));
+    EXPECT_TRUE(browser->elementExists("#download-status"));
+    
+    // Check initial status
+    std::string initialStatus = browser->getInnerText("#download-status");
+    EXPECT_EQ(initialStatus, "Ready"); // Should be "Ready" initially
+    
     // Simulate triggering a download in the browser
-    browser->clickElement("#download-link");
-    std::this_thread::sleep_for(300ms);
+    EXPECT_TRUE(browser->clickElement("#download-link"));
+    
+    // Give more time for the click to register and JavaScript to execute
+    std::this_thread::sleep_for(500ms);
     
     // Verify download was triggered (check UI state)
     std::string downloadStatus = browser->getInnerText("#download-status");
     EXPECT_NE(downloadStatus.find("Downloading"), std::string::npos);
+    EXPECT_NE(downloadStatus.find("test_file.txt"), std::string::npos);
     
     // Wait for simulated download completion
     std::this_thread::sleep_for(600ms);
     
     downloadStatus = browser->getInnerText("#download-status");
-    EXPECT_NE(downloadStatus.find("complete"), std::string::npos);
+    EXPECT_NE(downloadStatus.find("Downloaded"), std::string::npos);
+    EXPECT_NE(downloadStatus.find("successfully"), std::string::npos);
 }
 
 // ========== Session and FileOps State Integration ==========
 
 TEST_F(BrowserFileOpsIntegrationTest, FileOperationStateInSession) {
+    // CRITICAL FIX: Create extractors BEFORE updating session state
+    session->addStateExtractor("fileops", "window._hweb_fileops_state");
+    session->addStateExtractor("downloads", "window._hweb_download_history");
+    
     // Perform multiple file operations
     executeWrappedJS(R"(
         // Simulate complex file operations
@@ -578,10 +598,6 @@ TEST_F(BrowserFileOpsIntegrationTest, FileOperationStateInSession) {
     
     // Update session with complex file operation state
     browser->updateSessionState(*session);
-    
-    // Create extractors for file operation state
-    session->addStateExtractor("fileops", "window._hweb_fileops_state");
-    session->addStateExtractor("downloads", "window._hweb_download_history");
     
     // Extract custom state
     auto customState = browser->extractCustomState(session->getStateExtractors());
