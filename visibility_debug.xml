@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="1" disabled="0" errors="0" time="3.896" timestamp="2025-07-27T18:06:33.671" name="AllTests">
+  <testsuite name="BrowserWaitTest" tests="1" failures="1" disabled="0" skipped="0" errors="0" time="3.851" timestamp="2025-07-27T18:06:33.716">
+    <testcase name="WaitForElementVisibleInitiallyHidden" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="534" status="run" result="completed" time="3.851" timestamp="2025-07-27T18:06:33.716" classname="BrowserWaitTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp:543&#x0A;Value of: result&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp:543
+Value of: result
+  Actual: false
+Expected: true
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

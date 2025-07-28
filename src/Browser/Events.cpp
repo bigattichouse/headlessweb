@@ -614,6 +614,7 @@ bool Browser::waitForNavigationEvent(int timeout_ms) {
     const int check_interval = 200; // Longer interval for navigation
     
     while (elapsed < timeout_ms) {
+        // Use shorter wait intervals for better responsiveness
         wait(check_interval);
         elapsed += check_interval;
         
@@ -728,6 +729,7 @@ bool Browser::waitForVisibilityEvent(const std::string& selector, int timeout_ms
     const int check_interval = 100;
     
     while (elapsed < timeout_ms) {
+        // Use shorter wait intervals for better responsiveness
         wait(check_interval);
         elapsed += check_interval;
         
@@ -754,6 +756,7 @@ bool Browser::waitForConditionEvent(const std::string& js_condition, int timeout
     const int check_interval = 100;
     
     while (elapsed < timeout_ms) {
+        // Use shorter wait intervals for better responsiveness
         wait(check_interval);
         elapsed += check_interval;
         

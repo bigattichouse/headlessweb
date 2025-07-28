@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="0" disabled="0" errors="0" time="1.694" timestamp="2025-07-27T18:20:45.386" name="AllTests">
+  <testsuite name="BrowserWaitTest" tests="1" failures="0" disabled="0" skipped="0" errors="0" time="1.646" timestamp="2025-07-27T18:20:45.435">
+    <testcase name="WaitForNetworkRequestPattern" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="524" status="run" result="completed" time="1.646" timestamp="2025-07-27T18:20:45.435" classname="BrowserWaitTest" />
+  </testsuite>
+</testsuites>

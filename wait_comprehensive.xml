@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="39" failures="5" disabled="0" errors="0" time="68.059" timestamp="2025-07-27T18:17:56.508" name="AllTests">
+  <testsuite name="BrowserWaitTest" tests="39" failures="5" disabled="0" skipped="0" errors="0" time="68.013" timestamp="2025-07-27T18:17:56.553">
+    <testcase name="WaitForTextAdvancedBasic" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="460" status="run" result="completed" time="1.433" timestamp="2025-07-27T18:17:56.553" classname="BrowserWaitTest" />
+    <testcase name="WaitForTextAdvancedCaseSensitive" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="466" status="run" result="completed" time="2.226" timestamp="2025-07-27T18:17:57.987" classname="BrowserWaitTest" />
+    <testcase name="WaitForTextAdvancedCaseInsensitive" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="476" status="run" result="completed" time="1.311" timestamp="2025-07-27T18:18:00.213" classname="BrowserWaitTest" />
+    <testcase name="WaitForTextAdvancedExactMatch" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="482" status="run" result="completed" time="2.225" timestamp="2025-07-27T18:18:01.524" classname="BrowserWaitTest" />
+    <testcase name="WaitForTextAdvancedDynamic" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="492" status="run" result="completed" time="1.84" timestamp="2025-07-27T18:18:03.750" classname="BrowserWaitTest" />
+    <testcase name="WaitForNetworkIdleImmediate" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="502" status="run" result="completed" time="1.413" timestamp="2025-07-27T18:18:05.591" classname="BrowserWaitTest" />
+    <testcase name="WaitForNetworkIdleAfterActivity" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="508" status="run" result="completed" time="3.217" timestamp="2025-07-27T18:18:07.004" classname="BrowserWaitTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp:513&#x0A;Value of: result&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp:513
+Value of: result
+  Actual: false
+Expected: true
+]]></failure>
+    </testcase>
+    <testcase name="WaitForNetworkRequestPattern" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="518" status="run" result="completed" time="3.228" timestamp="2025-07-27T18:18:10.222" classname="BrowserWaitTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp:523&#x0A;Value of: result&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp:523
+Value of: result
+  Actual: false
+Expected: true
+]]></failure>
+    </testcase>
+    <testcase name="WaitForNetworkRequestTimeout" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="526" status="run" result="completed" time="1.717" timestamp="2025-07-27T18:18:13.450" classname="BrowserWaitTest" />
+    <testcase name="WaitForElementVisibleInitiallyHidden" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="534" status="run" result="completed" time="2.02" timestamp="2025-07-27T18:18:15.168" classname="BrowserWaitTest" />
+    <testcase name="WaitForElementVisibleAlreadyVisible" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="546" status="run" result="completed" time="1.414" timestamp="2025-07-27T18:18:17.189" classname="BrowserWaitTest" />
+    <testcase name="WaitForElementCountEqual" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="557" status="run" result="completed" time="1.311" timestamp="2025-07-27T18:18:18.603" classname="BrowserWaitTest" />
+    <testcase name="WaitForElementCountGreaterThan" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="563" status="run" result="completed" time="1.512" timestamp="2025-07-27T18:18:19.914" classname="BrowserWaitTest" />
+    <testcase name="WaitForElementCountLessThan" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="571" status="run" result="completed" time="1.516" timestamp="2025-07-27T18:18:21.427" classname="BrowserWaitTest" />
+    <testcase name="WaitForElementCountNotEqual" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="579" status="run" result="completed" time="1.515" timestamp="2025-07-27T18:18:22.944" classname="BrowserWaitTest" />
+    <testcase name="WaitForAttributeChange" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="589" status="run" result="completed" time="1.615" timestamp="2025-07-27T18:18:24.460" classname="BrowserWaitTest" />
+    <testcase name="WaitForAttributeExisting" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="597" status="run" result="completed" time="1.316" timestamp="2025-07-27T18:18:26.075" classname="BrowserWaitTest" />
+    <testcase name="WaitForAttributeNonexistent" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="603" status="run" result="completed" time="1.718" timestamp="2025-07-27T18:18:27.392" classname="BrowserWaitTest" />
+    <testcase name="WaitForUrlChangeHash" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="611" status="run" result="completed" time="1.511" timestamp="2025-07-27T18:18:29.110" classname="BrowserWaitTest" />
+    <testcase name="WaitForUrlChangeAny" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="619" status="run" result="completed" time="1.506" timestamp="2025-07-27T18:18:30.622" classname="BrowserWaitTest" />
+    <testcase name="WaitForTitleChange" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="629" status="run" result="completed" time="1.617" timestamp="2025-07-27T18:18:32.128" classname="BrowserWaitTest" />
+    <testcase name="WaitForTitleChangeAny" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="637" status="run" result="completed" time="1.52" timestamp="2025-07-27T18:18:33.746" classname="BrowserWaitTest" />
+    <testcase name="WaitForSPANavigationSpecific" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="647" status="run" result="completed" time="3.23" timestamp="2025-07-27T18:18:35.267" classname="BrowserWaitTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp:652&#x0A;Value of: result&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp:652
+Value of: result
+  Actual: false
+Expected: true
+]]></failure>
+    </testcase>
+    <testcase name="WaitForSPANavigationAny" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="655" status="run" result="completed" time="3.235" timestamp="2025-07-27T18:18:38.498" classname="BrowserWaitTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp:660&#x0A;Value of: result&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp:660
+Value of: result
+  Actual: false
+Expected: true
+]]></failure>
+    </testcase>
+    <testcase name="WaitForFrameworkReadyJQuery" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="665" status="run" result="completed" time="1.513" timestamp="2025-07-27T18:18:41.733" classname="BrowserWaitTest" />
+    <testcase name="WaitForFrameworkReadyReact" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="673" status="run" result="completed" time="1.512" timestamp="2025-07-27T18:18:43.246" classname="BrowserWaitTest" />
+    <testcase name="WaitForFrameworkReadyAuto" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="681" status="run" result="completed" time="1.312" timestamp="2025-07-27T18:18:44.759" classname="BrowserWaitTest" />
+    <testcase name="WaitForFrameworkReadyCustom" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="687" status="run" result="completed" time="1.315" timestamp="2025-07-27T18:18:46.072" classname="BrowserWaitTest" />
+    <testcase name="WaitForDOMChangeAddElement" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="697" status="run" result="completed" time="1.613" timestamp="2025-07-27T18:18:47.387" classname="BrowserWaitTest" />
+    <testcase name="WaitForDOMChangeModifyElement" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="705" status="run" result="completed" time="1.508" timestamp="2025-07-27T18:18:49.000" classname="BrowserWaitTest" />
+    <testcase name="WaitForDOMChangeRemoveElement" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="713" status="run" result="completed" time="1.619" timestamp="2025-07-27T18:18:50.509" classname="BrowserWaitTest" />
+    <testcase name="WaitForDOMChangeTimeout" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="724" status="run" result="completed" time="1.315" timestamp="2025-07-27T18:18:52.129" classname="BrowserWaitTest" />
+    <testcase name="WaitForContentChangeText" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="732" status="run" result="completed" time="1.618" timestamp="2025-07-27T18:18:53.444" classname="BrowserWaitTest" />
+    <testcase name="WaitForContentChangeHTML" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="740" status="run" result="completed" time="1.514" timestamp="2025-07-27T18:18:55.063" classname="BrowserWaitTest" />
+    <testcase name="WaitForContentChangeInputValue" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="748" status="run" result="completed" time="1.508" timestamp="2025-07-27T18:18:56.577" classname="BrowserWaitTest" />
+    <testcase name="WaitForContentChangeTimeout" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="756" status="run" result="completed" time="1.711" timestamp="2025-07-27T18:18:58.085" classname="BrowserWaitTest" />
+    <testcase name="WaitMethodsWithNonexistentElements" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="764" status="run" result="completed" time="1.829" timestamp="2025-07-27T18:18:59.796" classname="BrowserWaitTest" />
+    <testcase name="WaitMethodsWithZeroTimeout" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="772" status="run" result="completed" time="1.218" timestamp="2025-07-27T18:19:01.626" classname="BrowserWaitTest" />
+    <testcase name="WaitMethodsIntegration" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="779" status="run" result="completed" time="1.722" timestamp="2025-07-27T18:19:02.845" classname="BrowserWaitTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp:797&#x0A;Expected equality of these values:&#x0A;  count_result&#x0A;    Which is: &quot;&quot;&#x0A;  &quot;3&quot;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp:797
+Expected equality of these values:
+  count_result
+    Which is: ""
+  "3"
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

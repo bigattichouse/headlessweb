@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="7" failures="4" disabled="0" errors="0" time="22.23" timestamp="2025-07-25T23:27:06.810" name="AllTests">
+  <testsuite name="ComplexWorkflowChainsTest" tests="7" failures="4" disabled="0" skipped="0" errors="0" time="22.178" timestamp="2025-07-25T23:27:06.861">
+    <testcase name="ECommerceWorkflow_BrowseToCheckout" file="/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp" line="318" status="run" result="completed" time="3.52" timestamp="2025-07-25T23:27:06.861" classname="ComplexWorkflowChainsTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp:344&#x0A;Expected equality of these values:&#x0A;  cart_count&#x0A;    Which is: &quot;0&quot;&#x0A;  &quot;2&quot;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp:344
+Expected equality of these values:
+  cart_count
+    Which is: "0"
+  "2"
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp:353&#x0A;Value of: browser_-&gt;elementExists(&quot;#product-list&quot;)&#x0A;  Actual: true&#x0A;Expected: false&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp:353
+Value of: browser_->elementExists("#product-list")
+  Actual: true
+Expected: false
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp:368&#x0A;Value of: confirmation_text.find(&quot;Order #1 Confirmed!&quot;) != std::string::npos&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp:368
+Value of: confirmation_text.find("Order #1 Confirmed!") != std::string::npos
+  Actual: false
+Expected: true
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp:369&#x0A;Value of: confirmation_text.find(&quot;Test Customer&quot;) != std::string::npos&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp:369
+Value of: confirmation_text.find("Test Customer") != std::string::npos
+  Actual: false
+Expected: true
+]]></failure>
+    </testcase>
+    <testcase name="ECommerceWorkflow_WithSessionPersistence" file="/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp" line="372" status="run" result="completed" time="5.792" timestamp="2025-07-25T23:27:10.382" classname="ComplexWorkflowChainsTest" />
+    <testcase name="MultiPageNavigation_WithFormData" file="/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp" line="413" status="run" result="completed" time="3.245" timestamp="2025-07-25T23:27:16.174" classname="ComplexWorkflowChainsTest" />
+    <testcase name="FileOperationWorkflow_UploadProcessDownload" file="/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp" line="522" status="run" result="completed" time="3.005" timestamp="2025-07-25T23:27:19.419" classname="ComplexWorkflowChainsTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp:615&#x0A;Value of: browser_-&gt;elementExists(&quot;#results&quot;)&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp:615
+Value of: browser_->elementExists("#results")
+  Actual: false
+Expected: true
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp:617&#x0A;Value of: results_text.find(&quot;File processed successfully!&quot;) != std::string::npos&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp:617
+Value of: results_text.find("File processed successfully!") != std::string::npos
+  Actual: false
+Expected: true
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp:620&#x0A;Value of: browser_-&gt;elementExists(&quot;#download-link&quot;)&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp:620
+Value of: browser_->elementExists("#download-link")
+  Actual: false
+Expected: true
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp:622&#x0A;Value of: download_href.find(&quot;data:text/plain&quot;) != std::string::npos&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp:622
+Value of: download_href.find("data:text/plain") != std::string::npos
+  Actual: false
+Expected: true
+]]></failure>
+    </testcase>
+    <testcase name="ScreenshotSessionAssertionWorkflow" file="/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp" line="627" status="run" result="completed" time="3.648" timestamp="2025-07-25T23:27:22.424" classname="ComplexWorkflowChainsTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp:733&#x0A;Expected: (size1) != (size2), actual: 26449 vs 26449&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp:733
+Expected: (size1) != (size2), actual: 26449 vs 26449
+]]></failure>
+    </testcase>
+    <testcase name="ErrorRecoveryWorkflow_NavigationFailureRecovery" file="/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp" line="738" status="run" result="completed" time="1.034" timestamp="2025-07-25T23:27:26.072" classname="ComplexWorkflowChainsTest" />
+    <testcase name="PerformanceStressWorkflow_RapidOperations" file="/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp" line="790" status="run" result="completed" time="1.932" timestamp="2025-07-25T23:27:27.107" classname="ComplexWorkflowChainsTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp:834&#x0A;Value of: browser_-&gt;elementExists(&quot;#counter&quot;)&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp:834
+Value of: browser_->elementExists("#counter")
+  Actual: false
+Expected: true
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp:848&#x0A;Expected equality of these values:&#x0A;  final_counter&#x0A;    Which is: &quot;0&quot;&#x0A;  std::to_string(num_operations)&#x0A;    Which is: &quot;50&quot;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/integration/test_complex_workflow_chains.cpp:848
+Expected equality of these values:
+  final_counter
+    Which is: "0"
+  std::to_string(num_operations)
+    Which is: "50"
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

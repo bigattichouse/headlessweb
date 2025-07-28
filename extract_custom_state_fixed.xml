@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="0" disabled="0" errors="0" time="1.481" timestamp="2025-07-27T20:22:50.380" name="AllTests">
+  <testsuite name="BrowserSessionTest" tests="1" failures="0" disabled="0" skipped="0" errors="0" time="1.435" timestamp="2025-07-27T20:22:50.426">
+    <testcase name="ExtractCustomState" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_session.cpp" line="578" status="run" result="completed" time="1.435" timestamp="2025-07-27T20:22:50.426" classname="BrowserSessionTest" />
+  </testsuite>
+</testsuites>

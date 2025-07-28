@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="0" disabled="0" errors="0" time="3.559" timestamp="2025-07-27T20:01:32.645" name="AllTests">
+  <testsuite name="ServiceArchitectureCoordinationTest" tests="1" failures="0" disabled="0" skipped="0" errors="0" time="3.488" timestamp="2025-07-27T20:01:32.715">
+    <testcase name="ResourceManagement_ConcurrentAccess" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp" line="522" status="run" result="completed" time="3.488" timestamp="2025-07-27T20:01:32.715" classname="ServiceArchitectureCoordinationTest" />
+  </testsuite>
+</testsuites>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="0" disabled="0" errors="0" time="2.391" timestamp="2025-07-27T18:05:02.026" name="AllTests">
+  <testsuite name="BrowserWaitTest" tests="1" failures="0" disabled="0" skipped="0" errors="0" time="2.344" timestamp="2025-07-27T18:05:02.072">
+    <testcase name="WaitForTextAdvancedExactMatch" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="482" status="run" result="completed" time="2.344" timestamp="2025-07-27T18:05:02.072" classname="BrowserWaitTest" />
+  </testsuite>
+</testsuites>

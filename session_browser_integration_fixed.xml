@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="0" disabled="0" errors="0" time="3.457" timestamp="2025-07-27T19:33:21.773" name="AllTests">
+  <testsuite name="ServiceArchitectureCoordinationTest" tests="1" failures="0" disabled="0" skipped="0" errors="0" time="3.41" timestamp="2025-07-27T19:33:21.820">
+    <testcase name="SessionService_BrowserStateIntegration" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp" line="269" status="run" result="completed" time="3.41" timestamp="2025-07-27T19:33:21.820" classname="ServiceArchitectureCoordinationTest" />
+  </testsuite>
+</testsuites>

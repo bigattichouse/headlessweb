@@ -401,7 +401,36 @@ bool Browser::waitForElementCount(const std::string& selector, const std::string
     
     condition += " })()";
     
-    return waitForConditionEvent(condition, timeout_ms);
+    // CRITICAL FIX: Apply signal-based waiting pattern from Browser Main success
+    // Clear any previous result
+    executeJavascriptSync("window._hweb_event_result = undefined;");
+    
+    // Execute condition observer script
+    std::string observerScript = setupConditionObserver(condition, timeout_ms);
+    executeJavascriptSync(observerScript);
+    
+    int elapsed = 0;
+    const int check_interval = 100;
+    
+    while (elapsed < timeout_ms) {
+        // Use shorter wait intervals for better responsiveness
+        wait(check_interval);
+        elapsed += check_interval;
+        
+        std::string result = executeJavascriptSync("typeof window._hweb_event_result !== 'undefined' ? String(window._hweb_event_result) : 'undefined'");
+        
+        if (result == "true") {
+            debug_output("Element count condition met: " + selector + " " + operator_str + " " + std::to_string(expected_count));
+            return true;
+        } else if (result == "false") {
+            debug_output("Element count condition timeout: " + selector + " " + operator_str + " " + std::to_string(expected_count));
+            return false;
+        }
+        // If result is "undefined", continue waiting
+    }
+    
+    debug_output("Element count condition timeout: " + selector + " " + operator_str + " " + std::to_string(expected_count));
+    return false;
 }
 
 bool Browser::waitForAttribute(const std::string& selector, const std::string& attribute, const std::string& expected_value, int timeout_ms) {
@@ -435,7 +464,36 @@ bool Browser::waitForAttribute(const std::string& selector, const std::string& a
         "return attr === '" + escaped_value + "'; "
         "})()";
     
-    return waitForConditionEvent(condition, timeout_ms);
+    // CRITICAL FIX: Apply signal-based waiting pattern from Browser Main success
+    // Clear any previous result
+    executeJavascriptSync("window._hweb_event_result = undefined;");
+    
+    // Execute condition observer script
+    std::string observerScript = setupConditionObserver(condition, timeout_ms);
+    executeJavascriptSync(observerScript);
+    
+    int elapsed = 0;
+    const int check_interval = 100;
+    
+    while (elapsed < timeout_ms) {
+        // Use shorter wait intervals for better responsiveness
+        wait(check_interval);
+        elapsed += check_interval;
+        
+        std::string result = executeJavascriptSync("typeof window._hweb_event_result !== 'undefined' ? String(window._hweb_event_result) : 'undefined'");
+        
+        if (result == "true") {
+            debug_output("Attribute condition met: " + selector + "[" + attribute + "='" + expected_value + "']");
+            return true;
+        } else if (result == "false") {
+            debug_output("Attribute condition timeout: " + selector + "[" + attribute + "='" + expected_value + "']");
+            return false;
+        }
+        // If result is "undefined", continue waiting
+    }
+    
+    debug_output("Attribute condition timeout: " + selector + "[" + attribute + "='" + expected_value + "']");
+    return false;
 }
 
 bool Browser::waitForUrlChange(const std::string& pattern, int timeout_ms) {
@@ -504,105 +562,90 @@ bool Browser::waitForSPANavigation(const std::string& route, int timeout_ms) {
     debug_output("Waiting for SPA navigation to: " + (route.empty() ? "any route" : route));
     
     std::string initial_url = getCurrentUrl();
+    debug_output("Initial URL: " + initial_url);
     
-    // Enhanced escaping for JavaScript strings
-    std::string escaped_route = route;
-    std::string escaped_initial = initial_url;
+    int elapsed = 0;
+    const int check_interval = 50; // Check every 50ms for responsiveness
     
-    // Escape both single quotes and backslashes
-    size_t pos = 0;
-    while ((pos = escaped_route.find("\\", pos)) != std::string::npos) {
-        escaped_route.replace(pos, 1, "\\\\");
-        pos += 2;
-    }
-    pos = 0;
-    while ((pos = escaped_route.find("'", pos)) != std::string::npos) {
-        escaped_route.replace(pos, 1, "\\'");
-        pos += 2;
-    }
-    
-    pos = 0;
-    while ((pos = escaped_initial.find("\\", pos)) != std::string::npos) {
-        escaped_initial.replace(pos, 1, "\\\\");
-        pos += 2;
-    }
-    pos = 0;
-    while ((pos = escaped_initial.find("'", pos)) != std::string::npos) {
-        escaped_initial.replace(pos, 1, "\\'");
-        pos += 2;
-    }
-    
-    // Enhanced condition with better URL change detection
-    std::string condition = "(function() { "
-        "try { "
-        "  var initialUrl = '" + escaped_initial + "'; "
-        "  var currentUrl = window.location.href; "
-        "  var currentPath = window.location.pathname; "
-        "  var currentHash = window.location.hash; "
-        "  var searchRoute = '" + escaped_route + "'; "
-        "  "
-        "  // Debug logging for troubleshooting"
-        "  if (window.console && window.console.log) { "
-        "    console.log('SPA Nav Check - Initial:', initialUrl, 'Current:', currentUrl, 'Route:', searchRoute); "
-        "  } ";
-    
-    if (route.empty()) {
-        // Wait for any URL change (including hash changes)
-        condition += "  // Check for any URL change "
-            "  if (currentUrl !== initialUrl) { "
-            "    return true; "
-            "  } "
-            "  "
-            "  // Simplified hash checking - just check if hash changed"
-            "  var initialHash = initialUrl.split('#')[1] || ''; "
-            "  var currentHashOnly = currentHash.replace('#', ''); "
-            "  if (currentHashOnly !== initialHash) { "
-            "    return true; "
-            "  } "
-            "  "
-            "  // Also check pathname changes from history.pushState"
-            "  var initialPath = initialUrl.split('?')[0].split('#')[0]; "
-            "  var currentFullPath = currentUrl.split('?')[0].split('#')[0]; "
-            "  return currentFullPath !== initialPath; ";
-    } else {
-        // Wait for specific route
-        condition += "  // Check if current path contains the route "
-            "  var fullPath = currentPath + currentHash; "
-            "  "
-            "  // Simple string match first"
-            "  if (fullPath.indexOf(searchRoute) !== -1) { "
-            "    return true; "
-            "  } "
-            "  "
-            "  // Check pathname only"
-            "  if (currentPath.indexOf(searchRoute) !== -1) { "
-            "    return true; "
-            "  } "
-            "  "
-            "  // Check hash only"
-            "  if (currentHash && currentHash.indexOf(searchRoute) !== -1) { "
-            "    return true; "
-            "  } "
-            "  "
-            "  // Try regex match if it looks like a pattern"
-            "  if (searchRoute.indexOf('[') !== -1 || searchRoute.indexOf('*') !== -1 || searchRoute.indexOf('(') !== -1) { "
-            "    try { "
-            "      var pattern = searchRoute.replace(/\\*/g, '.*').replace(/\\[/g, '\\\\[').replace(/\\]/g, '\\\\]'); "
-            "      var regex = new RegExp(pattern); "
-            "      return regex.test(fullPath) || regex.test(currentPath) || regex.test(currentHash); "
-            "    } catch(e) { "
-            "      return false; "
-            "    } "
-            "  } ";
+    while (elapsed < timeout_ms) {
+        // Get current URL directly
+        std::string current_url = getCurrentUrl();
+        
+        if (route.empty()) {
+            // Wait for ANY navigation change
+            if (current_url != initial_url) {
+                debug_output("Navigation change detected: " + initial_url + " -> " + current_url);
+                return true;
+            }
+            
+            // Also check for hash changes via JavaScript
+            std::string hash_check = executeJavascriptSync(
+                "(function() {"
+                "  try {"
+                "    var hash = window.location.hash;"
+                "    var path = window.location.pathname;"
+                "    return path + hash;"
+                "  } catch(e) { return ''; }"
+                "})()"
+            );
+            
+            if (!hash_check.empty() && hash_check != initial_url) {
+                debug_output("Hash/path change detected: " + hash_check);
+                return true;
+            }
+        } else {
+            // Wait for specific route
+            if (current_url.find(route) != std::string::npos) {
+                debug_output("Route found in URL: " + route + " in " + current_url);
+                return true;
+            }
+            
+            // Escape route for JavaScript
+            std::string escaped_route = route;
+            size_t pos = 0;
+            while ((pos = escaped_route.find("'", pos)) != std::string::npos) {
+                escaped_route.replace(pos, 1, "\\'");
+                pos += 2;
+            }
+            
+            // Check via JavaScript for hash/path matches (critical for history.pushState)
+            std::string route_check = executeJavascriptSync(
+                "(function() {"
+                "  try {"
+                "    var hash = window.location.hash;"
+                "    var path = window.location.pathname;"
+                "    var href = window.location.href;"
+                "    var route = '" + escaped_route + "';"
+                "    // Debug logging"
+                "    if (window.console && window.console.log) {"
+                "      console.log('Route check - Path:', path, 'Hash:', hash, 'Href:', href, 'Looking for:', route);"
+                "    }"
+                "    var result = (hash.indexOf(route) !== -1 || path.indexOf(route) !== -1 || href.indexOf(route) !== -1);"
+                "    if (window.console && window.console.log) {"
+                "      console.log('Route check result:', result);"
+                "    }"
+                "    return result;"
+                "  } catch(e) {"
+                "    if (window.console && window.console.log) {"
+                "      console.log('Route check error:', e.message);"
+                "    }"
+                "    return false;"
+                "  }"
+                "})()"
+            );
+            
+            if (route_check == "true" || route_check == "1") {
+                debug_output("Route found via JavaScript: " + route);
+                return true;
+            }
+        }
+        
+        wait(check_interval);
+        elapsed += check_interval;
     }
     
-    condition += "  return false; "
-        "} catch(e) { "
-        "  return false; "
-        "} "
-        "})()";
-    
-    return waitForConditionEvent(condition, timeout_ms);
+    debug_output("SPA navigation timeout: " + route);
+    return false;
 }
 
 bool Browser::waitForFrameworkReady(const std::string& framework, int timeout_ms) {
@@ -639,7 +682,36 @@ bool Browser::waitForFrameworkReady(const std::string& framework, int timeout_ms
         condition = "typeof " + escaped_framework + " !== 'undefined'";
     }
     
-    return waitForConditionEvent(condition, timeout_ms);
+    // CRITICAL FIX: Apply signal-based waiting pattern from Browser Main success
+    // Clear any previous result
+    executeJavascriptSync("window._hweb_event_result = undefined;");
+    
+    // Execute condition observer script
+    std::string observerScript = setupConditionObserver(condition, timeout_ms);
+    executeJavascriptSync(observerScript);
+    
+    int elapsed = 0;
+    const int check_interval = 100;
+    
+    while (elapsed < timeout_ms) {
+        // Use shorter wait intervals for better responsiveness
+        wait(check_interval);
+        elapsed += check_interval;
+        
+        std::string result = executeJavascriptSync("typeof window._hweb_event_result !== 'undefined' ? String(window._hweb_event_result) : 'undefined'");
+        
+        if (result == "true") {
+            debug_output("Framework ready detected: " + framework);
+            return true;
+        } else if (result == "false") {
+            debug_output("Framework ready timeout: " + framework);
+            return false;
+        }
+        // If result is "undefined", continue waiting
+    }
+    
+    debug_output("Framework ready timeout: " + framework);
+    return false;
 }
 
 bool Browser::waitForDOMChange(const std::string& selector, int timeout_ms) {

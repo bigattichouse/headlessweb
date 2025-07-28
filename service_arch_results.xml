@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="15" failures="7" disabled="0" errors="0" time="49.31" timestamp="2025-07-25T23:17:21.769" name="AllTests">
+  <testsuite name="ServiceArchitectureCoordinationTest" tests="15" failures="7" disabled="0" skipped="0" errors="0" time="49.266" timestamp="2025-07-25T23:17:21.813">
+    <testcase name="ManagerRegistry_InitializationAndAccess" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp" line="172" status="run" result="completed" time="0.118" timestamp="2025-07-25T23:17:21.813" classname="ServiceArchitectureCoordinationTest" />
+    <testcase name="ManagerRegistry_SingletonBehavior" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp" line="188" status="run" result="completed" time="0." timestamp="2025-07-25T23:17:21.931" classname="ServiceArchitectureCoordinationTest" />
+    <testcase name="ManagerRegistry_CrossServiceCoordination" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp" line="206" status="run" result="completed" time="2.505" timestamp="2025-07-25T23:17:21.932" classname="ServiceArchitectureCoordinationTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:228&#x0A;Value of: assertions_passed&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:228
+Value of: assertions_passed
+  Actual: false
+Expected: true
+]]></failure>
+    </testcase>
+    <testcase name="SessionService_BrowserStateIntegration" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp" line="237" status="run" result="completed" time="3.564" timestamp="2025-07-25T23:17:24.437" classname="ServiceArchitectureCoordinationTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:242&#x0A;Value of: test_session.getCurrentUrl().empty()&#x0A;  Actual: true&#x0A;Expected: false&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:242
+Value of: test_session.getCurrentUrl().empty()
+  Actual: true
+Expected: false
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:265&#x0A;Value of: found_field&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:265
+Value of: found_field
+  Actual: false
+Expected: true
+]]></failure>
+    </testcase>
+    <testcase name="SessionService_NavigationServiceIntegration" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp" line="272" status="run" result="completed" time="5.366" timestamp="2025-07-25T23:17:28.002" classname="ServiceArchitectureCoordinationTest" />
+    <testcase name="SessionService_MultiSessionIsolation" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp" line="298" status="run" result="completed" time="4.574" timestamp="2025-07-25T23:17:33.368" classname="ServiceArchitectureCoordinationTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:340&#x0A;Expected: (session1_value) != (session2_value), actual: &quot;&quot; vs &quot;&quot;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:340
+Expected: (session1_value) != (session2_value), actual: "" vs ""
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:341&#x0A;Expected equality of these values:&#x0A;  session1_value&#x0A;    Which is: &quot;&quot;&#x0A;  &quot;session1_value&quot;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:341
+Expected equality of these values:
+  session1_value
+    Which is: ""
+  "session1_value"
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:342&#x0A;Expected equality of these values:&#x0A;  session2_value&#x0A;    Which is: &quot;&quot;&#x0A;  &quot;session2_value&quot;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:342
+Expected equality of these values:
+  session2_value
+    Which is: ""
+  "session2_value"
+]]></failure>
+    </testcase>
+    <testcase name="NavigationService_StrategyDetermination" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp" line="347" status="run" result="completed" time="0.002" timestamp="2025-07-25T23:17:37.942" classname="ServiceArchitectureCoordinationTest" />
+    <testcase name="NavigationService_WaitMechanisms" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp" line="368" status="run" result="completed" time="2.031" timestamp="2025-07-25T23:17:37.944" classname="ServiceArchitectureCoordinationTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:381&#x0A;Value of: page_ready&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:381
+Value of: page_ready
+  Actual: false
+Expected: true
+]]></failure>
+    </testcase>
+    <testcase name="NavigationService_ComplexNavigationPlans" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp" line="388" status="run" result="completed" time="4.347" timestamp="2025-07-25T23:17:39.976" classname="ServiceArchitectureCoordinationTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:412&#x0A;Expected equality of these values:&#x0A;  viewport.first&#x0A;    Which is: 1920&#x0A;  1024&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:412
+Expected equality of these values:
+  viewport.first
+    Which is: 1920
+  1024
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:413&#x0A;Expected equality of these values:&#x0A;  viewport.second&#x0A;    Which is: 1080&#x0A;  768&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:413
+Expected equality of these values:
+  viewport.second
+    Which is: 1080
+  768
+]]></failure>
+    </testcase>
+    <testcase name="CrossService_ErrorPropagation" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp" line="418" status="run" result="completed" time="1.02" timestamp="2025-07-25T23:17:44.324" classname="ServiceArchitectureCoordinationTest" />
+    <testcase name="CrossService_RecoveryMechanisms" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp" line="436" status="run" result="completed" time="10.973" timestamp="2025-07-25T23:17:45.345" classname="ServiceArchitectureCoordinationTest" />
+    <testcase name="ResourceManagement_ServiceLifecycle" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp" line="464" status="run" result="completed" time="0.005" timestamp="2025-07-25T23:17:56.318" classname="ServiceArchitectureCoordinationTest" />
+    <testcase name="ResourceManagement_ConcurrentAccess" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp" line="489" status="run" result="completed" time="4.536" timestamp="2025-07-25T23:17:56.324" classname="ServiceArchitectureCoordinationTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:520&#x0A;Expected equality of these values:&#x0A;  page_content&#x0A;    Which is: &quot;Service Architecture Test&quot;&#x0A;  &quot;Concurrent Test&quot;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:520
+Expected equality of these values:
+  page_content
+    Which is: "Service Architecture Test"
+  "Concurrent Test"
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:534&#x0A;Expected equality of these values:&#x0A;  page_content&#x0A;    Which is: &quot;Service Architecture Test&quot;&#x0A;  &quot;Concurrent Test&quot;&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:534
+Expected equality of these values:
+  page_content
+    Which is: "Service Architecture Test"
+  "Concurrent Test"
+]]></failure>
+    </testcase>
+    <testcase name="ServiceIntegration_CompleteWorkflow" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp" line="539" status="run" result="completed" time="5.87" timestamp="2025-07-25T23:18:00.861" classname="ServiceArchitectureCoordinationTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:571&#x0A;Value of: assertions_passed&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:571
+Value of: assertions_passed
+  Actual: false
+Expected: true
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:590&#x0A;Value of: found_workflow_data&#x0A;  Actual: false&#x0A;Expected: true&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp:590
+Value of: found_workflow_data
+  Actual: false
+Expected: true
+]]></failure>
+    </testcase>
+    <testcase name="ServiceIntegration_ErrorRecoveryWorkflow" file="/home/bigattichouse/workspace/headlessweb/tests/hweb/test_service_architecture_coordination.cpp" line="593" status="run" result="completed" time="4.348" timestamp="2025-07-25T23:18:06.731" classname="ServiceArchitectureCoordinationTest" />
+  </testsuite>
+</testsuites>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="16" failures="3" disabled="0" errors="0" time="32.646" timestamp="2025-07-27T18:57:59.939" name="AllTests">
+  <testsuite name="BrowserAdvancedFormOperationsTest" tests="16" failures="3" disabled="0" skipped="0" errors="0" time="32.603" timestamp="2025-07-27T18:57:59.982">
+    <testcase name="MultiStepFormNavigation_StepProgression" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp" line="340" status="run" result="completed" time="1.701" timestamp="2025-07-27T18:57:59.982" classname="BrowserAdvancedFormOperationsTest" />
+    <testcase name="MultiStepFormNavigation_StepValidation" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp" line="364" status="run" result="completed" time="1.91" timestamp="2025-07-27T18:58:01.684" classname="BrowserAdvancedFormOperationsTest" />
+    <testcase name="MultiStepFormNavigation_BackNavigation" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp" line="400" status="run" result="completed" time="1.889" timestamp="2025-07-27T18:58:03.595" classname="BrowserAdvancedFormOperationsTest" />
+    <testcase name="ConditionalFieldLogic_CountryStateLogic" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp" line="437" status="run" result="completed" time="2.57" timestamp="2025-07-27T18:58:05.484" classname="BrowserAdvancedFormOperationsTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:449&#x0A;Value of: browser_-&gt;elementExists(&quot;#state-field&quot;)&#x0A;  Actual: true&#x0A;Expected: false&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:449
+Value of: browser_->elementExists("#state-field")
+  Actual: true
+Expected: false
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:474&#x0A;Value of: browser_-&gt;elementExists(&quot;#state-field&quot;)&#x0A;  Actual: true&#x0A;Expected: false&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:474
+Value of: browser_->elementExists("#state-field")
+  Actual: true
+Expected: false
+]]></failure>
+    </testcase>
+    <testcase name="ConditionalFieldLogic_DependentValidation" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp" line="477" status="run" result="completed" time="2.274" timestamp="2025-07-27T18:58:08.055" classname="BrowserAdvancedFormOperationsTest" />
+    <testcase name="ComplexFieldGroups_CheckboxArrays" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp" line="510" status="run" result="completed" time="2.004" timestamp="2025-07-27T18:58:10.330" classname="BrowserAdvancedFormOperationsTest" />
+    <testcase name="ComplexFieldGroups_RadioButtonLogic" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp" line="542" status="run" result="completed" time="1.986" timestamp="2025-07-27T18:58:12.334" classname="BrowserAdvancedFormOperationsTest" />
+    <testcase name="DynamicFormElements_AddRemoveFields" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp" line="580" status="run" result="completed" time="1.844" timestamp="2025-07-27T18:58:14.321" classname="BrowserAdvancedFormOperationsTest" />
+    <testcase name="DynamicFormElements_CheckboxGeneration" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp" line="622" status="run" result="completed" time="1.841" timestamp="2025-07-27T18:58:16.165" classname="BrowserAdvancedFormOperationsTest" />
+    <testcase name="FormStatePersistence_CrossStepData" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp" line="653" status="run" result="completed" time="2.47" timestamp="2025-07-27T18:58:18.006" classname="BrowserAdvancedFormOperationsTest" />
+    <testcase name="ComplexValidation_PasswordMatching" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp" line="690" status="run" result="completed" time="1.879" timestamp="2025-07-27T18:58:20.477" classname="BrowserAdvancedFormOperationsTest" />
+    <testcase name="ComplexValidation_EmailFormat" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp" line="714" status="run" result="completed" time="2.974" timestamp="2025-07-27T18:58:22.356" classname="BrowserAdvancedFormOperationsTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:740&#x0A;Value of: browser_-&gt;elementExists(&quot;#step2&quot;)&#x0A;  Actual: true&#x0A;Expected: false&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:740
+Value of: browser_->elementExists("#step2")
+  Actual: true
+Expected: false
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:740&#x0A;Value of: browser_-&gt;elementExists(&quot;#step2&quot;)&#x0A;  Actual: true&#x0A;Expected: false&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:740
+Value of: browser_->elementExists("#step2")
+  Actual: true
+Expected: false
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:740&#x0A;Value of: browser_-&gt;elementExists(&quot;#step2&quot;)&#x0A;  Actual: true&#x0A;Expected: false&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:740
+Value of: browser_->elementExists("#step2")
+  Actual: true
+Expected: false
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:740&#x0A;Value of: browser_-&gt;elementExists(&quot;#step2&quot;)&#x0A;  Actual: true&#x0A;Expected: false&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:740
+Value of: browser_->elementExists("#step2")
+  Actual: true
+Expected: false
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:740&#x0A;Value of: browser_-&gt;elementExists(&quot;#step2&quot;)&#x0A;  Actual: true&#x0A;Expected: false&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:740
+Value of: browser_->elementExists("#step2")
+  Actual: true
+Expected: false
+]]></failure>
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:740&#x0A;Value of: browser_-&gt;elementExists(&quot;#step2&quot;)&#x0A;  Actual: true&#x0A;Expected: false&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:740
+Value of: browser_->elementExists("#step2")
+  Actual: true
+Expected: false
+]]></failure>
+    </testcase>
+    <testcase name="ErrorHandling_InvalidFormOperations" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp" line="755" status="run" result="completed" time="1.632" timestamp="2025-07-27T18:58:25.331" classname="BrowserAdvancedFormOperationsTest">
+      <failure message="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:760&#x0A;Value of: browser_-&gt;checkElement(&quot;#terms&quot;)&#x0A;  Actual: true&#x0A;Expected: false&#x0A;" type=""><![CDATA[/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp:760
+Value of: browser_->checkElement("#terms")
+  Actual: true
+Expected: false
+]]></failure>
+    </testcase>
+    <testcase name="ErrorHandling_FormSubmissionFailure" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp" line="776" status="run" result="completed" time="1.821" timestamp="2025-07-27T18:58:26.963" classname="BrowserAdvancedFormOperationsTest" />
+    <testcase name="Performance_ManyDynamicFields" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp" line="798" status="run" result="completed" time="1.472" timestamp="2025-07-27T18:58:28.785" classname="BrowserAdvancedFormOperationsTest" />
+    <testcase name="Performance_RapidFormNavigation" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp" line="827" status="run" result="completed" time="2.327" timestamp="2025-07-27T18:58:30.258" classname="BrowserAdvancedFormOperationsTest" />
+  </testsuite>
+</testsuites>
