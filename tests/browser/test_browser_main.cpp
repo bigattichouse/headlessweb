@@ -419,16 +419,21 @@ TEST_F(BrowserMainTest, BasicNavigation) {
     EXPECT_TRUE(page2_ready);
     EXPECT_EQ(getPageTitleReliable(), "Page 2");
     
-    // Test go back with enhanced title checking  
+    // Test go back with improved signal-based detection
     browser->goBack();
-    browser->waitForNavigation(5000);
-    std::this_thread::sleep_for(2000ms); // Allow extra time for back navigation
+    // Wait for navigation signal to complete  
+    bool nav_complete = browser->waitForNavigation(5000);
+    EXPECT_TRUE(nav_complete);
+    // Additional wait for WebKit to stabilize after back navigation
+    browser->waitForJavaScriptCompletion(2000);
     EXPECT_EQ(getPageTitleReliable(), "Page 1");
     
-    // Test go forward with enhanced title checking
+    // Test go forward with signal-based detection
     browser->goForward();
-    browser->waitForNavigation(3000);
-    std::this_thread::sleep_for(1000ms); // Allow time for navigation
+    nav_complete = browser->waitForNavigation(5000);
+    EXPECT_TRUE(nav_complete);
+    // Additional wait for WebKit to stabilize after forward navigation
+    browser->waitForJavaScriptCompletion(2000);
     EXPECT_EQ(getPageTitleReliable(), "Page 2");
 }
 
