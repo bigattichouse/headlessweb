@@ -239,6 +239,21 @@ void Browser::notifyReadyToShow() {
 // ========== JavaScript Observer Setup Methods ==========
 
 std::string Browser::setupDOMObserver(const std::string& selector, int timeout_ms) {
+    // Escape double quotes and backslashes in selector for JavaScript double-quoted string
+    std::string escaped_selector = selector;
+    size_t pos = 0;
+    // Escape backslashes first to avoid double-escaping
+    while ((pos = escaped_selector.find("\\", pos)) != std::string::npos) {
+        escaped_selector.replace(pos, 1, "\\\\");
+        pos += 2;
+    }
+    pos = 0;
+    // Then escape double quotes
+    while ((pos = escaped_selector.find("\"", pos)) != std::string::npos) {
+        escaped_selector.replace(pos, 1, "\\\"");
+        pos += 2;
+    }
+    
     return R"(
         (function(selector, timeout) {
             window._hweb_event_result = undefined;
@@ -274,11 +289,26 @@ std::string Browser::setupDOMObserver(const std::string& selector, int timeout_m
                 }
             }, timeout);
             
-        })(')" + selector + "', " + std::to_string(timeout_ms) + R"();
+        })(')" + escaped_selector + "', " + std::to_string(timeout_ms) + R"();
     )";
 }
 
 std::string Browser::setupVisibilityObserver(const std::string& selector, int timeout_ms) {
+    // Escape double quotes and backslashes in selector for JavaScript double-quoted string
+    std::string escaped_selector = selector;
+    size_t pos = 0;
+    // Escape backslashes first to avoid double-escaping
+    while ((pos = escaped_selector.find("\\", pos)) != std::string::npos) {
+        escaped_selector.replace(pos, 1, "\\\\");
+        pos += 2;
+    }
+    pos = 0;
+    // Then escape double quotes
+    while ((pos = escaped_selector.find("\"", pos)) != std::string::npos) {
+        escaped_selector.replace(pos, 1, "\\\"");
+        pos += 2;
+    }
+    
     return R"(
         (function(selector, timeout) {
             window._hweb_event_result = undefined;
@@ -382,7 +412,7 @@ std::string Browser::setupVisibilityObserver(const std::string& selector, int ti
                 }
             }, timeout);
             
-        })(')" + selector + "', " + std::to_string(timeout_ms) + R"();
+        })(')" + escaped_selector + "', " + std::to_string(timeout_ms) + R"();
     )";
 }
 
@@ -569,12 +599,27 @@ std::string Browser::setupConditionObserver(const std::string& condition, int ti
 bool Browser::waitForSelectorEvent(const std::string& selector, int timeout_ms) {
     // Signal-based approach: Set up DOM mutation observer and wait for signal
     
+    // Escape double quotes and backslashes in selector for JavaScript double-quoted string
+    std::string escaped_selector = selector;
+    size_t pos = 0;
+    // Escape backslashes first to avoid double-escaping
+    while ((pos = escaped_selector.find("\\", pos)) != std::string::npos) {
+        escaped_selector.replace(pos, 1, "\\\\");
+        pos += 2;
+    }
+    pos = 0;
+    // Then escape double quotes
+    while ((pos = escaped_selector.find("\"", pos)) != std::string::npos) {
+        escaped_selector.replace(pos, 1, "\\\"");
+        pos += 2;
+    }
+    
     // Handle zero or negative timeout - perform single immediate check
     if (timeout_ms <= 0) {
         std::string result = executeJavascriptSync(
             "(function() { "
             "  try { "
-            "    const element = document.querySelector('" + selector + "'); "
+            "    const element = document.querySelector(\"" + escaped_selector + "\"); "
             "    return element !== null ? 'true' : 'false'; "
             "  } catch(e) { return 'false'; } "
             "})()");
@@ -585,7 +630,7 @@ bool Browser::waitForSelectorEvent(const std::string& selector, int timeout_ms) 
     std::string immediate_result = executeJavascriptSync(
         "(function() { "
         "  try { "
-        "    const element = document.querySelector('" + selector + "'); "
+        "    const element = document.querySelector(\"" + escaped_selector + "\"); "
         "    return element !== null ? 'true' : 'false'; "
         "  } catch(e) { return 'false'; } "
         "})()");
@@ -595,7 +640,7 @@ bool Browser::waitForSelectorEvent(const std::string& selector, int timeout_ms) 
     }
     
     // Set up signal-based DOM mutation observer
-    std::string condition = "document.querySelector('" + selector + "') !== null";
+    std::string condition = "document.querySelector(\"" + escaped_selector + "\") !== null";
     return waitForSignalCondition("load-changed", condition, timeout_ms);
 }
 
@@ -805,9 +850,24 @@ bool Browser::waitForElementWithContent(const std::string& selector, int timeout
         return false;
     }
     
+    // Escape double quotes and backslashes in selector for JavaScript double-quoted string
+    std::string escaped_selector = selector;
+    size_t pos = 0;
+    // Escape backslashes first to avoid double-escaping
+    while ((pos = escaped_selector.find("\\", pos)) != std::string::npos) {
+        escaped_selector.replace(pos, 1, "\\\\");
+        pos += 2;
+    }
+    pos = 0;
+    // Then escape double quotes
+    while ((pos = escaped_selector.find("\"", pos)) != std::string::npos) {
+        escaped_selector.replace(pos, 1, "\\\"");
+        pos += 2;
+    }
+    
     // Then wait for it to have content
-    std::string condition = "document.querySelector('" + selector + "') && "
-                           "document.querySelector('" + selector + "').innerText.trim().length > 0";
+    std::string condition = "document.querySelector(\"" + escaped_selector + "\") && "
+                           "document.querySelector(\"" + escaped_selector + "\").innerText.trim().length > 0";
     
     return waitForConditionEvent(condition, timeout_ms / 2);
 }

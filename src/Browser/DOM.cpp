@@ -11,14 +11,27 @@ extern bool g_debug;
 
 bool Browser::fillInput(const std::string& selector, const std::string& value) {
     // For test scenarios with static HTML, try immediate element check first
-    std::string check_js = "(function() { try { return document.querySelector('" + selector + "') !== null; } catch(e) { return false; } })()";
+    // Use double quotes in JavaScript to avoid escaping issues with selectors containing single quotes
+    std::string escaped_selector = selector;
+    size_t pos = 0;
+    // Escape double quotes and backslashes for JavaScript double-quoted string
+    while ((pos = escaped_selector.find("\\", pos)) != std::string::npos) {
+        escaped_selector.replace(pos, 1, "\\\\");
+        pos += 2;
+    }
+    pos = 0;
+    while ((pos = escaped_selector.find("\"", pos)) != std::string::npos) {
+        escaped_selector.replace(pos, 1, "\\\"");
+        pos += 2;
+    }
+    std::string check_js = "(function() { try { return document.querySelector(\"" + escaped_selector + "\") !== null ? 'true' : 'false'; } catch(e) { return 'false'; } })()";
     std::string immediate_check = executeJavascriptSync(check_js);
     
     // If element is immediately available (common in tests), skip the complex wait entirely
     if (immediate_check != "true") {
         // Only use complex waitForSelectorEvent if element isn't immediately available
         // Reduce timeout significantly for better test performance
-        if (!waitForSelectorEvent(selector, 200)) {  // Reduced from 1000ms to 200ms
+        if (!waitForSelectorEvent(selector, 2000)) {  // Increased to 2000ms for test reliability
             return false;
         }
     }
@@ -28,44 +41,40 @@ bool Browser::fillInput(const std::string& selector, const std::string& value) {
     
     // Escape quotes and other special characters in the value
     std::string escaped_value = value;
-    size_t pos = 0;
+    size_t value_pos = 0;
     // Escape backslashes first to avoid double-escaping
-    while ((pos = escaped_value.find("\\", pos)) != std::string::npos) {
-        escaped_value.replace(pos, 1, "\\\\");
-        pos += 2;
+    while ((value_pos = escaped_value.find("\\", value_pos)) != std::string::npos) {
+        escaped_value.replace(value_pos, 1, "\\\\");
+        value_pos += 2;
     }
     // Then escape quotes
-    pos = 0;
-    while ((pos = escaped_value.find("'", pos)) != std::string::npos) {
-        escaped_value.replace(pos, 1, "\\'");
-        pos += 2;
+    value_pos = 0;
+    while ((value_pos = escaped_value.find("'", value_pos)) != std::string::npos) {
+        escaped_value.replace(value_pos, 1, "\\'");
+        value_pos += 2;
     }
     
     std::string js_script = 
         "(function() { "
         "  try { "
-        "    var element = document.querySelector('" + selector + "'); "
+        "    var element = document.querySelector(\"" + escaped_selector + "\"); "
         "    if (!element) return 'ELEMENT_NOT_FOUND'; "
-        "    // Enhanced focus handling for dynamic forms "
+        "    // Enhanced focus handling for dynamic forms; "
         "    element.focus(); "
-        "    element.click(); "  // Some forms require click to activate
-        "    "
-        "    // Clear existing value first "
+        "    element.click(); "
+        "    // Clear existing value first; "
         "    element.value = ''; "
-        "    "
-        "    // Set new value "
+        "    // Set new value; "
         "    element.value = '" + escaped_value + "'; "
-        "    "
-        "    // Dispatch comprehensive events for modern frameworks "
+        "    // Dispatch comprehensive events for modern frameworks; "
         "    element.dispatchEvent(new Event('focus', { bubbles: true })); "
         "    element.dispatchEvent(new Event('input', { bubbles: true })); "
         "    element.dispatchEvent(new Event('keydown', { bubbles: true })); "
         "    element.dispatchEvent(new Event('keyup', { bubbles: true })); "
         "    element.dispatchEvent(new Event('change', { bubbles: true })); "
-        "    "
-        "    // For React/Vue compatibility "
+        "    // For React/Vue compatibility; "
         "    if (element._valueTracker) { "
-        "      element._valueTracker.setValue(''); "
+        "      element._valueTracker.setValue('" + escaped_value + "'); "
         "    } "
         "    return 'FILL_SUCCESS'; "
         "  } catch(e) { "
@@ -73,17 +82,72 @@ bool Browser::fillInput(const std::string& selector, const std::string& value) {
         "  } "
         "})()";
     
+    
     std::string result = executeJavascriptSync(js_script);
     
-    // DEBUG: Log fillInput result  
-    debug_output("FillInput DEBUG: selector='" + selector + "' value='" + value + "' result='" + result + "'");
+    // If complex JavaScript fails, use multi-step approach for full event simulation
+    if (result.empty() || result == "") {
+        debug_output("Complex JS failed, using multi-step approach for: " + selector);
+        
+        // Step 1: Basic form filling (we know this works)
+        std::string step1 = executeJavascriptSync(
+            "(function() { "
+            "try { "
+            "var e = document.querySelector(\"" + escaped_selector + "\"); "
+            "if (!e) return 'ELEMENT_NOT_FOUND'; "
+            "e.focus(); "
+            "e.click(); "
+            "e.value = ''; "
+            "e.value = '" + escaped_value + "'; "
+            "return 'STEP1_SUCCESS'; "
+            "} catch(ex) { return 'STEP1_ERROR: ' + ex.message; } "
+            "})()"
+        );
+        
+        if (step1 == "STEP1_SUCCESS") {
+            // Step 2: Dispatch essential events for modern frameworks
+            std::string step2 = executeJavascriptSync(
+                "(function() { "
+                "try { "
+                "var e = document.querySelector(\"" + escaped_selector + "\"); "
+                "e.dispatchEvent(new Event('focus', { bubbles: true })); "
+                "e.dispatchEvent(new Event('input', { bubbles: true })); "
+                "e.dispatchEvent(new Event('change', { bubbles: true })); "
+                "return 'STEP2_SUCCESS'; "
+                "} catch(ex) { return 'STEP2_ERROR: ' + ex.message; } "
+                "})()"
+            );
+            
+            // Step 3: React/Vue compatibility (if needed)
+            std::string step3 = executeJavascriptSync(
+                "(function() { "
+                "try { "
+                "var e = document.querySelector(\"" + escaped_selector + "\"); "
+                "if (e._valueTracker) { e._valueTracker.setValue('" + escaped_value + "'); } "
+                "return 'STEP3_SUCCESS'; "
+                "} catch(ex) { return 'STEP3_ERROR: ' + ex.message; } "
+                "})()"
+            );
+            
+            debug_output("Multi-step form filling - Step1: " + step1 + ", Step2: " + step2 + ", Step3: " + step3);
+            
+            // If steps succeeded, consider it a success
+            if (step2 == "STEP2_SUCCESS") {
+                result = "FILL_SUCCESS";
+            } else {
+                result = step1; // At least basic filling worked
+            }
+        } else {
+            result = step1; // Return the error
+        }
+    }
     
     // Add verification step with delay (optimized for tests)
     if (result == "FILL_SUCCESS") {
         wait(5); // Optimized for tests - allow time for the value to be processed
         
         // Verify the value was actually set
-        std::string verifyJs = "document.querySelector('" + selector + "') ? document.querySelector('" + selector + "').value : 'NOT_FOUND'";
+        std::string verifyJs = "document.querySelector(\"" + escaped_selector + "\") ? document.querySelector(\"" + escaped_selector + "\").value : 'NOT_FOUND'";
         std::string actualValue = executeJavascriptSync(verifyJs);
         
         // DEBUG: Log verification result
@@ -99,7 +163,7 @@ bool Browser::fillInput(const std::string& selector, const std::string& value) {
             // Try alternative method using setAttribute
             std::string altJs = 
                 "try { "
-                "  var el = document.querySelector('" + selector + "'); "
+                "  var el = document.querySelector(\"" + escaped_selector + "\"); "
                 "  if (el) { "
                 "    el.setAttribute('value', '" + escaped_value + "'); "
                 "    el.value = '" + escaped_value + "'; "
@@ -153,7 +217,7 @@ bool Browser::clickElement(const std::string& selector) {
         "  try { "
         "    if (!document) return 'NO_DOCUMENT'; "
         "    if (!document.querySelector) return 'NO_QUERYSELECTOR'; "
-        "    var element = document.querySelector('" + escaped_selector + "'); "
+        "    var element = document.querySelector(\"" + escaped_selector + "\"); "
         "    if (!element) return 'ELEMENT_NOT_FOUND'; "
         "    var rect = element.getBoundingClientRect(); "
         "    if (rect.width <= 0 || rect.height <= 0) return 'ELEMENT_NOT_VISIBLE'; "
@@ -438,7 +502,7 @@ bool Browser::elementExists(const std::string& selector) {
         "(function() { "
         "  try { "
         "    if (!document || !document.querySelector) return 'NO_DOCUMENT'; "
-        "    return document.querySelector('" + escaped_selector + "') !== null; "
+        "    return document.querySelector(\"" + escaped_selector + "\") !== null; "
         "  } catch(e) { "
         "    return 'SELECTOR_ERROR:' + e.message; "
         "  } "
@@ -485,7 +549,7 @@ int Browser::elementExistsWithValidation(const std::string& selector) {
         "(function() { "
         "  try { "
         "    if (!document || !document.querySelector) return 'NO_DOCUMENT'; "
-        "    return document.querySelector('" + escaped_selector + "') !== null; "
+        "    return document.querySelector(\"" + escaped_selector + "\") !== null; "
         "  } catch(e) { "
         "    return 'SELECTOR_ERROR:' + e.message; "
         "  } "
@@ -519,7 +583,7 @@ int Browser::countElements(const std::string& selector) {
     std::string js_script = 
         "(function() { "
         "  try { "
-        "    return document.querySelectorAll('" + escaped_selector + "').length; "
+        "    return document.querySelectorAll(\"" + escaped_selector + "\").length; "
         "  } catch(e) { "
         "    return 'SELECTOR_ERROR:' + e.message; "
         "  } "
@@ -568,7 +632,7 @@ std::string Browser::getInnerText(const std::string& selector) {
         "if (document.readyState === 'loading') { "
         "return 'DOCUMENT_LOADING'; "
         "} "
-        "var element = document.querySelector('" + escaped_selector + "'); "
+        "var element = document.querySelector(\"" + escaped_selector + "\"); "
         "if (!element) { "
         "return 'ELEMENT_NOT_FOUND'; "
         "} "
@@ -648,7 +712,7 @@ std::string Browser::getAttribute(const std::string& selector, const std::string
     std::string js_script = 
         "(function() { "
         "  if (!document) return ''; "
-        "  var element = document.querySelector('" + escaped_selector + "'); "
+        "  var element = document.querySelector(\"" + escaped_selector + "\"); "
         "  if (!element) return ''; "
         "  if ('" + escaped_attribute + "' === 'value') { "
         "    return element.value || ''; "
@@ -699,7 +763,7 @@ bool Browser::setAttribute(const std::string& selector, const std::string& attri
     std::string js_script = 
         "(function() { "
         "  try { "
-        "    var element = document.querySelector('" + escaped_selector + "'); "
+        "    var element = document.querySelector(\"" + escaped_selector + "\"); "
         "    if (element) { "
         "      element.setAttribute('" + escaped_attribute + "', '" + escaped_value + "'); "
         "      return 'success'; "
@@ -723,7 +787,7 @@ bool Browser::setAttribute(const std::string& selector, const std::string& attri
         std::string verifyJs = 
             "(function() { "
             "  try { "
-            "    var element = document.querySelector('" + escaped_selector + "'); "
+            "    var element = document.querySelector(\"" + escaped_selector + "\"); "
             "    if (element) { "
             "      var attr = element.getAttribute('" + escaped_attribute + "'); "
             "      return attr !== null ? attr : 'null_attribute'; "
@@ -747,7 +811,7 @@ bool Browser::setAttribute(const std::string& selector, const std::string& attri
             std::string altJs = 
                 "(function() { "
                 "  try { "
-                "    var el = document.querySelector('" + escaped_selector + "'); "
+                "    var el = document.querySelector(\"" + escaped_selector + "\"); "
                 "    if (el) { "
                 "      el.setAttribute('" + escaped_attribute + "', '" + escaped_value + "'); "
                 "      // Force DOM update "

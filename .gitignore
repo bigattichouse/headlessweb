@@ -1,3 +1,6 @@
+# Test Images
+*.png
+
 # CMake
 CMakeCache.txt
 CMakeFiles/
