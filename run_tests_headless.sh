@@ -21,10 +21,22 @@ mkdir -p /tmp/headless_gtk_data
 # Disable GTK settings daemon
 export GTK_MODULES=""
 
-# Use virtual display if available (optional)
+# Set up virtual display for proper headless operation
+export DISPLAY=:99
+
+# Start Xvfb if available and not already running
 if command -v Xvfb >/dev/null 2>&1; then
-    export DISPLAY=:99
-    echo "Using virtual display :99"
+    if ! pgrep -f "Xvfb :99" > /dev/null; then
+        echo "Starting virtual display server..."
+        Xvfb :99 -screen 0 1024x768x24 >/dev/null 2>&1 &
+        XVFB_PID=$!
+        sleep 2  # Give Xvfb time to start
+        echo "Virtual display :99 started (PID: $XVFB_PID)"
+    else
+        echo "Virtual display :99 already running"
+    fi
+else
+    echo "Xvfb not available, using offscreen backend"
 fi
 
 echo "Environment configured for headless operation"
@@ -43,5 +55,11 @@ fi
 
 # Cleanup
 rm -rf /tmp/headless_gtk_config /tmp/headless_gtk_data
+
+# Kill Xvfb if we started it
+if [ ! -z "$XVFB_PID" ]; then
+    echo "Stopping virtual display server (PID: $XVFB_PID)..."
+    kill $XVFB_PID >/dev/null 2>&1
+fi
 
 echo "Test run completed"
