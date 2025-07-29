@@ -146,6 +146,9 @@ public:
 
     // ========== DOM Manipulation - BrowserDOM.cpp ==========
     bool fillInput(const std::string& selector, const std::string& value);
+    bool fillInputEnhanced(const std::string& selector, const std::string& value);
+    bool interactWithDynamicForm(const std::string& input_selector, const std::string& value, 
+                                 const std::string& submit_selector, int wait_timeout = 1000);
     bool clickElement(const std::string& selector);
     bool submitForm(const std::string& form_selector = "form");
     bool searchForm(const std::string& query);

@@ -28,7 +28,7 @@ int BasicCommandHandler::handle_command(Browser& browser, Session& session, cons
     }
     
     // Interaction commands
-    if (cmd.type == "type" || cmd.type == "click" || cmd.type == "submit" || 
+    if (cmd.type == "type" || cmd.type == "fill-enhanced" || cmd.type == "click" || cmd.type == "submit" || 
         cmd.type == "select" || cmd.type == "check" || cmd.type == "uncheck" || 
         cmd.type == "focus" || cmd.type == "js") {
         return handle_interaction_command(browser, cmd);
@@ -158,6 +158,9 @@ int BasicCommandHandler::handle_interaction_command(Browser& browser, const Comm
         if (cmd.type == "type") {
             browser.fillInput(cmd.selector, cmd.value);
             Output::info("Typed text into: " + cmd.selector);
+        } else if (cmd.type == "fill-enhanced") {
+            browser.fillInputEnhanced(cmd.selector, cmd.value);
+            Output::info("Enhanced fill into: " + cmd.selector);
         } else if (cmd.type == "click") {
             browser.clickElement(cmd.selector);
             Output::info("Clicked: " + cmd.selector);

@@ -5,6 +5,7 @@ set(BROWSER_SOURCES
     Events.cpp
     EventLoopManager.cpp
     DOM.cpp
+    EnhancedFormInteraction.cpp
     Storage.cpp
     Session.cpp
     Screenshot.cpp

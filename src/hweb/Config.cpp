@@ -326,8 +326,11 @@ void ConfigParser::parse_advanced_wait_command(const std::vector<std::string>& a
 void ConfigParser::parse_regular_command(const std::vector<std::string>& args, size_t& i, 
                                         HWebConfig& config) {
     // Form interaction commands
-    if (args[i] == "--type" && i + 2 < args.size()) {
+    if ((args[i] == "--type" || args[i] == "--fill") && i + 2 < args.size()) {
         config.commands.push_back({"type", args[i+1], args[i+2]});
+        i += 2;
+    } else if (args[i] == "--fill-enhanced" && i + 2 < args.size()) {
+        config.commands.push_back({"fill-enhanced", args[i+1], args[i+2]});
         i += 2;
     } else if (args[i] == "--click" && i + 1 < args.size()) {
         config.commands.push_back({"click", args[++i], ""});
