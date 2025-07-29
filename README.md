@@ -268,11 +268,33 @@ make test
 # Build with tests
 make test
 
+# Run tests in headless mode (prevents GTK file dialogs)
+./run_tests_headless.sh
+
 # Run specific test suites
 cd tests && ./hweb_tests --gtest_filter="*ConfigParser*"
 
+# Run specific test suites in headless mode
+./run_tests_headless.sh --gtest_filter="*ConfigParser*"
+
 # Generate coverage report (if gcov available)
 make coverage
+```
+
+#### Preventing GTK File Dialogs During Testing
+
+If you experience file dialogs or windows opening during tests (especially BrowserFileOpsIntegrationTest), use the headless test runner:
+
+```bash
+# This prevents GTK desktop integration
+./run_tests_headless.sh
+```
+
+Or set these environment variables manually:
+```bash
+export GDK_BACKEND=broadway
+export GTK_RECENT_FILES_ENABLED=0
+export WEBKIT_DISABLE_COMPOSITING_MODE=1
 ```
 
 ## Session Management
