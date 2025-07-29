@@ -31,6 +31,12 @@ bool Browser::fillInputEnhanced(const std::string& selector, const std::string& 
             str.replace(pos, 1, "\\\"");
             pos += 2;
         }
+        // Also escape single quotes to prevent syntax errors
+        pos = 0;
+        while ((pos = str.find("'", pos)) != std::string::npos) {
+            str.replace(pos, 1, "\\'");
+            pos += 2;
+        }
     };
     
     escape_for_js(escaped_value);
