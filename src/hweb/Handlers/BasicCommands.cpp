@@ -156,7 +156,7 @@ int BasicCommandHandler::handle_navigation_command(Browser& browser, Session& se
 int BasicCommandHandler::handle_interaction_command(Browser& browser, const Command& cmd) {
     try {
         if (cmd.type == "type") {
-            browser.fillInput(cmd.selector, cmd.value);
+            browser.fillInputEnhanced(cmd.selector, cmd.value);
             Output::info("Typed text into: " + cmd.selector);
         } else if (cmd.type == "fill-enhanced") {
             browser.fillInputEnhanced(cmd.selector, cmd.value);

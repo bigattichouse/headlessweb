@@ -13,26 +13,34 @@ bool Browser::fillInputEnhanced(const std::string& selector, const std::string& 
         return false;
     }
     
-    // Step 2: Escape the value for JavaScript
+    // Step 2: Escape the value and selector for JavaScript
     std::string escaped_value = value;
-    size_t pos = 0;
-    // Escape backslashes first
-    while ((pos = escaped_value.find("\\", pos)) != std::string::npos) {
-        escaped_value.replace(pos, 1, "\\\\");
-        pos += 2;
-    }
-    // Then escape quotes
-    pos = 0;
-    while ((pos = escaped_value.find("'", pos)) != std::string::npos) {
-        escaped_value.replace(pos, 1, "\\'");
-        pos += 2;
-    }
+    std::string escaped_selector = selector;
+    
+    // Helper function to escape strings for JavaScript
+    auto escape_for_js = [](std::string& str) {
+        size_t pos = 0;
+        // Escape backslashes first
+        while ((pos = str.find("\\", pos)) != std::string::npos) {
+            str.replace(pos, 1, "\\\\");
+            pos += 2;
+        }
+        // Then escape double quotes (since we use double quotes in JavaScript)
+        pos = 0;
+        while ((pos = str.find("\"", pos)) != std::string::npos) {
+            str.replace(pos, 1, "\\\"");
+            pos += 2;
+        }
+    };
+    
+    escape_for_js(escaped_value);
+    escape_for_js(escaped_selector);
     
     // Step 3: Advanced form interaction script for modern frameworks
     std::string enhanced_js = 
         "(function() { "
         "  try { "
-        "    var element = document.querySelector(\"" + selector + "\"); "
+        "    var element = document.querySelector(\"" + escaped_selector + "\"); "
         "    if (!element) return 'ELEMENT_NOT_FOUND'; "
         "    "
         "    // Advanced focus and activation sequence "
@@ -89,7 +97,7 @@ bool Browser::fillInputEnhanced(const std::string& selector, const std::string& 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
         
         // Verify the value was set
-        std::string verify_js = "document.querySelector(\"" + selector + "\") ? document.querySelector(\"" + selector + "\").value : 'NOT_FOUND'";
+        std::string verify_js = "document.querySelector(\"" + escaped_selector + "\") ? document.querySelector(\"" + escaped_selector + "\").value : 'NOT_FOUND'";
         std::string actual_value = executeJavascriptSync(verify_js);
         
         debug_output("Enhanced fill verification - expected: '" + value + "', actual: '" + actual_value + "'");
