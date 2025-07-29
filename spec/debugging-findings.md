@@ -44,7 +44,7 @@ Status: **RESOLVED** - Command syntax corrected, session issues analyzed
 
 **FINAL WORKING SOLUTION:**
 ```bash
-./hweb --session search-session https://www.google.com \
+./hweb --session search-session --start https://www.google.com \
   --js "document.querySelector('textarea[aria-label=\"Search\"]').value = 'LLM wiki'" \
   --screenshot "search-filled.png" \
   --click "input[name='btnK']" \
@@ -53,12 +53,23 @@ Status: **RESOLVED** - Command syntax corrected, session issues analyzed
   --screenshot "final-results.png"
 ```
 
+**⚠️ CRITICAL:** Must use `--start` flag to avoid session restoration bugs!
+
 ### Root Cause Analysis
 The original issue had **multiple problems**:
 
 1. **Wrong selector**: Google's search input is `textarea[aria-label="Search"]`, not `input[name='q']`
 2. **Fill command limitations**: The `--fill` command doesn't work reliably with Google's dynamic form
-3. **Robust selectors needed**: Using `aria-label` is more stable than IDs that change
+3. **Session restoration bugs**: GLib-CRITICAL errors cause session loading failures
+4. **Robust selectors needed**: Using `aria-label` is more stable than IDs that change
+
+### Session Restoration Critical Bug
+The session system has a **fundamental bug** causing:
+- `GLib-CRITICAL: Source ID 65 was not found when attempting to remove it`
+- `Warning: Page load timeout during session restore`
+- `Error in session restoration: Failed to load session URL`
+
+**Workaround**: Always use `--start` flag to force fresh sessions and avoid restoration.
 
 ### Verification
 ✅ **Final command successfully navigates to search results**  
