@@ -208,16 +208,50 @@ protected:
             return false;
         }
         
-        // Check basic browser readiness
-        try {
-            std::string ready_state = executeWrappedJS("return document.readyState;");
-            std::string body_exists = executeWrappedJS("return document.body ? 'true' : 'false';");
-            
-            return (ready_state == "complete" || ready_state == "interactive") && 
-                   body_exists == "true";
-        } catch (const std::exception& e) {
-            return false;
+        // More lenient browser readiness check for headless environment
+        // Try multiple times with progressively simpler checks
+        for (int attempt = 0; attempt < 3; attempt++) {
+            try {
+                // First attempt: Full readiness check
+                if (attempt == 0) {
+                    std::string ready_state = executeWrappedJS("return document.readyState;");
+                    std::string body_exists = executeWrappedJS("return document.body ? 'true' : 'false';");
+                    
+                    if ((ready_state == "complete" || ready_state == "interactive") && 
+                        body_exists == "true") {
+                        return true;
+                    }
+                }
+                
+                // Second attempt: Just check if JavaScript execution works
+                if (attempt == 1) {
+                    std::string js_test = executeWrappedJS("return 'ready';");
+                    if (js_test == "ready") {
+                        return true;
+                    }
+                }
+                
+                // Third attempt: Very basic check
+                if (attempt == 2) {
+                    std::string basic_test = browser->executeJavascriptSync("true");
+                    if (!basic_test.empty()) {
+                        return true;
+                    }
+                }
+                
+                // Short delay between attempts
+                if (attempt < 2) {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                }
+            } catch (const std::exception& e) {
+                // Continue to next attempt
+                if (attempt < 2) {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                }
+            }
         }
+        
+        return false;
     }
 };
 
