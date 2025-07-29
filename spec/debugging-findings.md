@@ -29,21 +29,41 @@ Status: **RESOLVED** - Command syntax corrected, session issues analyzed
   --screenshot "final-result.png"
 ```
 
-**AFTER (WORKING):**
+**AFTER (CORRECTED BUT STILL NOT WORKING):**
 ```bash
 ./hweb https://www.google.com \
-  --wait-selector "input[name='q']" 3000 \
-  --fill "input[name='q']" "LLM wiki" \
+  --wait-selector "#APjFqb" 3000 \
+  --fill "#APjFqb" "LLM wiki" \
   --screenshot "search-input.png" \
-  --click "input[name='btnK']" \
+  --click "[name='btnK']" \
   --wait-selector "h3" 5000 \
   --screenshot "search-results.png" \
   --text "h3 a" \
   --screenshot "final-result.png"
 ```
 
+**FINAL WORKING SOLUTION:**
+```bash
+./hweb --session search-session https://www.google.com \
+  --js "document.querySelector('textarea[aria-label=\"Search\"]').value = 'LLM wiki'" \
+  --screenshot "search-filled.png" \
+  --click "input[name='btnK']" \
+  --screenshot "search-results.png" \
+  --text "h3 a" \
+  --screenshot "final-results.png"
+```
+
+### Root Cause Analysis
+The original issue had **multiple problems**:
+
+1. **Wrong selector**: Google's search input is `textarea[aria-label="Search"]`, not `input[name='q']`
+2. **Fill command limitations**: The `--fill` command doesn't work reliably with Google's dynamic form
+3. **Robust selectors needed**: Using `aria-label` is more stable than IDs that change
+
 ### Verification
-✅ **Command executed successfully without errors**
+✅ **Final command successfully navigates to search results**  
+✅ **URL shows actual search query**: `https://www.google.com/search?q=LLM+wiki`  
+✅ **Search results extracted successfully**
 
 ## **Issue #2: Session Restoration Analysis**
 
