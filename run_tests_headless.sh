@@ -5,21 +5,29 @@
 
 echo "Starting HeadlessWeb tests in headless mode..."
 
-# Set environment variables to prevent GTK desktop integration
-export GDK_BACKEND=broadway
+# Set comprehensive environment variables to prevent GTK desktop integration
+# Don't force a specific backend, let GTK choose the best available one
 export GTK_RECENT_FILES_ENABLED=0
 export GTK_RECENT_FILES_MAX_AGE=0
 export WEBKIT_DISABLE_COMPOSITING_MODE=1
 export WEBKIT_DISABLE_DMABUF_RENDERER=1
 export XDG_CONFIG_HOME=/tmp/headless_gtk_config
 export XDG_DATA_HOME=/tmp/headless_gtk_data
+export XDG_RUNTIME_DIR=/tmp/headless_runtime
+export TMPDIR=/tmp
+export HOME=/tmp/headless_home
+
+# Disable accessibility and other desktop features
+export NO_AT_BRIDGE=1
+export GTK_A11Y=none
+export GTK_MODULES=""
+export QT_QPA_PLATFORM=offscreen
 
 # Create temporary directories
 mkdir -p /tmp/headless_gtk_config
 mkdir -p /tmp/headless_gtk_data
-
-# Disable GTK settings daemon
-export GTK_MODULES=""
+mkdir -p /tmp/headless_runtime
+mkdir -p /tmp/headless_home
 
 # Set up virtual display for proper headless operation
 export DISPLAY=:99
