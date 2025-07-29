@@ -1,5 +1,0 @@
-Starting HeadlessWeb Unit Tests
-=================================
-
-** (process:1214893): WARNING **: 09:24:37.076: webkit_settings_set_enable_offline_web_application_cache is deprecated and does nothing.
-timeout: the monitored command dumped core

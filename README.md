@@ -23,13 +23,16 @@ HeadlessWeb makes all of this simple with human-readable commands that work exac
 # Output: "Example Domain"
 ```
 
-### 2. Fill out a search form
+### 2. Search Google for "LLM Wiki" and get first result
 ```bash
-# Search for something on DuckDuckGo
-./hweb --session search \
-  --url https://duckduckgo.com \
-  --type "#search_form_input_homepage" "your search term" \
-  --click "#search_button_homepage"
+# Search Google and extract first result (with auto-cleanup)
+./hweb --url https://www.google.com \
+  --wait-selector "textarea[aria-label='Search']" 3000 \
+  --type "textarea[aria-label='Search']" "LLM wiki" \
+  --click "input[name='btnK']" \
+  --wait-selector "h3" 5000 \
+  --text "h3 a" \
+  --end
 ```
 
 ### 3. Take a screenshot
@@ -51,6 +54,9 @@ HeadlessWeb makes all of this simple with human-readable commands that work exac
 
 # Later, use the same session (already logged in!)
 ./hweb --session mysite --url https://example.com/dashboard
+
+# Clean up session when done
+./hweb --session mysite --end
 ```
 
 ## Common Tasks
@@ -321,6 +327,123 @@ Sessions are automatically saved and include:
 - Scroll positions
 
 This means you can close your terminal, restart your computer, and pick up exactly where you left off.
+
+## Complete Command Reference
+
+### **Options**
+```bash
+--session <name>     Use named session (default: auto-generated)
+--url <url>          Navigate to URL
+--end                End/delete session after completion
+--list               List all existing sessions
+--help, -h           Show help message
+--debug              Enable debug output
+--user-agent <ua>    Set custom user agent
+--width <px>         Set browser width (default: 1000)
+--json               Enable JSON output mode
+--silent             Silent mode (exit codes only)
+```
+
+### **Form Interaction**
+```bash
+--type <selector> <text>        Simulate human typing (keyboard events, natural timing)
+--fill <selector> <text>        Direct text insertion (fast, no keyboard simulation)
+--fill-enhanced <sel> <text>    Enhanced form filling (modern frameworks)
+--click <selector>              Click element
+--select <selector> <value>     Select option from dropdown
+--check <selector>              Check checkbox/radio
+--uncheck <selector>            Uncheck checkbox/radio
+--focus <selector>              Focus on element
+--submit [selector]             Submit form (default: "form")
+```
+
+### **Data Extraction**
+```bash
+--text <selector>               Get text content
+--html <selector>               Get HTML content
+--attr <selector> <attribute>   Get attribute value
+--exists <selector>             Check if element exists (true/false)
+--count <selector>              Count matching elements
+--js <javascript>               Execute JavaScript and return result
+```
+
+### **Navigation**
+```bash
+--back                          Go back in history
+--forward                       Go forward in history
+--reload                        Reload current page
+```
+
+### **Screenshots**
+```bash
+--screenshot [filename]         Take viewport screenshot (default: screenshot.png)
+--screenshot-full [filename]    Take full-page screenshot (default: screenshot-full.png)
+```
+
+### **Waiting Commands**
+```bash
+# Basic waiting
+--wait <milliseconds>           Wait for specified time
+--wait-nav                      Wait for navigation to complete
+--wait-ready <timeout>          Wait for page ready state
+
+# Advanced waiting (with optional timeout in ms)
+--wait-selector <sel> [timeout]     Wait for element to appear
+--wait-text-advanced <text>         Wait for text to appear anywhere
+--wait-network-idle [duration]     Wait for network to be idle (default: 500ms)
+--wait-network-request <pattern>    Wait for specific network request
+--wait-element-visible <selector>   Wait for element to be visible
+--wait-element-count <sel> <op> <n> Wait for element count (e.g., ">= 3")
+--wait-attribute <sel> <attr> <val> Wait for attribute to have value
+--wait-url-change <pattern>         Wait for URL to change
+--wait-title-change <text>          Wait for title to change
+--wait-spa-navigation [route]       Wait for SPA navigation
+--wait-framework-ready [type]       Wait for framework (React/Vue/Angular)
+--wait-dom-change <selector>        Wait for DOM changes
+--wait-content-change <sel> <text>  Wait for content to change
+```
+
+### **File Operations**
+```bash
+--upload <selector> <filepath>              Upload single file
+--upload-multiple <selector> <files>        Upload multiple files (comma-separated)
+--download-wait <url>                       Download file and wait for completion
+--download-wait-multiple <urls>             Download multiple files
+
+# File operation options
+--max-file-size <bytes>         Set maximum file size
+--allowed-types <types>         Set allowed file types (comma-separated)
+--download-dir <path>           Set download directory
+--upload-timeout <ms>           Set upload timeout
+--download-timeout <ms>         Set download timeout
+```
+
+### **Data Storage**
+```bash
+--store <key> <value>           Store data in session
+--get <key>                     Retrieve stored data
+--extract <key> <js-expr>       Extract data using JavaScript expression
+```
+
+### **Recording & Replay**
+```bash
+--record-start                  Start recording actions
+--record-stop                   Stop recording
+--replay <recording-file>       Replay recorded actions
+```
+
+### **Testing & Assertions**
+```bash
+--assert-exists <selector>      Assert element exists
+--assert-text <sel> <text>      Assert element contains text
+--assert-value <sel> <value>    Assert form element has value
+--assert-url <pattern>          Assert URL matches pattern
+--assert-title <text>           Assert page title contains text
+--message <text>                Add message to test output
+--timeout <ms>                  Set timeout for assertions
+--test-suite start <name>       Start test suite
+--test-suite end [format]       End test suite and generate report
+```
 
 ## Tips & Tricks
 

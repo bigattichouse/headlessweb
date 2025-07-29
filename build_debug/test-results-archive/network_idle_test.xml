@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuites tests="1" failures="0" disabled="0" errors="0" time="1.792" timestamp="2025-07-27T18:19:52.720" name="AllTests">
-  <testsuite name="BrowserWaitTest" tests="1" failures="0" disabled="0" skipped="0" errors="0" time="1.741" timestamp="2025-07-27T18:19:52.771">
-    <testcase name="WaitForNetworkIdleAfterActivity" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="508" status="run" result="completed" time="1.741" timestamp="2025-07-27T18:19:52.771" classname="BrowserWaitTest" />
-  </testsuite>
-</testsuites>

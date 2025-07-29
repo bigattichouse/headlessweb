@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuites tests="1" failures="0" disabled="0" errors="0" time="1.677" timestamp="2025-07-27T18:21:50.111" name="AllTests">
-  <testsuite name="BrowserWaitTest" tests="1" failures="0" disabled="0" skipped="0" errors="0" time="1.628" timestamp="2025-07-27T18:21:50.159">
-    <testcase name="WaitForUrlChangeHash" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="617" status="run" result="completed" time="1.628" timestamp="2025-07-27T18:21:50.159" classname="BrowserWaitTest" />
-  </testsuite>
-</testsuites>

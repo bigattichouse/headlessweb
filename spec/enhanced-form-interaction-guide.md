@@ -15,9 +15,9 @@ Traditional form filling using simple `element.value = 'text'` doesn't work reli
 
 ## Enhanced Solutions
 
-### 1. Improved `--fill` Command with Multi-Step Approach
+### 1. Improved `--type` Command with Multi-Step Approach
 
-The standard `--fill` (alias for `--type`) command has been completely rewritten with a multi-step approach for maximum reliability:
+The standard `--type` command has been completely rewritten with a multi-step approach for maximum reliability. Note that `--fill` provides direct text insertion while `--type` simulates human typing:
 
 **Problem:** Complex JavaScript with comprehensive event dispatching was failing completely in WebKit, returning empty strings even when individual components worked fine.
 
@@ -276,8 +276,8 @@ The session restoration system has a critical bug. **Always use these patterns:*
 ## Command Reference
 
 ### Standard Commands
-- `--fill selector text` (alias for `--type`)
-- `--type selector text` (enhanced with better event handling)
+- `--fill selector text` - Direct text insertion (fast, no keyboard simulation)
+- `--type selector text` - Simulate human typing with keyboard events (comprehensive event simulation)
 
 ### Enhanced Commands  
 - `--fill-enhanced selector text` (maximum compatibility)

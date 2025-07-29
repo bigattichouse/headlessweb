@@ -193,8 +193,8 @@ This prevents crashes and is defensive programming. The tests are working as des
 
 # Interaction
 --click <selector>       # Click element
---fill <selector> <text> # Type text into element  
---type <selector> <text> # Alias for --fill
+--fill <selector> <text> # Direct text insertion (fast, no keyboard simulation)
+--type <selector> <text> # Simulate human typing with keyboard events
 --select <selector> <val># Select dropdown option
 --check <selector>       # Check checkbox
 --uncheck <selector>     # Uncheck checkbox

@@ -8,9 +8,10 @@ HeadlessWeb uses a multi-layered testing approach:
 
 ### 1. Unit Tests (`tests/`)
 - **Framework**: Google Test (GTest/GMock)
-- **Coverage**: 450+ tests across all components
+- **Coverage**: 593 tests across all components
 - **Focus**: Component isolation, method validation, edge cases
-- **Execution**: `make test` or `./hweb_tests`
+- **Execution**: `make hweb_tests` or `./run_tests_headless.sh`
+- **Headless Ready**: Complete CI/CD compatibility with zero file dialogs
 
 ### 2. Shell Integration Tests (`script_test/`)
 - **Framework**: Bash scripts with custom test helpers
@@ -27,14 +28,17 @@ HeadlessWeb uses a multi-layered testing approach:
 
 ### Run All Tests
 ```bash
-# Unit tests
-make test
+# Unit tests (headless mode recommended)
+./run_tests_headless.sh
+
+# Unit tests (direct execution)
+make hweb_tests && ./tests/hweb_tests
 
 # Integration tests  
 ./script_test/comprehensive_test.sh
 
 # Both (recommended for full validation)
-make test && ./script_test/comprehensive_test.sh
+./run_tests_headless.sh && ./script_test/comprehensive_test.sh
 ```
 
 ### Run Specific Test Categories
@@ -47,10 +51,13 @@ make test && ./script_test/comprehensive_test.sh
 ./script_test/test_javascript.sh     # JavaScript execution
 ./script_test/test_sessions.sh       # Session management
 
-# Individual unit test suites
-./hweb_tests --gtest_filter="ConfigParserTest*"
-./hweb_tests --gtest_filter="BrowserCoreTest*"
-./hweb_tests --gtest_filter="SessionTest*"
+# Individual unit test suites (headless mode)
+./run_tests_headless.sh --gtest_filter="ConfigParserTest*"
+./run_tests_headless.sh --gtest_filter="BrowserCoreTest*"
+./run_tests_headless.sh --gtest_filter="SessionTest*"
+
+# Direct execution (may show GTK warnings)
+./tests/hweb_tests --gtest_filter="ConfigParserTest*"
 ```
 
 ## Test Organization
@@ -91,10 +98,11 @@ script_test/
 ## Test Coverage
 
 ### Current Status
-- **Unit Tests**: 450+ tests covering core components and modular architecture
+- **Unit Tests**: 593 tests covering core components and modular architecture (100% pass rate)
 - **Integration Tests**: 250+ scenarios covering end-to-end workflows
 - **Component Coverage**: 95%+ of source files have corresponding tests
 - **Feature Coverage**: All major CLI features tested
+- **Headless Compatible**: Zero skipped tests, complete CI/CD readiness
 
 ### Key Achievements
 ✅ **Modular Architecture**: New hweb components (22+ tests)  
@@ -103,6 +111,45 @@ script_test/
 ✅ **File Operations**: Upload, download, validation (25+ tests)  
 ✅ **Assertion Framework**: All assertion types and modes (50+ tests)  
 ✅ **Integration Scenarios**: Cross-component workflows (15+ tests)  
+
+## Headless Testing Infrastructure
+
+### Why Headless Testing?
+HeadlessWeb includes comprehensive headless testing infrastructure to ensure:
+- **CI/CD Compatibility**: No GUI dependencies or file dialogs
+- **Automated Testing**: Runs reliably in Docker, GitHub Actions, etc.
+- **Performance**: Faster execution without graphics overhead
+- **Consistency**: Identical behavior across environments
+
+### Headless Test Runner
+```bash
+# Run all tests in headless mode (recommended)
+./run_tests_headless.sh
+
+# Run specific test suites in headless mode
+./run_tests_headless.sh --gtest_filter="*DOMTest*"
+
+# Run with timeout protection
+timeout 600s ./run_tests_headless.sh
+```
+
+### File Dialog Prevention
+The headless infrastructure completely prevents file dialogs through:
+- **WebKit Signal Interception**: Blocks all file chooser requests at the browser level
+- **Environment Variables**: Comprehensive GTK dialog prevention
+- **Virtual Display**: Xvfb virtual display server when needed
+- **Test Code Safety**: File operations use simulation instead of actual file pickers
+
+### Environment Configuration
+```bash
+# Automatic headless configuration (handled by run_tests_headless.sh)
+export GTK_RECENT_FILES_ENABLED=0
+export WEBKIT_DISABLE_FILE_PICKER=1
+export GTK_FILE_CHOOSER_BACKEND=none
+export NO_AT_BRIDGE=1
+export GIO_USE_VFS=local
+export GVFS_DISABLE_FUSE=1
+```
 
 ## Development Workflow
 

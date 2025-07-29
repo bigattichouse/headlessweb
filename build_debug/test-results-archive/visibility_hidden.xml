@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuites tests="1" failures="0" disabled="0" errors="0" time="2.183" timestamp="2025-07-27T18:17:03.423" name="AllTests">
-  <testsuite name="BrowserWaitTest" tests="1" failures="0" disabled="0" skipped="0" errors="0" time="2.137" timestamp="2025-07-27T18:17:03.469">
-    <testcase name="WaitForElementVisibleInitiallyHidden" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_wait.cpp" line="534" status="run" result="completed" time="2.137" timestamp="2025-07-27T18:17:03.469" classname="BrowserWaitTest" />
-  </testsuite>
-</testsuites>

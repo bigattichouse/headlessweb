@@ -117,7 +117,7 @@ Command execution pipeline and orchestration (implementation placeholder).
 
 #### `BasicCommands.h/cpp` (200+ lines)
 Enhanced command handler supporting the complete command set:
-- Form interaction commands (type, click, select, check, uncheck, focus)
+- Form interaction commands (type - simulated typing, fill - direct insertion, click, select, check, uncheck, focus)
 - Navigation commands (back, forward, reload)
 - Data extraction commands (text, html, attr, exists, count)
 - JavaScript and search commands

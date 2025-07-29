@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuites tests="3" failures="0" disabled="0" errors="0" time="5.547" timestamp="2025-07-27T18:57:36.400" name="AllTests">
-  <testsuite name="BrowserAdvancedFormOperationsTest" tests="3" failures="0" disabled="0" skipped="0" errors="0" time="5.503" timestamp="2025-07-27T18:57:36.443">
-    <testcase name="MultiStepFormNavigation_StepProgression" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp" line="340" status="run" result="completed" time="1.698" timestamp="2025-07-27T18:57:36.443" classname="BrowserAdvancedFormOperationsTest" />
-    <testcase name="MultiStepFormNavigation_StepValidation" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp" line="364" status="run" result="completed" time="1.911" timestamp="2025-07-27T18:57:38.141" classname="BrowserAdvancedFormOperationsTest" />
-    <testcase name="MultiStepFormNavigation_BackNavigation" file="/home/bigattichouse/workspace/headlessweb/tests/browser/test_browser_advanced_form_operations.cpp" line="400" status="run" result="completed" time="1.894" timestamp="2025-07-27T18:57:40.053" classname="BrowserAdvancedFormOperationsTest" />
-  </testsuite>
-</testsuites>
