@@ -90,6 +90,21 @@ bool Browser::fillInput(const std::string& selector, const std::string& value) {
         debug_output("Complex JS failed, using multi-step approach for: " + selector);
         
         // Step 1: Basic form filling (we know this works)
+        // Escape the original value properly for JavaScript strings (not the already-escaped one)
+        std::string step_escaped_value = value;  // Use original value, not escaped_value
+        size_t step_pos = 0;
+        // Escape backslashes first
+        while ((step_pos = step_escaped_value.find("\\", step_pos)) != std::string::npos) {
+            step_escaped_value.replace(step_pos, 1, "\\\\");
+            step_pos += 2;
+        }
+        step_pos = 0;
+        // Then escape single quotes for JavaScript string literals
+        while ((step_pos = step_escaped_value.find("'", step_pos)) != std::string::npos) {
+            step_escaped_value.replace(step_pos, 1, "\\'");
+            step_pos += 2;
+        }
+        
         std::string step1 = executeJavascriptSync(
             "(function() { "
             "try { "
@@ -98,7 +113,7 @@ bool Browser::fillInput(const std::string& selector, const std::string& value) {
             "e.focus(); "
             "e.click(); "
             "e.value = ''; "
-            "e.value = '" + escaped_value + "'; "
+            "e.value = '" + step_escaped_value + "'; "
             "return 'STEP1_SUCCESS'; "
             "} catch(ex) { return 'STEP1_ERROR: ' + ex.message; } "
             "})()"
@@ -123,7 +138,7 @@ bool Browser::fillInput(const std::string& selector, const std::string& value) {
                 "(function() { "
                 "try { "
                 "var e = document.querySelector(\"" + escaped_selector + "\"); "
-                "if (e._valueTracker) { e._valueTracker.setValue('" + escaped_value + "'); } "
+                "if (e._valueTracker) { e._valueTracker.setValue('" + step_escaped_value + "'); } "
                 "return 'STEP3_SUCCESS'; "
                 "} catch(ex) { return 'STEP3_ERROR: ' + ex.message; } "
                 "})()"
