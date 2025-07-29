@@ -95,6 +95,14 @@ Browser::Browser(const HWeb::HWebConfig& config) : cookieManager(nullptr), main_
     // Store browser instance in the webView for callbacks
     g_object_set_data(G_OBJECT(webView), "browser-instance", this);
     
+    // CRITICAL: Block file chooser dialogs for headless operation
+    g_signal_connect(webView, "run-file-chooser", G_CALLBACK(+[](WebKitWebView* web_view, WebKitFileChooserRequest* request, gpointer user_data) -> gboolean {
+        debug_output("File chooser request blocked (headless mode)");
+        // Cancel the file chooser request to prevent dialog
+        webkit_file_chooser_request_cancel(request);
+        return TRUE; // Signal handled, don't show dialog
+    }), NULL);
+    
     // Initialize the EventLoopManager
     event_loop_manager = std::make_unique<EventLoopManager>();
     event_loop_manager->initialize(main_loop);

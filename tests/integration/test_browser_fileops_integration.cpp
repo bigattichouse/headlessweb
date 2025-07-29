@@ -379,9 +379,20 @@ TEST_F(BrowserFileOpsIntegrationTest, SessionRestoresFileOperationState) {
 }
 
 TEST_F(BrowserFileOpsIntegrationTest, FileUploadFormStateIntegration) {
-    // Interact with file upload form
+    // Interact with file upload form (avoid clicking file input directly)
     browser->clickElement("#upload-btn");
-    executeWrappedJS("document.getElementById('file-upload').value = 'integration_test.txt';");
+    
+    // Simulate file selection without triggering file dialog
+    executeWrappedJS(R"(
+        // Simulate file selection by creating a fake file list
+        var fileInput = document.getElementById('file-upload');
+        // Set a display property instead of value to avoid file dialog
+        fileInput.setAttribute('data-filename', 'integration_test.txt');
+        
+        // Update the display to show file selected
+        document.getElementById('selected-files').textContent = 'integration_test.txt';
+    )");
+    
     browser->fillInput("#upload-status", "Manual status update");
     
     std::this_thread::sleep_for(200ms);

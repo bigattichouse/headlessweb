@@ -24,6 +24,12 @@ void BrowserTestEnvironment::SetUp() {
     setenv("NO_AT_BRIDGE", "1", 1);
     setenv("GTK_A11Y", "none", 1);
     
+    // Additional file dialog prevention measures
+    setenv("WEBKIT_DISABLE_FILE_PICKER", "1", 1);  // Disable WebKit file picker
+    setenv("GTK_FILE_CHOOSER_BACKEND", "none", 1);  // Force no file chooser backend
+    setenv("GIO_USE_VFS", "local", 1);  // Use local VFS only
+    setenv("GVFS_DISABLE_FUSE", "1", 1);  // Disable GVFS FUSE mounting
+    
     // Create necessary directories
     system("mkdir -p /tmp/headless_gtk_config");
     system("mkdir -p /tmp/headless_gtk_data"); 

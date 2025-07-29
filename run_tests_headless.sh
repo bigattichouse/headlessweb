@@ -23,6 +23,12 @@ export GTK_A11Y=none
 export GTK_MODULES=""
 export QT_QPA_PLATFORM=offscreen
 
+# Additional file dialog prevention measures
+export WEBKIT_DISABLE_FILE_PICKER=1
+export GTK_FILE_CHOOSER_BACKEND=none
+export GIO_USE_VFS=local
+export GVFS_DISABLE_FUSE=1
+
 # Create temporary directories
 mkdir -p /tmp/headless_gtk_config
 mkdir -p /tmp/headless_gtk_data
