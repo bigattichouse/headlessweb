@@ -112,6 +112,29 @@ for url in $(cat urls.txt); do
 done
 ```
 
+### 🔍 **Enhanced Form Interaction**
+HeadlessWeb uses a multi-step approach for reliable form filling that works with modern web frameworks:
+
+```bash
+# Search on Google with comprehensive event simulation
+./hweb --session search \
+  --url https://www.google.com \
+  --wait-selector "textarea[aria-label='Search']" 3000 \
+  --type "textarea[aria-label='Search']" "LLM wiki" \
+  --screenshot "search-input.png" \
+  --click "input[name='btnK']" \
+  --wait-selector "h3" 5000 \
+  --screenshot "search-results.png" \
+  --text "h3 a"
+```
+
+The `--type` command automatically:
+1. **Focuses and clicks** the target element
+2. **Clears existing content** before typing
+3. **Dispatches comprehensive events** (focus, input, keydown, keyup, change) for React/Vue/Angular compatibility
+4. **Handles modern selectors** including those with single quotes and complex attributes
+5. **Uses signal-based waiting** instead of polling for better performance
+
 ## Key Features
 
 ### 💾 **Smart Session Management**

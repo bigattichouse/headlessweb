@@ -15,33 +15,39 @@ Traditional form filling using simple `element.value = 'text'` doesn't work reli
 
 ## Enhanced Solutions
 
-### 1. Improved `--fill` Command
+### 1. Improved `--fill` Command with Multi-Step Approach
 
-The standard `--fill` (alias for `--type`) command has been enhanced with:
+The standard `--fill` (alias for `--type`) command has been completely rewritten with a multi-step approach for maximum reliability:
+
+**Problem:** Complex JavaScript with comprehensive event dispatching was failing completely in WebKit, returning empty strings even when individual components worked fine.
+
+**Solution:** Break complex operations into smaller, working chunks:
 
 ```javascript
-// Enhanced focus handling
-element.focus();
-element.click();  // Some forms require click to activate
+// Step 1: Basic form filling (reliable core functionality)
+var e = document.querySelector(selector);
+if (!e) return 'ELEMENT_NOT_FOUND';
+e.focus();
+e.click();
+e.value = '';
+e.value = 'user_input';
 
-// Clear existing value first
-element.value = '';
+// Step 2: Essential events for modern frameworks
+e.dispatchEvent(new Event('focus', { bubbles: true }));
+e.dispatchEvent(new Event('input', { bubbles: true }));
+e.dispatchEvent(new Event('change', { bubbles: true }));
 
-// Set new value
-element.value = 'user_input';
-
-// Comprehensive event dispatching
-element.dispatchEvent(new Event('focus', { bubbles: true }));
-element.dispatchEvent(new Event('input', { bubbles: true }));
-element.dispatchEvent(new Event('keydown', { bubbles: true }));
-element.dispatchEvent(new Event('keyup', { bubbles: true }));
-element.dispatchEvent(new Event('change', { bubbles: true }));
-
-// React/Vue compatibility
-if (element._valueTracker) {
-  element._valueTracker.setValue('');
+// Step 3: React/Vue compatibility (if needed)
+if (e._valueTracker) {
+  e._valueTracker.setValue('user_input');
 }
 ```
+
+**Key Benefits:**
+- **Reliability:** Each step is tested independently and will work even if complex JavaScript fails
+- **Comprehensive:** Still provides full event simulation when possible
+- **Fallback:** Basic form filling always works, even if advanced features fail
+- **Modern Web Support:** Handles React, Vue, Angular, and Google's dynamic forms
 
 ### 2. New `--fill-enhanced` Command
 
@@ -75,21 +81,27 @@ browser.interactWithDynamicForm(
 
 ### Google Search Pattern
 
-**Problem:** Google's search requires specific activation sequence.
+**Problem:** Google's search requires specific activation sequence and has complex selectors with single quotes.
 
-**Solution:**
+**Updated Solution (using enhanced --type command):**
 ```bash
-./hweb --start https://www.google.com \
-  --js "var searchBox = document.querySelector('textarea[aria-label=\"Search\"]'); searchBox.focus(); searchBox.value = 'LLM wiki'; var event = new Event('input', { bubbles: true }); searchBox.dispatchEvent(event);" \
+./hweb --session search \
+  --url https://www.google.com \
+  --wait-selector "textarea[aria-label='Search']" 3000 \
+  --type "textarea[aria-label='Search']" "LLM wiki" \
+  --screenshot "search-input.png" \
   --click "input[name='btnK']" \
   --wait-selector "h3" 5000 \
+  --screenshot "search-results.png" \
   --text "h3 a"
 ```
 
 **Key Points:**
-- Use `textarea[aria-label="Search"]` not `input[name='q']`
-- Must dispatch `input` event after setting value
-- Use `--start` flag to avoid session restoration bugs
+- Use `textarea[aria-label='Search']` (modern Google interface)
+- **Fixed:** JavaScript escaping now handles selectors with single quotes correctly
+- **Enhanced:** Multi-step form filling provides comprehensive event simulation
+- **Signal-based waiting:** More reliable than old polling approach
+- No longer requires complex manual JavaScript - the `--type` command handles everything
 
 ### React Form Pattern
 
@@ -301,14 +313,31 @@ Potential enhancements being considered:
 4. **Multi-step form wizards** - handle complex form flows
 5. **File upload enhancement** - better handling of file inputs
 
+## Recent Improvements (Latest Version)
+
+### JavaScript Escaping Fix
+- **Problem:** Selectors containing single quotes (like `textarea[aria-label='Search']`) caused JavaScript syntax errors
+- **Solution:** Switched from single-quote to double-quote JavaScript string interpolation with proper escaping
+- **Files Updated:** `src/Browser/DOM.cpp` and `src/Browser/Events.cpp`
+
+### Multi-Step Form Filling
+- **Problem:** Complex JavaScript with comprehensive event dispatching was failing completely in WebKit
+- **Solution:** Implemented a multi-step approach that breaks complex operations into smaller, reliable chunks
+- **Benefit:** Maintains comprehensive event simulation while ensuring basic form filling always works
+
+### Signal-Based Waiting
+- **Enhancement:** All waiting operations now use signal-based approach instead of polling for better performance
+- **Implementation:** WebKit load events and DOM mutation observers
+
 ## Implementation Files
 
 The enhanced form interaction is implemented across:
 
-- `src/Browser/DOM.cpp` - Core `fillInput()` improvements
+- `src/Browser/DOM.cpp` - Core `fillInput()` improvements with multi-step approach and JavaScript escaping fixes
+- `src/Browser/Events.cpp` - Signal-based waiting with JavaScript escaping fixes for selectors
 - `src/Browser/EnhancedFormInteraction.cpp` - Advanced form handling
 - `src/hweb/Config.cpp` - Command parsing for `--fill` and `--fill-enhanced`
 - `src/hweb/Handlers/BasicCommands.cpp` - Command execution
 - `tests/browser/test_session_restoration_bug.cpp` - Bug documentation and tests
 
-This enhanced system transforms HeadlessWeb from basic form filling to comprehensive modern web application automation.
+This enhanced system transforms HeadlessWeb from basic form filling to comprehensive modern web application automation with robust error handling and compatibility with complex modern web frameworks.
