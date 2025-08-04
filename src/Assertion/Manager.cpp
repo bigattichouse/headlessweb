@@ -98,8 +98,8 @@ Result Manager::assertText(Browser& browser, const Command& cmd) {
         ComparisonOperator op = cmd.op;
         std::string expected = cmd.expected_value;
         
-        // If no explicit operator, try to parse from value
-        if (op == ComparisonOperator::EQUALS) {
+        // If no explicit operator specified in command, try to parse from value
+        if (op == ComparisonOperator::EQUALS && cmd.expected_value.find_first_of("><!=~") != std::string::npos) {
             expected = extractOperatorFromValue(cmd.expected_value, op);
         }
         
@@ -257,8 +257,8 @@ Result Manager::assertElementValue(Browser& browser, const Command& cmd) {
         ComparisonOperator op = cmd.op;
         std::string expected = cmd.expected_value;
         
-        // If no explicit operator, try to parse from value
-        if (op == ComparisonOperator::EQUALS) {
+        // If no explicit operator specified in command, try to parse from value
+        if (op == ComparisonOperator::EQUALS && cmd.expected_value.find_first_of("><!=~") != std::string::npos) {
             expected = extractOperatorFromValue(cmd.expected_value, op);
         }
         

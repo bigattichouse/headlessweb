@@ -158,6 +158,21 @@ void ConfigParser::parse_assertion_command(const std::vector<std::string>& args,
         if (i + 1 < args.size() && args[i + 1][0] != '-') {
             current_assertion.expected_value = args[++i];
         }
+    } else if (args[i] == "--assert-value" && i + 2 < args.size()) {
+        if (has_pending_assertion) {
+            config.assertions.push_back(current_assertion);
+        }
+        
+        current_assertion = {};
+        current_assertion.type = "element-value";
+        current_assertion.selector = args[++i];
+        current_assertion.expected_value = args[++i];
+        current_assertion.op = Assertion::ComparisonOperator::EQUALS;
+        current_assertion.json_output = config.json_mode;
+        current_assertion.silent = config.silent_mode;
+        current_assertion.case_sensitive = true;
+        current_assertion.timeout_ms = 5000;
+        has_pending_assertion = true;
     } else if (args[i] == "--message" && i + 1 < args.size()) {
         if (has_pending_assertion) {
             current_assertion.custom_message = args[++i];
@@ -454,6 +469,7 @@ void ConfigParser::print_usage() {
     std::cerr << "  --assert-text <selector> <text>            Assert element contains text" << std::endl;
     std::cerr << "  --assert-count <selector> <number>         Assert element count" << std::endl;
     std::cerr << "  --assert-js <expression> [expected]        Assert JavaScript expression" << std::endl;
+    std::cerr << "  --assert-value <selector> <value>          Assert form element value" << std::endl;
     std::cerr << "  --message <text>                           Custom assertion message" << std::endl;
     std::cerr << "  --timeout <ms>                             Assertion timeout" << std::endl;
     std::cerr << std::endl;

@@ -301,7 +301,7 @@ TEST_F(AssertionIntegrationTest, AssertText_CaseInsensitive_ReturnsPass) {
 // Test element value assertions (for form elements)
 TEST_F(AssertionIntegrationTest, AssertElementValue_InputValue_ReturnsPass) {
     Assertion::Command cmd;
-    cmd.type = "value";
+    cmd.type = "element-value";
     cmd.selector = "#text-input";
     cmd.expected_value = "test value";
     cmd.op = Assertion::ComparisonOperator::EQUALS;
