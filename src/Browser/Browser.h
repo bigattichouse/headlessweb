@@ -4,6 +4,7 @@
 #include "../hweb/Types.h"
 #include "../Debug.h"
 #include "EventLoopManager.h"
+#include "BrowserEventBus.h"
 #include <string>
 #include <functional>
 #include <map>
@@ -86,6 +87,12 @@ public:
     // Event loop manager for preventing nested loops
     std::unique_ptr<EventLoopManager> event_loop_manager;
     
+    // New event-driven infrastructure
+    std::shared_ptr<BrowserEvents::BrowserEventBus> event_bus_;
+    std::unique_ptr<BrowserEvents::BrowserStateManager> state_manager_;
+    std::unique_ptr<BrowserEvents::MutationTracker> mutation_tracker_;
+    std::unique_ptr<BrowserEvents::NetworkEventTracker> network_tracker_;
+    
     // Constructor/Destructor - Browser.cpp
     Browser(const HWeb::HWebConfig& config);
     ~Browser();
@@ -143,6 +150,19 @@ public:
     
     // Object validity checking
     bool isObjectValid() const;
+    
+    // ========== Event-Driven Infrastructure Access ==========
+    std::shared_ptr<BrowserEvents::BrowserEventBus> getEventBus() const { return event_bus_; }
+    BrowserEvents::BrowserStateManager* getStateManager() const { return state_manager_.get(); }
+    BrowserEvents::MutationTracker* getMutationTracker() const { return mutation_tracker_.get(); }
+    BrowserEvents::NetworkEventTracker* getNetworkTracker() const { return network_tracker_.get(); }
+    
+    // High-level event-driven waiting methods
+    std::future<bool> waitForBrowserReady(int timeout_ms = 10000);
+    std::future<bool> waitForDOMReady(int timeout_ms = 10000);
+    std::future<bool> waitForElementAsync(const std::string& selector, int timeout_ms = 5000);
+    std::future<bool> waitForNavigationAsync(int timeout_ms = 10000);
+    std::future<bool> waitForNetworkIdleAsync(int idle_time_ms = 500, int timeout_ms = 10000);
 
     // ========== DOM Manipulation - BrowserDOM.cpp ==========
     bool fillInput(const std::string& selector, const std::string& value);

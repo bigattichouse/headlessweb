@@ -13,20 +13,44 @@ extern bool g_debug;
 
 void navigation_complete_handler(WebKitWebView* webview, WebKitLoadEvent load_event, gpointer user_data) {
     Browser* browser = static_cast<Browser*>(user_data);
+    const gchar* uri = webkit_web_view_get_uri(webview);
+    std::string current_url = uri ? uri : "";
+    
+    auto event_bus = browser->getEventBus();
+    auto state_manager = browser->getStateManager();
     
     switch (load_event) {
         case WEBKIT_LOAD_STARTED:
             debug_output("Navigation started");
+            if (event_bus) {
+                event_bus->emit(BrowserEvents::NavigationEvent(BrowserEvents::EventType::NAVIGATION_STARTED, current_url));
+            }
+            if (state_manager) {
+                state_manager->transitionToState(BrowserEvents::BrowserState::LOADING);
+            }
             break;
         case WEBKIT_LOAD_REDIRECTED:
             debug_output("Navigation redirected");
             break;
         case WEBKIT_LOAD_COMMITTED:
             debug_output("Navigation committed (DOM available)");
+            if (event_bus) {
+                event_bus->emit(BrowserEvents::EventType::DOM_CONTENT_LOADED, current_url);
+            }
+            if (state_manager) {
+                state_manager->transitionToState(BrowserEvents::BrowserState::DOM_LOADING);
+            }
             // Check signal conditions on DOM commit
             browser->checkSignalConditions();
             break;
         case WEBKIT_LOAD_FINISHED:
+            debug_output("Navigation finished");
+            if (event_bus) {
+                event_bus->emit(BrowserEvents::NavigationEvent(BrowserEvents::EventType::NAVIGATION_COMPLETED, current_url, "", true));
+            }
+            if (state_manager) {
+                state_manager->transitionToState(BrowserEvents::BrowserState::FULLY_READY);
+            }
             // Use public interface to notify waiters
             browser->notifyNavigationComplete();
             // Check signal conditions on load complete
@@ -38,8 +62,15 @@ void navigation_complete_handler(WebKitWebView* webview, WebKitLoadEvent load_ev
 void uri_changed_handler(WebKitWebView* webview, GParamSpec* pspec, gpointer user_data) {
     Browser* browser = static_cast<Browser*>(user_data);
     const gchar* new_uri = webkit_web_view_get_uri(webview);
+    std::string current_url = new_uri ? new_uri : "";
     
-    debug_output("URI changed to: " + std::string(new_uri ? new_uri : ""));
+    debug_output("URI changed to: " + current_url);
+    
+    // Emit event through new event bus
+    auto event_bus = browser->getEventBus();
+    if (event_bus) {
+        event_bus->emit(BrowserEvents::EventType::URL_CHANGED, current_url);
+    }
     
     // Use public interface to notify waiters
     browser->notifyUriChanged();

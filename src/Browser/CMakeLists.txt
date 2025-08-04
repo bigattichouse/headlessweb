@@ -4,6 +4,9 @@ set(BROWSER_SOURCES
     JavaScript.cpp
     Events.cpp
     EventLoopManager.cpp
+    BrowserEventBus.cpp
+    MutationTracker.cpp
+    AsyncOperations.cpp
     DOM.cpp
     EnhancedFormInteraction.cpp
     Storage.cpp
@@ -17,6 +20,7 @@ set(BROWSER_HEADERS
     Browser.h
     WebKitCompat.h
     EventLoopManager.h
+    BrowserEventBus.h
 )
 
 set(BROWSER_MODULE_SOURCES "")

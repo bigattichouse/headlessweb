@@ -107,6 +107,15 @@ Browser::Browser(const HWeb::HWebConfig& config) : cookieManager(nullptr), main_
     event_loop_manager = std::make_unique<EventLoopManager>();
     event_loop_manager->initialize(main_loop);
     
+    // Initialize new event-driven infrastructure
+    event_bus_ = std::make_shared<BrowserEvents::BrowserEventBus>();
+    state_manager_ = std::make_unique<BrowserEvents::BrowserStateManager>(event_bus_);
+    mutation_tracker_ = std::make_unique<BrowserEvents::MutationTracker>(event_bus_);
+    network_tracker_ = std::make_unique<BrowserEvents::NetworkEventTracker>(event_bus_);
+    
+    // Initialize browser state
+    state_manager_->transitionToState(BrowserEvents::BrowserState::LOADING);
+    
     // Setup event-driven signal handlers (implemented in BrowserEvents.cpp)
     setupSignalHandlers();
     
