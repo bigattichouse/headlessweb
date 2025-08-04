@@ -29,6 +29,8 @@ struct HWebConfig {
     bool showHelp = false;
     bool json_mode = false;
     bool silent_mode = false;
+    bool verbose_mode = false;
+    bool start_fresh = false;
     bool allow_data_uri = false;
     int browser_width = 1000;
     std::vector<Command> commands;

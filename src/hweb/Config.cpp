@@ -32,6 +32,10 @@ HWebConfig ConfigParser::parseArguments(const std::vector<std::string>& args) {
             config.json_mode = true;
         } else if (args[i] == "--silent") {
             config.silent_mode = true;
+        } else if (args[i] == "--verbose" || args[i] == "-v") {
+            config.verbose_mode = true;
+        } else if (args[i] == "--start") {
+            config.start_fresh = true;
         } else if (args[i] == "--allow-data-uri") {
             config.allow_data_uri = true;
         } else if (args[i] == "--width" && i + 1 < args.size()) {
@@ -394,6 +398,8 @@ void ConfigParser::parse_regular_command(const std::vector<std::string>& args, s
     // JavaScript and search commands
     else if (args[i] == "--js" && i + 1 < args.size()) {
         config.commands.push_back({"js", "", args[++i]});
+    } else if (args[i] == "--js-file" && i + 1 < args.size()) {
+        config.commands.push_back({"js-file", "", args[++i]});
     } else if (args[i] == "--search" && i + 1 < args.size()) {
         config.commands.push_back({"search", "", args[++i]});
     }
@@ -459,6 +465,8 @@ void ConfigParser::print_usage() {
     std::cerr << "  --list               List all sessions" << std::endl;
     std::cerr << "  --help, -h           Show this help message" << std::endl;
     std::cerr << "  --debug              Enable debug output" << std::endl;
+    std::cerr << "  --verbose, -v        Enable verbose output" << std::endl;
+    std::cerr << "  --start              Start fresh session (clears existing)" << std::endl;
     std::cerr << "  --user-agent <ua>    Set custom user agent" << std::endl;
     std::cerr << "  --width <px>         Set browser width (default: 1000)" << std::endl;
     std::cerr << "  --json               Enable JSON output mode" << std::endl;
@@ -472,6 +480,10 @@ void ConfigParser::print_usage() {
     std::cerr << "  --assert-value <selector> <value>          Assert form element value" << std::endl;
     std::cerr << "  --message <text>                           Custom assertion message" << std::endl;
     std::cerr << "  --timeout <ms>                             Assertion timeout" << std::endl;
+    std::cerr << std::endl;
+    std::cerr << "JavaScript Commands:" << std::endl;
+    std::cerr << "  --js <code>                                Execute JavaScript code" << std::endl;
+    std::cerr << "  --js-file <file>                           Execute JavaScript from file" << std::endl;
     std::cerr << std::endl;
     std::cerr << "Test Suite Management:" << std::endl;
     std::cerr << "  --test-suite start <name>                  Start test suite" << std::endl;

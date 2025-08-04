@@ -5,6 +5,7 @@ namespace HWeb {
 
 bool Output::json_mode_ = false;
 bool Output::silent_mode_ = false;
+bool Output::verbose_mode_ = false;
 
 void Output::set_json_mode(bool enabled) {
     json_mode_ = enabled;
@@ -12,6 +13,10 @@ void Output::set_json_mode(bool enabled) {
 
 void Output::set_silent_mode(bool enabled) {
     silent_mode_ = enabled;
+}
+
+void Output::set_verbose_mode(bool enabled) {
+    verbose_mode_ = enabled;
 }
 
 bool Output::is_json_mode() {
@@ -22,6 +27,10 @@ bool Output::is_silent_mode() {
     return silent_mode_;
 }
 
+bool Output::is_verbose_mode() {
+    return verbose_mode_;
+}
+
 void Output::info(const std::string& message) {
     if (!silent_mode_) {
         std::cerr << message << std::endl;
@@ -30,6 +39,12 @@ void Output::info(const std::string& message) {
 
 void Output::error(const std::string& message) {
     std::cerr << message << std::endl;
+}
+
+void Output::verbose(const std::string& message) {
+    if (verbose_mode_ && !silent_mode_) {
+        std::cerr << "[VERBOSE] " << message << std::endl;
+    }
 }
 
 void Output::format_error(const std::string& context, const std::string& error) {

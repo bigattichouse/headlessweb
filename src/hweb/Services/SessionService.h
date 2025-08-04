@@ -13,6 +13,7 @@ public:
     ~SessionService();
     
     Session initialize_session(const std::string& sessionName);
+    Session initialize_fresh_session(const std::string& sessionName);
     bool handle_session_end(const std::string& sessionName);
     bool handle_session_list();
     void update_session_state(Browser& browser, Session& session);

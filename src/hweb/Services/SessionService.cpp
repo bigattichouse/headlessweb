@@ -13,6 +13,22 @@ Session SessionService::initialize_session(const std::string& sessionName) {
     return session_manager_.loadOrCreateSession(sessionName);
 }
 
+Session SessionService::initialize_fresh_session(const std::string& sessionName) {
+    // Delete existing session if it exists
+    try {
+        session_manager_.deleteSession(sessionName);
+        Output::verbose("Deleted existing session: " + sessionName);
+    } catch (const std::exception& e) {
+        // Session might not exist, which is fine
+        Output::verbose("No existing session to delete: " + sessionName);
+    }
+    
+    // Create a fresh session
+    Session session = session_manager_.loadOrCreateSession(sessionName);
+    Output::info("Started fresh session: " + sessionName);
+    return session;
+}
+
 bool SessionService::handle_session_end(const std::string& sessionName) {
     try {
         Session session = session_manager_.loadOrCreateSession(sessionName);

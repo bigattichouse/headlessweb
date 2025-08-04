@@ -59,6 +59,7 @@ int run_application(const HWebConfig& config) {
     // Configure output modes
     Output::set_json_mode(config.json_mode);
     Output::set_silent_mode(config.silent_mode);
+    Output::set_verbose_mode(config.verbose_mode);
     
     // Configure managers
     auto& assertionManager = ManagerRegistry::get_assertion_manager();
@@ -99,7 +100,9 @@ int run_application(const HWebConfig& config) {
     }
     
     // Initialize session
-    Session session = sessionService.initialize_session(sessionName);
+    Session session = config.start_fresh ? 
+        sessionService.initialize_fresh_session(sessionName) :
+        sessionService.initialize_session(sessionName);
     
     // Check if we need browser
     if (config.url.empty() && config.commands.empty() && config.assertions.empty() && session.getCurrentUrl().empty()) {

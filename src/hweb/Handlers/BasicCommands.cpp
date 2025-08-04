@@ -30,7 +30,7 @@ int BasicCommandHandler::handle_command(Browser& browser, Session& session, cons
     // Interaction commands
     if (cmd.type == "type" || cmd.type == "fill-enhanced" || cmd.type == "click" || cmd.type == "submit" || 
         cmd.type == "select" || cmd.type == "check" || cmd.type == "uncheck" || 
-        cmd.type == "focus" || cmd.type == "js") {
+        cmd.type == "focus" || cmd.type == "js" || cmd.type == "js-file") {
         return handle_interaction_command(browser, cmd);
     }
     
@@ -180,7 +180,34 @@ int BasicCommandHandler::handle_interaction_command(Browser& browser, const Comm
             browser.focusElement(cmd.selector);
             Output::info("Focused: " + cmd.selector);
         } else if (cmd.type == "js") {
+            Output::verbose("Executing JavaScript: " + (cmd.value.length() > 50 ? cmd.value.substr(0, 50) + "..." : cmd.value));
             std::string result = browser.executeJavascriptSync(cmd.value);
+            Output::verbose("JavaScript execution result: " + (result.empty() ? "(empty)" : result.substr(0, 100) + (result.length() > 100 ? "..." : "")));
+            if (!Output::is_silent_mode()) {
+                std::cout << result << std::endl;
+            }
+        } else if (cmd.type == "js-file") {
+            // Read JavaScript from file and execute
+            Output::verbose("Reading JavaScript file: " + cmd.value);
+            std::ifstream js_file(cmd.value);
+            if (!js_file.is_open()) {
+                Output::error("Cannot open JavaScript file: " + cmd.value);
+                return 1;
+            }
+            
+            std::string js_content((std::istreambuf_iterator<char>(js_file)),
+                                   std::istreambuf_iterator<char>());
+            js_file.close();
+            
+            if (js_content.empty()) {
+                Output::error("JavaScript file is empty: " + cmd.value);
+                return 1;
+            }
+            
+            Output::verbose("JavaScript file size: " + std::to_string(js_content.length()) + " characters");
+            Output::info("Executing JavaScript from file: " + cmd.value);
+            std::string result = browser.executeJavascriptSync(js_content);
+            Output::verbose("JavaScript execution result: " + (result.empty() ? "(empty)" : result.substr(0, 100) + (result.length() > 100 ? "..." : "")));
             if (!Output::is_silent_mode()) {
                 std::cout << result << std::endl;
             }
