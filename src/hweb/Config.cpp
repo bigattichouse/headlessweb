@@ -448,7 +448,18 @@ void ConfigParser::print_usage() {
     std::cerr << "  --width <px>         Set browser width (default: 1000)" << std::endl;
     std::cerr << "  --json               Enable JSON output mode" << std::endl;
     std::cerr << "  --silent             Silent mode (exit codes only)" << std::endl;
-    // ... rest of usage text from original hweb.cpp
+    std::cerr << std::endl;
+    std::cerr << "Assertion Commands:" << std::endl;
+    std::cerr << "  --assert-exists <selector> [true|false]    Assert element exists" << std::endl;
+    std::cerr << "  --assert-text <selector> <text>            Assert element contains text" << std::endl;
+    std::cerr << "  --assert-count <selector> <number>         Assert element count" << std::endl;
+    std::cerr << "  --assert-js <expression> [expected]        Assert JavaScript expression" << std::endl;
+    std::cerr << "  --message <text>                           Custom assertion message" << std::endl;
+    std::cerr << "  --timeout <ms>                             Assertion timeout" << std::endl;
+    std::cerr << std::endl;
+    std::cerr << "Test Suite Management:" << std::endl;
+    std::cerr << "  --test-suite start <name>                  Start test suite" << std::endl;
+    std::cerr << "  --test-suite end [format]                  End test suite (text|json|junit)" << std::endl;
 }
 
 } // namespace HWeb

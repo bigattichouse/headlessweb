@@ -24,6 +24,8 @@ set(TEST_SOURCES
     session/test_session_manager.cpp
     assertion/test_assertion_types.cpp
     assertion/test_output_formatter.cpp
+    assertion/test_assertion_integration.cpp
+    assertion/test_suite_management.cpp
     fileops/test_types.cpp
     fileops/test_path_utils.cpp
     fileops/test_upload_manager.cpp
@@ -32,6 +34,7 @@ set(TEST_SOURCES
     main/test_command_parsing.cpp
     hweb/test_output.cpp
     hweb/test_config_parser.cpp
+    hweb/test_assertion_parsing.cpp
     hweb/test_manager_registry.cpp
     hweb/test_navigation_service.cpp
     hweb/test_service_architecture_coordination.cpp
