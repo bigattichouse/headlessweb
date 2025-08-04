@@ -18,6 +18,7 @@ void navigation_complete_handler(WebKitWebView* webview, WebKitLoadEvent load_ev
     
     auto event_bus = browser->getEventBus();
     auto state_manager = browser->getStateManager();
+    auto readiness_tracker = browser->getReadinessTracker();
     
     switch (load_event) {
         case WEBKIT_LOAD_STARTED:
@@ -40,6 +41,9 @@ void navigation_complete_handler(WebKitWebView* webview, WebKitLoadEvent load_ev
             if (state_manager) {
                 state_manager->transitionToState(BrowserEvents::BrowserState::DOM_LOADING);
             }
+            if (readiness_tracker) {
+                readiness_tracker->updateDOMReady();
+            }
             // Check signal conditions on DOM commit
             browser->checkSignalConditions();
             break;
@@ -50,6 +54,40 @@ void navigation_complete_handler(WebKitWebView* webview, WebKitLoadEvent load_ev
             }
             if (state_manager) {
                 state_manager->transitionToState(BrowserEvents::BrowserState::FULLY_READY);
+            }
+            if (readiness_tracker) {
+                readiness_tracker->updateResourcesLoaded();
+                
+                // Trigger comprehensive readiness check with error handling
+                try {
+                    std::string readiness_script = readiness_tracker->generateReadinessCheckScript();
+                    std::string result = browser->executeJavascriptSync(readiness_script);
+                    
+                    // Update readiness state based on JavaScript results
+                    if (!result.empty() && result != "null" && result != "undefined") {
+                        if (result.find("\"javascript_ready\":true") != std::string::npos) {
+                            readiness_tracker->updateJavaScriptReady();
+                        }
+                        if (result.find("\"fonts_loaded\":true") != std::string::npos) {
+                            readiness_tracker->updateFontsLoaded();
+                        }
+                        if (result.find("\"images_loaded\":true") != std::string::npos) {
+                            readiness_tracker->updateImagesLoaded();
+                        }
+                        if (result.find("\"styles_applied\":true") != std::string::npos) {
+                            readiness_tracker->updateStylesApplied();
+                        }
+                    } else {
+                        // Fallback: assume basic readiness after load finished
+                        readiness_tracker->updateJavaScriptReady();
+                        readiness_tracker->updateStylesApplied();
+                    }
+                } catch (const std::exception& e) {
+                    // Fallback: assume basic readiness if JavaScript check fails
+                    debug_output("Readiness JavaScript check failed, using fallback");
+                    readiness_tracker->updateJavaScriptReady();
+                    readiness_tracker->updateStylesApplied();
+                }
             }
             // Use public interface to notify waiters
             browser->notifyNavigationComplete();
@@ -776,64 +814,73 @@ bool Browser::waitForConditionEvent(const std::string& js_condition, int timeout
 }
 
 bool Browser::waitForPageReadyEvent(int timeout_ms) {
-    // Wait for document ready state first with simpler condition
-    bool document_ready = waitForConditionEvent("document.readyState === 'complete'", timeout_ms / 2);
+    // CRITICAL REPLACEMENT: Use event-driven readiness detection instead of blocking wait(3000)
     
-    if (!document_ready) {
-        // Fallback: wait for interactive state
-        document_ready = waitForConditionEvent("document.readyState === 'interactive'", timeout_ms / 4);
+    if (!readiness_tracker_) {
+        // Fallback to simplified checking if readiness tracker unavailable
+        bool document_ready = waitForConditionEvent("document.readyState === 'complete'", timeout_ms / 2);
+        if (!document_ready) {
+            document_ready = waitForConditionEvent("document.readyState === 'interactive'", timeout_ms / 4);
+        }
+        return document_ready;
     }
     
-    if (!document_ready) {
-        // Last resort: just wait a bit
-        wait(500);
-        return false;
-    }
-    
-    // Then do a simple check for basic page elements
-    bool basic_ready = waitForConditionEvent("document.body !== null", timeout_ms / 4);
-    
-    // CRITICAL FIX: Wait for JavaScript execution to complete
-    // Give JavaScript in <script> tags time to execute after DOM is ready
-    if (document_ready && basic_ready) {
-        wait(3000); // Wait 3 seconds for JavaScript execution (increased from 2s)
+    // Use new event-driven approach - no blocking waits
+    try {
+        // First check if already ready
+        if (readiness_tracker_->isBasicReady()) {
+            return true;
+        }
         
-        // Enhanced JavaScript readiness check
-        std::string js_ready_check = executeJavascriptSync(
-            "(function() { "
-            "  try { "
-            "    // Basic checks"
-            "    if (typeof document === 'undefined' || typeof window === 'undefined') return false; "
-            "    if (document.readyState !== 'complete') return false; "
-            "    "
-            "    // Test that script execution works by defining and calling a test function"
-            "    window.testScriptExecution = function() { return 'working'; }; "
-            "    var result = window.testScriptExecution(); "
-            "    delete window.testScriptExecution; "
-            "    "
-            "    // Test localStorage if available (may be blocked for data: URLs)"
-            "    var localStorage_works = true; "
-            "    try { "
-            "      localStorage.setItem('__hweb_test__', 'test'); "
-            "      var stored = localStorage.getItem('__hweb_test__'); "
-            "      localStorage.removeItem('__hweb_test__'); "
-            "      localStorage_works = (stored === 'test'); "
-            "    } catch(e) { "
-            "      // localStorage may be blocked for data: URLs - this is normal"
-            "      localStorage_works = true; "
-            "    } "
-            "    "
-            "    return result === 'working' && localStorage_works; "
-            "  } catch(e) { "
-            "    console.log('JS ready check error: ' + e.message); "
-            "    return false; "
-            "  } "
-            "})()");
+        // Setup comprehensive readiness detection
+        readiness_tracker_->setupJavaScriptReadinessDetection();
         
-        return js_ready_check == "true";
+        // Execute readiness check script
+        std::string readiness_script = readiness_tracker_->generateReadinessCheckScript();
+        std::string result = executeJavascriptSync(readiness_script);
+        
+        // Parse result and update readiness state
+        if (result.find("\"dom_ready\":true") != std::string::npos) {
+            readiness_tracker_->updateDOMReady();
+        }
+        
+        if (result.find("\"javascript_ready\":true") != std::string::npos) {
+            readiness_tracker_->updateJavaScriptReady();
+        }
+        
+        if (result.find("\"resources_loaded\":true") != std::string::npos) {
+            readiness_tracker_->updateResourcesLoaded();
+        }
+        
+        if (result.find("\"fonts_loaded\":true") != std::string::npos) {
+            readiness_tracker_->updateFontsLoaded();
+        }
+        
+        if (result.find("\"images_loaded\":true") != std::string::npos) {
+            readiness_tracker_->updateImagesLoaded();
+        }
+        
+        if (result.find("\"styles_applied\":true") != std::string::npos) {
+            readiness_tracker_->updateStylesApplied();
+        }
+        
+        // Wait for basic readiness asynchronously
+        auto readiness_future = readiness_tracker_->waitForBasicReadiness(timeout_ms);
+        
+        // Use std::future::wait_for for non-blocking timeout
+        auto status = readiness_future.wait_for(std::chrono::milliseconds(timeout_ms));
+        
+        if (status == std::future_status::ready) {
+            return readiness_future.get();
+        } else {
+            // Timeout - return current basic readiness state
+            return readiness_tracker_->isBasicReady();
+        }
+        
+    } catch (const std::exception& e) {
+        // Fallback to basic DOM ready check
+        return waitForConditionEvent("document.readyState === 'complete'", timeout_ms / 2);
     }
-    
-    return false;
 }
 
 // ========== Public Wrapper Methods ==========

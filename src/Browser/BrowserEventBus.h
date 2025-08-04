@@ -53,6 +53,15 @@ enum class EventType {
     PAGE_INTERACTIVE,
     PAGE_COMPLETE,
     
+    // Enhanced readiness events
+    JAVASCRIPT_READY,
+    DOM_FULLY_LOADED,
+    RESOURCES_COMPLETE,
+    FONTS_LOADED,
+    IMAGES_LOADED,
+    SCRIPTS_EXECUTED,
+    STYLES_APPLIED,
+    
     // Session events
     SESSION_RESTORED,
     COOKIES_SET,
@@ -197,6 +206,14 @@ enum class BrowserState {
     RESOURCES_LOADING,
     RESOURCES_LOADED,
     INTERACTIVE,
+    JAVASCRIPT_EXECUTING,
+    JAVASCRIPT_READY,
+    FONTS_LOADING,
+    FONTS_LOADED,
+    IMAGES_LOADING, 
+    IMAGES_LOADED,
+    STYLES_APPLYING,
+    STYLES_APPLIED,
     FULLY_READY,
     FRAMEWORK_READY,
     ERROR_STATE
@@ -295,6 +312,93 @@ public:
 private:
     void checkNetworkIdle();
     bool matchesPattern(const std::string& url, const std::string& pattern) const;
+};
+
+// Comprehensive browser readiness tracking
+class BrowserReadinessTracker {
+private:
+    std::shared_ptr<BrowserEventBus> event_bus_;
+    mutable std::mutex readiness_mutex_;
+    
+    // Readiness state tracking
+    struct ReadinessState {
+        bool dom_ready = false;
+        bool javascript_ready = false;
+        bool resources_loaded = false;
+        bool fonts_loaded = false;
+        bool images_loaded = false;
+        bool styles_applied = false;
+        bool network_idle = false;
+        std::chrono::steady_clock::time_point last_change;
+        
+        bool isFullyReady() const {
+            return dom_ready && javascript_ready && resources_loaded && 
+                   fonts_loaded && images_loaded && styles_applied && network_idle;
+        }
+        
+        bool isBasicReady() const {
+            return dom_ready && javascript_ready;
+        }
+        
+        bool isInteractive() const {
+            return dom_ready;
+        }
+    } current_state_;
+    
+    // Readiness configuration
+    struct ReadinessConfig {
+        bool check_javascript = true;
+        bool check_resources = true;
+        bool check_fonts = true;
+        bool check_images = true;
+        bool check_styles = true;
+        bool check_network_idle = true;
+        int network_idle_time_ms = 500;
+        int javascript_timeout_ms = 5000;
+        int resource_timeout_ms = 10000;
+    } config_;
+    
+    // JavaScript readiness detection script
+    std::string javascript_readiness_script_;
+    
+public:
+    explicit BrowserReadinessTracker(std::shared_ptr<BrowserEventBus> bus);
+    
+    // Configuration
+    void setReadinessConfig(const ReadinessConfig& config);
+    ReadinessConfig getReadinessConfig() const { return config_; }
+    
+    // State checking
+    bool isFullyReady() const;
+    bool isBasicReady() const;
+    bool isInteractive() const;
+    ReadinessState getCurrentState() const;
+    
+    // Event-driven waiting
+    std::future<bool> waitForFullReadiness(int timeout_ms = 15000);
+    std::future<bool> waitForBasicReadiness(int timeout_ms = 10000);
+    std::future<bool> waitForInteractive(int timeout_ms = 5000);
+    std::future<bool> waitForJavaScriptReady(int timeout_ms = 5000);
+    std::future<bool> waitForResourcesLoaded(int timeout_ms = 10000);
+    std::future<bool> waitForNetworkIdle(int idle_time_ms = 500, int timeout_ms = 10000);
+    
+    // Manual state updates (called by Browser class)
+    void updateDOMReady();
+    void updateJavaScriptReady();
+    void updateResourcesLoaded();
+    void updateFontsLoaded();
+    void updateImagesLoaded();
+    void updateStylesApplied();
+    void updateNetworkIdle();
+    
+    // JavaScript detection setup
+    void setupJavaScriptReadinessDetection();
+    std::string generateReadinessCheckScript() const;
+    
+private:
+    void checkOverallReadiness();
+    void emitReadinessEvents();
+    void setupEventSubscriptions();
 };
 
 } // namespace BrowserEvents

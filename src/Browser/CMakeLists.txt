@@ -5,6 +5,7 @@ set(BROWSER_SOURCES
     Events.cpp
     EventLoopManager.cpp
     BrowserEventBus.cpp
+    BrowserReadinessTracker.cpp
     MutationTracker.cpp
     AsyncOperations.cpp
     DOM.cpp

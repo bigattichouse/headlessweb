@@ -97,3 +97,72 @@ std::future<bool> Browser::waitForNetworkIdleAsync(int idle_time_ms, int timeout
     
     return network_tracker_->waitForNetworkIdle(idle_time_ms, timeout_ms);
 }
+
+// ========== Enhanced Readiness Detection Methods ==========
+
+std::future<bool> Browser::waitForPageFullyReady(int timeout_ms) {
+    if (!readiness_tracker_) {
+        auto promise = std::make_shared<std::promise<bool>>();
+        promise->set_value(false);
+        return promise->get_future();
+    }
+    
+    return readiness_tracker_->waitForFullReadiness(timeout_ms);
+}
+
+std::future<bool> Browser::waitForPageBasicReady(int timeout_ms) {
+    if (!readiness_tracker_) {
+        auto promise = std::make_shared<std::promise<bool>>();
+        promise->set_value(false);
+        return promise->get_future();
+    }
+    
+    return readiness_tracker_->waitForBasicReadiness(timeout_ms);
+}
+
+std::future<bool> Browser::waitForPageInteractive(int timeout_ms) {
+    if (!readiness_tracker_) {
+        auto promise = std::make_shared<std::promise<bool>>();
+        promise->set_value(false);
+        return promise->get_future();
+    }
+    
+    return readiness_tracker_->waitForInteractive(timeout_ms);
+}
+
+std::future<bool> Browser::waitForJavaScriptReadyAsync(int timeout_ms) {
+    if (!readiness_tracker_) {
+        auto promise = std::make_shared<std::promise<bool>>();
+        promise->set_value(false);
+        return promise->get_future();
+    }
+    
+    return readiness_tracker_->waitForJavaScriptReady(timeout_ms);
+}
+
+std::future<bool> Browser::waitForResourcesLoadedAsync(int timeout_ms) {
+    if (!readiness_tracker_) {
+        auto promise = std::make_shared<std::promise<bool>>();
+        promise->set_value(false);
+        return promise->get_future();
+    }
+    
+    return readiness_tracker_->waitForResourcesLoaded(timeout_ms);
+}
+
+// ========== Non-blocking Readiness Checking ==========
+
+bool Browser::isPageFullyReady() const {
+    if (!readiness_tracker_) return false;
+    return readiness_tracker_->isFullyReady();
+}
+
+bool Browser::isPageBasicReady() const {
+    if (!readiness_tracker_) return false;
+    return readiness_tracker_->isBasicReady();
+}
+
+bool Browser::isPageInteractive() const {
+    if (!readiness_tracker_) return false;
+    return readiness_tracker_->isInteractive();
+}

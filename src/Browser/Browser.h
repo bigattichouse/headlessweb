@@ -92,6 +92,7 @@ public:
     std::unique_ptr<BrowserEvents::BrowserStateManager> state_manager_;
     std::unique_ptr<BrowserEvents::MutationTracker> mutation_tracker_;
     std::unique_ptr<BrowserEvents::NetworkEventTracker> network_tracker_;
+    std::unique_ptr<BrowserEvents::BrowserReadinessTracker> readiness_tracker_;
     
     // Constructor/Destructor - Browser.cpp
     Browser(const HWeb::HWebConfig& config);
@@ -156,6 +157,7 @@ public:
     BrowserEvents::BrowserStateManager* getStateManager() const { return state_manager_.get(); }
     BrowserEvents::MutationTracker* getMutationTracker() const { return mutation_tracker_.get(); }
     BrowserEvents::NetworkEventTracker* getNetworkTracker() const { return network_tracker_.get(); }
+    BrowserEvents::BrowserReadinessTracker* getReadinessTracker() const { return readiness_tracker_.get(); }
     
     // High-level event-driven waiting methods
     std::future<bool> waitForBrowserReady(int timeout_ms = 10000);
@@ -163,6 +165,18 @@ public:
     std::future<bool> waitForElementAsync(const std::string& selector, int timeout_ms = 5000);
     std::future<bool> waitForNavigationAsync(int timeout_ms = 10000);
     std::future<bool> waitForNetworkIdleAsync(int idle_time_ms = 500, int timeout_ms = 10000);
+    
+    // Enhanced readiness detection methods - replace blocking wait patterns
+    std::future<bool> waitForPageFullyReady(int timeout_ms = 15000);
+    std::future<bool> waitForPageBasicReady(int timeout_ms = 10000);
+    std::future<bool> waitForPageInteractive(int timeout_ms = 5000);
+    std::future<bool> waitForJavaScriptReadyAsync(int timeout_ms = 5000);
+    std::future<bool> waitForResourcesLoadedAsync(int timeout_ms = 10000);
+    
+    // Non-blocking readiness checking
+    bool isPageFullyReady() const;
+    bool isPageBasicReady() const;
+    bool isPageInteractive() const;
 
     // ========== DOM Manipulation - BrowserDOM.cpp ==========
     bool fillInput(const std::string& selector, const std::string& value);
