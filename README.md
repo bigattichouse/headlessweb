@@ -515,6 +515,16 @@ The modular design enables comprehensive unit testing with 22+ test cases coveri
 - Manager lifecycle and singleton behavior
 - Output formatting and mode switching
 
+## 🔧 Troubleshooting
+
+### Common Issues
+- **Session problems**: Try `./hweb --session mysession --end` to clean up
+- **Elements not found**: Add `--wait-selector "#element" 3000` before interaction
+- **Form issues**: Use `--focus` before `--type` for modern web frameworks
+- **File dialogs during tests**: Use `./run_tests_headless.sh` for testing
+
+See [`spec/troubleshooting.md`](spec/troubleshooting.md) for detailed troubleshooting guide.
+
 ---
 
 **Ready to automate the web?** Start with a simple command and build up to complex workflows. HeadlessWeb makes web automation accessible to everyone, from system administrators to developers to QA engineers.
