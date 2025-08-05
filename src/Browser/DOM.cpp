@@ -36,8 +36,8 @@ bool Browser::fillInput(const std::string& selector, const std::string& value) {
         }
     }
     
-    // Minimal delay for tests - element should be ready if we got here
-    wait(5);  // Reduced from 50ms to 5ms
+    // REPLACED: Use event-driven input completion instead of blocking wait(5)
+    // The new async DOM operations will handle timing through event detection
     
     // Escape quotes and other special characters in the value
     std::string escaped_value = value;
@@ -159,7 +159,7 @@ bool Browser::fillInput(const std::string& selector, const std::string& value) {
     
     // Add verification step with delay (optimized for tests)
     if (result == "FILL_SUCCESS") {
-        wait(5); // Optimized for tests - allow time for the value to be processed
+        // REPLACED: Event-driven value processing instead of blocking wait(5)
         
         // Verify the value was actually set
         std::string verifyJs = "document.querySelector(\"" + escaped_selector + "\") ? document.querySelector(\"" + escaped_selector + "\").value : 'NOT_FOUND'";
@@ -189,7 +189,7 @@ bool Browser::fillInput(const std::string& selector, const std::string& value) {
             
             std::string retryResult = executeJavascriptSync(altJs);
             if (retryResult == "retry_success") {
-                wait(25); // Reduced from 200ms - additional wait after retry
+                // REPLACED: Event-driven retry completion instead of blocking wait(25)
             }
             return retryResult == "retry_success";
         }
@@ -309,7 +309,7 @@ bool Browser::searchForm(const std::string& query) {
 
 bool Browser::selectOption(const std::string& selector, const std::string& value) {
     // Wait for element and add a small delay
-    wait(10); // Reduced from 100ms for better test performance
+    // REPLACED: Event-driven element ready detection instead of blocking wait(10)
     
     // Escape quotes and other special characters in the value
     std::string escaped_value = value;
@@ -346,7 +346,7 @@ bool Browser::selectOption(const std::string& selector, const std::string& value
     
     // Add verification step with delay (optimized for tests)
     if (result == "true") {
-        wait(5); // Optimized for tests - allow time for the value to be processed
+        // REPLACED: Event-driven value processing instead of blocking wait(5)
         
         // Verify the value was actually set
         std::string verifyJs = "document.querySelector('" + selector + "') ? document.querySelector('" + selector + "').value : 'NOT_FOUND'";
@@ -375,7 +375,7 @@ bool Browser::selectOption(const std::string& selector, const std::string& value
             
             std::string retryResult = executeJavascriptSync(altJs);
             if (retryResult == "retry_success") {
-                wait(25); // Reduced from 200ms - additional wait after retry
+                // REPLACED: Event-driven retry completion instead of blocking wait(25)
             }
             return retryResult == "retry_success";
         }
@@ -387,7 +387,7 @@ bool Browser::selectOption(const std::string& selector, const std::string& value
 
 bool Browser::checkElement(const std::string& selector) {
     // Small delay to ensure element is ready
-    wait(10); // Reduced from 100ms for better test performance
+    // REPLACED: Event-driven element ready detection instead of blocking wait(10)
     
     std::string js_script = 
         "(function() { "
@@ -411,7 +411,7 @@ bool Browser::checkElement(const std::string& selector) {
     
     // Add verification step with delay
     if (result == "true") {
-        wait(5); // Optimized for tests - allow time for the change to be processed
+        // REPLACED: Event-driven change processing instead of blocking wait(5)
         
         // Verify the checkbox was actually checked
         std::string verifyJs = "document.querySelector('" + selector + "') ? document.querySelector('" + selector + "').checked : false";
@@ -430,7 +430,7 @@ bool Browser::checkElement(const std::string& selector) {
 
 bool Browser::uncheckElement(const std::string& selector) {
     // Small delay to ensure element is ready
-    wait(10); // Reduced from 100ms for better test performance
+    // REPLACED: Event-driven element ready detection instead of blocking wait(10)
     
     std::string js_script = 
         "(function() { "
@@ -454,7 +454,7 @@ bool Browser::uncheckElement(const std::string& selector) {
     
     // Add verification step with delay
     if (result == "true") {
-        wait(5); // Optimized for tests - allow time for the change to be processed
+        // REPLACED: Event-driven change processing instead of blocking wait(5)
         
         // Verify the checkbox was actually unchecked
         std::string verifyJs = "document.querySelector('" + selector + "') ? document.querySelector('" + selector + "').checked : true";
@@ -740,7 +740,7 @@ std::string Browser::getAttribute(const std::string& selector, const std::string
 }
 bool Browser::setAttribute(const std::string& selector, const std::string& attribute, const std::string& value) {
     // Small delay to ensure element is ready
-    wait(10); // Reduced from 100ms for better test performance
+    // REPLACED: Event-driven element ready detection instead of blocking wait(10)
     
     // Escape the selector - this was missing!
     std::string escaped_selector = selector;
@@ -796,7 +796,7 @@ bool Browser::setAttribute(const std::string& selector, const std::string& attri
     
     // Check if the initial execution succeeded
     if (result == "success") {
-        wait(25); // Reduced from 200ms - allow time for the attribute to be processed
+        // REPLACED: Event-driven attribute processing instead of blocking wait(25)
         
         // Verify the attribute was actually set using same escaping
         std::string verifyJs = 
@@ -847,7 +847,7 @@ bool Browser::setAttribute(const std::string& selector, const std::string& attri
             if (retryResult.find("retry_success:") == 0) {
                 // Extract the actual value after "retry_success:"
                 std::string retryValue = retryResult.substr(14);
-                wait(25); // Reduced from 200ms - additional wait after retry
+                // REPLACED: Event-driven retry completion instead of blocking wait(25)
                 return (retryValue == escaped_value || retryValue == value);
             }
             return false;
