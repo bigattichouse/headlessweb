@@ -32,6 +32,7 @@ set(TEST_SOURCES
     fileops/test_download_manager.cpp
     utils/test_helpers.cpp
     utils/TestWaitUtilities.cpp
+    utils/SafePageLoader.cpp
     main/test_command_parsing.cpp
     hweb/test_output.cpp
     hweb/test_config_parser.cpp
@@ -61,7 +62,7 @@ set(BROWSER_TEST_SOURCES
 
 # Integration test sources
 set(INTEGRATION_TEST_SOURCES
-    integration/test_browser_fileops_integration.cpp
+    integration/test_browser_fileops_integration_simple.cpp
     integration/test_complex_workflow_chains.cpp
 )
 
