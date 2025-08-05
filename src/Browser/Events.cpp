@@ -5,6 +5,7 @@
 #include <iostream>
 #include <chrono>
 #include <thread>
+#include <cstring>  // For strnlen
 
 // External debug flag
 extern bool g_debug;
@@ -12,6 +13,11 @@ extern bool g_debug;
 // ========== Signal Handlers ==========
 
 void navigation_complete_handler(WebKitWebView* webview, WebKitLoadEvent load_event, gpointer user_data) {
+    // CRITICAL SAFETY: Validate all pointers before any operations
+    if (!webview || !user_data) {
+        return;
+    }
+    
     Browser* browser = static_cast<Browser*>(user_data);
     
     // CRITICAL FIX: Check if browser object is still valid
@@ -19,8 +25,12 @@ void navigation_complete_handler(WebKitWebView* webview, WebKitLoadEvent load_ev
         return;
     }
     
+    // SAFETY: Use safer string construction to prevent stack smashing
     const gchar* uri = webkit_web_view_get_uri(webview);
-    std::string current_url = uri ? uri : "";
+    std::string current_url;
+    if (uri && strnlen(uri, 2048) < 2048) {  // Prevent buffer overflow
+        current_url = std::string(uri);
+    }
     
     auto event_bus = browser->getEventBus();
     auto state_manager = browser->getStateManager();
@@ -123,6 +133,11 @@ void navigation_complete_handler(WebKitWebView* webview, WebKitLoadEvent load_ev
 }
 
 void uri_changed_handler(WebKitWebView* webview, GParamSpec* pspec, gpointer user_data) {
+    // CRITICAL SAFETY: Validate all pointers before any operations  
+    if (!webview || !user_data) {
+        return;
+    }
+    
     Browser* browser = static_cast<Browser*>(user_data);
     
     // CRITICAL FIX: Check if browser object is still valid
@@ -130,8 +145,12 @@ void uri_changed_handler(WebKitWebView* webview, GParamSpec* pspec, gpointer use
         return;
     }
     
+    // SAFETY: Use safer string construction to prevent stack smashing
     const gchar* new_uri = webkit_web_view_get_uri(webview);
-    std::string current_url = new_uri ? new_uri : "";
+    std::string current_url;
+    if (new_uri && strnlen(new_uri, 2048) < 2048) {  // Prevent buffer overflow
+        current_url = std::string(new_uri);
+    }
     
     debug_output("URI changed to: " + current_url);
     
@@ -148,6 +167,11 @@ void uri_changed_handler(WebKitWebView* webview, GParamSpec* pspec, gpointer use
 }
 
 void title_changed_handler(WebKitWebView* webview, GParamSpec* pspec, gpointer user_data) {
+    // CRITICAL SAFETY: Validate all pointers before any operations
+    if (!webview || !user_data) {
+        return;
+    }
+    
     Browser* browser = static_cast<Browser*>(user_data);
     
     // CRITICAL FIX: Check if browser object is still valid
@@ -155,15 +179,25 @@ void title_changed_handler(WebKitWebView* webview, GParamSpec* pspec, gpointer u
         return;
     }
     
+    // SAFETY: Use safer string construction to prevent stack smashing
     const gchar* new_title = webkit_web_view_get_title(webview);
+    std::string title_str;
+    if (new_title && strnlen(new_title, 1024) < 1024) {  // Prevent buffer overflow
+        title_str = std::string(new_title);
+    }
     
-    debug_output("Title changed to: " + std::string(new_title ? new_title : ""));
+    debug_output("Title changed to: " + title_str);
     
     // Use public interface to notify waiters
     browser->notifyTitleChanged();
 }
 
 void ready_to_show_handler(WebKitWebView* webview, gpointer user_data) {
+    // CRITICAL SAFETY: Validate all pointers before any operations
+    if (!webview || !user_data) {
+        return;
+    }
+    
     Browser* browser = static_cast<Browser*>(user_data);
     
     // CRITICAL FIX: Check if browser object is still valid

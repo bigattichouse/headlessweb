@@ -10,6 +10,11 @@ extern bool g_debug;
 
 // Callback for JavaScript evaluation
 void js_eval_callback(GObject* object, GAsyncResult* res, gpointer user_data) {
+    // CRITICAL SAFETY: Validate all pointers before any operations
+    if (!object || !res) {
+        return;
+    }
+    
     GError* error = NULL;
     JSCValue* value = webkit_web_view_evaluate_javascript_finish(WEBKIT_WEB_VIEW(object), res, &error);
     

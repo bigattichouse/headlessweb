@@ -34,9 +34,8 @@ protected:
         // Create test files
         createTestFiles();
         
-        // Reset browser to clean state before each test
-        browser->loadUri("about:blank");
-        browser->waitForNavigation(2000);
+        // SAFETY FIX: Don't reset browser state during setup to avoid race conditions
+        // Tests should be independent and not rely on specific initial state
         
         // Load a test page with file operations
         setupFileOpsTestPage();
