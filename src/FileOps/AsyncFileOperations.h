@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Types.h"
 #include <string>
 #include <vector>
 #include <functional>
@@ -54,16 +55,7 @@ struct FileEvent {
         : filepath(path), event_type(type), timestamp(std::chrono::steady_clock::now()), file_size(0) {}
 };
 
-// Download progress tracking
-struct DownloadProgress {
-    std::string filepath;
-    size_t current_size;
-    size_t expected_size;
-    std::chrono::steady_clock::time_point start_time;
-    std::chrono::steady_clock::time_point last_update;
-    bool is_complete;
-    double progress_percentage;
-};
+// DownloadProgress struct is defined in Types.h
 
 // Event-driven file system watcher
 class FileSystemWatcher {
@@ -107,13 +99,15 @@ public:
     std::future<FileEvent> waitForFileModified(const std::string& filename_pattern, int timeout_ms = 10000);
     std::future<bool> waitForFileStable(const std::string& filepath, int stability_ms = 1000, int timeout_ms = 30000);
     
+    // Pattern matching utility
+    bool matchesPattern(const std::string& filename, const std::string& pattern) const;
+    
 private:
     void watcherLoop();
     void processNativeEvents();
     void emitFileEvent(const FileEvent& event);
     bool initializePlatformWatcher();
     void cleanupPlatformWatcher();
-    bool matchesPattern(const std::string& filename, const std::string& pattern) const;
 };
 
 // Event-driven download completion detector

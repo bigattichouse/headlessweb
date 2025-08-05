@@ -31,6 +31,7 @@ set(TEST_SOURCES
     fileops/test_upload_manager.cpp
     fileops/test_download_manager.cpp
     utils/test_helpers.cpp
+    utils/TestWaitUtilities.cpp
     main/test_command_parsing.cpp
     hweb/test_output.cpp
     hweb/test_config_parser.cpp

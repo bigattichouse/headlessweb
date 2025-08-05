@@ -1,8 +1,6 @@
 #include "Browser.h"
 #include "../Debug.h"
 #include "BrowserEventBus.h"
-#include "MutationTracker.h"
-#include "NetworkEventTracker.h"
 #include <iostream>
 #include <algorithm>
 #include <future>

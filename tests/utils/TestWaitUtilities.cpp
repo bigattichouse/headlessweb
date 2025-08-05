@@ -193,7 +193,7 @@ void TestWaitUtilities::logTestStep(const std::string& step_description) {
 
 void TestWaitUtilities::processPlatformEvents() {
     // Process GTK events if available
-    if (gtk_init_check(nullptr, nullptr)) {
+    if (gtk_init_check()) {
         GMainContext* context = g_main_context_default();
         while (g_main_context_pending(context)) {
             g_main_context_iteration(context, FALSE);

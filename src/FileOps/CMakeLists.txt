@@ -1,4 +1,5 @@
 set(FILEOPS_SOURCES
+    AsyncFileOperations.cpp
     DownloadManager.cpp
     PathUtils.cpp
     Types.cpp
@@ -6,6 +7,7 @@ set(FILEOPS_SOURCES
 )
 
 set(FILEOPS_HEADERS
+    AsyncFileOperations.h
     DownloadManager.h
     PathUtils.h
     Types.h

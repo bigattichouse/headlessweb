@@ -313,9 +313,6 @@ protected:
     std::string sessionDataPath;
     // js_result_buffer removed - using local buffers for thread safety
     
-    // Event-driven infrastructure for replacing blocking waits
-    std::shared_ptr<BrowserEvents::BrowserEventBus> event_bus_;
-    std::shared_ptr<BrowserEvents::MutationTracker> mutation_tracker_;
-    std::shared_ptr<BrowserEvents::NetworkEventTracker> network_tracker_;
-    std::shared_ptr<BrowserEvents::BrowserReadinessTracker> readiness_tracker_;
+    // Event-driven infrastructure already declared above in private section
+    // Removed duplicate declarations to fix compilation errors
 };
