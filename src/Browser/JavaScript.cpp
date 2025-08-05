@@ -15,6 +15,11 @@ void js_eval_callback(GObject* object, GAsyncResult* res, gpointer user_data) {
     
     Browser* browser_instance = static_cast<Browser*>(g_object_get_data(G_OBJECT(object), "browser-instance"));
     
+    // CRITICAL FIX: Check if browser object is still valid
+    if (browser_instance && !browser_instance->isObjectValid()) {
+        browser_instance = nullptr;
+    }
+    
     if (error) {
         // Don't log common errors that are expected in test environment
         bool should_suppress = strstr(error->message, "SecurityError") || 

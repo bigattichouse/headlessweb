@@ -13,6 +13,12 @@ extern bool g_debug;
 
 void navigation_complete_handler(WebKitWebView* webview, WebKitLoadEvent load_event, gpointer user_data) {
     Browser* browser = static_cast<Browser*>(user_data);
+    
+    // CRITICAL FIX: Check if browser object is still valid
+    if (!browser || !browser->isObjectValid()) {
+        return;
+    }
+    
     const gchar* uri = webkit_web_view_get_uri(webview);
     std::string current_url = uri ? uri : "";
     
@@ -118,6 +124,12 @@ void navigation_complete_handler(WebKitWebView* webview, WebKitLoadEvent load_ev
 
 void uri_changed_handler(WebKitWebView* webview, GParamSpec* pspec, gpointer user_data) {
     Browser* browser = static_cast<Browser*>(user_data);
+    
+    // CRITICAL FIX: Check if browser object is still valid
+    if (!browser || !browser->isObjectValid()) {
+        return;
+    }
+    
     const gchar* new_uri = webkit_web_view_get_uri(webview);
     std::string current_url = new_uri ? new_uri : "";
     
@@ -137,6 +149,12 @@ void uri_changed_handler(WebKitWebView* webview, GParamSpec* pspec, gpointer use
 
 void title_changed_handler(WebKitWebView* webview, GParamSpec* pspec, gpointer user_data) {
     Browser* browser = static_cast<Browser*>(user_data);
+    
+    // CRITICAL FIX: Check if browser object is still valid
+    if (!browser || !browser->isObjectValid()) {
+        return;
+    }
+    
     const gchar* new_title = webkit_web_view_get_title(webview);
     
     debug_output("Title changed to: " + std::string(new_title ? new_title : ""));
@@ -147,6 +165,11 @@ void title_changed_handler(WebKitWebView* webview, GParamSpec* pspec, gpointer u
 
 void ready_to_show_handler(WebKitWebView* webview, gpointer user_data) {
     Browser* browser = static_cast<Browser*>(user_data);
+    
+    // CRITICAL FIX: Check if browser object is still valid
+    if (!browser || !browser->isObjectValid()) {
+        return;
+    }
     
     debug_output("Page ready to show");
     

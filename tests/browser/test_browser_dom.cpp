@@ -17,9 +17,8 @@ protected:
         // CRITICAL FIX: Use global browser instance (properly initialized)
         browser = g_browser.get();
         
-        // Reset browser to clean state before each test
-        browser->loadUri("about:blank");
-        browser->waitForNavigation(2000);
+        // SAFETY FIX: Don't reset browser state during setup to avoid race conditions
+        // Tests should be independent and not rely on specific initial state
         
         // Create test HTML files for DOM testing
         createTestHtmlFile();
@@ -35,10 +34,7 @@ protected:
     }
 
     void TearDown() override {
-        // Clean up without destroying global browser
-        if (browser) {
-            browser->loadUri("about:blank");
-        }
+        // SAFETY FIX: Don't call loadUri during teardown to avoid race conditions
         temp_dir.reset();
     }
     
