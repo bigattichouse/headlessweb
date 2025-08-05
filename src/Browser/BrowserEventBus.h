@@ -62,6 +62,26 @@ enum class EventType {
     SCRIPTS_EXECUTED,
     STYLES_APPLIED,
     
+    // DOM interaction events
+    INPUT_FILLED,
+    INPUT_CHANGED,
+    INPUT_FOCUSED,
+    INPUT_BLURRED,
+    ELEMENT_CLICKED,
+    ELEMENT_SELECTED,
+    OPTION_SELECTED,
+    CHECKBOX_CHANGED,
+    
+    // Navigation and page loading events
+    PAGE_LOAD_STARTED,
+    PAGE_LOAD_PROGRESS,
+    PAGE_LOAD_COMPLETE,
+    VIEWPORT_READY,
+    RENDERING_COMPLETE,
+    SPA_ROUTE_CHANGED,
+    FRAMEWORK_DETECTED,
+    RESOURCE_LOAD_COMPLETE,
+    
     // Session events
     SESSION_RESTORED,
     COOKIES_SET,
@@ -97,6 +117,33 @@ struct DOMEvent : public Event {
     
     DOMEvent(EventType t, const std::string& sel, const std::string& mutation = "")
         : Event(t, sel), selector(sel), mutation_type(mutation) {}
+};
+
+// DOM interaction event
+struct DOMInteractionEvent : public Event {
+    std::string selector;
+    std::string interaction_type;  // "input", "click", "select", "submit", etc.
+    std::string value;             // For input/select operations
+    bool success;
+    
+    DOMInteractionEvent(EventType t, const std::string& sel, const std::string& interaction = "", 
+                       const std::string& val = "", bool s = true)
+        : Event(t, sel), selector(sel), interaction_type(interaction), value(val), success(s) {}
+};
+
+// Navigation and page loading event
+struct PageLoadEvent : public Event {
+    std::string url;
+    double progress;        // 0.0 to 1.0
+    std::string load_state; // "started", "progress", "complete", "error"
+    int resources_loaded;
+    int total_resources;
+    bool spa_navigation;
+    
+    PageLoadEvent(EventType t, const std::string& page_url, double prog = 0.0, 
+                 const std::string& state = "", bool spa = false)
+        : Event(t, page_url), url(page_url), progress(prog), load_state(state), 
+          resources_loaded(0), total_resources(0), spa_navigation(spa) {}
 };
 
 struct NetworkEvent : public Event {
@@ -399,6 +446,74 @@ private:
     void checkOverallReadiness();
     void emitReadinessEvents();
     void setupEventSubscriptions();
+};
+
+// Event-driven DOM operations - replaces blocking wait patterns
+class AsyncDOMOperations {
+private:
+    std::shared_ptr<BrowserEventBus> event_bus_;
+    
+public:
+    explicit AsyncDOMOperations(std::shared_ptr<BrowserEventBus> bus) : event_bus_(bus) {}
+    
+    // Event-driven DOM interaction methods
+    std::future<bool> fillInputAsync(const std::string& selector, const std::string& value, int timeout_ms = 5000);
+    std::future<bool> clickElementAsync(const std::string& selector, int timeout_ms = 5000);
+    std::future<bool> selectOptionAsync(const std::string& selector, const std::string& value, int timeout_ms = 5000);
+    std::future<bool> submitFormAsync(const std::string& selector, int timeout_ms = 5000);
+    std::future<bool> checkElementAsync(const std::string& selector, int timeout_ms = 5000);
+    std::future<bool> uncheckElementAsync(const std::string& selector, int timeout_ms = 5000);
+    std::future<bool> focusElementAsync(const std::string& selector, int timeout_ms = 5000);
+    
+    // Event waiting utilities
+    std::future<DOMInteractionEvent> waitForInputEvent(const std::string& selector, const std::string& event_type, int timeout_ms = 5000);
+    std::future<DOMInteractionEvent> waitForElementEvent(const std::string& selector, const std::string& event_type, int timeout_ms = 5000);
+    
+    // JavaScript event setup helpers
+    std::string generateEventListenerScript(const std::string& selector, const std::string& event_type, const std::string& operation_id) const;
+    std::string generateInputFillScript(const std::string& selector, const std::string& value, const std::string& operation_id) const;
+    std::string generateClickScript(const std::string& selector, const std::string& operation_id) const;
+    std::string generateSelectScript(const std::string& selector, const std::string& value, const std::string& operation_id) const;
+    
+private:
+    void emitDOMInteractionEvent(EventType type, const std::string& selector, const std::string& interaction, 
+                               const std::string& value = "", bool success = true);
+    std::string generateOperationId() const;
+};
+
+// Event-driven navigation and page loading operations
+class AsyncNavigationOperations {
+private:
+    std::shared_ptr<BrowserEventBus> event_bus_;
+    
+public:
+    explicit AsyncNavigationOperations(std::shared_ptr<BrowserEventBus> bus) : event_bus_(bus) {}
+    
+    // Navigation event-driven methods
+    std::future<bool> waitForPageLoadComplete(const std::string& url, int timeout_ms = 10000);
+    std::future<bool> waitForViewportReady(int timeout_ms = 5000);
+    std::future<bool> waitForRenderingComplete(int timeout_ms = 5000);
+    std::future<bool> waitForSPANavigation(const std::string& route, int timeout_ms = 10000);
+    std::future<bool> waitForFrameworkReady(const std::string& framework, int timeout_ms = 15000);
+    std::future<PageLoadEvent> waitForPageLoadEvent(EventType event_type, int timeout_ms = 10000);
+    
+    // Page load state monitoring
+    void emitPageLoadStarted(const std::string& url);
+    void emitPageLoadProgress(const std::string& url, double progress);
+    void emitPageLoadComplete(const std::string& url);
+    void emitViewportReady();
+    void emitRenderingComplete();
+    void emitSPARouteChanged(const std::string& old_route, const std::string& new_route);
+    
+    // JavaScript monitoring setup
+    std::string generatePageLoadMonitorScript() const;
+    std::string generateSPANavigationDetectionScript() const;
+    std::string generateFrameworkDetectionScript(const std::string& framework) const;
+    std::string generateRenderingCompleteScript() const;
+    
+private:
+    void emitPageLoadEvent(EventType type, const std::string& url, double progress = 0.0, 
+                          const std::string& state = "", bool spa = false);
 };
 
 } // namespace BrowserEvents

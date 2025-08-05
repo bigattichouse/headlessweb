@@ -109,6 +109,13 @@ target_sources(hweb_tests PRIVATE
     ../src/Browser/DOM.cpp
     ../src/Browser/Events.cpp
     ../src/Browser/EventLoopManager.cpp
+    ../src/Browser/BrowserEventBus.cpp
+    ../src/Browser/BrowserReadinessTracker.cpp
+    ../src/Browser/MutationTracker.cpp
+    ../src/Browser/AsyncDOMOperations.cpp
+    ../src/Browser/AsyncNavigationOperations.cpp
+    ../src/Browser/AsyncOperations.cpp
+    ../src/Browser/EnhancedFormInteraction.cpp
     ../src/Browser/JavaScript.cpp
     ../src/Browser/Screenshot.cpp
     ../src/Browser/Session.cpp

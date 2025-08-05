@@ -234,8 +234,16 @@ void Browser::ensureProperViewportForScreenshots() {
         g_main_context_iteration(g_main_context_default(), FALSE);
     }
     
-    // Give WebKit time to render offscreen
-    wait(200);
+    // Wait for viewport to be ready using event-driven approach
+    if (async_nav_) {
+        auto future = async_nav_->waitForViewportReady(1000);
+        if (future.wait_for(std::chrono::milliseconds(1000)) != std::future_status::ready || !future.get()) {
+            // Fallback to brief wait if event system not available
+            wait(100);
+        }
+    } else {
+        wait(100);
+    }
     
     // Set viewport meta tag in the page if possible
     std::string jsViewport = "(function() { "

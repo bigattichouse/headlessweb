@@ -93,6 +93,8 @@ public:
     std::unique_ptr<BrowserEvents::MutationTracker> mutation_tracker_;
     std::unique_ptr<BrowserEvents::NetworkEventTracker> network_tracker_;
     std::unique_ptr<BrowserEvents::BrowserReadinessTracker> readiness_tracker_;
+    std::unique_ptr<BrowserEvents::AsyncDOMOperations> async_dom_;
+    std::unique_ptr<BrowserEvents::AsyncNavigationOperations> async_nav_;
     
     // Constructor/Destructor - Browser.cpp
     Browser(const HWeb::HWebConfig& config);
@@ -158,6 +160,8 @@ public:
     BrowserEvents::MutationTracker* getMutationTracker() const { return mutation_tracker_.get(); }
     BrowserEvents::NetworkEventTracker* getNetworkTracker() const { return network_tracker_.get(); }
     BrowserEvents::BrowserReadinessTracker* getReadinessTracker() const { return readiness_tracker_.get(); }
+    BrowserEvents::AsyncDOMOperations* getAsyncDOM() const { return async_dom_.get(); }
+    BrowserEvents::AsyncNavigationOperations* getAsyncNav() const { return async_nav_.get(); }
     
     // High-level event-driven waiting methods
     std::future<bool> waitForBrowserReady(int timeout_ms = 10000);
@@ -192,6 +196,22 @@ public:
     bool focusElement(const std::string& selector);
     std::string getAttribute(const std::string& selector, const std::string& attribute);
     bool setAttribute(const std::string& selector, const std::string& attribute, const std::string& value);
+    
+    // ========== Event-Driven DOM Operations - Replace blocking patterns ==========
+    std::future<bool> fillInputAsync(const std::string& selector, const std::string& value, int timeout_ms = 5000);
+    std::future<bool> clickElementAsync(const std::string& selector, int timeout_ms = 5000);
+    std::future<bool> selectOptionAsync(const std::string& selector, const std::string& value, int timeout_ms = 5000);
+    std::future<bool> submitFormAsync(const std::string& selector, int timeout_ms = 5000);
+    std::future<bool> checkElementAsync(const std::string& selector, int timeout_ms = 5000);
+    std::future<bool> uncheckElementAsync(const std::string& selector, int timeout_ms = 5000);
+    std::future<bool> focusElementAsync(const std::string& selector, int timeout_ms = 5000);
+    
+    // ========== Event-Driven Navigation Operations - Replace blocking patterns ==========
+    std::future<bool> waitForPageLoadCompleteAsync(const std::string& url = "", int timeout_ms = 10000);
+    std::future<bool> waitForViewportReadyAsync(int timeout_ms = 5000);
+    std::future<bool> waitForRenderingCompleteAsync(int timeout_ms = 5000);
+    std::future<bool> waitForSPANavigationAsync(const std::string& route = "", int timeout_ms = 10000);
+    std::future<bool> waitForFrameworkReadyAsync(const std::string& framework = "", int timeout_ms = 15000);
     
     // Element queries
     bool elementExists(const std::string& selector);

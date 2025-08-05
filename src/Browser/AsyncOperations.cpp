@@ -166,3 +166,173 @@ bool Browser::isPageInteractive() const {
     if (!readiness_tracker_) return false;
     return readiness_tracker_->isInteractive();
 }
+
+// ========== Event-Driven DOM Operations ==========
+
+std::future<bool> Browser::fillInputAsync(const std::string& selector, const std::string& value, int timeout_ms) {
+    if (!async_dom_) {
+        auto promise = std::make_shared<std::promise<bool>>();
+        promise->set_value(false);
+        return promise->get_future();
+    }
+    
+    // Set up the async operation and execute the script
+    auto future = async_dom_->fillInputAsync(selector, value, timeout_ms);
+    
+    // Execute the JavaScript to perform the operation and set up event monitoring
+    try {
+        std::string operation_id = "fill_" + std::to_string(std::chrono::steady_clock::now().time_since_epoch().count());
+        std::string script = async_dom_->generateInputFillScript(selector, value, operation_id);
+        std::string result = executeJavascriptSync(script);
+        
+        // The JavaScript will emit events that the async operation is waiting for
+        
+    } catch (const std::exception& e) {
+        // If JavaScript execution fails, return false future
+        auto promise = std::make_shared<std::promise<bool>>();
+        promise->set_value(false);
+        return promise->get_future();
+    }
+    
+    return std::move(future);
+}
+
+std::future<bool> Browser::clickElementAsync(const std::string& selector, int timeout_ms) {
+    if (!async_dom_) {
+        auto promise = std::make_shared<std::promise<bool>>();
+        promise->set_value(false);
+        return promise->get_future();
+    }
+    
+    // Set up the async operation and execute the script
+    auto future = async_dom_->clickElementAsync(selector, timeout_ms);
+    
+    // Execute the JavaScript to perform the operation
+    try {
+        std::string operation_id = "click_" + std::to_string(std::chrono::steady_clock::now().time_since_epoch().count());
+        std::string script = async_dom_->generateClickScript(selector, operation_id);
+        std::string result = executeJavascriptSync(script);
+        
+    } catch (const std::exception& e) {
+        auto promise = std::make_shared<std::promise<bool>>();
+        promise->set_value(false);
+        return promise->get_future();
+    }
+    
+    return std::move(future);
+}
+
+std::future<bool> Browser::selectOptionAsync(const std::string& selector, const std::string& value, int timeout_ms) {
+    if (!async_dom_) {
+        auto promise = std::make_shared<std::promise<bool>>();
+        promise->set_value(false);
+        return promise->get_future();
+    }
+    
+    auto future = async_dom_->selectOptionAsync(selector, value, timeout_ms);
+    
+    try {
+        std::string operation_id = "select_" + std::to_string(std::chrono::steady_clock::now().time_since_epoch().count());
+        std::string script = async_dom_->generateSelectScript(selector, value, operation_id);
+        std::string result = executeJavascriptSync(script);
+        
+    } catch (const std::exception& e) {
+        auto promise = std::make_shared<std::promise<bool>>();
+        promise->set_value(false);
+        return promise->get_future();
+    }
+    
+    return std::move(future);
+}
+
+std::future<bool> Browser::submitFormAsync(const std::string& selector, int timeout_ms) {
+    if (!async_dom_) {
+        auto promise = std::make_shared<std::promise<bool>>();
+        promise->set_value(false);
+        return promise->get_future();
+    }
+    
+    return async_dom_->submitFormAsync(selector, timeout_ms);
+}
+
+std::future<bool> Browser::checkElementAsync(const std::string& selector, int timeout_ms) {
+    if (!async_dom_) {
+        auto promise = std::make_shared<std::promise<bool>>();
+        promise->set_value(false);
+        return promise->get_future();
+    }
+    
+    return async_dom_->checkElementAsync(selector, timeout_ms);
+}
+
+std::future<bool> Browser::uncheckElementAsync(const std::string& selector, int timeout_ms) {
+    if (!async_dom_) {
+        auto promise = std::make_shared<std::promise<bool>>();
+        promise->set_value(false);
+        return promise->get_future();
+    }
+    
+    return async_dom_->uncheckElementAsync(selector, timeout_ms);
+}
+
+std::future<bool> Browser::focusElementAsync(const std::string& selector, int timeout_ms) {
+    if (!async_dom_) {
+        auto promise = std::make_shared<std::promise<bool>>();
+        promise->set_value(false);
+        return promise->get_future();
+    }
+    
+    return async_dom_->focusElementAsync(selector, timeout_ms);
+}
+
+// ========== Event-Driven Navigation Operations ==========
+
+std::future<bool> Browser::waitForPageLoadCompleteAsync(const std::string& url, int timeout_ms) {
+    if (!async_nav_) {
+        auto promise = std::make_shared<std::promise<bool>>();
+        promise->set_value(false);
+        return promise->get_future();
+    }
+    
+    return async_nav_->waitForPageLoadComplete(url, timeout_ms);
+}
+
+std::future<bool> Browser::waitForViewportReadyAsync(int timeout_ms) {
+    if (!async_nav_) {
+        auto promise = std::make_shared<std::promise<bool>>();
+        promise->set_value(false);
+        return promise->get_future();
+    }
+    
+    return async_nav_->waitForViewportReady(timeout_ms);
+}
+
+std::future<bool> Browser::waitForRenderingCompleteAsync(int timeout_ms) {
+    if (!async_nav_) {
+        auto promise = std::make_shared<std::promise<bool>>();
+        promise->set_value(false);
+        return promise->get_future();
+    }
+    
+    return async_nav_->waitForRenderingComplete(timeout_ms);
+}
+
+std::future<bool> Browser::waitForSPANavigationAsync(const std::string& route, int timeout_ms) {
+    if (!async_nav_) {
+        auto promise = std::make_shared<std::promise<bool>>();
+        promise->set_value(false);
+        return promise->get_future();
+    }
+    
+    return async_nav_->waitForSPANavigation(route, timeout_ms);
+}
+
+std::future<bool> Browser::waitForFrameworkReadyAsync(const std::string& framework, int timeout_ms) {
+    if (!async_nav_) {
+        auto promise = std::make_shared<std::promise<bool>>();
+        promise->set_value(false);
+        return promise->get_future();
+    }
+    
+    return async_nav_->waitForFrameworkReady(framework, timeout_ms);
+}

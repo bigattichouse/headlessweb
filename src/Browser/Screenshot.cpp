@@ -111,8 +111,20 @@ void Browser::takeScreenshot(const std::string& filename) {
     // Ensure proper offscreen viewport and rendering
     ensureProperViewportForScreenshots();
     
-    // Wait for rendering to complete
-    wait(500);
+    // Wait for rendering to complete using event-driven approach
+    if (async_nav_) {
+        auto future = async_nav_->waitForRenderingComplete(2000);
+        if (future.wait_for(std::chrono::milliseconds(2000)) != std::future_status::ready || !future.get()) {
+            // Fallback to readiness check or brief wait
+            if (readiness_tracker_ && readiness_tracker_->isFullyReady()) {
+                // Already ready, proceed
+            } else {
+                wait(250); // Reduced fallback wait
+            }
+        }
+    } else {
+        wait(250); // Reduced fallback wait
+    }
     
     // Check if page is ready
     std::string readyState = executeJavascriptSync("(function() { try { return document.readyState; } catch(e) { return 'error'; } })()");
@@ -163,8 +175,20 @@ void Browser::takeFullPageScreenshot(const std::string& filename) {
     // Ensure proper offscreen viewport and rendering
     ensureProperViewportForScreenshots();
     
-    // Wait for rendering to complete
-    wait(500);
+    // Wait for rendering to complete using event-driven approach
+    if (async_nav_) {
+        auto future = async_nav_->waitForRenderingComplete(2000);
+        if (future.wait_for(std::chrono::milliseconds(2000)) != std::future_status::ready || !future.get()) {
+            // Fallback to readiness check or brief wait
+            if (readiness_tracker_ && readiness_tracker_->isFullyReady()) {
+                // Already ready, proceed
+            } else {
+                wait(250); // Reduced fallback wait
+            }
+        }
+    } else {
+        wait(250); // Reduced fallback wait
+    }
     
     // Check if page is ready
     std::string readyState = executeJavascriptSync("(function() { try { return document.readyState; } catch(e) { return 'error'; } })()");

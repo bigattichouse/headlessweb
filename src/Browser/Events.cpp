@@ -25,9 +25,16 @@ void navigation_complete_handler(WebKitWebView* webview, WebKitLoadEvent load_ev
             debug_output("Navigation started");
             if (event_bus) {
                 event_bus->emit(BrowserEvents::NavigationEvent(BrowserEvents::EventType::NAVIGATION_STARTED, current_url));
+                // Emit page load started event
+                event_bus->emit(BrowserEvents::PageLoadEvent(BrowserEvents::EventType::PAGE_LOAD_STARTED, current_url, 0.0, "started", false));
             }
             if (state_manager) {
                 state_manager->transitionToState(BrowserEvents::BrowserState::LOADING);
+            }
+            // Trigger navigation monitoring JavaScript
+            if (auto async_nav = browser->getAsyncNav()) {
+                std::string monitor_script = async_nav->generatePageLoadMonitorScript();
+                browser->executeJavascriptSync(monitor_script);
             }
             break;
         case WEBKIT_LOAD_REDIRECTED:
@@ -37,12 +44,20 @@ void navigation_complete_handler(WebKitWebView* webview, WebKitLoadEvent load_ev
             debug_output("Navigation committed (DOM available)");
             if (event_bus) {
                 event_bus->emit(BrowserEvents::EventType::DOM_CONTENT_LOADED, current_url);
+                // Emit page load progress event
+                event_bus->emit(BrowserEvents::PageLoadEvent(BrowserEvents::EventType::PAGE_LOAD_PROGRESS, current_url, 0.5, "progress", false));
             }
             if (state_manager) {
                 state_manager->transitionToState(BrowserEvents::BrowserState::DOM_LOADING);
             }
             if (readiness_tracker) {
                 readiness_tracker->updateDOMReady();
+            }
+            // Initialize SPA navigation and framework detection scripts
+            if (auto async_nav = browser->getAsyncNav()) {
+                browser->executeJavascriptSync(async_nav->generateSPANavigationDetectionScript());
+                browser->executeJavascriptSync(async_nav->generateFrameworkDetectionScript(""));
+                browser->executeJavascriptSync(async_nav->generateRenderingCompleteScript());
             }
             // Check signal conditions on DOM commit
             browser->checkSignalConditions();
@@ -51,6 +66,10 @@ void navigation_complete_handler(WebKitWebView* webview, WebKitLoadEvent load_ev
             debug_output("Navigation finished");
             if (event_bus) {
                 event_bus->emit(BrowserEvents::NavigationEvent(BrowserEvents::EventType::NAVIGATION_COMPLETED, current_url, "", true));
+                // Emit page load complete event
+                event_bus->emit(BrowserEvents::PageLoadEvent(BrowserEvents::EventType::PAGE_LOAD_COMPLETE, current_url, 1.0, "complete", false));
+                // Emit viewport ready event
+                event_bus->emit(BrowserEvents::EventType::VIEWPORT_READY, current_url);
             }
             if (state_manager) {
                 state_manager->transitionToState(BrowserEvents::BrowserState::FULLY_READY);
@@ -911,9 +930,18 @@ bool Browser::waitForText(const std::string& text, int timeout_ms) {
 }
 
 void Browser::waitForPageStabilization(int timeout_ms) {
-    if (!waitForPageReadyEvent(timeout_ms)) {
-        // Fallback to shorter wait
-        wait(500);
+    // Use event-driven approach for page stabilization
+    if (async_nav_) {
+        auto future = async_nav_->waitForRenderingComplete(timeout_ms);
+        if (future.wait_for(std::chrono::milliseconds(timeout_ms)) != std::future_status::ready || !future.get()) {
+            // Fallback to readiness tracker or brief wait
+            if (readiness_tracker_ && readiness_tracker_->isFullyReady()) {
+                return; // Already ready
+            }
+            wait(200); // Reduced fallback wait
+        }
+    } else if (!waitForPageReadyEvent(timeout_ms)) {
+        wait(200); // Reduced fallback wait
     }
 }
 

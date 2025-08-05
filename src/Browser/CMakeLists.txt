@@ -7,6 +7,8 @@ set(BROWSER_SOURCES
     BrowserEventBus.cpp
     BrowserReadinessTracker.cpp
     MutationTracker.cpp
+    AsyncDOMOperations.cpp
+    AsyncNavigationOperations.cpp
     AsyncOperations.cpp
     DOM.cpp
     EnhancedFormInteraction.cpp
