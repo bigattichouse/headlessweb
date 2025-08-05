@@ -49,6 +49,7 @@ set(TEST_SOURCES
 set(BROWSER_TEST_SOURCES
     browser/test_browser_core.cpp
     browser/test_browser_dom.cpp
+    browser/test_browser_form_operations.cpp
     browser/test_browser_javascript.cpp
     browser/test_browser_events.cpp
     browser/test_browser_storage.cpp
