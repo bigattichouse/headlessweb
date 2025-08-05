@@ -336,3 +336,115 @@ std::future<bool> Browser::waitForFrameworkReadyAsync(const std::string& framewo
     
     return async_nav_->waitForFrameworkReady(framework, timeout_ms);
 }
+
+// ========== Event-Driven Session Operations ==========
+
+std::future<bool> Browser::waitForUserAgentSetAsync(int timeout_ms) {
+    if (!async_session_) {
+        auto promise = std::make_shared<std::promise<bool>>();
+        promise->set_value(false);
+        return promise->get_future();
+    }
+    
+    return async_session_->waitForUserAgentSet(timeout_ms);
+}
+
+std::future<bool> Browser::waitForViewportSetAsync(int timeout_ms) {
+    if (!async_session_) {
+        auto promise = std::make_shared<std::promise<bool>>();
+        promise->set_value(false);
+        return promise->get_future();
+    }
+    
+    return async_session_->waitForViewportSet(timeout_ms);
+}
+
+std::future<bool> Browser::waitForCookiesRestoredAsync(int timeout_ms) {
+    if (!async_session_) {
+        auto promise = std::make_shared<std::promise<bool>>();
+        promise->set_value(false);
+        return promise->get_future();
+    }
+    
+    return async_session_->waitForCookiesRestored(timeout_ms);
+}
+
+std::future<bool> Browser::waitForStorageRestoredAsync(const std::string& storage_type, int timeout_ms) {
+    if (!async_session_) {
+        auto promise = std::make_shared<std::promise<bool>>();
+        promise->set_value(false);
+        return promise->get_future();
+    }
+    
+    return async_session_->waitForStorageRestored(storage_type, timeout_ms);
+}
+
+std::future<bool> Browser::waitForFormStateRestoredAsync(int timeout_ms) {
+    if (!async_session_) {
+        auto promise = std::make_shared<std::promise<bool>>();
+        promise->set_value(false);
+        return promise->get_future();
+    }
+    
+    return async_session_->waitForFormStateRestored(timeout_ms);
+}
+
+std::future<bool> Browser::waitForActiveElementsRestoredAsync(int timeout_ms) {
+    if (!async_session_) {
+        auto promise = std::make_shared<std::promise<bool>>();
+        promise->set_value(false);
+        return promise->get_future();
+    }
+    
+    return async_session_->waitForActiveElementsRestored(timeout_ms);
+}
+
+std::future<bool> Browser::waitForCustomAttributesRestoredAsync(int timeout_ms) {
+    if (!async_session_) {
+        auto promise = std::make_shared<std::promise<bool>>();
+        promise->set_value(false);
+        return promise->get_future();
+    }
+    
+    return async_session_->waitForCustomAttributesRestored(timeout_ms);
+}
+
+std::future<bool> Browser::waitForCustomStateRestoredAsync(int timeout_ms) {
+    if (!async_session_) {
+        auto promise = std::make_shared<std::promise<bool>>();
+        promise->set_value(false);
+        return promise->get_future();
+    }
+    
+    return async_session_->waitForCustomStateRestored(timeout_ms);
+}
+
+std::future<bool> Browser::waitForScrollPositionsRestoredAsync(int timeout_ms) {
+    if (!async_session_) {
+        auto promise = std::make_shared<std::promise<bool>>();
+        promise->set_value(false);
+        return promise->get_future();
+    }
+    
+    return async_session_->waitForScrollPositionsRestored(timeout_ms);
+}
+
+std::future<bool> Browser::waitForSessionRestorationCompleteAsync(int timeout_ms) {
+    if (!async_session_) {
+        auto promise = std::make_shared<std::promise<bool>>();
+        promise->set_value(false);
+        return promise->get_future();
+    }
+    
+    return async_session_->waitForSessionRestorationComplete(timeout_ms);
+}
+
+std::future<bool> Browser::restoreSessionAsync(const Session& session, int timeout_ms) {
+    if (!async_session_) {
+        auto promise = std::make_shared<std::promise<bool>>();
+        promise->set_value(false);
+        return promise->get_future();
+    }
+    
+    return async_session_->restoreSessionAsync(session.getName(), timeout_ms);
+}

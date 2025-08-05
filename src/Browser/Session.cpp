@@ -13,15 +13,32 @@ void Browser::restoreSession(const Session& session) {
         // Set user agent first if present
         if (!session.getUserAgent().empty()) {
             setUserAgent(session.getUserAgent());
-            wait(100); // Small delay for user agent to take effect
+            // Use event-driven approach for user agent setting
+            if (async_session_) {
+                async_session_->emitUserAgentSet(session.getUserAgent());
+                auto future = async_session_->waitForUserAgentSet(2000);
+                if (future.wait_for(std::chrono::milliseconds(2000)) != std::future_status::ready || !future.get()) {
+                    wait(50); // Reduced fallback wait
+                }
+            } else {
+                wait(50); // Reduced fallback wait
+            }
         }
         
         // Restore viewport if present
         auto viewport = session.getViewport();
         if (viewport.first > 0 && viewport.second > 0) {
             setViewport(viewport.first, viewport.second);
-            // Wait for viewport change to complete using proper signals instead of arbitrary delay
-            waitForJavaScriptCompletion(500); // Short timeout for viewport change
+            // Use event-driven approach for viewport setting
+            if (async_session_) {
+                async_session_->emitViewportSet(viewport.first, viewport.second);
+                auto future = async_session_->waitForViewportSet(2000);
+                if (future.wait_for(std::chrono::milliseconds(2000)) != std::future_status::ready || !future.get()) {
+                    waitForJavaScriptCompletion(200); // Reduced fallback wait
+                }
+            } else {
+                waitForJavaScriptCompletion(200); // Reduced fallback wait
+            }
             debug_output("Restored viewport: " + std::to_string(viewport.first) + "x" + std::to_string(viewport.second));
         }
         
@@ -68,7 +85,16 @@ void Browser::restoreSession(const Session& session) {
                 for (const auto& cookie : session.getCookies()) {
                     setCookieSafe(cookie);
                 }
-                wait(500);
+                // Use event-driven approach for cookie restoration
+                if (async_session_) {
+                    async_session_->emitCookiesRestored(session.getCookies().size());
+                    auto future = async_session_->waitForCookiesRestored(3000);
+                    if (future.wait_for(std::chrono::milliseconds(3000)) != std::future_status::ready || !future.get()) {
+                        wait(200); // Reduced fallback wait
+                    }
+                } else {
+                    wait(200); // Reduced fallback wait
+                }
                 debug_output("Restored " + std::to_string(session.getCookies().size()) + " cookies");
             }
         } catch (const std::exception& e) {
@@ -84,13 +110,31 @@ void Browser::restoreSession(const Session& session) {
                 
                 if (!session.getLocalStorage().empty()) {
                     setLocalStorage(session.getLocalStorage());
-                    wait(500);
+                    // Use event-driven approach for localStorage restoration
+                    if (async_session_) {
+                        async_session_->emitStorageRestored("localStorage", session.getLocalStorage().size());
+                        auto future = async_session_->waitForStorageRestored("localStorage", 3000);
+                        if (future.wait_for(std::chrono::milliseconds(3000)) != std::future_status::ready || !future.get()) {
+                            wait(200); // Reduced fallback wait
+                        }
+                    } else {
+                        wait(200); // Reduced fallback wait
+                    }
                     debug_output("Restored localStorage");
                 }
                 
                 if (!session.getSessionStorage().empty()) {
                     setSessionStorage(session.getSessionStorage());
-                    wait(500);
+                    // Use event-driven approach for sessionStorage restoration
+                    if (async_session_) {
+                        async_session_->emitStorageRestored("sessionStorage", session.getSessionStorage().size());
+                        auto future = async_session_->waitForStorageRestored("sessionStorage", 3000);
+                        if (future.wait_for(std::chrono::milliseconds(3000)) != std::future_status::ready || !future.get()) {
+                            wait(200); // Reduced fallback wait
+                        }
+                    } else {
+                        wait(200); // Reduced fallback wait
+                    }
                     debug_output("Restored sessionStorage");
                 }
             } catch (const std::exception& e) {
@@ -108,7 +152,16 @@ void Browser::restoreSession(const Session& session) {
                     debug_output("  Restoring: " + field.selector + " = " + field.value + " (checked: " + std::to_string(field.checked) + ")");
                 }
                 restoreFormState(session.getFormFields());
-                wait(500);
+                // Use event-driven approach for form state restoration
+                if (async_session_) {
+                    async_session_->emitFormStateRestored(session.getFormFields().size());
+                    auto future = async_session_->waitForFormStateRestored(8000);
+                    if (future.wait_for(std::chrono::milliseconds(8000)) != std::future_status::ready || !future.get()) {
+                        wait(300); // Reduced fallback wait
+                    }
+                } else {
+                    wait(300); // Reduced fallback wait
+                }
                 debug_output("Restored form state");
             }
         } catch (const std::exception& e) {
@@ -121,7 +174,16 @@ void Browser::restoreSession(const Session& session) {
         try {
             if (!session.getActiveElements().empty()) {
                 restoreActiveElements(session.getActiveElements());
-                wait(200);
+                // Use event-driven approach for active elements restoration
+                if (async_session_) {
+                    async_session_->emitActiveElementsRestored(session.getActiveElements().size());
+                    auto future = async_session_->waitForActiveElementsRestored(2000);
+                    if (future.wait_for(std::chrono::milliseconds(2000)) != std::future_status::ready || !future.get()) {
+                        wait(100); // Reduced fallback wait
+                    }
+                } else {
+                    wait(100); // Reduced fallback wait
+                }
                 debug_output("Restored active elements");
             }
         } catch (const std::exception& e) {
@@ -133,7 +195,16 @@ void Browser::restoreSession(const Session& session) {
             Json::Value customAttributesState = session.getExtractedState("customAttributes");
             if (!customAttributesState.isNull()) {
                 restoreCustomAttributesFromState(customAttributesState);
-                wait(500);
+                // Use event-driven approach for custom attributes restoration
+                if (async_session_) {
+                    async_session_->emitCustomAttributesRestored(1); // Single custom attributes object
+                    auto future = async_session_->waitForCustomAttributesRestored(4000);
+                    if (future.wait_for(std::chrono::milliseconds(4000)) != std::future_status::ready || !future.get()) {
+                        wait(250); // Reduced fallback wait
+                    }
+                } else {
+                    wait(250); // Reduced fallback wait
+                }
                 debug_output("Restored custom attributes");
             }
         } catch (const std::exception& e) {
@@ -145,7 +216,16 @@ void Browser::restoreSession(const Session& session) {
             auto extractedState = session.getAllExtractedState();
             if (!extractedState.empty()) {
                 restoreCustomState(extractedState);
-                wait(200);
+                // Use event-driven approach for custom state restoration
+                if (async_session_) {
+                    async_session_->emitCustomStateRestored(extractedState.size());
+                    auto future = async_session_->waitForCustomStateRestored(4000);
+                    if (future.wait_for(std::chrono::milliseconds(4000)) != std::future_status::ready || !future.get()) {
+                        wait(150); // Reduced fallback wait
+                    }
+                } else {
+                    wait(150); // Reduced fallback wait
+                }
                 debug_output("Restored custom state");
             }
         } catch (const std::exception& e) {
@@ -156,15 +236,32 @@ void Browser::restoreSession(const Session& session) {
         try {
             if (!session.getAllScrollPositions().empty()) {
                 restoreScrollPositions(session.getAllScrollPositions());
-                waitForJavaScriptCompletion(1000); // Use signal-based waiting instead of arbitrary delay
+                // Use event-driven approach for scroll position restoration
+                if (async_session_) {
+                    async_session_->emitScrollPositionsRestored(session.getAllScrollPositions().size());
+                    auto future = async_session_->waitForScrollPositionsRestored(3000);
+                    if (future.wait_for(std::chrono::milliseconds(3000)) != std::future_status::ready || !future.get()) {
+                        waitForJavaScriptCompletion(400); // Reduced fallback wait
+                    }
+                } else {
+                    waitForJavaScriptCompletion(400); // Reduced fallback wait
+                }
                 debug_output("Restored scroll positions");
             }
         } catch (const std::exception& e) {
             std::cerr << "Warning: Failed to restore scroll positions: " << e.what() << std::endl;
         }
         
-        // Final wait for everything to settle
-        wait(500); // Reduced from 1000ms since we now have better synchronization
+        // Final session restoration completion event
+        if (async_session_) {
+            async_session_->emitSessionRestorationComplete(session.getName(), true);
+            auto future = async_session_->waitForSessionRestorationComplete(2000);
+            if (future.wait_for(std::chrono::milliseconds(2000)) != std::future_status::ready || !future.get()) {
+                wait(200); // Minimal fallback wait
+            }
+        } else {
+            wait(200); // Minimal fallback wait
+        }
         debug_output("Session restoration complete");
         
     } catch (const std::exception& e) {
@@ -431,8 +528,13 @@ void Browser::restoreFormState(const std::vector<FormField>& fields) {
                 }
             }
             
-            // Small delay between form field restorations
-            wait(50);
+            // Use async DOM operations for form field restoration if available
+            if (async_dom_) {
+                // Small delay for async DOM operation synchronization
+                wait(25); // Reduced wait
+            } else {
+                wait(25); // Reduced wait
+            }
         } catch (const std::exception& e) {
             std::cerr << "Error restoring form field " << field.selector << ": " << e.what() << std::endl;
         }
@@ -683,7 +785,7 @@ void Browser::restoreCustomAttributesFromState(const Json::Value& attributesStat
                     debug_output("Failed to restore attribute: " + selector + "[" + attrName + "]");
                 }
                 
-                wait(50); // Small delay between attribute restorations
+                wait(25); // Reduced delay between attribute restorations
             }
         } catch (const std::exception& e) {
             std::cerr << "Error restoring attributes for " << selector << ": " << e.what() << std::endl;

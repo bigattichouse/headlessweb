@@ -95,6 +95,7 @@ public:
     std::unique_ptr<BrowserEvents::BrowserReadinessTracker> readiness_tracker_;
     std::unique_ptr<BrowserEvents::AsyncDOMOperations> async_dom_;
     std::unique_ptr<BrowserEvents::AsyncNavigationOperations> async_nav_;
+    std::unique_ptr<BrowserEvents::AsyncSessionOperations> async_session_;
     
     // Constructor/Destructor - Browser.cpp
     Browser(const HWeb::HWebConfig& config);
@@ -162,6 +163,7 @@ public:
     BrowserEvents::BrowserReadinessTracker* getReadinessTracker() const { return readiness_tracker_.get(); }
     BrowserEvents::AsyncDOMOperations* getAsyncDOM() const { return async_dom_.get(); }
     BrowserEvents::AsyncNavigationOperations* getAsyncNav() const { return async_nav_.get(); }
+    BrowserEvents::AsyncSessionOperations* getAsyncSession() const { return async_session_.get(); }
     
     // High-level event-driven waiting methods
     std::future<bool> waitForBrowserReady(int timeout_ms = 10000);
@@ -212,6 +214,19 @@ public:
     std::future<bool> waitForRenderingCompleteAsync(int timeout_ms = 5000);
     std::future<bool> waitForSPANavigationAsync(const std::string& route = "", int timeout_ms = 10000);
     std::future<bool> waitForFrameworkReadyAsync(const std::string& framework = "", int timeout_ms = 15000);
+    
+    // ========== Event-Driven Session Operations - Replace blocking patterns ==========
+    std::future<bool> waitForUserAgentSetAsync(int timeout_ms = 2000);
+    std::future<bool> waitForViewportSetAsync(int timeout_ms = 2000);
+    std::future<bool> waitForCookiesRestoredAsync(int timeout_ms = 5000);
+    std::future<bool> waitForStorageRestoredAsync(const std::string& storage_type, int timeout_ms = 5000);
+    std::future<bool> waitForFormStateRestoredAsync(int timeout_ms = 10000);
+    std::future<bool> waitForActiveElementsRestoredAsync(int timeout_ms = 2000);
+    std::future<bool> waitForCustomAttributesRestoredAsync(int timeout_ms = 5000);
+    std::future<bool> waitForCustomStateRestoredAsync(int timeout_ms = 5000);
+    std::future<bool> waitForScrollPositionsRestoredAsync(int timeout_ms = 3000);
+    std::future<bool> waitForSessionRestorationCompleteAsync(int timeout_ms = 30000);
+    std::future<bool> restoreSessionAsync(const Session& session, int timeout_ms = 30000);
     
     // Element queries
     bool elementExists(const std::string& selector);

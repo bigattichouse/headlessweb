@@ -115,6 +115,7 @@ Browser::Browser(const HWeb::HWebConfig& config) : cookieManager(nullptr), main_
     readiness_tracker_ = std::make_unique<BrowserEvents::BrowserReadinessTracker>(event_bus_);
     async_dom_ = std::make_unique<BrowserEvents::AsyncDOMOperations>(event_bus_);
     async_nav_ = std::make_unique<BrowserEvents::AsyncNavigationOperations>(event_bus_);
+    async_session_ = std::make_unique<BrowserEvents::AsyncSessionOperations>(event_bus_);
     
     // Initialize browser state
     state_manager_->transitionToState(BrowserEvents::BrowserState::LOADING);

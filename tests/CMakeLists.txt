@@ -115,6 +115,7 @@ target_sources(hweb_tests PRIVATE
     ../src/Browser/AsyncDOMOperations.cpp
     ../src/Browser/AsyncNavigationOperations.cpp
     ../src/Browser/AsyncOperations.cpp
+    ../src/Browser/AsyncSessionOperations.cpp
     ../src/Browser/EnhancedFormInteraction.cpp
     ../src/Browser/JavaScript.cpp
     ../src/Browser/Screenshot.cpp

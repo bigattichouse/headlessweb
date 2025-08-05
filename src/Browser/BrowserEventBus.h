@@ -85,7 +85,18 @@ enum class EventType {
     // Session events
     SESSION_RESTORED,
     COOKIES_SET,
-    STORAGE_UPDATED
+    STORAGE_UPDATED,
+    USER_AGENT_SET,
+    VIEWPORT_SET,
+    COOKIES_RESTORED,
+    LOCAL_STORAGE_RESTORED,
+    SESSION_STORAGE_RESTORED,
+    FORM_STATE_RESTORED,
+    ACTIVE_ELEMENTS_RESTORED,
+    CUSTOM_ATTRIBUTES_RESTORED,
+    CUSTOM_STATE_RESTORED,
+    SCROLL_POSITIONS_RESTORED,
+    SESSION_RESTORATION_COMPLETE
 };
 
 // Base event class - made polymorphic for dynamic_cast
@@ -144,6 +155,21 @@ struct PageLoadEvent : public Event {
                  const std::string& state = "", bool spa = false)
         : Event(t, page_url), url(page_url), progress(prog), load_state(state), 
           resources_loaded(0), total_resources(0), spa_navigation(spa) {}
+};
+
+// Session restoration event
+struct SessionEvent : public Event {
+    std::string session_name;
+    std::string operation;      // "user_agent", "viewport", "cookies", "storage", etc.
+    std::string component;      // "localStorage", "sessionStorage", etc.
+    int items_processed;
+    int total_items;
+    bool success;
+    
+    SessionEvent(EventType t, const std::string& name = "", const std::string& op = "", 
+                const std::string& comp = "", int processed = 0, int total = 0, bool s = true)
+        : Event(t, name), session_name(name), operation(op), component(comp), 
+          items_processed(processed), total_items(total), success(s) {}
 };
 
 struct NetworkEvent : public Event {
@@ -514,6 +540,46 @@ public:
 private:
     void emitPageLoadEvent(EventType type, const std::string& url, double progress = 0.0, 
                           const std::string& state = "", bool spa = false);
+};
+
+// Event-driven session restoration operations
+class AsyncSessionOperations {
+private:
+    std::shared_ptr<BrowserEventBus> event_bus_;
+    
+public:
+    explicit AsyncSessionOperations(std::shared_ptr<BrowserEventBus> bus) : event_bus_(bus) {}
+    
+    // Session restoration event-driven methods
+    std::future<bool> waitForUserAgentSet(int timeout_ms = 2000);
+    std::future<bool> waitForViewportSet(int timeout_ms = 2000);
+    std::future<bool> waitForCookiesRestored(int timeout_ms = 5000);
+    std::future<bool> waitForStorageRestored(const std::string& storage_type, int timeout_ms = 5000);
+    std::future<bool> waitForFormStateRestored(int timeout_ms = 10000);
+    std::future<bool> waitForActiveElementsRestored(int timeout_ms = 2000);
+    std::future<bool> waitForCustomAttributesRestored(int timeout_ms = 5000);
+    std::future<bool> waitForCustomStateRestored(int timeout_ms = 5000);
+    std::future<bool> waitForScrollPositionsRestored(int timeout_ms = 3000);
+    std::future<bool> waitForSessionRestorationComplete(int timeout_ms = 30000);
+    
+    // Sequential restoration chain
+    std::future<bool> restoreSessionAsync(const std::string& session_name, int timeout_ms = 30000);
+    
+    // Session event emission
+    void emitUserAgentSet(const std::string& user_agent);
+    void emitViewportSet(int width, int height);
+    void emitCookiesRestored(int count);
+    void emitStorageRestored(const std::string& storage_type, int items);
+    void emitFormStateRestored(int fields);
+    void emitActiveElementsRestored(int elements);
+    void emitCustomAttributesRestored(int attributes);
+    void emitCustomStateRestored(int states);
+    void emitScrollPositionsRestored(int positions);
+    void emitSessionRestorationComplete(const std::string& session_name, bool success);
+    
+private:
+    void emitSessionEvent(EventType type, const std::string& session_name = "", const std::string& operation = "",
+                         const std::string& component = "", int processed = 0, int total = 0, bool success = true);
 };
 
 } // namespace BrowserEvents

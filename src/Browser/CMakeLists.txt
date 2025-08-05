@@ -9,6 +9,7 @@ set(BROWSER_SOURCES
     MutationTracker.cpp
     AsyncDOMOperations.cpp
     AsyncNavigationOperations.cpp
+    AsyncSessionOperations.cpp
     AsyncOperations.cpp
     DOM.cpp
     EnhancedFormInteraction.cpp
