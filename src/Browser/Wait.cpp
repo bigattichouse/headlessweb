@@ -1,7 +1,13 @@
 #include "Browser.h"
 #include "../Debug.h"
+#include "BrowserEventBus.h"
+#include "MutationTracker.h"
+#include "NetworkEventTracker.h"
 #include <iostream>
 #include <algorithm>
+#include <future>
+#include <chrono>
+#include <thread>
 
 // External debug flag
 extern bool g_debug;
@@ -217,7 +223,7 @@ bool Browser::waitForNetworkIdle(int idle_time_ms, int timeout_ms) {
     const int check_interval = 200;
     
     while (elapsed < timeout_ms) {
-        wait(check_interval);
+        std::this_thread::sleep_for(std::chrono::milliseconds(check_interval));  // Replace wait() with direct sleep
         elapsed += check_interval;
         
         std::string result = executeJavascriptSync("typeof window._hweb_event_result !== 'undefined' ? String(window._hweb_event_result) : 'undefined'");
@@ -349,7 +355,7 @@ bool Browser::waitForNetworkRequest(const std::string& url_pattern, int timeout_
     const int check_interval = 100;
     
     while (elapsed < timeout_ms) {
-        wait(check_interval);
+        std::this_thread::sleep_for(std::chrono::milliseconds(check_interval));  // Replace wait() with direct sleep
         elapsed += check_interval;
         
         std::string result = executeJavascriptSync("typeof window._hweb_event_result !== 'undefined' ? String(window._hweb_event_result) : 'undefined'");
@@ -414,7 +420,7 @@ bool Browser::waitForElementCount(const std::string& selector, const std::string
     
     while (elapsed < timeout_ms) {
         // Use shorter wait intervals for better responsiveness
-        wait(check_interval);
+        std::this_thread::sleep_for(std::chrono::milliseconds(check_interval));  // Replace wait() with direct sleep
         elapsed += check_interval;
         
         std::string result = executeJavascriptSync("typeof window._hweb_event_result !== 'undefined' ? String(window._hweb_event_result) : 'undefined'");
@@ -477,7 +483,7 @@ bool Browser::waitForAttribute(const std::string& selector, const std::string& a
     
     while (elapsed < timeout_ms) {
         // Use shorter wait intervals for better responsiveness
-        wait(check_interval);
+        std::this_thread::sleep_for(std::chrono::milliseconds(check_interval));  // Replace wait() with direct sleep
         elapsed += check_interval;
         
         std::string result = executeJavascriptSync("typeof window._hweb_event_result !== 'undefined' ? String(window._hweb_event_result) : 'undefined'");
@@ -640,7 +646,7 @@ bool Browser::waitForSPANavigation(const std::string& route, int timeout_ms) {
             }
         }
         
-        wait(check_interval);
+        std::this_thread::sleep_for(std::chrono::milliseconds(check_interval));  // Replace wait() with direct sleep
         elapsed += check_interval;
     }
     
@@ -695,7 +701,7 @@ bool Browser::waitForFrameworkReady(const std::string& framework, int timeout_ms
     
     while (elapsed < timeout_ms) {
         // Use shorter wait intervals for better responsiveness
-        wait(check_interval);
+        std::this_thread::sleep_for(std::chrono::milliseconds(check_interval));  // Replace wait() with direct sleep
         elapsed += check_interval;
         
         std::string result = executeJavascriptSync("typeof window._hweb_event_result !== 'undefined' ? String(window._hweb_event_result) : 'undefined'");
@@ -765,7 +771,7 @@ bool Browser::waitForDOMChange(const std::string& selector, int timeout_ms) {
     const int check_interval = 100;
     
     while (elapsed < timeout_ms) {
-        wait(check_interval);
+        std::this_thread::sleep_for(std::chrono::milliseconds(check_interval));  // Replace wait() with direct sleep
         elapsed += check_interval;
         
         std::string result = executeJavascriptSync("typeof window._hweb_event_result !== 'undefined' ? String(window._hweb_event_result) : 'undefined'");
@@ -859,7 +865,7 @@ bool Browser::waitForContentChange(const std::string& selector, const std::strin
     const int check_interval = 100;
     
     while (elapsed < timeout_ms) {
-        wait(check_interval);
+        std::this_thread::sleep_for(std::chrono::milliseconds(check_interval));  // Replace wait() with direct sleep
         elapsed += check_interval;
         
         std::string result = executeJavascriptSync("typeof window._hweb_event_result !== 'undefined' ? String(window._hweb_event_result) : 'undefined'");
