@@ -92,9 +92,12 @@ void js_eval_callback(GObject* object, GAsyncResult* res, gpointer user_data) {
         }
         g_object_unref(value);
     } else {
+        // CRITICAL FIX: Handle case where JavaScript returns null/undefined but no error occurs
         if (user_data) {
             *(static_cast<std::string*>(user_data)) = "";
         }
+        // Ensure JavaScript completion is always signaled even for null results
+        debug_output("JavaScript execution returned null/undefined result");
     }
     
     if (browser_instance && browser_instance->event_loop_manager) {
@@ -196,9 +199,13 @@ std::string Browser::executeJavascriptSync(const std::string& script) {
             &local_result_buffer
         );
         
-        // Wait for completion with timeout
-        if (!waitForJavaScriptCompletion(5000)) {
+        // Wait for completion with reasonable timeout
+        if (!waitForJavaScriptCompletion(3000)) {
             debug_output("JavaScript execution timeout for: " + script.substr(0, 50) + "...");
+            // CRITICAL FIX: Signal completion manually to prevent callback stalls
+            if (event_loop_manager) {
+                event_loop_manager->signalJavaScriptComplete();
+            }
             return "";
         }
         

@@ -1073,9 +1073,11 @@ bool Browser::waitForSignalCondition(const std::string& signal_name, const std::
         return G_SOURCE_REMOVE;
     }, &timeout_data);
     
-    // EVENT-DRIVEN: Use adaptive timing to reduce JavaScript execution frequency
-    const int check_interval = std::min(timeout_ms / 8, 150); // Adaptive interval based on timeout
+    // EVENT-DRIVEN: Use more aggressive timing to prevent test hangs
+    const int check_interval = std::min(timeout_ms / 20, 100); // More frequent event processing, less frequent JS
+    const int js_check_interval = std::max(check_interval * 4, 200); // JS checks less frequently
     int elapsed = 0;
+    int js_elapsed = 0;
     
     while (elapsed < timeout_ms && !timed_out.load()) {
         // EVENT-DRIVEN: Process events first to handle signals before expensive JavaScript execution
@@ -1083,26 +1085,37 @@ bool Browser::waitForSignalCondition(const std::string& signal_name, const std::
             g_main_context_iteration(g_main_context_default(), FALSE);
         }
         
-        // Check condition with reduced frequency to prevent recursive blocking
-        std::string current_result = executeJavascriptSync(
-            "(function() { "
-            "  try { return (" + condition + ") ? 'true' : 'false'; } "
-            "  catch(e) { return 'false'; } "
-            "})()");
-        
-        if (current_result == "true") {
-            if (!timeout_auto_removed.load()) {
-                g_source_remove(timeout_id);
+        // Check condition with reduced frequency to prevent recursive blocking and hangs
+        if (js_elapsed >= js_check_interval) {
+            try {
+                std::string current_result = executeJavascriptSync(
+                    "(function() { "
+                    "  try { return (" + condition + ") ? 'true' : 'false'; } "
+                    "  catch(e) { return 'false'; } "
+                    "})()");
+                
+                if (current_result == "true") {
+                    if (!timeout_auto_removed.load()) {
+                        g_source_remove(timeout_id);
+                    }
+                    return true;
+                }
+                js_elapsed = 0; // Reset JS check counter
+            } catch (const std::exception& e) {
+                debug_output("JavaScript condition check failed: " + std::string(e.what()));
+                // Don't fail completely, just skip this check
             }
-            return true;
         }
         
         // EVENT-DRIVEN: Process events + minimal sleep to avoid blocking
         while (g_main_context_pending(g_main_context_default())) {
             g_main_context_iteration(g_main_context_default(), FALSE);
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(std::min(check_interval, 25)));
-        elapsed += std::min(check_interval, 25);
+        
+        const int sleep_time = std::min(check_interval, 25);
+        std::this_thread::sleep_for(std::chrono::milliseconds(sleep_time));
+        elapsed += sleep_time;
+        js_elapsed += sleep_time;
     }
     
     if (!timeout_auto_removed.load()) {

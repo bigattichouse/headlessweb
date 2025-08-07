@@ -23,11 +23,16 @@ protected:
         // Create temporary directories for testing
         temp_dir = std::make_unique<TestHelpers::TemporaryDirectory>("workflow_chains_tests");
         
-        // Use global browser instance (properly initialized)
+        // CRITICAL FIX: Use global browser instance (properly initialized)
         browser_ = g_browser.get();
         
         // SAFETY FIX: Don't reset browser state during setup to avoid race conditions
         // Tests should be independent and not rely on specific initial state
+        
+        // Create session for browser initialization
+        session = std::make_unique<Session>("workflow_chains_test_session");
+        session->setCurrentUrl("about:blank");
+        session->setViewport(1024, 768);
         
         // Initialize components
         session_manager_ = std::make_unique<SessionManager>(temp_dir->getPath());
@@ -306,6 +311,7 @@ protected:
     }
 
     Browser* browser_;  // Raw pointer to global browser instance
+    std::unique_ptr<Session> session;
     std::unique_ptr<SessionManager> session_manager_;
     std::unique_ptr<FileOps::DownloadManager> download_manager_;
     std::unique_ptr<FileOps::UploadManager> upload_manager_;
