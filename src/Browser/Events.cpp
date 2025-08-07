@@ -1056,13 +1056,22 @@ bool Browser::waitForSignalCondition(const std::string& signal_name, const std::
     // Set up signal waiter with proper synchronization
     std::atomic<bool> condition_met{false};
     std::atomic<bool> timed_out{false};
+    std::atomic<bool> timeout_auto_removed{false};
     
-    // Set up timeout
+    // Set up timeout with tracking for automatic removal
+    struct TimeoutData {
+        std::atomic<bool>* timed_out_flag;
+        std::atomic<bool>* auto_removed_flag;
+    };
+    
+    TimeoutData timeout_data{&timed_out, &timeout_auto_removed};
+    
     guint timeout_id = g_timeout_add(timeout_ms, [](gpointer user_data) -> gboolean {
-        std::atomic<bool>* timeout_flag = static_cast<std::atomic<bool>*>(user_data);
-        timeout_flag->store(true);
+        TimeoutData* data = static_cast<TimeoutData*>(user_data);
+        data->timed_out_flag->store(true);
+        data->auto_removed_flag->store(true);  // Mark as auto-removed
         return G_SOURCE_REMOVE;
-    }, &timed_out);
+    }, &timeout_data);
     
     // EVENT-DRIVEN: Use adaptive timing to reduce JavaScript execution frequency
     const int check_interval = std::min(timeout_ms / 8, 150); // Adaptive interval based on timeout
@@ -1082,7 +1091,9 @@ bool Browser::waitForSignalCondition(const std::string& signal_name, const std::
             "})()");
         
         if (current_result == "true") {
-            g_source_remove(timeout_id);
+            if (!timeout_auto_removed.load()) {
+                g_source_remove(timeout_id);
+            }
             return true;
         }
         
@@ -1091,7 +1102,9 @@ bool Browser::waitForSignalCondition(const std::string& signal_name, const std::
         elapsed += check_interval;
     }
     
-    g_source_remove(timeout_id);
+    if (!timeout_auto_removed.load()) {
+        g_source_remove(timeout_id);
+    }
     return false;
 }
 
@@ -1128,7 +1141,9 @@ bool Browser::waitForWebKitSignal(const std::string& signal_name, int timeout_ms
         elapsed += check_interval;
     }
     
-    g_source_remove(timeout_id);
+    if (timeout_id != 0) {
+        g_source_remove(timeout_id);
+    }
     return false;
 }
 

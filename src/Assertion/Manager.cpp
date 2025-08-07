@@ -297,11 +297,11 @@ Result Manager::executeAssertion(Browser& browser, const Command& cmd) {
         return assertExists(browser, cmd);
     } else if (cmd.type == "text") {
         return assertText(browser, cmd);
-    } else if (cmd.type == "element-value") {
+    } else if (cmd.type == "value" || cmd.type == "element-value") {
         return assertElementValue(browser, cmd);
     } else if (cmd.type == "count") {
         return assertCount(browser, cmd);
-    } else if (cmd.type == "js") {
+    } else if (cmd.type == "javascript" || cmd.type == "js") {
         return assertJavaScript(browser, cmd);
     } else {
         TestResult test_result = createResult(cmd, Result::ERROR, "", "Unknown assertion type: " + cmd.type);
