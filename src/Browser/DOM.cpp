@@ -7,6 +7,24 @@
 // External debug flag
 extern bool g_debug;
 
+// Helper function to escape selectors for single-quoted JavaScript strings
+static std::string escapeSelectorForSingleQuotes(const std::string& selector) {
+    std::string escaped = selector;
+    size_t pos = 0;
+    // Escape backslashes first
+    while ((pos = escaped.find("\\", pos)) != std::string::npos) {
+        escaped.replace(pos, 1, "\\\\");
+        pos += 2;
+    }
+    pos = 0;
+    // Then escape single quotes
+    while ((pos = escaped.find("'", pos)) != std::string::npos) {
+        escaped.replace(pos, 1, "\\'");
+        pos += 2;
+    }
+    return escaped;
+}
+
 // ========== Form Interaction Methods ==========
 
 bool Browser::fillInput(const std::string& selector, const std::string& value) {
@@ -282,7 +300,7 @@ bool Browser::searchForm(const std::string& query) {
     std::string js_script = 
         "(function() { "
         "  try { "
-        "    var inputs = document.querySelectorAll('input[type=\"search\"], input[name*=\"search\"], input[placeholder*=\"search\"]'); "
+        "    var inputs = document.querySelectorAll(\"input[type='search'], input[name*='search'], input[placeholder*='search']\"); "
         "    if (inputs.length > 0) { "
         "      inputs[0].value = '" + escaped_query + "'; "
         "      inputs[0].dispatchEvent(new Event('input', { bubbles: true })); "
@@ -323,7 +341,7 @@ bool Browser::selectOption(const std::string& selector, const std::string& value
     std::string js_script = 
         "(function() { "
         "  try { "
-        "    var select = document.querySelector('" + selector + "'); "
+        "    var select = document.querySelector('" + escapeSelectorForSingleQuotes(selector) + "'); "
         "    if (select) { "
         "      select.focus(); "
         "      select.value = '" + escaped_value + "'; "
@@ -344,7 +362,8 @@ bool Browser::selectOption(const std::string& selector, const std::string& value
         // REPLACED: Event-driven value processing instead of blocking wait(5)
         
         // Verify the value was actually set
-        std::string verifyJs = "document.querySelector('" + selector + "') ? document.querySelector('" + selector + "').value : 'NOT_FOUND'";
+        std::string escaped_selector_verify = escapeSelectorForSingleQuotes(selector);
+        std::string verifyJs = "document.querySelector('" + escaped_selector_verify + "') ? document.querySelector('" + escaped_selector_verify + "').value : 'NOT_FOUND'";
         std::string actualValue = executeJavascriptSync(verifyJs);
         
         if (actualValue == escaped_value || actualValue == value) {
@@ -355,7 +374,7 @@ bool Browser::selectOption(const std::string& selector, const std::string& value
             // Try alternative method using selectedIndex
             std::string altJs = 
                 "try { "
-                "  var sel = document.querySelector('" + selector + "'); "
+                "  var sel = document.querySelector('" + escapeSelectorForSingleQuotes(selector) + "'); "
                 "  if (sel) { "
                 "    for (var i = 0; i < sel.options.length; i++) { "
                 "      if (sel.options[i].value === '" + escaped_value + "') { "
@@ -670,10 +689,23 @@ std::string Browser::getInnerText(const std::string& selector) {
 }
 
 std::string Browser::getFirstNonEmptyText(const std::string& selector) {
+    // Escape selector for single-quoted JavaScript string
+    std::string escaped_selector = selector;
+    size_t pos = 0;
+    while ((pos = escaped_selector.find("\\", pos)) != std::string::npos) {
+        escaped_selector.replace(pos, 1, "\\\\");
+        pos += 2;
+    }
+    pos = 0;
+    while ((pos = escaped_selector.find("'", pos)) != std::string::npos) {
+        escaped_selector.replace(pos, 1, "\\'");
+        pos += 2;
+    }
+    
     std::string js_script = 
         "(function() { "
         "  try { "
-        "    var elements = document.querySelectorAll('" + selector + "'); "
+        "    var elements = document.querySelectorAll('" + escaped_selector + "'); "
         "    for (var i = 0; i < elements.length; i++) { "
         "      var text = (elements[i].innerText || elements[i].textContent || '').trim(); "
         "      if (text.length > 0) { "
