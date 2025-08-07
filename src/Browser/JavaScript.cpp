@@ -43,6 +43,8 @@ void js_eval_callback(GObject* object, GAsyncResult* res, gpointer user_data) {
             *(static_cast<std::string*>(user_data)) = "";
         }
     } else if (value) {
+        // DEBUG: Log when we have a valid value
+        debug_output("JavaScript callback: Valid value received");
         if (user_data) {
             try {
                 if (jsc_value_is_string(value)) {
@@ -96,8 +98,8 @@ void js_eval_callback(GObject* object, GAsyncResult* res, gpointer user_data) {
         if (user_data) {
             *(static_cast<std::string*>(user_data)) = "";
         }
-        // Ensure JavaScript completion is always signaled even for null results
-        debug_output("JavaScript execution returned null/undefined result");
+        // DEBUG: Log when we get neither error nor value
+        debug_output("JavaScript callback: No error and no value - this is unusual");
     }
     
     if (browser_instance && browser_instance->event_loop_manager) {

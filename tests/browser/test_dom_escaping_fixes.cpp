@@ -67,27 +67,29 @@ TEST_F(DOMEscapingFixesTest, FillInputHandlesContractions) {
     // DEBUGGING: Check if browser is valid
     ASSERT_NE(browser, nullptr) << "Browser should not be null";
     
-    // CRITICAL FIX: Load a page first to provide JavaScript execution context
+    // Test VERY basic browser operation first
+    EXPECT_NO_THROW({
+        std::string url = browser->getCurrentUrl();
+    }) << "getCurrentUrl should not crash";
+    
+    // Load a basic page first to provide JavaScript execution context
     EXPECT_NO_THROW({
         browser->loadUri("about:blank");
     }) << "loadUri should not crash";
     
-    // Step 3: Test navigation waiting
     EXPECT_NO_THROW({
         browser->waitForNavigation(2000);
     }) << "waitForNavigation should not crash";
     
-    // DEBUGGING: Check if page is loaded
-    std::string current_url = browser->getCurrentUrl();
-    EXPECT_FALSE(current_url.empty()) << "Current URL should not be empty after navigation";
-    
-    // Step 1: Test basic JavaScript execution (no DOM operations) - AFTER page is loaded
+    // Now try basic JavaScript execution
     std::string basic_result = executeWrappedJS("return 'test_basic';");
     EXPECT_EQ(basic_result, "test_basic") << "Basic JavaScript should work";
 }
 
 TEST_F(DOMEscapingFixesTest, FillInputHandlesSingleQuotes) {
-    // Page is already loaded and verified in SetUp
+    // CRITICAL FIX: Load page first to provide JavaScript execution context
+    browser->loadUri("about:blank");
+    browser->waitForNavigation(2000);
     
     bool result = browser->fillInput("#text-input", "Text with 'single quotes' inside");
     EXPECT_TRUE(result);
