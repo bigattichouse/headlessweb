@@ -1097,9 +1097,12 @@ bool Browser::waitForSignalCondition(const std::string& signal_name, const std::
             return true;
         }
         
-        // Use longer sleep intervals to reduce blocking call frequency
-        std::this_thread::sleep_for(std::chrono::milliseconds(check_interval));
-        elapsed += check_interval;
+        // EVENT-DRIVEN: Process events + minimal sleep to avoid blocking
+        while (g_main_context_pending(g_main_context_default())) {
+            g_main_context_iteration(g_main_context_default(), FALSE);
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(std::min(check_interval, 25)));
+        elapsed += std::min(check_interval, 25);
     }
     
     if (!timeout_auto_removed.load()) {
