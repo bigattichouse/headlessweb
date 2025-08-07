@@ -406,7 +406,7 @@ bool Browser::checkElement(const std::string& selector) {
     std::string js_script = 
         "(function() { "
         "  try { "
-        "    var element = document.querySelector('" + selector + "'); "
+        "    var element = document.querySelector('" + escapeSelectorForSingleQuotes(selector) + "'); "
         "    if (element) { "
         "      element.focus(); "
         "      element.checked = true; "
@@ -428,7 +428,8 @@ bool Browser::checkElement(const std::string& selector) {
         // REPLACED: Event-driven change processing instead of blocking wait(5)
         
         // Verify the checkbox was actually checked
-        std::string verifyJs = "document.querySelector('" + selector + "') ? document.querySelector('" + selector + "').checked : false";
+        std::string escaped_selector_verify = escapeSelectorForSingleQuotes(selector);
+        std::string verifyJs = "document.querySelector('" + escaped_selector_verify + "') ? document.querySelector('" + escaped_selector_verify + "').checked : false";
         std::string actualValue = executeJavascriptSync(verifyJs);
         
         if (actualValue == "true") {
@@ -449,7 +450,7 @@ bool Browser::uncheckElement(const std::string& selector) {
     std::string js_script = 
         "(function() { "
         "  try { "
-        "    var element = document.querySelector('" + selector + "'); "
+        "    var element = document.querySelector('" + escapeSelectorForSingleQuotes(selector) + "'); "
         "    if (element) { "
         "      element.focus(); "
         "      element.checked = false; "
@@ -471,7 +472,8 @@ bool Browser::uncheckElement(const std::string& selector) {
         // REPLACED: Event-driven change processing instead of blocking wait(5)
         
         // Verify the checkbox was actually unchecked
-        std::string verifyJs = "document.querySelector('" + selector + "') ? document.querySelector('" + selector + "').checked : true";
+        std::string escaped_selector_verify = escapeSelectorForSingleQuotes(selector);
+        std::string verifyJs = "document.querySelector('" + escaped_selector_verify + "') ? document.querySelector('" + escaped_selector_verify + "').checked : true";
         std::string actualValue = executeJavascriptSync(verifyJs);
         
         if (actualValue == "false") {
@@ -489,7 +491,7 @@ bool Browser::focusElement(const std::string& selector) {
     std::string js_script = 
         "(function() { "
         "  try { "
-        "    var element = document.querySelector('" + selector + "'); "
+        "    var element = document.querySelector('" + escapeSelectorForSingleQuotes(selector) + "'); "
         "    if (element) { "
         "      element.focus(); "
         "      return true; "
@@ -636,7 +638,7 @@ std::string Browser::getElementHtml(const std::string& selector) {
     std::string js_script = 
         "(function() { "
         "  try { "
-        "    var element = document.querySelector('" + selector + "'); "
+        "    var element = document.querySelector('" + escapeSelectorForSingleQuotes(selector) + "'); "
         "    return element ? element.outerHTML : ''; "
         "  } catch(e) { "
         "    return ''; "
@@ -689,18 +691,7 @@ std::string Browser::getInnerText(const std::string& selector) {
 }
 
 std::string Browser::getFirstNonEmptyText(const std::string& selector) {
-    // Escape selector for single-quoted JavaScript string
-    std::string escaped_selector = selector;
-    size_t pos = 0;
-    while ((pos = escaped_selector.find("\\", pos)) != std::string::npos) {
-        escaped_selector.replace(pos, 1, "\\\\");
-        pos += 2;
-    }
-    pos = 0;
-    while ((pos = escaped_selector.find("'", pos)) != std::string::npos) {
-        escaped_selector.replace(pos, 1, "\\'");
-        pos += 2;
-    }
+    std::string escaped_selector = escapeSelectorForSingleQuotes(selector);
     
     std::string js_script = 
         "(function() { "
