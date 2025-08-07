@@ -173,8 +173,18 @@ bool EventLoopManager::internalWait(int timeout_ms) {
     // Set up timeout
     timeout_source_id_ = g_timeout_add(timeout_ms, timeoutCallback, this);
     
-    // Run the event loop
-    g_main_loop_run(main_loop_);
+    // EVENT-DRIVEN APPROACH: Process events non-blocking with timeout
+    auto start_time = std::chrono::steady_clock::now();
+    while (!timed_out_.load() && !operation_complete_.load() &&
+           std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start_time).count() < timeout_ms) {
+        // Process pending events non-blocking
+        while (g_main_context_pending(g_main_context_default())) {
+            g_main_context_iteration(g_main_context_default(), FALSE);
+        }
+        
+        // Small sleep to prevent CPU spinning
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
     
     // Clean up timeout if still active
     if (timeout_source_id_ != 0) {

@@ -4,6 +4,8 @@
 #include <glib.h>
 #include <iostream>
 #include <cmath>
+#include <thread>
+#include <chrono>
 
 // External debug flag
 extern bool g_debug;
@@ -142,7 +144,18 @@ bool Browser::waitForJavaScriptCompletion(int timeout_ms) {
             return G_SOURCE_REMOVE;
         }, &data);
         
-        g_main_loop_run(main_loop);
+        // EVENT-DRIVEN APPROACH: Process pending events with timeout instead of blocking
+        auto start_time = std::chrono::steady_clock::now();
+        while (!data.timed_out && 
+               std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start_time).count() < timeout_ms) {
+            // Process pending events non-blocking
+            while (g_main_context_pending(g_main_context_default())) {
+                g_main_context_iteration(g_main_context_default(), FALSE);
+            }
+            
+            // Small sleep to prevent CPU spinning
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        }
         
         if (!data.timed_out && data.timeout_id != 0) {
             g_source_remove(data.timeout_id);

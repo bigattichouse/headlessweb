@@ -1064,12 +1064,17 @@ bool Browser::waitForSignalCondition(const std::string& signal_name, const std::
         return G_SOURCE_REMOVE;
     }, &timed_out);
     
-    // Use periodic checking with signals to avoid nested main loops
-    const int check_interval = 50;
+    // EVENT-DRIVEN: Use adaptive timing to reduce JavaScript execution frequency
+    const int check_interval = std::min(timeout_ms / 8, 150); // Adaptive interval based on timeout
     int elapsed = 0;
     
     while (elapsed < timeout_ms && !timed_out.load()) {
-        // Check condition
+        // EVENT-DRIVEN: Process events first to handle signals before expensive JavaScript execution
+        while (g_main_context_pending(g_main_context_default())) {
+            g_main_context_iteration(g_main_context_default(), FALSE);
+        }
+        
+        // Check condition with reduced frequency to prevent recursive blocking
         std::string current_result = executeJavascriptSync(
             "(function() { "
             "  try { return (" + condition + ") ? 'true' : 'false'; } "
@@ -1081,11 +1086,7 @@ bool Browser::waitForSignalCondition(const std::string& signal_name, const std::
             return true;
         }
         
-        // Process pending events to handle signals
-        while (g_main_context_pending(nullptr)) {
-            g_main_context_iteration(nullptr, FALSE);
-        }
-        
+        // Use longer sleep intervals to reduce blocking call frequency
         std::this_thread::sleep_for(std::chrono::milliseconds(check_interval));
         elapsed += check_interval;
     }
