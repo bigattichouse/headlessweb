@@ -31,7 +31,7 @@ protected:
     void TearDown() override {
         // Clean teardown without navigation
         if (assertion_manager_ && assertion_manager_->isSuiteActive()) {
-            assertion_manager_->endSuite(false, "text");
+            assertion_manager_->endSuite(false, "text", true);
         }
         if (assertion_manager_) {
             assertion_manager_->clearResults();
@@ -114,6 +114,8 @@ TEST_F(TestSuiteManagementTest, SuiteStatisticsInterface) {
 
 TEST_F(TestSuiteManagementTest, AssertionCommandInterface) {
     // Test assertion command interface without page loading
+    // Use silent mode to prevent assertion output from affecting test result
+    assertion_manager_->setSilentMode(true);
     assertion_manager_->startSuite("Command Interface Test");
     
     // Test command creation and validation
@@ -168,6 +170,12 @@ TEST_F(TestSuiteManagementTest, AssertionCommandInterface) {
     // Test command interface methods
     EXPECT_NO_THROW(assertion_manager_->getTotalTests());
     EXPECT_NO_THROW(assertion_manager_->getResults());
+    
+    // End suite to complete the test properly (suppress exit for interface testing)
+    EXPECT_NO_THROW(assertion_manager_->endSuite(false, "text", true));
+    
+    // Reset silent mode
+    assertion_manager_->setSilentMode(false);
 }
 
 // ========== Output Format Interface Tests ==========
@@ -317,6 +325,7 @@ TEST_F(TestSuiteManagementTest, MultipleSuiteCyclesInterface) {
 
 TEST_F(TestSuiteManagementTest, CustomMessageInterface) {
     // Test custom message interface without page loading
+    assertion_manager_->setSilentMode(true);
     assertion_manager_->startSuite("Custom Message Suite");
     
     // Test various custom message scenarios
@@ -351,7 +360,8 @@ TEST_F(TestSuiteManagementTest, CustomMessageInterface) {
     const auto& results = assertion_manager_->getResults();
     EXPECT_NO_THROW((void)results.size());
     
-    assertion_manager_->endSuite(false, "text");
+    assertion_manager_->endSuite(false, "text", true);
+    assertion_manager_->setSilentMode(false);
 }
 
 // ========== Assertion Manager Interface Tests ==========
@@ -405,6 +415,7 @@ TEST_F(TestSuiteManagementTest, ComparisonOperatorInterface) {
 
 TEST_F(TestSuiteManagementTest, AssertionTypeInterface) {
     // Test different assertion type interfaces without page loading
+    assertion_manager_->setSilentMode(true);
     assertion_manager_->startSuite("Assertion Type Interface Test");
     
     std::vector<std::string> assertion_types = {
@@ -431,10 +442,14 @@ TEST_F(TestSuiteManagementTest, AssertionTypeInterface) {
         // Interface should handle all assertion types gracefully
         EXPECT_NO_THROW(assertion_manager_->executeAssertion(*browser_, cmd));
     }
+    
+    assertion_manager_->endSuite(false, "text", true);
+    assertion_manager_->setSilentMode(false);
 }
 
 TEST_F(TestSuiteManagementTest, ErrorHandlingInterface) {
     // Test error handling interface without page loading
+    assertion_manager_->setSilentMode(true);
     assertion_manager_->startSuite("Error Handling Test");
     
     // Test with invalid/edge case inputs
@@ -463,6 +478,9 @@ TEST_F(TestSuiteManagementTest, ErrorHandlingInterface) {
     long_selector_cmd.timeout_ms = 100;
     
     EXPECT_NO_THROW(assertion_manager_->executeAssertion(*browser_, long_selector_cmd));
+    
+    assertion_manager_->endSuite(false, "text", true);
+    assertion_manager_->setSilentMode(false);
 }
 
 TEST_F(TestSuiteManagementTest, ResourceCleanupInterface) {

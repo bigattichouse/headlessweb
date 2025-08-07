@@ -329,7 +329,7 @@ void Manager::startSuite(const std::string& name) {
     }
 }
 
-void Manager::endSuite(bool json_output, const std::string& format) {
+void Manager::endSuite(bool json_output, const std::string& format, bool suppress_exit) {
     if (!current_suite) {
         std::cerr << "Error: No active test suite to end" << std::endl;
         return;
@@ -349,11 +349,14 @@ void Manager::endSuite(bool json_output, const std::string& format) {
         OutputFormatter::formatSuiteResult(*current_suite, json_output);
     }
     
-    // Exit with appropriate code
-    int exit_code = (current_suite->failed_tests > 0 || current_suite->error_tests > 0) ? 1 : 0;
-    
-    current_suite.reset();
-    exit(exit_code);
+    // Exit with appropriate code (unless suppressed for interface testing)
+    if (!suppress_exit) {
+        int exit_code = (current_suite->failed_tests > 0 || current_suite->error_tests > 0) ? 1 : 0;
+        current_suite.reset();
+        exit(exit_code);
+    } else {
+        current_suite.reset();
+    }
 }
 
 bool Manager::isSuiteActive() const {

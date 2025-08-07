@@ -26,7 +26,7 @@ public:
     
     // Test suite management
     void startSuite(const std::string& name);
-    void endSuite(bool json_output = false, const std::string& format = "text");
+    void endSuite(bool json_output = false, const std::string& format = "text", bool suppress_exit = false);
     bool isSuiteActive() const;
     
     // Result tracking
