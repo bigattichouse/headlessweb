@@ -848,8 +848,12 @@ bool Browser::waitForBackForwardNavigation(int timeout_ms) {
             return true;
         }
         
-        // CRITICAL SEGFAULT FIX: Use safe sleep instead of wait() method which might use nested main loops
-        std::this_thread::sleep_for(std::chrono::milliseconds(check_interval));
+        // EVENT-DRIVEN APPROACH: Process pending events before minimal sleep
+        while (g_main_context_pending(g_main_context_default())) {
+            g_main_context_iteration(g_main_context_default(), FALSE);
+        }
+        
+        std::this_thread::sleep_for(std::chrono::milliseconds(std::min(check_interval, 25)));
         elapsed += check_interval;
     }
     

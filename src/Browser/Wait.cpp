@@ -217,12 +217,23 @@ bool Browser::waitForNetworkIdle(int idle_time_ms, int timeout_ms) {
     executeJavascriptSync("window._hweb_event_result = undefined;");
     executeJavascriptSync(networkScript);
     
+    // EVENT-DRIVEN APPROACH: Use EventLoopManager instead of blocking sleep
+    if (event_loop_manager) {
+        return event_loop_manager->waitForCondition([this]() -> bool {
+            std::string result = executeJavascriptSync("typeof window._hweb_event_result !== 'undefined' ? String(window._hweb_event_result) : 'undefined'");
+            return result == "true" || result == "false";
+        }, timeout_ms);
+    }
+    
+    // FALLBACK: Use minimal sleep if event loop not available
     int elapsed = 0;
-    const int check_interval = 200;
+    const int check_interval = 100;  // Reduced from 200ms
     
     while (elapsed < timeout_ms) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(check_interval));  // Replace wait() with direct sleep
-        elapsed += check_interval;
+        // Process pending events instead of blocking sleep
+        while (g_main_context_pending(g_main_context_default())) {
+            g_main_context_iteration(g_main_context_default(), FALSE);
+        }
         
         std::string result = executeJavascriptSync("typeof window._hweb_event_result !== 'undefined' ? String(window._hweb_event_result) : 'undefined'");
         
@@ -233,6 +244,10 @@ bool Browser::waitForNetworkIdle(int idle_time_ms, int timeout_ms) {
             debug_output("Network idle timeout");
             return false;
         }
+        
+        // Minimal sleep with event processing
+        std::this_thread::sleep_for(std::chrono::milliseconds(std::min(check_interval, 50)));
+        elapsed += check_interval;
     }
     
     debug_output("Network idle timeout - C++ side timeout");
@@ -349,12 +364,23 @@ bool Browser::waitForNetworkRequest(const std::string& url_pattern, int timeout_
     executeJavascriptSync("window._hweb_event_result = undefined;");
     executeJavascriptSync(networkScript);
     
+    // EVENT-DRIVEN APPROACH: Use EventLoopManager instead of blocking sleep
+    if (event_loop_manager) {
+        return event_loop_manager->waitForCondition([this]() -> bool {
+            std::string result = executeJavascriptSync("typeof window._hweb_event_result !== 'undefined' ? String(window._hweb_event_result) : 'undefined'");
+            return result == "true" || result == "false";
+        }, timeout_ms);
+    }
+    
+    // FALLBACK: Event processing with minimal sleep
     int elapsed = 0;
-    const int check_interval = 100;
+    const int check_interval = 50;  // Reduced from 100ms
     
     while (elapsed < timeout_ms) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(check_interval));  // Replace wait() with direct sleep
-        elapsed += check_interval;
+        // Process pending events first
+        while (g_main_context_pending(g_main_context_default())) {
+            g_main_context_iteration(g_main_context_default(), FALSE);
+        }
         
         std::string result = executeJavascriptSync("typeof window._hweb_event_result !== 'undefined' ? String(window._hweb_event_result) : 'undefined'");
         
@@ -365,6 +391,9 @@ bool Browser::waitForNetworkRequest(const std::string& url_pattern, int timeout_
             debug_output("Network request timeout: " + url_pattern);
             return false;
         }
+        
+        std::this_thread::sleep_for(std::chrono::milliseconds(std::min(check_interval, 25)));
+        elapsed += check_interval;
     }
     
     debug_output("Network request timeout - C++ side timeout: " + url_pattern);
@@ -644,7 +673,12 @@ bool Browser::waitForSPANavigation(const std::string& route, int timeout_ms) {
             }
         }
         
-        std::this_thread::sleep_for(std::chrono::milliseconds(check_interval));  // Replace wait() with direct sleep
+        // EVENT-DRIVEN APPROACH: Process pending events before minimal sleep
+        while (g_main_context_pending(g_main_context_default())) {
+            g_main_context_iteration(g_main_context_default(), FALSE);
+        }
+        
+        std::this_thread::sleep_for(std::chrono::milliseconds(std::min(check_interval, 25)));
         elapsed += check_interval;
     }
     
@@ -698,9 +732,10 @@ bool Browser::waitForFrameworkReady(const std::string& framework, int timeout_ms
     const int check_interval = 100;
     
     while (elapsed < timeout_ms) {
-        // Use shorter wait intervals for better responsiveness
-        std::this_thread::sleep_for(std::chrono::milliseconds(check_interval));  // Replace wait() with direct sleep
-        elapsed += check_interval;
+        // EVENT-DRIVEN APPROACH: Process pending events first
+        while (g_main_context_pending(g_main_context_default())) {
+            g_main_context_iteration(g_main_context_default(), FALSE);
+        }
         
         std::string result = executeJavascriptSync("typeof window._hweb_event_result !== 'undefined' ? String(window._hweb_event_result) : 'undefined'");
         
@@ -712,6 +747,10 @@ bool Browser::waitForFrameworkReady(const std::string& framework, int timeout_ms
             return false;
         }
         // If result is "undefined", continue waiting
+        
+        // Minimal sleep with event processing
+        std::this_thread::sleep_for(std::chrono::milliseconds(std::min(check_interval, 50)));
+        elapsed += check_interval;
     }
     
     debug_output("Framework ready timeout: " + framework);
@@ -769,8 +808,10 @@ bool Browser::waitForDOMChange(const std::string& selector, int timeout_ms) {
     const int check_interval = 100;
     
     while (elapsed < timeout_ms) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(check_interval));  // Replace wait() with direct sleep
-        elapsed += check_interval;
+        // EVENT-DRIVEN APPROACH: Process pending events first
+        while (g_main_context_pending(g_main_context_default())) {
+            g_main_context_iteration(g_main_context_default(), FALSE);
+        }
         
         std::string result = executeJavascriptSync("typeof window._hweb_event_result !== 'undefined' ? String(window._hweb_event_result) : 'undefined'");
         
@@ -781,6 +822,10 @@ bool Browser::waitForDOMChange(const std::string& selector, int timeout_ms) {
             debug_output("DOM change timeout");
             return false;
         }
+        
+        // Minimal sleep after event processing
+        std::this_thread::sleep_for(std::chrono::milliseconds(std::min(check_interval, 50)));
+        elapsed += check_interval;
     }
     
     debug_output("DOM change timeout");
@@ -863,8 +908,10 @@ bool Browser::waitForContentChange(const std::string& selector, const std::strin
     const int check_interval = 100;
     
     while (elapsed < timeout_ms) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(check_interval));  // Replace wait() with direct sleep
-        elapsed += check_interval;
+        // EVENT-DRIVEN APPROACH: Process pending events first
+        while (g_main_context_pending(g_main_context_default())) {
+            g_main_context_iteration(g_main_context_default(), FALSE);
+        }
         
         std::string result = executeJavascriptSync("typeof window._hweb_event_result !== 'undefined' ? String(window._hweb_event_result) : 'undefined'");
         
@@ -875,6 +922,10 @@ bool Browser::waitForContentChange(const std::string& selector, const std::strin
             debug_output("Content change timeout");
             return false;
         }
+        
+        // Minimal sleep after event processing
+        std::this_thread::sleep_for(std::chrono::milliseconds(std::min(check_interval, 50)));
+        elapsed += check_interval;
     }
     
     debug_output("Content change timeout");
