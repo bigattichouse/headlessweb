@@ -225,12 +225,12 @@ bool Browser::waitForNetworkIdle(int idle_time_ms, int timeout_ms) {
         }, timeout_ms);
     }
     
-    // FALLBACK: Use minimal sleep if event loop not available
-    int elapsed = 0;
-    const int check_interval = 100;  // Reduced from 200ms
+    // FALLBACK: Pure event-driven approach without sleep
+    auto start_time = std::chrono::steady_clock::now();
+    const int check_interval = 50;  // Shorter intervals for better responsiveness
     
-    while (elapsed < timeout_ms) {
-        // Process pending events instead of blocking sleep
+    while (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start_time).count() < timeout_ms) {
+        // Process pending events first
         while (g_main_context_pending(g_main_context_default())) {
             g_main_context_iteration(g_main_context_default(), FALSE);
         }
@@ -245,9 +245,13 @@ bool Browser::waitForNetworkIdle(int idle_time_ms, int timeout_ms) {
             return false;
         }
         
-        // Minimal sleep with event processing
-        std::this_thread::sleep_for(std::chrono::milliseconds(std::min(check_interval, 50)));
-        elapsed += check_interval;
+        // EVENT-DRIVEN: Brief event processing cycle instead of sleep
+        auto cycle_start = std::chrono::steady_clock::now();
+        while (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - cycle_start).count() < check_interval) {
+            if (g_main_context_pending(g_main_context_default())) {
+                g_main_context_iteration(g_main_context_default(), FALSE);
+            }
+        }
     }
     
     debug_output("Network idle timeout - C++ side timeout");
