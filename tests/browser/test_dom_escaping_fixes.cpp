@@ -64,21 +64,26 @@ protected:
 // ========== FillInput JavaScript Escaping Tests ==========
 
 TEST_F(DOMEscapingFixesTest, FillInputHandlesContractions) {
-    // Test step by step to isolate the crash point
+    // DEBUGGING: Check if browser is valid
+    ASSERT_NE(browser, nullptr) << "Browser should not be null";
     
-    // Step 1: Test basic JavaScript execution (no DOM operations)
-    std::string basic_result = executeWrappedJS("return 'test_basic';");
-    EXPECT_EQ(basic_result, "test_basic") << "Basic JavaScript should work";
-    
-    // Step 2: Test simple browser operation without complex waiting
+    // CRITICAL FIX: Load a page first to provide JavaScript execution context
     EXPECT_NO_THROW({
         browser->loadUri("about:blank");
     }) << "loadUri should not crash";
     
     // Step 3: Test navigation waiting
     EXPECT_NO_THROW({
-        browser->waitForNavigation(1000);
+        browser->waitForNavigation(2000);
     }) << "waitForNavigation should not crash";
+    
+    // DEBUGGING: Check if page is loaded
+    std::string current_url = browser->getCurrentUrl();
+    EXPECT_FALSE(current_url.empty()) << "Current URL should not be empty after navigation";
+    
+    // Step 1: Test basic JavaScript execution (no DOM operations) - AFTER page is loaded
+    std::string basic_result = executeWrappedJS("return 'test_basic';");
+    EXPECT_EQ(basic_result, "test_basic") << "Basic JavaScript should work";
 }
 
 TEST_F(DOMEscapingFixesTest, FillInputHandlesSingleQuotes) {

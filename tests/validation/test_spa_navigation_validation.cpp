@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include "Browser/Browser.h"
+#include "Session/Session.h"
 #include "../utils/test_helpers.h"
 #include "browser_test_environment.h"
 #include "Debug.h"
@@ -12,9 +13,19 @@ class SPANavigationValidationTest : public ::testing::Test {
 protected:
     void SetUp() override {
         temp_dir = std::make_unique<TestHelpers::TemporaryDirectory>("spa_navigation_validation_tests");
+        
+        // CRITICAL FIX: Use global browser instance (properly initialized)
         browser_ = g_browser.get();
-        browser_->loadUri("about:blank");
-        browser_->waitForNavigation(2000);
+        
+        // SAFETY FIX: Don't reset browser state during setup to avoid race conditions
+        // Tests should be independent and not rely on specific initial state
+        
+        // Create session for browser initialization
+        session = std::make_unique<Session>("spa_navigation_validation_test_session");
+        session->setCurrentUrl("about:blank");
+        session->setViewport(1024, 768);
+        
+        debug_output("SPANavigationValidationTest SetUp complete");
     }
     
     std::string executeWrappedJS(const std::string& jsCode) {
@@ -91,6 +102,7 @@ protected:
     
     std::unique_ptr<TestHelpers::TemporaryDirectory> temp_dir;
     Browser* browser_;
+    std::unique_ptr<Session> session;
 };
 
 TEST_F(SPANavigationValidationTest, ComprehensiveSPANavigationTest) {

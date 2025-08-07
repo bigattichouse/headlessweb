@@ -199,13 +199,9 @@ std::string Browser::executeJavascriptSync(const std::string& script) {
             &local_result_buffer
         );
         
-        // Wait for completion with reasonable timeout
-        if (!waitForJavaScriptCompletion(3000)) {
+        // Wait for completion with timeout
+        if (!waitForJavaScriptCompletion(5000)) {
             debug_output("JavaScript execution timeout for: " + script.substr(0, 50) + "...");
-            // CRITICAL FIX: Signal completion manually to prevent callback stalls
-            if (event_loop_manager) {
-                event_loop_manager->signalJavaScriptComplete();
-            }
             return "";
         }
         
