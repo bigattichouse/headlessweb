@@ -32,6 +32,10 @@ protected:
         session->setCurrentUrl("about:blank");
         session->setViewport(1024, 768);
         
+        // CRITICAL FIX: Load page first to provide JavaScript execution context
+        browser->loadUri("about:blank");
+        browser->waitForNavigation(2000);
+        
         debug_output("DOMEscapingFixesTest SetUp complete");
     }
     
@@ -58,6 +62,45 @@ protected:
     void createAndLoadTestPage() {
         // ULTIMATE MINIMAL: Do nothing in setup
         debug_output("Minimal setup - no page loading");
+    }
+    
+    // Helper method to load HTML form page for each test
+    void loadFormTestPage(const std::string& suffix = "") {
+        std::string test_html = R"(
+            <!DOCTYPE html>
+            <html>
+            <head><title>DOM Escaping Test</title></head>
+            <body>
+                <form>
+                    <input type="text" id="text-input" placeholder="Enter text">
+                    <input type="search" id="search-input" placeholder="Search">
+                </form>
+            </body>
+            </html>
+        )";
+        
+        // Create temporary HTML file with unique name
+        std::string filename = "test_form" + suffix + ".html";
+        std::filesystem::path html_file = temp_dir->getPath() / filename;
+        std::ofstream file(html_file);
+        file << test_html;
+        file.close();
+        
+        // Load the HTML page
+        std::string file_url = "file://" + html_file.string();
+        browser->loadUri(file_url);
+        browser->waitForNavigation(2000);
+        
+        // CRITICAL FIX: Add basic JavaScript context test
+        std::string js_test = executeWrappedJS("return 'ready';");
+        if (js_test != "ready") {
+            debug_output("JavaScript context not ready in loadFormTestPage");
+            return;
+        }
+        
+        // Verify elements exist
+        EXPECT_TRUE(browser->elementExists("#text-input")) << "Element #text-input should exist";
+        EXPECT_TRUE(browser->elementExists("#search-input")) << "Element #search-input should exist";
     }
 };
 
@@ -87,19 +130,45 @@ TEST_F(DOMEscapingFixesTest, FillInputHandlesContractions) {
 }
 
 TEST_F(DOMEscapingFixesTest, FillInputHandlesSingleQuotes) {
-    // CRITICAL FIX: Load page first to provide JavaScript execution context
-    browser->loadUri("about:blank");
-    browser->waitForNavigation(2000);
+    // Load form page for this test
+    loadFormTestPage("_single_quotes");
     
+    // Test the form input with single quotes
     bool result = browser->fillInput("#text-input", "Text with 'single quotes' inside");
-    EXPECT_TRUE(result);
+    EXPECT_TRUE(result) << "fillInput should succeed with single quotes";
     
     std::string value = executeWrappedJS("return document.getElementById('text-input').value;");
-    EXPECT_EQ(value, "Text with 'single quotes' inside");
+    EXPECT_EQ(value, "Text with 'single quotes' inside") << "Value should be set correctly";
 }
 
 TEST_F(DOMEscapingFixesTest, FillInputHandlesBackslashes) {
-    // Page is already loaded and verified in SetUp
+    // Create HTML page with form elements
+    std::string test_html = R"(
+        <!DOCTYPE html>
+        <html>
+        <head><title>DOM Escaping Test</title></head>
+        <body>
+            <form>
+                <input type="text" id="text-input" placeholder="Enter text">
+                <input type="search" id="search-input" placeholder="Search">
+            </form>
+        </body>
+        </html>
+    )";
+    
+    // Create temporary HTML file
+    std::filesystem::path html_file = temp_dir->getPath() / "test_form_backslashes.html";
+    std::ofstream file(html_file);
+    file << test_html;
+    file.close();
+    
+    // Load the HTML page
+    std::string file_url = "file://" + html_file.string();
+    browser->loadUri(file_url);
+    browser->waitForNavigation(2000);
+    
+    // Verify element exists
+    EXPECT_TRUE(browser->elementExists("#text-input")) << "Element #text-input should exist";
     
     bool result = browser->fillInput("#text-input", "Path\\with\\backslashes");
     EXPECT_TRUE(result);

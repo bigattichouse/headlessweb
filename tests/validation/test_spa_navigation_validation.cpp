@@ -25,6 +25,10 @@ protected:
         session->setCurrentUrl("about:blank");
         session->setViewport(1024, 768);
         
+        // CRITICAL FIX: Load page first to provide JavaScript execution context
+        browser_->loadUri("about:blank");
+        browser_->waitForNavigation(2000);
+        
         debug_output("SPANavigationValidationTest SetUp complete");
     }
     
@@ -82,6 +86,10 @@ protected:
         browser_->loadUri(file_url);
         bool nav_success = browser_->waitForNavigation(5000);
         ASSERT_TRUE(nav_success) << "Navigation failed for SPA test page";
+        
+        // CRITICAL FIX: Ensure JavaScript context is ready before proceeding
+        std::string js_ready_test = executeWrappedJS("return 'ready';");
+        ASSERT_EQ(js_ready_test, "ready") << "JavaScript context should be ready after SPA page load";
         
         // Signal-based JavaScript completion wait
         browser_->waitForJavaScriptCompletion(2000);

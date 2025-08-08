@@ -34,6 +34,10 @@ protected:
         session->setCurrentUrl("about:blank");
         session->setViewport(1024, 768);
         
+        // CRITICAL FIX: Load page first to provide JavaScript execution context
+        browser_->loadUri("about:blank");
+        browser_->waitForNavigation(2000);
+        
         // Initialize components
         session_manager_ = std::make_unique<SessionManager>(temp_dir->getPath());
         download_manager_ = std::make_unique<FileOps::DownloadManager>();
@@ -456,16 +460,28 @@ TEST_F(ComplexWorkflowChainsTest, MultiPageNavigation_WithFormData) {
         </body></html>
     )HTMLDELIM";
     
-    // CRITICAL FIX: Create HTML file and use file:// URL instead of data: URL  
-    auto html_file = temp_dir->createFile("workflow_page1.html", page1_html);
+    // CRITICAL FIX: Create HTML file with unique name to prevent corruption
+    std::string unique_filename = "workflow_page1_" + std::to_string(std::chrono::system_clock::now().time_since_epoch().count()) + ".html";
+    auto html_file = temp_dir->createFile(unique_filename, page1_html);
     std::string file_url = "file://" + html_file.string();
+    
+    // CRITICAL FIX: Simple page load approach similar to working DOMEscapingFixesTest
     browser_->loadUri(file_url);
     browser_->waitForNavigation(3000);
     
-    // Step 2: Fill form and navigate
-    browser_->fillInput("#username", "testuser");
-    browser_->fillInput("#email", "test@example.com");
-    browser_->clickElement("button[onclick='goToPage2()']");
+    // Wait for page to be ready with basic JavaScript test
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    std::string basic_test = executeWrappedJS("return 'ready';");
+    EXPECT_EQ(basic_test, "ready") << "JavaScript context should be ready";
+    
+    // Step 2: Fill form and navigate with proper error handling
+    EXPECT_TRUE(browser_->fillInput("#username", "testuser")) << "Failed to fill username";
+    EXPECT_TRUE(browser_->fillInput("#email", "test@example.com")) << "Failed to fill email";
+    
+    // Verify elements before clicking
+    EXPECT_TRUE(browser_->elementExists("button[onclick='goToPage2()']")) << "Button should exist";
+    
+    EXPECT_TRUE(browser_->clickElement("button[onclick='goToPage2()']")) << "Failed to click continue button";
     std::this_thread::sleep_for(std::chrono::milliseconds(300));
     
     // Step 3: Save session at this point
@@ -516,11 +532,19 @@ TEST_F(ComplexWorkflowChainsTest, MultiPageNavigation_WithFormData) {
         </body></html>
     )HTMLDELIM";
     
-    // CRITICAL FIX: Create HTML file and use file:// URL instead of data: URL
-    auto html_file2 = temp_dir->createFile("workflow_page2.html", page2_html);
+    // CRITICAL FIX: Create HTML file with unique name to prevent corruption
+    std::string unique_filename2 = "workflow_page2_" + std::to_string(std::chrono::system_clock::now().time_since_epoch().count() + 1) + ".html";
+    auto html_file2 = temp_dir->createFile(unique_filename2, page2_html);
     std::string file_url2 = "file://" + html_file2.string();
+    
+    // CRITICAL FIX: Simple page load approach similar to working DOMEscapingFixesTest
     browser_->loadUri(file_url2);
     browser_->waitForNavigation(3000);
+    
+    // Wait for page to be ready with basic JavaScript test
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    std::string basic_test2 = executeWrappedJS("return 'ready';");
+    EXPECT_EQ(basic_test2, "ready") << "Page 2 JavaScript context should be ready";
     
     // Step 5: Complete profile form
     browser_->fillInput("#fullname", "Test User Full Name");
