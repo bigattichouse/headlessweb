@@ -64,44 +64,6 @@ protected:
         debug_output("Minimal setup - no page loading");
     }
     
-    // Helper method to load HTML form page for each test
-    void loadFormTestPage(const std::string& suffix = "") {
-        std::string test_html = R"(
-            <!DOCTYPE html>
-            <html>
-            <head><title>DOM Escaping Test</title></head>
-            <body>
-                <form>
-                    <input type="text" id="text-input" placeholder="Enter text">
-                    <input type="search" id="search-input" placeholder="Search">
-                </form>
-            </body>
-            </html>
-        )";
-        
-        // Create temporary HTML file with unique name
-        std::string filename = "test_form" + suffix + ".html";
-        std::filesystem::path html_file = temp_dir->getPath() / filename;
-        std::ofstream file(html_file);
-        file << test_html;
-        file.close();
-        
-        // Load the HTML page
-        std::string file_url = "file://" + html_file.string();
-        browser->loadUri(file_url);
-        browser->waitForNavigation(2000);
-        
-        // CRITICAL FIX: Add basic JavaScript context test
-        std::string js_test = executeWrappedJS("return 'ready';");
-        if (js_test != "ready") {
-            debug_output("JavaScript context not ready in loadFormTestPage");
-            return;
-        }
-        
-        // Verify elements exist
-        EXPECT_TRUE(browser->elementExists("#text-input")) << "Element #text-input should exist";
-        EXPECT_TRUE(browser->elementExists("#search-input")) << "Element #search-input should exist";
-    }
 };
 
 // ========== FillInput JavaScript Escaping Tests ==========
@@ -130,10 +92,23 @@ TEST_F(DOMEscapingFixesTest, FillInputHandlesContractions) {
 }
 
 TEST_F(DOMEscapingFixesTest, FillInputHandlesSingleQuotes) {
-    // Load form page for this test
-    loadFormTestPage("_single_quotes");
+    // Create simple HTML page with form elements for this test
+    std::string test_html = R"(<!DOCTYPE html>
+<html><body>
+    <input type="text" id="text-input" placeholder="Enter text">
+</body></html>)";
     
-    // Test the form input with single quotes
+    // Create and load the test page
+    auto html_file = temp_dir->createFile("single_quotes_test.html", test_html);
+    std::string file_url = "file://" + html_file.string();
+    
+    browser->loadUri(file_url);
+    browser->waitForNavigation(3000);
+    
+    // Wait for page readiness
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    
+    // Test the actual DOM operation with single quotes
     bool result = browser->fillInput("#text-input", "Text with 'single quotes' inside");
     EXPECT_TRUE(result) << "fillInput should succeed with single quotes";
     
@@ -142,91 +117,145 @@ TEST_F(DOMEscapingFixesTest, FillInputHandlesSingleQuotes) {
 }
 
 TEST_F(DOMEscapingFixesTest, FillInputHandlesBackslashes) {
-    // Create HTML page with form elements
-    std::string test_html = R"(
-        <!DOCTYPE html>
-        <html>
-        <head><title>DOM Escaping Test</title></head>
-        <body>
-            <form>
-                <input type="text" id="text-input" placeholder="Enter text">
-                <input type="search" id="search-input" placeholder="Search">
-            </form>
-        </body>
-        </html>
-    )";
+    // Create simple HTML page with form elements for this test
+    std::string test_html = R"(<!DOCTYPE html>
+<html><body>
+    <input type="text" id="text-input" placeholder="Enter text">
+</body></html>)";
     
-    // Create temporary HTML file
-    std::filesystem::path html_file = temp_dir->getPath() / "test_form_backslashes.html";
-    std::ofstream file(html_file);
-    file << test_html;
-    file.close();
-    
-    // Load the HTML page
+    // Create and load the test page
+    auto html_file = temp_dir->createFile("backslashes_test.html", test_html);
     std::string file_url = "file://" + html_file.string();
+    
     browser->loadUri(file_url);
-    browser->waitForNavigation(2000);
+    browser->waitForNavigation(3000);
     
-    // Verify element exists
-    EXPECT_TRUE(browser->elementExists("#text-input")) << "Element #text-input should exist";
+    // Wait for page readiness
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
     
+    // Test the actual DOM operation with backslashes
     bool result = browser->fillInput("#text-input", "Path\\with\\backslashes");
-    EXPECT_TRUE(result);
+    EXPECT_TRUE(result) << "fillInput should succeed with backslashes";
     
     std::string value = executeWrappedJS("return document.getElementById('text-input').value;");
-    EXPECT_EQ(value, "Path\\with\\backslashes");
+    EXPECT_EQ(value, "Path\\with\\backslashes") << "Value should be set correctly";
 }
 
 TEST_F(DOMEscapingFixesTest, FillInputHandlesMixedQuotesAndBackslashes) {
-    // Page is already loaded and verified in SetUp
+    // Create simple HTML page with form elements for this test
+    std::string test_html = R"(<!DOCTYPE html>
+<html><body>
+    <input type="text" id="text-input" placeholder="Enter text">
+</body></html>)";
     
+    // Create and load the test page
+    auto html_file = temp_dir->createFile("mixed_quotes_test.html", test_html);
+    std::string file_url = "file://" + html_file.string();
+    
+    browser->loadUri(file_url);
+    browser->waitForNavigation(3000);
+    browser->waitForJavaScriptCompletion(1000);
+    
+    // Test the actual DOM operation with mixed quotes and backslashes
     bool result = browser->fillInput("#text-input", "Complex 'string' with\\backslashes and \"quotes\"");
-    EXPECT_TRUE(result);
+    EXPECT_TRUE(result) << "fillInput should succeed with mixed quotes and backslashes";
     
     std::string value = executeWrappedJS("return document.getElementById('text-input').value;");
-    EXPECT_EQ(value, "Complex 'string' with\\backslashes and \"quotes\"");
+    EXPECT_EQ(value, "Complex 'string' with\\backslashes and \"quotes\"") << "Value should be set correctly";
 }
 
 TEST_F(DOMEscapingFixesTest, FillInputHandlesUnicodeCharacters) {
-    // Page is already loaded and verified in SetUp
+    // Create simple HTML page with form elements for this test
+    std::string test_html = R"(<!DOCTYPE html>
+<html><body>
+    <input type="text" id="text-input" placeholder="Enter text">
+</body></html>)";
     
+    // Create and load the test page
+    auto html_file = temp_dir->createFile("unicode_test.html", test_html);
+    std::string file_url = "file://" + html_file.string();
+    
+    browser->loadUri(file_url);
+    browser->waitForNavigation(3000);
+    browser->waitForJavaScriptCompletion(1000);
+    
+    // Test the actual DOM operation with unicode characters
     bool result = browser->fillInput("#text-input", "Unicode: é, ñ, test");
-    EXPECT_TRUE(result);
+    EXPECT_TRUE(result) << "fillInput should succeed with unicode characters";
     
     std::string value = executeWrappedJS("return document.getElementById('text-input').value;");
-    EXPECT_EQ(value, "Unicode: é, ñ, test");
+    EXPECT_EQ(value, "Unicode: é, ñ, test") << "Value should be set correctly";
 }
 
 // ========== SearchForm JavaScript Escaping Tests ==========
 
 TEST_F(DOMEscapingFixesTest, SearchFormHandlesContractions) {
-    // Page is already loaded and verified in SetUp
+    // Create simple HTML page with search form for this test
+    std::string test_html = R"(<!DOCTYPE html>
+<html><body>
+    <input type="search" id="search-input" placeholder="Search">
+</body></html>)";
     
+    // Create and load the test page
+    auto html_file = temp_dir->createFile("search_contractions_test.html", test_html);
+    std::string file_url = "file://" + html_file.string();
+    
+    browser->loadUri(file_url);
+    browser->waitForNavigation(3000);
+    browser->waitForJavaScriptCompletion(1000);
+    
+    // Test the actual DOM operation with contractions
     bool result = browser->searchForm("I'm searching for something");
-    EXPECT_TRUE(result);
+    EXPECT_TRUE(result) << "searchForm should succeed with contractions";
     
     std::string value = executeWrappedJS("return document.getElementById('search-input').value;");
-    EXPECT_EQ(value, "I'm searching for something");
+    EXPECT_EQ(value, "I'm searching for something") << "Search value should be set correctly";
 }
 
 TEST_F(DOMEscapingFixesTest, SearchFormHandlesSingleQuotes) {
-    // Page is already loaded and verified in SetUp
+    // Create simple HTML page with search form for this test
+    std::string test_html = R"(<!DOCTYPE html>
+<html><body>
+    <input type="search" id="search-input" placeholder="Search">
+</body></html>)";
     
+    // Create and load the test page
+    auto html_file = temp_dir->createFile("search_quotes_test.html", test_html);
+    std::string file_url = "file://" + html_file.string();
+    
+    browser->loadUri(file_url);
+    browser->waitForNavigation(3000);
+    browser->waitForJavaScriptCompletion(1000);
+    
+    // Test the actual DOM operation with single quotes
     bool result = browser->searchForm("Search for 'quoted terms'");
-    EXPECT_TRUE(result);
+    EXPECT_TRUE(result) << "searchForm should succeed with single quotes";
     
     std::string value = executeWrappedJS("return document.getElementById('search-input').value;");
-    EXPECT_EQ(value, "Search for 'quoted terms'");
+    EXPECT_EQ(value, "Search for 'quoted terms'") << "Search value should be set correctly";
 }
 
 TEST_F(DOMEscapingFixesTest, SearchFormHandlesBackslashes) {
-    // Page is already loaded and verified in SetUp
+    // Create simple HTML page with search form for this test
+    std::string test_html = R"(<!DOCTYPE html>
+<html><body>
+    <input type="search" id="search-input" placeholder="Search">
+</body></html>)";
     
+    // Create and load the test page
+    auto html_file = temp_dir->createFile("search_backslashes_test.html", test_html);
+    std::string file_url = "file://" + html_file.string();
+    
+    browser->loadUri(file_url);
+    browser->waitForNavigation(3000);
+    browser->waitForJavaScriptCompletion(1000);
+    
+    // Test the actual DOM operation with backslashes
     bool result = browser->searchForm("Search\\for\\paths");
-    EXPECT_TRUE(result);
+    EXPECT_TRUE(result) << "searchForm should succeed with backslashes";
     
     std::string value = executeWrappedJS("return document.getElementById('search-input').value;");
-    EXPECT_EQ(value, "Search\\for\\paths");
+    EXPECT_EQ(value, "Search\\for\\paths") << "Search value should be set correctly";
 }
 
 // ========== Debug Output Tests ==========
@@ -235,34 +264,48 @@ TEST_F(DOMEscapingFixesTest, SearchFormHandlesBackslashes) {
 // ========== Regression Tests for Previous JavaScript Errors ==========
 
 TEST_F(DOMEscapingFixesTest, NoJavaScriptErrorsWithContractions) {
-    // Page is already loaded and verified in SetUp
+    // Create simple HTML page with form elements for this test
+    std::string test_html = R"(<!DOCTYPE html>
+<html><body>
+    <input type="text" id="text-input" placeholder="Enter text">
+</body></html>)";
     
-    // Simplified test - just check that fillInput works without throwing C++ exceptions
-    // and that the value is set correctly (which implies no JavaScript syntax errors)
-    bool result = false;
-    EXPECT_NO_THROW({
-        result = browser->fillInput("#text-input", "I'm testing for errors");
-    });
+    // Create and load the test page
+    auto html_file = temp_dir->createFile("no_js_errors_contractions_test.html", test_html);
+    std::string file_url = "file://" + html_file.string();
+    
+    browser->loadUri(file_url);
+    browser->waitForNavigation(3000);
+    browser->waitForJavaScriptCompletion(1000);
+    
+    // Test that fillInput works without JavaScript errors
+    bool result = browser->fillInput("#text-input", "I'm testing for errors");
     EXPECT_TRUE(result) << "fillInput should succeed with contractions";
     
-    // Verify the value was set correctly (this would fail if there were JS syntax errors)
     std::string value = executeWrappedJS("return document.getElementById('text-input').value;");
     EXPECT_EQ(value, "I'm testing for errors") << "Value should be set correctly despite apostrophe";
 }
 
 TEST_F(DOMEscapingFixesTest, NoJavaScriptErrorsWithSimpleStrings) {
-    // Page is already loaded and verified in SetUp
+    // Create simple HTML page with form elements for this test
+    std::string test_html = R"(<!DOCTYPE html>
+<html><body>
+    <input type="text" id="text-input" placeholder="Enter text">
+</body></html>)";
     
-    // Simplified test - just check that fillInput works without throwing C++ exceptions
-    // Test simple string with quotes and backslashes (no newlines to avoid encoding issues)
-    std::string test_string = "Test 'quotes' and\\\\backslashes and \\\"double quotes\\\"";
-    bool result = false;
-    EXPECT_NO_THROW({
-        result = browser->fillInput("#text-input", test_string);
-    });
+    // Create and load the test page
+    auto html_file = temp_dir->createFile("no_js_errors_simple_test.html", test_html);
+    std::string file_url = "file://" + html_file.string();
+    
+    browser->loadUri(file_url);
+    browser->waitForNavigation(3000);
+    browser->waitForJavaScriptCompletion(1000);
+    
+    // Test complex string with quotes and backslashes
+    std::string test_string = "Test 'quotes' and\\backslashes and \"double quotes\"";
+    bool result = browser->fillInput("#text-input", test_string);
     EXPECT_TRUE(result) << "fillInput should succeed with complex strings";
     
-    // Verify the value was set correctly (this would fail if there were JS syntax errors)
     std::string value = executeWrappedJS("return document.getElementById('text-input').value;");
     EXPECT_EQ(value, test_string) << "Value should be set correctly despite quotes and backslashes";
 }

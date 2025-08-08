@@ -58,6 +58,11 @@ protected:
     
     // Enhanced page loading method based on successful BrowserMainTest approach
     bool loadPageWithReadinessCheck(const std::string& url, const std::vector<std::string>& required_elements = {}) {
+        if (!browser_) {
+            debug_output("loadPageWithReadinessCheck: browser_ is null");
+            return false;
+        }
+        
         browser_->loadUri(url);
         
         // Wait for navigation
@@ -337,16 +342,19 @@ TEST_F(ComplexWorkflowChainsTest, ECommerceWorkflow_BrowseToCheckout) {
     
     // Step 2: Search for products
     browser_->fillInput("#search-input", "laptop");
-    std::this_thread::sleep_for(std::chrono::milliseconds(300));
+    // EVENT-DRIVEN FIX: Use signal-based waiting instead of blocking sleep
+    browser_->waitForJavaScriptCompletion(1000);
     
     // Verify search functionality
     EXPECT_TRUE(browser_->elementExists(".product[data-id='1']")); // Laptop should be visible
     
     // Step 3: Add items to cart
     browser_->clickElement(".product[data-id='1'] button"); // Add laptop
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    // EVENT-DRIVEN FIX: Use signal-based waiting instead of blocking sleep
+    browser_->waitForJavaScriptCompletion(1000);
     browser_->clickElement(".product[data-id='2'] button"); // Add mouse
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    // EVENT-DRIVEN FIX: Use signal-based waiting instead of blocking sleep
+    browser_->waitForJavaScriptCompletion(1000);
     
     // Verify cart updates
     std::string cart_count = browser_->getInnerText("#cart-count");
@@ -355,7 +363,8 @@ TEST_F(ComplexWorkflowChainsTest, ECommerceWorkflow_BrowseToCheckout) {
     // Step 4: Proceed to checkout
     EXPECT_TRUE(browser_->elementExists("#checkout-btn"));
     browser_->clickElement("#checkout-btn");
-    std::this_thread::sleep_for(std::chrono::milliseconds(300));
+    // EVENT-DRIVEN FIX: Use signal-based waiting instead of blocking sleep
+    browser_->waitForJavaScriptCompletion(1000);
     
     // Verify checkout form appears and product list is hidden
     EXPECT_TRUE(browser_->elementExists("#checkout-form"));
@@ -387,7 +396,8 @@ TEST_F(ComplexWorkflowChainsTest, ECommerceWorkflow_BrowseToCheckout) {
     
     // Step 6: Complete order
     browser_->clickElement("button[onclick='processCheckout()']");
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    // EVENT-DRIVEN FIX: Use signal-based waiting instead of blocking sleep
+    browser_->waitForJavaScriptCompletion(1500);
     
     // Verify order confirmation
     EXPECT_TRUE(browser_->elementExists("#order-confirmation"));
