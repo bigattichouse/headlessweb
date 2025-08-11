@@ -41,11 +41,11 @@ protected:
         debug_output("=== MinimalSegfaultDebugTest::TearDown END ===");
     }
 
-    // Generic JavaScript wrapper function for safe execution (copied from DOMEscapingFixesTest)
+    // Generic JavaScript wrapper function for safe execution (fixed to include return)
     std::string executeWrappedJS(const std::string& jsCode) {
         if (!browser_) return "";
         try {
-            std::string wrapped = "(function() { try { " + jsCode + " } catch(e) { return ''; } })()";
+            std::string wrapped = "(function() { try { return " + jsCode + "; } catch(e) { return ''; } })()";
             return browser_->executeJavascriptSync(wrapped);
         } catch (const std::exception& e) {
             debug_output("JavaScript execution error: " + std::string(e.what()));
