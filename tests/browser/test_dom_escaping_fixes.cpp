@@ -9,6 +9,8 @@
 #include <fstream>
 #include <regex>
 #include <chrono>
+#include <algorithm>
+#include <cctype>
 
 extern std::unique_ptr<Browser> g_browser;
 
@@ -51,8 +53,19 @@ protected:
     std::string executeWrappedJS(const std::string& jsCode) {
         if (!browser) return "";
         try {
-            // Simple wrapper that handles the most common patterns
-            std::string wrapped = "(function() { try { return " + jsCode + "; } catch(e) { return ''; } })()";
+            std::string wrapped;
+            // Check if the code already starts with 'return'
+            std::string trimmed = jsCode;
+            // Remove leading whitespace
+            trimmed.erase(trimmed.begin(), std::find_if(trimmed.begin(), trimmed.end(), [](unsigned char ch) {
+                return !std::isspace(ch);
+            }));
+            
+            if (trimmed.substr(0, 6) == "return") {
+                wrapped = "(function() { try { " + jsCode + "; } catch(e) { return ''; } })()";
+            } else {
+                wrapped = "(function() { try { return " + jsCode + "; } catch(e) { return ''; } })()";
+            }
             return browser->executeJavascriptSync(wrapped);
         } catch (const std::exception& e) {
             debug_output("JavaScript execution error: " + std::string(e.what()));
@@ -216,9 +229,17 @@ TEST_F(DOMEscapingFixesTest, FillInputHandlesMixedQuotesAndBackslashes) {
     // EVENT-DRIVEN FIX: Use signal-based waiting instead of waitForJavaScriptCompletion
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
     
-    // Verify element exists before interacting
-    std::string element_check = executeWrappedJS("document.getElementById('text-input') !== null;");
-    ASSERT_EQ(element_check, "true") << "Input element should exist";
+    // Verify element exists before interacting with robust waiting
+    bool element_found = false;
+    for (int i = 0; i < 10; i++) {
+        std::string element_check = executeWrappedJS("document.getElementById('text-input') !== null");
+        if (element_check == "true") {
+            element_found = true;
+            break;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+    ASSERT_TRUE(element_found) << "Input element should exist";
     
     // Test the actual DOM operation with mixed quotes and backslashes
     bool result = browser->fillInput("#text-input", "Complex 'string' with\\backslashes and \"quotes\"");
@@ -246,9 +267,17 @@ TEST_F(DOMEscapingFixesTest, FillInputHandlesUnicodeCharacters) {
     // EVENT-DRIVEN FIX: Use signal-based waiting instead of waitForJavaScriptCompletion
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
     
-    // Verify element exists before interacting
-    std::string element_check = executeWrappedJS("document.getElementById('text-input') !== null;");
-    ASSERT_EQ(element_check, "true") << "Input element should exist";
+    // Verify element exists before interacting with robust waiting
+    bool element_found = false;
+    for (int i = 0; i < 10; i++) {
+        std::string element_check = executeWrappedJS("document.getElementById('text-input') !== null");
+        if (element_check == "true") {
+            element_found = true;
+            break;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+    ASSERT_TRUE(element_found) << "Input element should exist";
     
     // Test the actual DOM operation with unicode characters
     bool result = browser->fillInput("#text-input", "Unicode: é, ñ, test");
@@ -264,7 +293,9 @@ TEST_F(DOMEscapingFixesTest, SearchFormHandlesContractions) {
     // Create simple HTML page with search form for this test
     std::string test_html = R"(<!DOCTYPE html>
 <html><body>
-    <input type="search" id="search-input" placeholder="Search">
+    <form>
+        <input type="search" id="search-input" placeholder="Search">
+    </form>
 </body></html>)";
     
     // Create and load the test page
@@ -278,9 +309,17 @@ TEST_F(DOMEscapingFixesTest, SearchFormHandlesContractions) {
     // EVENT-DRIVEN FIX: Use signal-based waiting instead of waitForJavaScriptCompletion
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
     
-    // Verify element exists before interacting
-    std::string element_check = executeWrappedJS("return document.getElementById('search-input') !== null;");
-    ASSERT_EQ(element_check, "true") << "Search input element should exist";
+    // Verify element exists before interacting with robust waiting
+    bool element_found = false;
+    for (int i = 0; i < 10; i++) {
+        std::string element_check = executeWrappedJS("document.getElementById('search-input') !== null");
+        if (element_check == "true") {
+            element_found = true;
+            break;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+    ASSERT_TRUE(element_found) << "Search input element should exist";
     
     // Test the actual DOM operation with contractions
     bool result = browser->searchForm("I'm searching for something");
@@ -294,7 +333,9 @@ TEST_F(DOMEscapingFixesTest, SearchFormHandlesSingleQuotes) {
     // Create simple HTML page with search form for this test
     std::string test_html = R"(<!DOCTYPE html>
 <html><body>
-    <input type="search" id="search-input" placeholder="Search">
+    <form>
+        <input type="search" id="search-input" placeholder="Search">
+    </form>
 </body></html>)";
     
     // Create and load the test page
@@ -308,9 +349,17 @@ TEST_F(DOMEscapingFixesTest, SearchFormHandlesSingleQuotes) {
     // EVENT-DRIVEN FIX: Use signal-based waiting instead of waitForJavaScriptCompletion
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
     
-    // Verify element exists before interacting
-    std::string element_check = executeWrappedJS("return document.getElementById('search-input') !== null;");
-    ASSERT_EQ(element_check, "true") << "Search input element should exist";
+    // Verify element exists before interacting with robust waiting
+    bool element_found = false;
+    for (int i = 0; i < 10; i++) {
+        std::string element_check = executeWrappedJS("document.getElementById('search-input') !== null");
+        if (element_check == "true") {
+            element_found = true;
+            break;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+    ASSERT_TRUE(element_found) << "Search input element should exist";
     
     // Test the actual DOM operation with single quotes
     bool result = browser->searchForm("Search for 'quoted terms'");
@@ -324,7 +373,9 @@ TEST_F(DOMEscapingFixesTest, SearchFormHandlesBackslashes) {
     // Create simple HTML page with search form for this test
     std::string test_html = R"(<!DOCTYPE html>
 <html><body>
-    <input type="search" id="search-input" placeholder="Search">
+    <form>
+        <input type="search" id="search-input" placeholder="Search">
+    </form>
 </body></html>)";
     
     // Create and load the test page
@@ -338,9 +389,17 @@ TEST_F(DOMEscapingFixesTest, SearchFormHandlesBackslashes) {
     // EVENT-DRIVEN FIX: Use signal-based waiting instead of waitForJavaScriptCompletion
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
     
-    // Verify element exists before interacting
-    std::string element_check = executeWrappedJS("return document.getElementById('search-input') !== null;");
-    ASSERT_EQ(element_check, "true") << "Search input element should exist";
+    // Verify element exists before interacting with robust waiting
+    bool element_found = false;
+    for (int i = 0; i < 10; i++) {
+        std::string element_check = executeWrappedJS("document.getElementById('search-input') !== null");
+        if (element_check == "true") {
+            element_found = true;
+            break;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+    ASSERT_TRUE(element_found) << "Search input element should exist";
     
     // Test the actual DOM operation with backslashes
     bool result = browser->searchForm("Search\\for\\paths");
@@ -373,9 +432,17 @@ TEST_F(DOMEscapingFixesTest, NoJavaScriptErrorsWithContractions) {
     // EVENT-DRIVEN FIX: Use signal-based waiting instead of waitForJavaScriptCompletion
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
     
-    // Verify element exists before interacting
-    std::string element_check = executeWrappedJS("document.getElementById('text-input') !== null;");
-    ASSERT_EQ(element_check, "true") << "Input element should exist";
+    // Verify element exists before interacting with robust waiting
+    bool element_found = false;
+    for (int i = 0; i < 10; i++) {
+        std::string element_check = executeWrappedJS("document.getElementById('text-input') !== null");
+        if (element_check == "true") {
+            element_found = true;
+            break;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+    ASSERT_TRUE(element_found) << "Input element should exist";
     
     // Test that fillInput works without JavaScript errors
     bool result = browser->fillInput("#text-input", "I'm testing for errors");
@@ -403,9 +470,17 @@ TEST_F(DOMEscapingFixesTest, NoJavaScriptErrorsWithSimpleStrings) {
     // EVENT-DRIVEN FIX: Use signal-based waiting instead of waitForJavaScriptCompletion
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
     
-    // Verify element exists before interacting
-    std::string element_check = executeWrappedJS("document.getElementById('text-input') !== null;");
-    ASSERT_EQ(element_check, "true") << "Input element should exist";
+    // Verify element exists before interacting with robust waiting
+    bool element_found = false;
+    for (int i = 0; i < 10; i++) {
+        std::string element_check = executeWrappedJS("document.getElementById('text-input') !== null");
+        if (element_check == "true") {
+            element_found = true;
+            break;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+    ASSERT_TRUE(element_found) << "Input element should exist";
     
     // Test complex string with quotes and backslashes
     std::string test_string = "Test 'quotes' and\\backslashes and \"double quotes\"";

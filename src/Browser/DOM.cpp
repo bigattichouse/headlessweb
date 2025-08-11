@@ -307,12 +307,12 @@ bool Browser::searchForm(const std::string& query) {
         "      var form = inputs[0].closest('form'); "
         "      if (form) { "
         "        form.submit(); "
-        "        return true; "
+        "        return 'true'; "
         "      } "
         "    } "
-        "    return false; "
+        "    return 'false'; "
         "  } catch(e) { "
-        "    return false; "
+        "    return 'false'; "
         "  } "
         "})()";
     
