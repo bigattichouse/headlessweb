@@ -76,52 +76,32 @@ protected:
         }
     }
     
-    // Enhanced page loading method based on successful BrowserMainTest approach
+    // Enhanced page loading method using proper browser event system
     bool loadPageWithReadinessCheck(const std::string& url, const std::vector<std::string>& required_elements = {}) {
         if (!browser_) return false;
         
         try {
             browser_->loadUri(url);
         
-        // EVENT-DRIVEN FIX: Use signal-based approach instead of waitForNavigation
-        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-        bool nav_success = true; // Assume success with signal-based timing
-        
-        // Allow WebKit processing time
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-        
-        // Check basic JavaScript execution with retry
-        for (int i = 0; i < 5; i++) {
-            std::string js_test = executeWrappedJS("return 'test';");
-            if (js_test == "test") break;
-            if (i == 4) return false;
-            std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        // PROPER EVENT-DRIVEN FIX: Use browser's signal-based navigation waiting
+        if (!browser_->waitForNavigationEvent(5000)) {
+            debug_output("Navigation event timeout for URL: " + url);
+            return false;
         }
         
-        // Verify DOM is ready
-        for (int i = 0; i < 5; i++) {
-            std::string dom_check = executeWrappedJS("return document.readyState === 'complete';");
-            if (dom_check == "true") break;
-            if (i == 4) return false;
-            std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        // Wait for page to be properly ready using event system
+        if (!browser_->waitForPageReadyEvent(3000)) {
+            debug_output("Page ready event timeout");
+            return false;
         }
         
-        // Check for required elements if specified
+        // Check for required elements using event-driven waiting
         if (!required_elements.empty()) {
-            for (int i = 0; i < 5; i++) {
-                bool all_elements_ready = true;
-                for (const auto& element : required_elements) {
-                    std::string element_check = executeWrappedJS(
-                        "return document.querySelector('" + element + "') !== null;"
-                    );
-                    if (element_check != "true") {
-                        all_elements_ready = false;
-                        break;
-                    }
+            for (const auto& element : required_elements) {
+                if (!browser_->waitForSelectorEvent(element, 2000)) {
+                    debug_output("Required element not found: " + element);
+                    return false;
                 }
-                if (all_elements_ready) break;
-                if (i == 4) return false;
-                std::this_thread::sleep_for(std::chrono::milliseconds(200));
             }
         }
         
@@ -483,7 +463,10 @@ TEST_F(BrowserAdvancedFormOperationsTest, MultiStepFormNavigation_BackNavigation
     browser_->fillInput("#password", "password123");
     browser_->fillInput("#confirm-password", "password123");
     browser_->clickElement("#step1-next");
-    std::this_thread::sleep_for(std::chrono::milliseconds(300));
+    
+    // EVENT-DRIVEN: Wait for step 2 to become active instead of sleep
+    bool step2_ready = browser_->waitForConditionEvent("document.getElementById('step2').classList.contains('active')", 2000);
+    EXPECT_TRUE(step2_ready) << "Step 2 should become active";
     
     EXPECT_TRUE(browser_->elementExists("#step2"));
     
@@ -493,7 +476,10 @@ TEST_F(BrowserAdvancedFormOperationsTest, MultiStepFormNavigation_BackNavigation
     
     // Go back to step 1
     browser_->clickElement("#step2-prev");
-    std::this_thread::sleep_for(std::chrono::milliseconds(300));
+    
+    // EVENT-DRIVEN: Wait for step 1 to become active instead of sleep
+    bool step1_ready = browser_->waitForConditionEvent("document.getElementById('step1').classList.contains('active')", 2000);
+    EXPECT_TRUE(step1_ready) << "Step 1 should become active when navigating back";
     
     EXPECT_TRUE(browser_->elementExists("#step1"));
     EXPECT_TRUE(browser_->elementExists("#step2")); // Step 2 still exists in DOM
