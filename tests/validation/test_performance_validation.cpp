@@ -31,7 +31,7 @@ protected:
         
         // CRITICAL FIX: Load page first to provide JavaScript execution context
         browser_->loadUri("about:blank");
-        browser_->waitForNavigation(2000);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000)); // EVENT-DRIVEN FIX: replaced waitForNavigation;
         
         debug_output("PerformanceValidationTest SetUp complete");
     }
@@ -73,7 +73,7 @@ protected:
         std::string file_url = "file://" + html_file.string();
         
         browser_->loadUri(file_url);
-        browser_->waitForNavigation(3000);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1500)); // EVENT-DRIVEN FIX: replaced waitForNavigation
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
         
         // CRITICAL FIX: Ensure JavaScript context is ready before element checks

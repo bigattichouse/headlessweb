@@ -6,16 +6,33 @@
 #include <cmath>
 #include <thread>
 #include <chrono>
+#include <memory>
+#include <atomic>
+#include <mutex>
 
 // External debug flag
 extern bool g_debug;
 
+// Wrapper struct for safe callback data handling
+struct JavaScriptCallbackData {
+    std::shared_ptr<std::string> result_ptr;
+    std::atomic<bool> completed;
+    std::mutex completion_mutex;
+    
+    JavaScriptCallbackData() : result_ptr(std::make_shared<std::string>()), completed(false) {}
+};
+
 // Callback for JavaScript evaluation
 void js_eval_callback(GObject* object, GAsyncResult* res, gpointer user_data) {
     // CRITICAL SAFETY: Validate all pointers before any operations
-    if (!object || !res) {
+    if (!object || !res || !user_data) {
         return;
     }
+    
+    JavaScriptCallbackData* callback_data = static_cast<JavaScriptCallbackData*>(user_data);
+    
+    // Use lock guard to ensure thread safety
+    std::lock_guard<std::mutex> lock(callback_data->completion_mutex);
     
     GError* error = NULL;
     JSCValue* value = webkit_web_view_evaluate_javascript_finish(WEBKIT_WEB_VIEW(object), res, &error);
@@ -39,68 +56,65 @@ void js_eval_callback(GObject* object, GAsyncResult* res, gpointer user_data) {
             std::cerr << "JavaScript error: " << error->message << std::endl;
         }
         g_error_free(error);
-        if (user_data) {
-            *(static_cast<std::string*>(user_data)) = "";
-        }
+        *(callback_data->result_ptr) = "";
     } else if (value) {
         // DEBUG: Log when we have a valid value
         debug_output("JavaScript callback: Valid value received");
-        if (user_data) {
-            try {
-                if (jsc_value_is_string(value)) {
-                    char* str_value = jsc_value_to_string(value);
-                    if (str_value) {
-                        *(static_cast<std::string*>(user_data)) = str_value;
-                        g_free(str_value);
-                    } else {
-                        *(static_cast<std::string*>(user_data)) = "";
-                    }
-                } else if (jsc_value_is_number(value)) {
-                    double num_val = jsc_value_to_double(value);
-                    if (num_val == floor(num_val)) {
-                        *(static_cast<std::string*>(user_data)) = std::to_string((long long)num_val);
-                    } else {
-                        *(static_cast<std::string*>(user_data)) = std::to_string(num_val);
-                    }
-                } else if (jsc_value_is_boolean(value)) {
-                    *(static_cast<std::string*>(user_data)) = jsc_value_to_boolean(value) ? "true" : "false";
-                } else if (jsc_value_is_null(value)) {
-                    *(static_cast<std::string*>(user_data)) = "null";
-                } else if (jsc_value_is_undefined(value)) {
-                    *(static_cast<std::string*>(user_data)) = "undefined";
-                } else if (jsc_value_is_object(value)) {
-                    // Try to convert object to string
-                    char* str_value = jsc_value_to_string(value);
-                    if (str_value) {
-                        *(static_cast<std::string*>(user_data)) = str_value;
-                        g_free(str_value);
-                    } else {
-                        *(static_cast<std::string*>(user_data)) = "[object Object]";
-                    }
+        try {
+            if (jsc_value_is_string(value)) {
+                char* str_value = jsc_value_to_string(value);
+                if (str_value) {
+                    *(callback_data->result_ptr) = str_value;
+                    g_free(str_value);
                 } else {
-                    // Fallback: try to convert to string
-                    char* str_value = jsc_value_to_string(value);
-                    if (str_value) {
-                        *(static_cast<std::string*>(user_data)) = str_value;
-                        g_free(str_value);
-                    } else {
-                        *(static_cast<std::string*>(user_data)) = "";
-                    }
+                    *(callback_data->result_ptr) = "";
                 }
-            } catch (const std::exception& e) {
-                std::cerr << "Error processing JavaScript result: " << e.what() << std::endl;
-                *(static_cast<std::string*>(user_data)) = "";
+            } else if (jsc_value_is_number(value)) {
+                double num_val = jsc_value_to_double(value);
+                if (num_val == floor(num_val)) {
+                    *(callback_data->result_ptr) = std::to_string((long long)num_val);
+                } else {
+                    *(callback_data->result_ptr) = std::to_string(num_val);
+                }
+            } else if (jsc_value_is_boolean(value)) {
+                *(callback_data->result_ptr) = jsc_value_to_boolean(value) ? "true" : "false";
+            } else if (jsc_value_is_null(value)) {
+                *(callback_data->result_ptr) = "null";
+            } else if (jsc_value_is_undefined(value)) {
+                *(callback_data->result_ptr) = "undefined";
+            } else if (jsc_value_is_object(value)) {
+                // Try to convert object to string
+                char* str_value = jsc_value_to_string(value);
+                if (str_value) {
+                    *(callback_data->result_ptr) = str_value;
+                    g_free(str_value);
+                } else {
+                    *(callback_data->result_ptr) = "[object Object]";
+                }
+            } else {
+                // Fallback: try to convert to string
+                char* str_value = jsc_value_to_string(value);
+                if (str_value) {
+                    *(callback_data->result_ptr) = str_value;
+                    g_free(str_value);
+                } else {
+                    *(callback_data->result_ptr) = "";
+                }
             }
+        } catch (const std::exception& e) {
+            std::cerr << "Error processing JavaScript result: " << e.what() << std::endl;
+            *(callback_data->result_ptr) = "";
         }
         g_object_unref(value);
     } else {
         // CRITICAL FIX: Handle case where JavaScript returns null/undefined but no error occurs
-        if (user_data) {
-            *(static_cast<std::string*>(user_data)) = "";
-        }
+        *(callback_data->result_ptr) = "";
         // DEBUG: Log when we get neither error nor value
         debug_output("JavaScript callback: No error and no value - this is unusual");
     }
+    
+    // Mark completion
+    callback_data->completed.store(true);
     
     if (browser_instance && browser_instance->event_loop_manager) {
         browser_instance->event_loop_manager->signalJavaScriptComplete();
@@ -184,12 +198,11 @@ std::string Browser::executeJavascriptSync(const std::string& script) {
         return "";
     }
     
-    // MEMORY SAFETY FIX: Use local buffer to avoid concurrent access corruption
+    // MEMORY SAFETY FIX: Use safe callback data structure
     try {
-        // Use a local string buffer for this specific execution
-        std::string local_result_buffer;
+        // Create safe callback data on the heap
+        auto callback_data = std::make_unique<JavaScriptCallbackData>();
         
-        // Use local buffer to avoid race conditions with member buffer
         webkit_web_view_evaluate_javascript(
             webView, 
             script.c_str(), 
@@ -198,17 +211,34 @@ std::string Browser::executeJavascriptSync(const std::string& script) {
             NULL, 
             NULL, 
             js_eval_callback, 
-            &local_result_buffer
+            callback_data.get()
         );
         
-        // Wait for completion with timeout
-        if (!waitForJavaScriptCompletion(5000)) {
+        // Wait for completion with timeout using safe polling
+        auto start_time = std::chrono::steady_clock::now();
+        const int timeout_ms = 5000;
+        const int poll_interval_ms = 10;
+        
+        while (!callback_data->completed.load() && 
+               std::chrono::duration_cast<std::chrono::milliseconds>(
+                   std::chrono::steady_clock::now() - start_time).count() < timeout_ms) {
+            
+            // Process pending events
+            while (g_main_context_pending(g_main_context_default())) {
+                g_main_context_iteration(g_main_context_default(), FALSE);
+            }
+            
+            // Small sleep to prevent CPU spinning
+            std::this_thread::sleep_for(std::chrono::milliseconds(poll_interval_ms));
+        }
+        
+        if (!callback_data->completed.load()) {
             debug_output("JavaScript execution timeout for: " + script.substr(0, 50) + "...");
             return "";
         }
         
-        // Get result from our local buffer (no need to clear member buffer)
-        std::string return_value = local_result_buffer;
+        // Get result from our safe callback data
+        std::string return_value = *(callback_data->result_ptr);
         
         // DEBUG: Log JavaScript execution for debugging
         if (g_debug && script.find("clickElement") != std::string::npos) {

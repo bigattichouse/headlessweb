@@ -110,16 +110,18 @@ TEST_F(ServiceArchitectureCoordinationTest, ManagerRegistry_CrossServiceCoordina
         // Test assertion manager interface with browser interface
         auto& assertion_manager = HWeb::ManagerRegistry::get_assertion_manager();
         
-        // Create assertion commands interface
+        // Create assertion commands interface with timeout to prevent deadlock
         Assertion::Command exists_cmd;
         exists_cmd.type = "element-exists";
         exists_cmd.selector = "#nonexistent-element";
+        exists_cmd.timeout_ms = 100; // CRITICAL FIX: Short timeout to prevent infinite wait
         
         Assertion::Command value_cmd;
         value_cmd.type = "element-value";
         value_cmd.selector = "#nonexistent-input";
         value_cmd.expected_value = "test_value";
         value_cmd.op = Assertion::ComparisonOperator::EQUALS;
+        value_cmd.timeout_ms = 100; // CRITICAL FIX: Short timeout to prevent infinite wait
         
         // Execute assertions using browser interface (should handle gracefully)
         auto result1 = assertion_manager.executeAssertion(*browser_, exists_cmd);

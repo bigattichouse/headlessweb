@@ -4,6 +4,8 @@
 #include <webkit/webkit.h>
 #include <iostream>
 #include <filesystem>
+#include <thread>
+#include <chrono>
 
 // External debug flag
 extern bool g_debug;
@@ -142,7 +144,11 @@ Browser::~Browser() {
     // Cleanup waiters (implemented in BrowserEvents.cpp)
     cleanupWaiters();
     
+    // Let GTK handle cleanup automatically to avoid race conditions
+    
     if (main_loop) {
+        // TODO: Implement proper main loop cleanup
+        // Current empty block to avoid introducing new segfaults
     }
 }
 

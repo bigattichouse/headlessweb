@@ -59,6 +59,7 @@ set(BROWSER_TEST_SOURCES
     browser/test_browser_session.cpp
     browser/test_browser_advanced_form_operations.cpp
     browser/test_dom_escaping_fixes.cpp
+    experimental/test_minimal_segfault_debug.cpp
 )
 
 # Integration test sources
