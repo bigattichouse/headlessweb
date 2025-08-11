@@ -62,7 +62,13 @@ protected:
             }));
             
             if (trimmed.substr(0, 6) == "return") {
-                wrapped = "(function() { try { " + jsCode + "; } catch(e) { return ''; } })()";
+                // Remove trailing semicolon and whitespace to avoid double semicolons
+                std::string cleanCode = jsCode;
+                // Trim trailing whitespace and semicolons
+                while (!cleanCode.empty() && (std::isspace(cleanCode.back()) || cleanCode.back() == ';')) {
+                    cleanCode.pop_back();
+                }
+                wrapped = "(function() { try { " + cleanCode + "; } catch(e) { return ''; } })()";
             } else {
                 wrapped = "(function() { try { return " + jsCode + "; } catch(e) { return ''; } })()";
             }
