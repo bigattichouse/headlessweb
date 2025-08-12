@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>E-Commerce Test Site</title>
+    <style>
+        .product { border: 1px solid #ccc; margin: 10px; padding: 10px; }
+        .cart { position: fixed; top: 10px; right: 10px; }
+        .cart-count { background: red; color: white; padding: 2px 6px; border-radius: 10px; }
+        .hidden { display: none; }
+        .checkout-form { margin: 20px 0; }
+    </style>
+    <script>
+        let cart = [];
+        let orderCounter = 1;
+        
+        function addToCart(productId, productName, price) {
+            cart.push({id: productId, name: productName, price: price});
+            updateCartDisplay();
+            
+            // Simulate adding to localStorage
+            localStorage.setItem('cart', JSON.stringify(cart));
+        }
+        
+        function updateCartDisplay() {
+            document.getElementById('cart-count').textContent = cart.length;
+            
+            let cartItems = document.getElementById('cart-items');
+            cartItems.innerHTML = '';
+            
+            cart.forEach(item => {
+                let div = document.createElement('div');
+                div.innerHTML = item.name + ' - $' + item.price;
+                cartItems.appendChild(div);
+            });
+            
+            // Show checkout button if cart has items
+            let checkoutBtn = document.getElementById('checkout-btn');
+            if (cart.length > 0) {
+                checkoutBtn.classList.remove('hidden');
+            }
+        }
+        
+        function showCheckout() {
+            document.getElementById('checkout-form').classList.remove('hidden');
+            document.getElementById('product-list').classList.add('hidden');
+        }
+        
+        function processCheckout() {
+            let form = document.getElementById('customer-form');
+            let formData = new FormData(form);
+            
+            // Simulate order processing
+            let orderDiv = document.getElementById('order-confirmation');
+            orderDiv.innerHTML = '<h3>Order #' + orderCounter + ' Confirmed!</h3>';
+            orderDiv.innerHTML += '<p>Customer: ' + formData.get('customer_name') + '</p>';
+            orderDiv.innerHTML += '<p>Email: ' + formData.get('customer_email') + '</p>';
+            orderDiv.innerHTML += '<p>Items: ' + cart.length + '</p>';
+            orderDiv.classList.remove('hidden');
+            
+            // Generate download link for receipt
+            let downloadLink = document.createElement('a');
+            downloadLink.href = 'data:text/plain;charset=utf-8,Order Receipt\\nOrder #' + orderCounter + '\\nCustomer: ' + formData.get('customer_name');
+            downloadLink.download = 'receipt_' + orderCounter + '.txt';
+            downloadLink.textContent = 'Download Receipt';
+            orderDiv.appendChild(downloadLink);
+            
+            orderCounter++;
+            cart = [];
+            localStorage.removeItem('cart');
+            updateCartDisplay();
+        }
+        
+        function searchProducts(query) {
+            let products = document.querySelectorAll('.product');
+            products.forEach(product => {
+                let name = product.querySelector('.product-name').textContent.toLowerCase();
+                if (name.includes(query.toLowerCase()) || query === '') {
+                    product.style.display = 'block';
+                } else {
+                    product.style.display = 'none';
+                }
+            });
+        }
+        
+        // Initialize cart from localStorage on page load
+        window.onload = function() {
+            let savedCart = localStorage.getItem('cart');
+            if (savedCart) {
+                cart = JSON.parse(savedCart);
+                updateCartDisplay();
+            }
+        };
+    </script>
+</head>
+<body>
+    <div class="cart">
+        🛒 <span id="cart-count" class="cart-count">0</span>
+        <div id="cart-items"></div>
+        <button id="checkout-btn" class="hidden" onclick="showCheckout()">Checkout</button>
+    </div>
+    
+    <h1>Online Store</h1>
+    
+    <div id="search-area">
+        <input type="text" id="search-input" placeholder="Search products..." onkeyup="searchProducts(this.value)">
+    </div>
+    
+    <div id="product-list">
+        <div class="product" data-id="1">
+            <h3 class="product-name">Laptop Computer</h3>
+            <p>Price: $999</p>
+            <button onclick="addToCart('1', 'Laptop Computer', 999)">Add to Cart</button>
+        </div>
+        
+        <div class="product" data-id="2">
+            <h3 class="product-name">Wireless Mouse</h3>
+            <p>Price: $29</p>
+            <button onclick="addToCart('2', 'Wireless Mouse', 29)">Add to Cart</button>
+        </div>
+        
+        <div class="product" data-id="3">
+            <h3 class="product-name">USB Keyboard</h3>
+            <p>Price: $79</p>
+            <button onclick="addToCart('3', 'USB Keyboard', 79)">Add to Cart</button>
+        </div>
+        
+        <div class="product" data-id="4">
+            <h3 class="product-name">Monitor Stand</h3>
+            <p>Price: $49</p>
+            <button onclick="addToCart('4', 'Monitor Stand', 49)">Add to Cart</button>
+        </div>
+    </div>
+    
+    <div id="checkout-form" class="checkout-form hidden">
+        <h2>Checkout</h2>
+        <form id="customer-form">
+            <label for="customer_name">Full Name:</label>
+            <input type="text" id="customer_name" name="customer_name" required><br><br>
+            
+            <label for="customer_email">Email:</label>
+            <input type="email" id="customer_email" name="customer_email" required><br><br>
+            
+            <label for="customer_address">Address:</label>
+            <textarea id="customer_address" name="customer_address" rows="3" required></textarea><br><br>
+            
+            <label for="payment_method">Payment Method:</label>
+            <select id="payment_method" name="payment_method" required>
+                <option value="">Select payment method</option>
+                <option value="credit">Credit Card</option>
+                <option value="debit">Debit Card</option>
+                <option value="paypal">PayPal</option>
+            </select><br><br>
+            
+            <button type="button" onclick="processCheckout()">Complete Order</button>
+        </form>
+    </div>
+    
+    <div id="order-confirmation" class="hidden"></div>
+</body>
+</html>

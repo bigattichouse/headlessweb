@@ -1,0 +1,23 @@
+<html><body>
+    <h1>Performance Stress Test</h1>
+    <div id="counter">0</div>
+    <button id="increment-btn" onclick="incrementCounter()">Increment</button>
+    <div id="status">Ready</div>
+    
+    <script>
+        let counter = 0;
+        function incrementCounter() {
+            counter++;
+            document.getElementById('counter').textContent = counter;
+            document.getElementById('status').textContent = 'Count: ' + counter;
+        }
+        
+        // Auto-increment function for stress testing
+        function autoIncrement(times) {
+            for (let i = 0; i < times; i++) {
+                // Use setTimeout to spread operations over time
+                setTimeout(() => incrementCounter(), i * 10);
+            }
+        }
+    </script>
+</body></html>

@@ -293,18 +293,12 @@ TEST_F(MinimalSegfaultDebugTest, LoadSimpleHTMLFile) {
 TEST_F(MinimalSegfaultDebugTest, BasicFillInputOperation) {
     debug_output("=== TEST: BasicFillInputOperation START ===");
     
-    // Create HTML with input field
-    std::string input_html = R"(<!DOCTYPE html>
-<html><head><title>Input Test</title></head>
-<body>
-    <input type="text" id="test-input" value="">
-</body></html>)";
-    
-    auto html_file = temp_dir->createFile("input_test.html", input_html);
-    std::string file_url = "file://" + html_file.string();
+    // Use external HTML file to avoid embedded HTML issues
+    std::string sample_html_path = "/home/bigattichouse/workspace/headlessweb/tests/sample_html/minimal_input_test.html";
+    std::string file_url = "file://" + sample_html_path;
     
     debug_output("Loading input test page: " + file_url);
-    debug_output("HTML file path for inspection: " + html_file.string());
+    debug_output("HTML file path for inspection: " + sample_html_path);
     
     // EVENT-DRIVEN FIX: Use full page readiness instead of basic navigation
     browser_->loadUri(file_url);
@@ -348,12 +342,14 @@ TEST_F(MinimalSegfaultDebugTest, BasicFillInputOperation) {
         dump_stream.close();
         debug_output("Page content dumped to: " + dump_file);
         
-        // Also save original HTML for comparison
+        // Also copy original HTML for comparison
         std::string orig_file = "/home/bigattichouse/workspace/headlessweb/debug_original.html";
+        std::ifstream orig_source(sample_html_path);
         std::ofstream orig_stream(orig_file);
-        orig_stream << input_html;
+        orig_stream << orig_source.rdbuf();
+        orig_source.close();
         orig_stream.close();
-        debug_output("Original HTML saved to: " + orig_file);
+        debug_output("Original HTML copied to: " + orig_file);
     } catch (...) {
         debug_output("Failed to dump page content");
     }
