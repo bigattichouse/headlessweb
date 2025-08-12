@@ -108,7 +108,7 @@ protected:
         
         // Check basic JavaScript execution with retry
         for (int i = 0; i < 5; i++) {
-            std::string js_test = executeWrappedJS("return 'test';");
+            std::string js_test = executeWrappedJS("'test'");
             if (js_test == "test") break;
             if (i == 4) return false;
             std::this_thread::sleep_for(std::chrono::milliseconds(200));
@@ -116,7 +116,7 @@ protected:
         
         // Verify DOM is ready
         for (int i = 0; i < 5; i++) {
-            std::string dom_check = executeWrappedJS("return document.readyState === 'complete';");
+            std::string dom_check = executeWrappedJS("document.readyState === 'complete'");
             if (dom_check == "true") break;
             if (i == 4) return false;
             std::this_thread::sleep_for(std::chrono::milliseconds(200));
@@ -565,7 +565,7 @@ TEST_F(ComplexWorkflowChainsTest, MultiPageNavigation_WithFormData) {
     
     // Wait for page to be ready with basic JavaScript test
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    std::string basic_test = executeWrappedJS("return 'ready';");
+    std::string basic_test = executeWrappedJS("'ready'");
     EXPECT_EQ(basic_test, "ready") << "JavaScript context should be ready";
     
     // Step 2: Fill form and navigate with proper error handling
@@ -637,7 +637,7 @@ TEST_F(ComplexWorkflowChainsTest, MultiPageNavigation_WithFormData) {
     
     // Wait for page to be ready with basic JavaScript test
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    std::string basic_test2 = executeWrappedJS("return 'ready';");
+    std::string basic_test2 = executeWrappedJS("'ready'");
     EXPECT_EQ(basic_test2, "ready") << "Page 2 JavaScript context should be ready";
     
     // Step 5: Complete profile form

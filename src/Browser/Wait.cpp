@@ -211,7 +211,7 @@ bool Browser::waitForNetworkIdle(int idle_time_ms, int timeout_ms) {
             // Start checking after initial idle time
             setTimeout(checkIdle, Math.min(idleTime, 500));
             
-        })()" + std::to_string(idle_time_ms) + ", " + std::to_string(timeout_ms) + R"();
+        })()" + std::to_string(idle_time_ms) + ", " + std::to_string(timeout_ms) + R"());
     )";
     
     executeJavascriptSync("window._hweb_event_result = undefined;");
@@ -362,7 +362,7 @@ bool Browser::waitForNetworkRequest(const std::string& url_pattern, int timeout_
                 }
             }, totalTimeout);
             
-        })(')" + escaped_pattern + "', " + std::to_string(timeout_ms) + R"();
+        })(')" + escaped_pattern + "', " + std::to_string(timeout_ms) + R"());
     )";
     
     executeJavascriptSync("window._hweb_event_result = undefined;");
@@ -802,7 +802,7 @@ bool Browser::waitForDOMChange(const std::string& selector, int timeout_ms) {
                 }
             }, timeout);
             
-        })(')" + escaped_selector + "', " + std::to_string(timeout_ms) + R"();
+        })(')" + escaped_selector + "', " + std::to_string(timeout_ms) + R"());
     )";
     
     executeJavascriptSync("window._hweb_event_result = undefined;");
@@ -902,7 +902,7 @@ bool Browser::waitForContentChange(const std::string& selector, const std::strin
             // Start checking after a small delay
             setTimeout(checkChange, 100);
             
-        })(')" + escaped_selector + "', '" + escaped_property + "', " + std::to_string(timeout_ms) + R"();
+        })(')" + escaped_selector + "', '" + escaped_property + "', " + std::to_string(timeout_ms) + R"());
     )";
     
     executeJavascriptSync("window._hweb_event_result = undefined;");
