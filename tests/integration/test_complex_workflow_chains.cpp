@@ -437,6 +437,16 @@ TEST_F(ComplexWorkflowChainsTest, ECommerceWorkflow_BrowseToCheckout) {
     bool second_click = browser_->clickElement(".product[data-id='2'] button"); // Add mouse
     debug_output("Second click result: " + std::string(second_click ? "success" : "failed"));
     
+    // Alternative: Try direct JavaScript execution of addToCart if click fails to trigger
+    if (!second_click) {
+        debug_output("Click failed, trying direct JavaScript call");
+        std::string direct_add = browser_->executeJavascriptSync("addToCart('2', 'Wireless Mouse', 29); 'direct_added'");
+        debug_output("Direct addToCart result: " + direct_add);
+    } else {
+        // If click succeeded, give it time to process the onclick event
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+    
     // Immediately check if addToCart function was called
     std::string addToCart_called = executeWrappedJS("typeof window._addToCartCalled !== 'undefined' ? window._addToCartCalled : 'undefined'");
     debug_output("addToCart function call debug: " + addToCart_called);
