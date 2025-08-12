@@ -128,7 +128,7 @@ protected:
                 bool all_elements_ready = true;
                 for (const auto& element : required_elements) {
                     std::string element_check = executeWrappedJS(
-                        "return document.querySelector('" + element + "') !== null;"
+                        "document.querySelector('" + element + "') !== null"
                     );
                     if (element_check != "true") {
                         all_elements_ready = false;
@@ -334,9 +334,9 @@ protected:
         // Wait for JavaScript functions and localStorage to be available
         for (int i = 0; i < 5; i++) {
             std::string functions_check = executeWrappedJS(
-                "return typeof addToCart === 'function' && "
+                "typeof addToCart === 'function' && "
                 "typeof showCheckout === 'function' && "
-                "typeof processCheckout === 'function';"
+                "typeof processCheckout === 'function'"
             );
             if (functions_check == "true") break;
             if (i == 4) {
@@ -419,21 +419,36 @@ TEST_F(ComplexWorkflowChainsTest, ECommerceWorkflow_BrowseToCheckout) {
     }
     
     debug_output("About to click second product (mouse)");
+    
+    // Debug the second product button before clicking
+    std::string second_button_exists = executeWrappedJS("document.querySelector('.product[data-id=\"2\"] button') !== null");
+    std::string second_button_visible = executeWrappedJS("document.querySelector('.product[data-id=\"2\"] button').offsetWidth > 0");
+    debug_output("Second product button exists: " + second_button_exists);
+    debug_output("Second product button visible: " + second_button_visible);
+    
     bool second_click = browser_->clickElement(".product[data-id='2'] button"); // Add mouse
     debug_output("Second click result: " + std::string(second_click ? "success" : "failed"));
+    
+    // Immediately check if addToCart function was called
+    std::string addToCart_called = executeWrappedJS("typeof window._addToCartCalled !== 'undefined' ? window._addToCartCalled : 'undefined'");
+    debug_output("addToCart function call debug: " + addToCart_called);
     
     // Debug cart state after second click - with error handling
     std::string cart_after_second = "";
     std::string cart_array_after_second = "";
+    std::string cart_contents = "";
     try {
         cart_after_second = executeWrappedJS("document.getElementById('cart-count') ? document.getElementById('cart-count').textContent : 'null'");
         cart_array_after_second = executeWrappedJS("typeof cart !== 'undefined' ? cart.length : 'undefined'");
+        cart_contents = executeWrappedJS("typeof cart !== 'undefined' ? JSON.stringify(cart) : 'undefined'");
     } catch (...) {
         cart_after_second = "error";
         cart_array_after_second = "error";
+        cart_contents = "error";
     }
     debug_output("Cart count after second click: '" + cart_after_second + "'");
     debug_output("Cart array length after second click: '" + cart_array_after_second + "'");
+    debug_output("Cart contents: " + cart_contents);
     
     // EVENT-DRIVEN FIX: Wait for cart count to reach 2
     std::string cart_update2_check = browser_->executeJavascriptSync(
@@ -447,10 +462,9 @@ TEST_F(ComplexWorkflowChainsTest, ECommerceWorkflow_BrowseToCheckout) {
     // Verify cart updates using wrapped JavaScript
     std::string cart_count = executeWrappedJS("document.getElementById('cart-count').textContent");
     std::string cart_array_length = executeWrappedJS("cart.length");
-    std::string cart_contents = executeWrappedJS("JSON.stringify(cart)");
     debug_output("Final cart count: '" + cart_count + "'");
     debug_output("Cart array length: '" + cart_array_length + "'");  
-    debug_output("Cart contents: '" + cart_contents + "'");
+    debug_output("Final cart contents: " + cart_contents);
     EXPECT_EQ(cart_count, "2");
     
     // Step 4: Proceed to checkout
@@ -499,11 +513,11 @@ TEST_F(ComplexWorkflowChainsTest, ECommerceWorkflow_BrowseToCheckout) {
     
     // EVENT-DRIVEN FIX: Wait for order confirmation using condition
     std::string order_confirmation_check = browser_->executeJavascriptSync(
-        "return document.getElementById('order-confirmation') && !document.getElementById('order-confirmation').classList.contains('hidden');");
+        "(function() { return document.getElementById('order-confirmation') && !document.getElementById('order-confirmation').classList.contains('hidden'); })()");
     for (int i = 0; i < 30 && order_confirmation_check != "true"; i++) {
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
         order_confirmation_check = browser_->executeJavascriptSync(
-            "return document.getElementById('order-confirmation') && !document.getElementById('order-confirmation').classList.contains('hidden');");
+            "(function() { return document.getElementById('order-confirmation') && !document.getElementById('order-confirmation').classList.contains('hidden'); })()");
     }
     
     // Verify order confirmation
