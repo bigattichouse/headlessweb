@@ -3,9 +3,11 @@
 #include <webkit/webkit.h>
 #include <glib.h>
 #include <iostream>
+#include <fstream>
 #include <chrono>
 #include <thread>
 #include <cstring>  // For strnlen
+#include <ctime>
 
 // External debug flag
 extern bool g_debug;
@@ -217,6 +219,7 @@ void ready_to_show_handler(WebKitWebView* webview, gpointer user_data) {
 void load_changed_callback(WebKitWebView* web_view, WebKitLoadEvent load_event, gpointer user_data) {
     
 }
+
 
 // ========== Setup and Cleanup Methods ==========
 

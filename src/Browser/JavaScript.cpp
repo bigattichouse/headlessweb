@@ -3,12 +3,15 @@
 #include <webkit/webkit.h>
 #include <glib.h>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <cmath>
 #include <thread>
 #include <chrono>
 #include <memory>
 #include <atomic>
 #include <mutex>
+#include <ctime>
 
 // External debug flag
 extern bool g_debug;
@@ -54,6 +57,44 @@ void js_eval_callback(GObject* object, GAsyncResult* res, gpointer user_data) {
         
         if (!should_suppress) {
             std::cerr << "JavaScript error: " << error->message << std::endl;
+            
+            // For critical syntax errors at line 59, dump complete page content
+            if (strstr(error->message, "line 59") || 
+                strstr(error->message, "SyntaxError") ||
+                strstr(error->message, "Unexpected token")) {
+                
+                if (browser_instance && browser_instance->isObjectValid()) {
+                    std::cerr << "\n=== DUMPING COMPLETE PAGE CONTENT FOR DEBUGGING ===" << std::endl;
+                    
+                    try {
+                        // Get the complete HTML content including all injected scripts
+                        std::string page_dump = browser_instance->executeJavascriptSync("document.documentElement.outerHTML");
+                        
+                        // Save to debug file
+                        std::string debug_file = "/tmp/js_error_page_dump_" + std::to_string(time(nullptr)) + ".html";
+                        std::ofstream dump_file(debug_file);
+                        if (dump_file.is_open()) {
+                            dump_file << page_dump;
+                            dump_file.close();
+                            std::cerr << "Complete page content saved to: " << debug_file << std::endl;
+                        }
+                        
+                        // Also print first 50 lines to stderr for immediate inspection
+                        std::stringstream ss(page_dump);
+                        std::string line;
+                        int line_num = 1;
+                        std::cerr << "\n=== FIRST 60 LINES OF PAGE CONTENT ===" << std::endl;
+                        while (std::getline(ss, line) && line_num <= 60) {
+                            std::cerr << line_num << ": " << line << std::endl;
+                            line_num++;
+                        }
+                        std::cerr << "=== END PAGE DUMP ===" << std::endl;
+                        
+                    } catch (...) {
+                        std::cerr << "Failed to dump page content due to exception" << std::endl;
+                    }
+                }
+            }
         }
         g_error_free(error);
         *(callback_data->result_ptr) = "";

@@ -419,11 +419,16 @@ std::string AsyncNavigationOperations::generateSPANavigationDetectionScript() co
 }
 
 std::string AsyncNavigationOperations::generateFrameworkDetectionScript(const std::string& framework) const {
-    std::ostringstream script;
+    // Escape single quotes in framework parameter for JavaScript string safety
+    std::string escaped_framework = framework;
+    size_t pos = 0;
+    while ((pos = escaped_framework.find("'", pos)) != std::string::npos) {
+        escaped_framework.replace(pos, 1, "\\'");
+        pos += 2;
+    }
     
-    script << R"JS(
+    return R"JS(
 (function(targetFramework) {
-    console.log('DEBUG: Framework Detection Script starting with targetFramework:', targetFramework);
     // HeadlessWeb Framework Detection
     var frameworks = {
         react: function() {
@@ -480,10 +485,8 @@ std::string AsyncNavigationOperations::generateFrameworkDetectionScript(const st
         
         return detected_frameworks;
     }
-})JS";
-    script << "('" << framework << "');";
-    
-    return script.str();
+})(')" + escaped_framework + R"(');
+)JS";
 }
 
 std::string AsyncNavigationOperations::generateRenderingCompleteScript() const {
