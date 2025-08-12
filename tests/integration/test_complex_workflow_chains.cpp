@@ -53,8 +53,16 @@ protected:
     std::string executeWrappedJS(const std::string& jsCode) {
         if (!browser_) return "";
         try {
-            std::string wrapped = "(function() { try { return " + jsCode + "; } catch(e) { return ''; } })()";
-            return browser_->executeJavascriptSync(wrapped);
+            std::string code = jsCode;
+            
+            // If the code already starts with "return", don't add another return
+            if (code.find("return") == 0) {
+                std::string wrapped = "(function() { try { " + code + "; } catch(e) { return ''; } })()";
+                return browser_->executeJavascriptSync(wrapped);
+            } else {
+                std::string wrapped = "(function() { try { return " + code + "; } catch(e) { return ''; } })()";
+                return browser_->executeJavascriptSync(wrapped);
+            }
         } catch (const std::exception& e) {
             debug_output("JavaScript execution error: " + std::string(e.what()));
             return "";

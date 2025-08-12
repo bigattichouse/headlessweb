@@ -97,6 +97,7 @@ bool Browser::fillInput(const std::string& selector, const std::string& value) {
     
     
     std::string result = executeJavascriptSync(js_script);
+    debug_output("FillInput JavaScript result: '" + result + "'");
     
     // If complex JavaScript fails, use multi-step approach for full event simulation
     if (result.empty() || result == "") {
