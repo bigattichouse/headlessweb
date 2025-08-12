@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sequential JavaScript Execution Test</title>
+</head>
+<body>
+    <h1>Testing Sequential Script Execution</h1>
+    <div id="log"></div>
+    
+    <script>
+        function log(message) {
+            document.getElementById('log').innerHTML += message + '<br>';
+            console.log(message);
+        }
+        
+        log("Starting sequential script execution test...");
+        
+        try {
+            // Script 1: SPA Navigation Detection (simplified)
+            log("Executing Script 1: SPA Navigation Detection");
+            var result1 = (function() {
+                log("Inside SPA script");
+                return {test: "spa"};
+            })();
+            log("Script 1 completed: " + JSON.stringify(result1));
+            
+            // Script 2: Framework Detection (the problematic one)
+            log("Executing Script 2: Framework Detection");
+            var result2 = 
+(function(targetFramework) {
+    log("Inside Framework Detection script with targetFramework: '" + targetFramework + "'");
+    
+    var frameworks = {
+        react: function() {
+            return typeof window.React !== 'undefined';
+        },
+        vue: function() {
+            return typeof window.Vue !== 'undefined';
+        }
+    };
+    
+    if (targetFramework && frameworks[targetFramework.toLowerCase()]) {
+        var detected = frameworks[targetFramework.toLowerCase()]();
+        log("Specific framework check: " + detected);
+        return detected;
+    } else {
+        var detected_frameworks = [];
+        for (var name in frameworks) {
+            if (frameworks[name]()) {
+                detected_frameworks.push(name);
+            }
+        }
+        log("All frameworks check: " + JSON.stringify(detected_frameworks));
+        return detected_frameworks;
+    }
+})('');
+            
+            log("Script 2 completed: " + JSON.stringify(result2));
+            
+            // Script 3: Rendering Complete
+            log("Executing Script 3: Rendering Complete");
+            var result3 = (function() {
+                log("Inside Rendering Complete script");
+                return {test: "rendering"};
+            })();
+            log("Script 3 completed: " + JSON.stringify(result3));
+            
+            log("✅ All scripts executed successfully!");
+            
+        } catch (error) {
+            log("❌ Error: " + error.message);
+            log("Error at line: " + (error.lineNumber || "unknown"));
+            console.error("Full error:", error);
+        }
+    </script>
+</body>
+</html>

@@ -423,6 +423,7 @@ std::string AsyncNavigationOperations::generateFrameworkDetectionScript(const st
     
     script << R"JS(
 (function(targetFramework) {
+    console.log('DEBUG: Framework Detection Script starting with targetFramework:', targetFramework);
     // HeadlessWeb Framework Detection
     var frameworks = {
         react: function() {
@@ -479,8 +480,8 @@ std::string AsyncNavigationOperations::generateFrameworkDetectionScript(const st
         
         return detected_frameworks;
     }
-)JS";
-    script << ")('" << framework << "');";
+})JS";
+    script << "('" << framework << "');";
     
     return script.str();
 }
