@@ -240,10 +240,11 @@ if (!targetElement) {
     let observer = new MutationObserver(callback);
     observer.observe(targetElement, observerConfig);
     
-    // Store observer for later cleanup
-    window.hweb_mutation_observers[)JS" << observer_id << R"JS(] = observer;
-    
-    true; // Return true to indicate success
+    // Store observer for later cleanup  
+)JS";
+    script << "    window.hweb_mutation_observers[" << observer_id << "] = observer;\n";
+    script << R"JS(    
+    return true; // Return true to indicate success
 }
 )JS";
     

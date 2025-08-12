@@ -36,7 +36,9 @@ std::future<bool> Browser::waitForElementAsync(const std::string& selector, int 
     // First check if element already exists
     std::string check_script = R"JS(
         (function() {
-            let element = document.querySelector(')JS" + selector + R"JS(');
+)JS";
+    check_script += "            let element = document.querySelector('" + selector + "');\n";
+    check_script += R"JS(
             return element !== null;
         })();
     )JS";

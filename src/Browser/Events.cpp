@@ -434,7 +434,7 @@ std::string Browser::setupDOMObserver(const std::string& selector, int timeout_m
                 }
             }, timeout);
             
-        })(')" + escaped_selector + "', " + std::to_string(timeout_ms) + R"());
+        })('" + escaped_selector + "', " + std::to_string(timeout_ms) + ");";
     )";
 }
 
@@ -557,7 +557,7 @@ std::string Browser::setupVisibilityObserver(const std::string& selector, int ti
                 }
             }, timeout);
             
-        })(')" + escaped_selector + "', " + std::to_string(timeout_ms) + R"());
+        })('" + escaped_selector + "', " + std::to_string(timeout_ms) + ");";
     )";
 }
 
@@ -602,7 +602,7 @@ std::string Browser::setupNavigationObserver(int timeout_ms) {
             // Start polling
             setTimeout(poll, 500);
             
-        })()" + std::to_string(timeout_ms) + ", '" + previous_url + R"('));
+        })(" + std::to_string(timeout_ms) + ", '" + previous_url + "');";
     )";
 }
 
@@ -735,7 +735,7 @@ std::string Browser::setupConditionObserver(const std::string& condition, int ti
             // Start polling after a small delay
             setTimeout(poll, 100);
             
-        })(')" + escaped_condition + "', " + std::to_string(timeout_ms) + R"());
+        })('" + escaped_condition + "', " + std::to_string(timeout_ms) + ");";
     )";
 }
 
