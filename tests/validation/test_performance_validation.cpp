@@ -37,8 +37,14 @@ protected:
     }
     
     std::string executeWrappedJS(const std::string& jsCode) {
-        std::string wrapped = "(function() { " + jsCode + " })()";
-        return browser_->executeJavascriptSync(wrapped);
+        if (!browser_) return "";
+        try {
+            std::string wrapped = "(function() { try { return " + jsCode + "; } catch(e) { return ''; } })()";
+            return browser_->executeJavascriptSync(wrapped);
+        } catch (const std::exception& e) {
+            debug_output("JavaScript execution error: " + std::string(e.what()));
+            return "";
+        }
     }
     
     // Run a single performance stress test and return final counter value
@@ -89,10 +95,10 @@ protected:
         }
         
         // Reset counter
-        executeWrappedJS("counter = 0; document.getElementById('counter').textContent = '0';");
+        executeWrappedJS("counter = 0; document.getElementById('counter').textContent = '0'; return 'reset'");
         
         // Start rapid operations
-        std::string start_test = "autoIncrement(" + std::to_string(num_operations) + ");";
+        std::string start_test = "autoIncrement(" + std::to_string(num_operations) + "); return 'started'";
         executeWrappedJS(start_test);
         
         // Wait for operations to complete (num_operations * 10ms + buffer)

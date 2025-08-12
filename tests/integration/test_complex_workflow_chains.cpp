@@ -53,7 +53,7 @@ protected:
     std::string executeWrappedJS(const std::string& jsCode) {
         if (!browser_) return "";
         try {
-            std::string wrapped = "(function() { try { " + jsCode + " } catch(e) { return ''; } })()";
+            std::string wrapped = "(function() { try { return " + jsCode + "; } catch(e) { return ''; } })()";
             return browser_->executeJavascriptSync(wrapped);
         } catch (const std::exception& e) {
             debug_output("JavaScript execution error: " + std::string(e.what()));
@@ -74,7 +74,7 @@ protected:
             // Simple JavaScript readiness check without complex polling
             for (int i = 0; i < 10; i++) {
                 try {
-                    std::string basic_check = browser_->executeJavascriptSync("'ready'");
+                    std::string basic_check = executeWrappedJS("'ready'");
                     if (basic_check == "ready") {
                         // Additional time for DOM rendering
                         std::this_thread::sleep_for(std::chrono::milliseconds(500));
@@ -383,43 +383,64 @@ TEST_F(ComplexWorkflowChainsTest, ECommerceWorkflow_BrowseToCheckout) {
     EXPECT_TRUE(browser_->elementExists(".product[data-id='1']")); // Laptop should be visible
     
     // Step 3: Add items to cart
-    browser_->clickElement(".product[data-id='1'] button"); // Add laptop
+    debug_output("About to click first product (laptop)");
+    bool first_click = browser_->clickElement(".product[data-id='1'] button"); // Add laptop
+    debug_output("First click result: " + std::string(first_click ? "success" : "failed"));
     
-    // EVENT-DRIVEN FIX: Wait for cart update using JavaScript condition
+    // Debug cart state after first click
+    std::string cart_after_first = executeWrappedJS("document.getElementById('cart-count').textContent");
+    std::string cart_array_after_first = executeWrappedJS("cart.length");
+    debug_output("Cart count after first click: '" + cart_after_first + "'");
+    debug_output("Cart array length after first click: '" + cart_array_after_first + "'");
+    
+    // EVENT-DRIVEN FIX: Wait for cart update using properly wrapped JavaScript
     std::string cart_update_check = browser_->executeJavascriptSync(
-        "return document.getElementById('cart-count').textContent === '1';");
+        "(function() { return document.getElementById('cart-count').textContent === '1'; })()");
     for (int i = 0; i < 20 && cart_update_check != "true"; i++) {
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
         cart_update_check = browser_->executeJavascriptSync(
-            "return document.getElementById('cart-count').textContent === '1';");
+            "(function() { return document.getElementById('cart-count').textContent === '1'; })()");
     }
     
-    browser_->clickElement(".product[data-id='2'] button"); // Add mouse
+    debug_output("About to click second product (mouse)");
+    bool second_click = browser_->clickElement(".product[data-id='2'] button"); // Add mouse
+    debug_output("Second click result: " + std::string(second_click ? "success" : "failed"));
+    
+    // Debug cart state after second click
+    std::string cart_after_second = executeWrappedJS("document.getElementById('cart-count').textContent");
+    std::string cart_array_after_second = executeWrappedJS("cart.length");
+    debug_output("Cart count after second click: '" + cart_after_second + "'");
+    debug_output("Cart array length after second click: '" + cart_array_after_second + "'");
     
     // EVENT-DRIVEN FIX: Wait for cart count to reach 2
     std::string cart_update2_check = browser_->executeJavascriptSync(
-        "return document.getElementById('cart-count').textContent === '2';");
+        "(function() { return document.getElementById('cart-count').textContent === '2'; })()");
     for (int i = 0; i < 20 && cart_update2_check != "true"; i++) {
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
         cart_update2_check = browser_->executeJavascriptSync(
-            "return document.getElementById('cart-count').textContent === '2';");
+            "(function() { return document.getElementById('cart-count').textContent === '2'; })()");
     }
     
-    // Verify cart updates
-    std::string cart_count = browser_->getInnerText("#cart-count");
+    // Verify cart updates using wrapped JavaScript
+    std::string cart_count = executeWrappedJS("document.getElementById('cart-count').textContent");
+    std::string cart_array_length = executeWrappedJS("cart.length");
+    std::string cart_contents = executeWrappedJS("JSON.stringify(cart)");
+    debug_output("Final cart count: '" + cart_count + "'");
+    debug_output("Cart array length: '" + cart_array_length + "'");  
+    debug_output("Cart contents: '" + cart_contents + "'");
     EXPECT_EQ(cart_count, "2");
     
     // Step 4: Proceed to checkout
     EXPECT_TRUE(browser_->elementExists("#checkout-btn"));
     browser_->clickElement("#checkout-btn");
     
-    // EVENT-DRIVEN FIX: Wait for checkout form to appear using condition
+    // EVENT-DRIVEN FIX: Wait for checkout form to appear using properly wrapped condition
     std::string checkout_ready_check = browser_->executeJavascriptSync(
-        "return document.getElementById('checkout-form') && !document.getElementById('checkout-form').classList.contains('hidden');");
+        "(function() { return document.getElementById('checkout-form') && !document.getElementById('checkout-form').classList.contains('hidden'); })()");
     for (int i = 0; i < 20 && checkout_ready_check != "true"; i++) {
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
         checkout_ready_check = browser_->executeJavascriptSync(
-            "return document.getElementById('checkout-form') && !document.getElementById('checkout-form').classList.contains('hidden');");
+            "(function() { return document.getElementById('checkout-form') && !document.getElementById('checkout-form').classList.contains('hidden'); })()");
     }
     
     // Verify checkout form appears and product list is hidden
