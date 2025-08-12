@@ -7,6 +7,7 @@
 #include <memory>
 #include <chrono>
 #include <thread>
+#include <fstream>
 
 extern std::unique_ptr<Browser> g_browser;
 
@@ -303,6 +304,7 @@ TEST_F(MinimalSegfaultDebugTest, BasicFillInputOperation) {
     std::string file_url = "file://" + html_file.string();
     
     debug_output("Loading input test page: " + file_url);
+    debug_output("HTML file path for inspection: " + html_file.string());
     
     // EVENT-DRIVEN FIX: Use full page readiness instead of basic navigation
     browser_->loadUri(file_url);
@@ -335,6 +337,25 @@ TEST_F(MinimalSegfaultDebugTest, BasicFillInputOperation) {
             page_ready = true;
             debug_output("Direct JavaScript test succeeded, considering page ready");
         }
+    }
+    
+    // Dump the current page content for inspection BEFORE assertions (to debug syntax errors)
+    try {
+        std::string page_content = executeWrappedJS("document.documentElement.outerHTML");
+        std::string dump_file = "/home/bigattichouse/workspace/headlessweb/debug_page_dump.html";
+        std::ofstream dump_stream(dump_file);
+        dump_stream << page_content;
+        dump_stream.close();
+        debug_output("Page content dumped to: " + dump_file);
+        
+        // Also save original HTML for comparison
+        std::string orig_file = "/home/bigattichouse/workspace/headlessweb/debug_original.html";
+        std::ofstream orig_stream(orig_file);
+        orig_stream << input_html;
+        orig_stream.close();
+        debug_output("Original HTML saved to: " + orig_file);
+    } catch (...) {
+        debug_output("Failed to dump page content");
     }
     
     ASSERT_TRUE(page_ready) << "Page should load successfully via event system or fallback";

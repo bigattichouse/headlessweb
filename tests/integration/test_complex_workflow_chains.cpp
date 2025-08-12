@@ -156,6 +156,7 @@ protected:
     std::unique_ptr<TestHelpers::TemporaryDirectory> temp_dir;
     
     void loadECommerceTestPage() {
+        debug_output("=== loadECommerceTestPage START ===");
         std::string ecommerce_html = R"HTMLDELIM(
             <!DOCTYPE html>
             <html>
@@ -364,7 +365,9 @@ protected:
 // ========== Complete E-Commerce Workflow Tests ==========
 
 TEST_F(ComplexWorkflowChainsTest, ECommerceWorkflow_BrowseToCheckout) {
+    debug_output("=== ECommerceWorkflow_BrowseToCheckout TEST START ===");
     loadECommerceTestPage();
+    debug_output("E-commerce page loaded");
     
     // Step 1: Browse products and verify initial state
     // TODO: Replace with proper Assertion::Command-based assertions
@@ -383,13 +386,26 @@ TEST_F(ComplexWorkflowChainsTest, ECommerceWorkflow_BrowseToCheckout) {
     EXPECT_TRUE(browser_->elementExists(".product[data-id='1']")); // Laptop should be visible
     
     // Step 3: Add items to cart
+    // Check if product buttons exist before clicking
+    bool first_product_exists = browser_->elementExists(".product[data-id='1'] button");
+    bool second_product_exists = browser_->elementExists(".product[data-id='2'] button");
+    debug_output("First product button exists: " + std::string(first_product_exists ? "yes" : "no"));
+    debug_output("Second product button exists: " + std::string(second_product_exists ? "yes" : "no"));
+    
     debug_output("About to click first product (laptop)");
     bool first_click = browser_->clickElement(".product[data-id='1'] button"); // Add laptop
     debug_output("First click result: " + std::string(first_click ? "success" : "failed"));
     
-    // Debug cart state after first click
-    std::string cart_after_first = executeWrappedJS("document.getElementById('cart-count').textContent");
-    std::string cart_array_after_first = executeWrappedJS("cart.length");
+    // Debug cart state after first click - with error handling
+    std::string cart_after_first = "";
+    std::string cart_array_after_first = "";
+    try {
+        cart_after_first = executeWrappedJS("document.getElementById('cart-count') ? document.getElementById('cart-count').textContent : 'null'");
+        cart_array_after_first = executeWrappedJS("typeof cart !== 'undefined' ? cart.length : 'undefined'");
+    } catch (...) {
+        cart_after_first = "error";
+        cart_array_after_first = "error";
+    }
     debug_output("Cart count after first click: '" + cart_after_first + "'");
     debug_output("Cart array length after first click: '" + cart_array_after_first + "'");
     
@@ -406,9 +422,16 @@ TEST_F(ComplexWorkflowChainsTest, ECommerceWorkflow_BrowseToCheckout) {
     bool second_click = browser_->clickElement(".product[data-id='2'] button"); // Add mouse
     debug_output("Second click result: " + std::string(second_click ? "success" : "failed"));
     
-    // Debug cart state after second click
-    std::string cart_after_second = executeWrappedJS("document.getElementById('cart-count').textContent");
-    std::string cart_array_after_second = executeWrappedJS("cart.length");
+    // Debug cart state after second click - with error handling
+    std::string cart_after_second = "";
+    std::string cart_array_after_second = "";
+    try {
+        cart_after_second = executeWrappedJS("document.getElementById('cart-count') ? document.getElementById('cart-count').textContent : 'null'");
+        cart_array_after_second = executeWrappedJS("typeof cart !== 'undefined' ? cart.length : 'undefined'");
+    } catch (...) {
+        cart_after_second = "error";
+        cart_array_after_second = "error";
+    }
     debug_output("Cart count after second click: '" + cart_after_second + "'");
     debug_output("Cart array length after second click: '" + cart_array_after_second + "'");
     

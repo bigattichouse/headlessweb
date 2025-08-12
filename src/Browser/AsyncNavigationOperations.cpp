@@ -479,7 +479,7 @@ std::string AsyncNavigationOperations::generateFrameworkDetectionScript(const st
         
         return detected_frameworks;
     }
-})()JS" << "('" << framework << "');";
+})JS" << "('" << framework << "');";
     
     return script.str();
 }
