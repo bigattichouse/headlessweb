@@ -37,8 +37,9 @@ venv/
 **/Makefile
 **/hweb_tests[1]_include.cmake
 **/hweb_tests[1]_tests.cmake
-hweb_tests[*]*
-**/hweb_tests[*]*
+hweb_tests\[*\]*
+**/hweb_tests\[*\]*
+tests/hweb_tests\[1\]_tests.cmake
 
 # Node.js
 node_modules/
