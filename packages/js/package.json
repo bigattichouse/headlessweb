@@ -1,0 +1,66 @@
+{
+  "name": "@headlessweb/js",
+  "version": "1.0.0",
+  "description": "Node.js bindings for HeadlessWeb browser automation framework",
+  "main": "index.js",
+  "types": "types/index.d.ts",
+  "bin": {
+    "hweb-js": "./bin/hweb-js"
+  },
+  "scripts": {
+    "install": "cd ../../bindings/node && node-gyp rebuild",
+    "build": "cd ../../bindings/node && node-gyp build",
+    "clean": "cd ../../bindings/node && node-gyp clean",
+    "test": "jest",
+    "test:unit": "jest test/unit",
+    "test:integration": "jest test/integration",
+    "docs": "jsdoc -d docs lib/*.js",
+    "prepack": "npm run build"
+  },
+  "dependencies": {
+    "node-addon-api": "^7.0.0"
+  },
+  "devDependencies": {
+    "node-gyp": "^10.0.0",
+    "jest": "^29.0.0",
+    "@types/node": "^20.0.0",
+    "jsdoc": "^4.0.0"
+  },
+  "peerDependencies": {
+    "node-gyp": "^10.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "os": ["linux", "darwin"],
+  "keywords": [
+    "browser",
+    "automation",
+    "testing",
+    "headless",
+    "webkit",
+    "scraping",
+    "e2e",
+    "automation",
+    "web-testing"
+  ],
+  "author": "HeadlessWeb Contributors",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/user/headlessweb.git",
+    "directory": "packages/js"
+  },
+  "bugs": {
+    "url": "https://github.com/user/headlessweb/issues"
+  },
+  "homepage": "https://github.com/user/headlessweb#readme",
+  "gypfile": true,
+  "files": [
+    "index.js",
+    "lib/**/*",
+    "bin/**/*",
+    "types/**/*",
+    "../../bindings/node/**/*"
+  ]
+}

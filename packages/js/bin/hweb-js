@@ -1,0 +1,141 @@
+#!/usr/bin/env node
+
+const { Browser } = require('../index');
+const fs = require('fs');
+const path = require('path');
+
+// Command line interface for HeadlessWeb JavaScript
+async function main() {
+    const args = process.argv.slice(2);
+    
+    if (args.length === 0 || args.includes('--help') || args.includes('-h')) {
+        showHelp();
+        return;
+    }
+    
+    if (args.includes('--version')) {
+        const pkg = require('../package.json');
+        console.log(`@headlessweb/js v${pkg.version}`);
+        return;
+    }
+    
+    // Parse command line arguments
+    const options = parseArgs(args);
+    
+    try {
+        // Create browser instance
+        const browser = new Browser({
+            session: options.session,
+            headless: true
+        });
+        
+        console.log(`HeadlessWeb JS - Session: ${options.session}`);
+        
+        // Execute commands
+        if (options.url) {
+            console.log(`Navigating to: ${options.url}`);
+            await browser.navigate(options.url);
+        }
+        
+        if (options.click) {
+            console.log(`Clicking: ${options.click}`);
+            await browser.click(options.click);
+        }
+        
+        if (options.type) {
+            const [selector, text] = options.type;
+            console.log(`Typing "${text}" into: ${selector}`);
+            await browser.type(selector, text);
+        }
+        
+        if (options.getText) {
+            const text = browser.getText(options.getText);
+            console.log(`Text: ${text}`);
+        }
+        
+        if (options.screenshot) {
+            console.log(`Taking screenshot: ${options.screenshot}`);
+            await browser.screenshot(options.screenshot);
+        }
+        
+        if (options.js) {
+            console.log(`Executing JavaScript: ${options.js}`);
+            const result = await browser.executeJavaScript(options.js);
+            console.log(`Result: ${result}`);
+        }
+        
+        console.log('Commands completed successfully');
+        
+    } catch (error) {
+        console.error('Error:', error.message);
+        process.exit(1);
+    }
+}
+
+function parseArgs(args) {
+    const options = {
+        session: 'default'
+    };
+    
+    for (let i = 0; i < args.length; i++) {
+        const arg = args[i];
+        
+        switch (arg) {
+            case '--session':
+                options.session = args[++i];
+                break;
+            case '--url':
+                options.url = args[++i];
+                break;
+            case '--click':
+                options.click = args[++i];
+                break;
+            case '--type':
+                options.type = [args[++i], args[++i]];
+                break;
+            case '--get-text':
+                options.getText = args[++i];
+                break;
+            case '--screenshot':
+                options.screenshot = args[++i] || 'screenshot.png';
+                break;
+            case '--js':
+                options.js = args[++i];
+                break;
+        }
+    }
+    
+    return options;
+}
+
+function showHelp() {
+    console.log(`
+HeadlessWeb JavaScript CLI
+
+Usage: hweb-js [options]
+
+Options:
+  --session <name>        Session name (default: "default")
+  --url <url>             Navigate to URL
+  --click <selector>      Click element
+  --type <selector> <text> Type text into element
+  --get-text <selector>   Get text from element
+  --screenshot [filename] Take screenshot
+  --js <code>             Execute JavaScript
+  --version               Show version
+  --help, -h              Show this help
+
+Examples:
+  hweb-js --url https://example.com --screenshot
+  hweb-js --session test --url https://google.com --type "input[name='q']" "hello world"
+  hweb-js --url https://example.com --js "document.title"
+`);
+}
+
+// Run the CLI
+if (require.main === module) {
+    main().catch(error => {
+        console.error('Fatal error:', error);
+        process.exit(1);
+    });
+}
