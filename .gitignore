@@ -37,6 +37,8 @@ venv/
 **/Makefile
 **/hweb_tests[1]_include.cmake
 **/hweb_tests[1]_tests.cmake
+hweb_tests[*]*
+**/hweb_tests[*]*
 
 # Node.js
 node_modules/
@@ -54,6 +56,7 @@ coverage/
 # Node.js build artifacts
 build/Release/
 build/Debug/
+**/build/
 *.node
 prebuilds/
 
