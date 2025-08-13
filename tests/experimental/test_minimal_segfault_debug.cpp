@@ -8,6 +8,8 @@
 #include <chrono>
 #include <thread>
 #include <fstream>
+#include <cstdio>
+#include <vector>
 
 extern std::unique_ptr<Browser> g_browser;
 
@@ -39,6 +41,23 @@ protected:
         debug_output("=== MinimalSegfaultDebugTest::TearDown START ===");
         // Minimal cleanup
         temp_dir.reset();
+        
+        // Clean up debug files if they exist
+        std::vector<std::string> debug_files = {
+            "debug_page_dump.html",
+            "debug_original.html"
+        };
+        
+        for (const auto& debug_file : debug_files) {
+            if (std::ifstream(debug_file).good()) {
+                if (std::remove(debug_file.c_str()) == 0) {
+                    debug_output("Cleaned up debug file: " + debug_file);
+                } else {
+                    debug_output("Failed to clean up debug file: " + debug_file);
+                }
+            }
+        }
+        
         debug_output("=== MinimalSegfaultDebugTest::TearDown END ===");
     }
 
@@ -336,14 +355,14 @@ TEST_F(MinimalSegfaultDebugTest, BasicFillInputOperation) {
     // Dump the current page content for inspection BEFORE assertions (to debug syntax errors)
     try {
         std::string page_content = executeWrappedJS("document.documentElement.outerHTML");
-        std::string dump_file = "/home/bigattichouse/workspace/headlessweb/debug_page_dump.html";
+        std::string dump_file = "debug_page_dump.html";
         std::ofstream dump_stream(dump_file);
         dump_stream << page_content;
         dump_stream.close();
         debug_output("Page content dumped to: " + dump_file);
         
         // Also copy original HTML for comparison
-        std::string orig_file = "/home/bigattichouse/workspace/headlessweb/debug_original.html";
+        std::string orig_file = "debug_original.html";
         std::ifstream orig_source(sample_html_path);
         std::ofstream orig_stream(orig_file);
         orig_stream << orig_source.rdbuf();

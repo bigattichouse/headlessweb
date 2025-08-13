@@ -37,3 +37,35 @@ venv/
 **/Makefile
 **/hweb_tests[1]_include.cmake
 **/hweb_tests[1]_tests.cmake
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+.npm
+
+# Jest/Testing
+coverage/
+*.lcov
+.nyc_output/
+
+# Node.js build artifacts
+build/Release/
+build/Debug/
+*.node
+prebuilds/
+
+# Debug files
+debug_page_dump.html
+debug_original.html
+**/debug_page_dump.html
+**/debug_original.html
+
+# Temporary debug artifacts
+debug_all_*.cpp
+debug_all_*
+debug_framework_*.cpp
+debug_framework_*
+js_debug_*.cpp
