@@ -10,6 +10,7 @@
 - [API Reference](#api-reference)
 - [Examples](#examples)
 - [Testing Framework](#testing-framework)
+- [Comprehensive Testing Suite](#comprehensive-testing-suite)
 - [Development](#development)
 - [Troubleshooting](#troubleshooting)
 
@@ -767,6 +768,354 @@ try {
     browser.destroy();
 }
 ```
+
+## 🧪 Comprehensive Testing Suite
+
+HeadlessWeb includes a robust testing infrastructure with **61 comprehensive test cases** across multiple categories to ensure reliability and provide development examples.
+
+### Test Architecture
+
+```
+test/
+├── helpers/                    # Test utilities and setup
+│   ├── setup.js               # Global test configuration
+│   └── teardown.js            # Cleanup and resource management
+├── mocks/                     # Mock implementations
+│   └── addon-mock.js          # Complete mock of native C++ addon
+├── unit/                      # Unit tests for individual classes
+│   ├── browser.test.js        # Browser class functionality
+│   ├── session.test.js        # Session management
+│   ├── test-suite.test.js     # TestSuite framework
+│   ├── index.test.js          # Package entry point
+│   └── cli.test.js            # Command-line interface
+└── integration/               # Real-world automation scenarios
+    ├── basic-automation.test.js      # Navigation and DOM interaction
+    └── test-suite-integration.test.js # Complete workflows
+```
+
+### Running Tests
+
+```bash
+# Run all tests with coverage
+npm test
+
+# Run specific test category
+npm run test:unit
+npm run test:integration
+
+# Run with verbose output
+npm run test:verbose
+
+# Generate coverage report
+npm run test:coverage
+
+# Watch mode for development
+npm run test:watch
+```
+
+### Mock Development Environment
+
+The test suite includes a complete mock addon that simulates all HeadlessWeb functionality, enabling:
+
+- **Development without C++ compilation** - Write and test JavaScript code immediately
+- **Consistent test behavior** - Predictable responses for reliable CI/CD
+- **Complete API coverage** - All methods and events are mocked
+- **Performance testing** - Mock timing matches real implementation patterns
+
+```javascript
+// Mock automatically loaded in Jest environment
+const { Browser } = require('@headlessweb/js');
+
+// Works immediately without native compilation
+const browser = new Browser({ session: 'test' });
+await browser.navigate('https://example.com');
+expect(browser.exists('h1')).toBe(true);
+```
+
+### Unit Test Examples
+
+#### Browser Class Testing
+```javascript
+// test/unit/browser.test.js
+describe('Browser Class', () => {
+    test('should create browser with custom options', () => {
+        const browser = createTestBrowser({
+            session: 'custom-test',
+            headless: false,
+            timeout: 45000
+        });
+        
+        expect(browser.session).toBe('custom-test');
+        expect(browser.headless).toBe(false);
+        expect(browser.timeout).toBe(45000);
+    });
+    
+    test('should handle navigation with events', async () => {
+        const events = [];
+        browser.on('navigated', (data) => events.push(data));
+        
+        await browser.navigate('https://example.com');
+        
+        expect(events).toHaveLength(1);
+        expect(events[0].url).toBe('https://example.com');
+    });
+});
+```
+
+#### TestSuite Framework Testing
+```javascript
+// test/unit/test-suite.test.js
+describe('TestSuite Class', () => {
+    test('should support method chaining', async () => {
+        const test = browser.createTest('Chaining Test');
+        
+        const result = await test
+            .navigate('https://example.com')
+            .assertExists('h1')
+            .assertText('h1', 'Example Domain')
+            .screenshot('chaining-test.png')
+            .message('Chaining completed');
+        
+        expect(result).toBe(test);
+        expect(test.steps).toHaveLength(5);
+    });
+    
+    test('should generate comprehensive reports', () => {
+        test.message('Test step 1');
+        test.message('Test step 2');
+        
+        const report = test.generateReport();
+        
+        expect(report).toBeTestReport();
+        expect(report.summary.total).toBe(2);
+        expect(report.summary.success).toBe(true);
+        expect(report.timing.totalTime).toBeGreaterThan(0);
+    });
+});
+```
+
+### Integration Test Examples
+
+#### E-commerce Workflow Testing
+```javascript
+// test/integration/test-suite-integration.test.js
+test('should test an e-commerce shopping flow', async () => {
+    const test = browser.createTest('E-commerce Shopping Flow');
+    
+    await test
+        .navigate(dataUrl) // Mock e-commerce page
+        .assertExists('h1')
+        .assertText('h1', 'Welcome to Test Shop')
+        
+        // Add items to cart
+        .click('.product[data-id="1"] .add-to-cart')
+        .wait(100)
+        .assertText('#cart-count', '1')
+        .message('Added laptop to cart')
+        
+        .click('.product[data-id="2"] .add-to-cart')
+        .wait(100)
+        .assertText('#cart-count', '2')
+        .message('Added mouse to cart')
+        
+        // Checkout process
+        .screenshot('cart-with-items.png')
+        .click('#checkout-btn')
+        .wait(100)
+        .assertExists('#checkout-success')
+        .assertText('#checkout-success h2', 'Order Completed!')
+        .screenshot('checkout-success.png')
+        .message('Checkout completed successfully');
+    
+    const report = test.generateReport();
+    expect(report.summary.success).toBe(true);
+    expect(report.summary.total).toBeGreaterThan(15);
+});
+```
+
+#### Form Validation Testing
+```javascript
+test('should test form validation scenarios', async () => {
+    const test = browser.createTest('Form Validation Test');
+    
+    await test
+        .navigate(formPageUrl)
+        .assertExists('#contact-form')
+        
+        // Test empty form submission
+        .click('#submit-btn')
+        .wait(100)
+        .assertExists('#name-error')
+        .assertExists('#email-error')
+        .message('Validated empty form shows errors')
+        
+        // Test invalid email
+        .type('#name', 'John Doe')
+        .type('#email', 'invalid-email')
+        .click('#submit-btn')
+        .wait(100)
+        .assertText('#email-error', 'Invalid email format')
+        .message('Validated invalid email format')
+        
+        // Test valid form
+        .type('#email', 'john@example.com')
+        .click('#submit-btn')
+        .wait(100)
+        .assertExists('#success-msg')
+        .message('Form submitted successfully with valid data');
+    
+    const report = test.generateReport();
+    expect(report.summary.success).toBe(true);
+});
+```
+
+### CLI Testing
+
+```javascript
+// test/unit/cli.test.js
+describe('CLI Interface', () => {
+    test('should execute multiple commands in sequence', async () => {
+        const result = await runCli([
+            '--session', 'multi-command',
+            '--url', 'data:text/html,<h1>Test</h1>',
+            '--get-text', 'h1',
+            '--screenshot', 'multi-test.png'
+        ]);
+        
+        expect(result.stdout).toContain('Session: multi-command');
+        expect(result.stdout).toContain('Navigating to:');
+        expect(result.stdout).toContain('Text:');
+        expect(result.stdout).toContain('Taking screenshot:');
+    });
+});
+```
+
+### Custom Jest Matchers
+
+The test suite includes custom matchers for HeadlessWeb-specific testing:
+
+```javascript
+// Available custom matchers
+expect(report).toBeTestReport();
+expect(browser).toBeBrowserInstance();
+expect(sessionName).toBeValidSessionName();
+
+// Usage examples
+const report = test.generateReport();
+expect(report).toBeTestReport();
+expect(report.summary.success).toBe(true);
+
+const browser = createTestBrowser();
+expect(browser).toBeBrowserInstance();
+```
+
+### Performance Testing
+
+```javascript
+test('should handle rapid operations', async () => {
+    const start = Date.now();
+    
+    // Perform many fast operations
+    for (let i = 0; i < 10; i++) {
+        browser.executeJavaScriptSync(`window.testVar${i} = ${i}`);
+    }
+    
+    const elapsed = Date.now() - start;
+    expect(elapsed).toBeLessThan(5000); // Should complete quickly
+});
+
+test('should track performance metrics', async () => {
+    const test = browser.createTest('Performance Test');
+    
+    await test
+        .navigate('about:blank')
+        .wait(100)
+        .screenshot('performance-test.png');
+    
+    const report = test.generateReport();
+    
+    // Timing validation
+    expect(report.timing.totalTime).toBeGreaterThan(90);
+    report.steps.forEach(step => {
+        expect(step.duration).toBeGreaterThanOrEqual(0);
+        expect(typeof step.timestamp).toBe('number');
+    });
+});
+```
+
+### Memory Management Testing
+
+```javascript
+test('should clean up resources properly', () => {
+    const browsers = [];
+    
+    // Create multiple browsers
+    for (let i = 0; i < 5; i++) {
+        browsers.push(createTestBrowser({ session: `cleanup-test-${i}` }));
+    }
+    
+    // Destroy all browsers
+    browsers.forEach(browser => {
+        expect(() => browser.destroy()).not.toThrow();
+    });
+});
+```
+
+### Test Configuration
+
+```javascript
+// jest.config.js
+module.exports = {
+    testEnvironment: 'node',
+    setupFilesAfterEnv: ['<rootDir>/test/helpers/setup.js'],
+    globalTeardown: '<rootDir>/test/helpers/teardown.js',
+    
+    // Mock native modules for testing
+    moduleNameMapper: {
+        '^.*\\.node$': '<rootDir>/test/mocks/addon-mock.js'
+    },
+    
+    // Coverage configuration
+    collectCoverageFrom: [
+        'lib/**/*.js',
+        'index.js',
+        '!lib/**/*.test.js',
+        '!test/**/*'
+    ],
+    
+    testTimeout: 30000
+};
+```
+
+### Continuous Integration
+
+```yaml
+# .github/workflows/test.yml
+name: Test Suite
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      
+      - name: Install dependencies
+        run: npm install
+        working-directory: packages/js
+      
+      - name: Run tests with mock
+        run: npm test
+        working-directory: packages/js
+      
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+```
+
+This comprehensive test suite ensures the reliability and maintainability of the HeadlessWeb Node.js integration while providing extensive examples for developers.
 
 ## 🔧 Troubleshooting
 
