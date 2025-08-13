@@ -1,8 +1,22 @@
 const EventEmitter = require('events');
 const path = require('path');
 
-// Load the native addon
-const addon = require(path.join(__dirname, '../../../build/Release/hweb_addon.node'));
+// Load the native addon with fallback to mock for testing
+let addon;
+try {
+    addon = require(path.join(__dirname, '../../../build/Release/hweb_addon.node'));
+} catch (error) {
+    // Fallback to mock for testing/development
+    try {
+        addon = require('../test/mocks/addon-mock.js');
+    } catch (mockError) {
+        throw new Error(
+            'HeadlessWeb native addon not found. ' +
+            'Please run "npm run build" to compile the native module, ' +
+            'or ensure test mocks are available for testing.'
+        );
+    }
+}
 
 /**
  * Browser automation class providing both sync and async methods
