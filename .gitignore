@@ -69,3 +69,6 @@ debug_all_*
 debug_framework_*.cpp
 debug_framework_*
 js_debug_*.cpp
+
+# Debug directory (temporary debugging files)
+debug/
