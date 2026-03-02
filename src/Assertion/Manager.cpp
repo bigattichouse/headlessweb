@@ -303,11 +303,232 @@ Result Manager::executeAssertion(Browser& browser, const Command& cmd) {
         return assertCount(browser, cmd);
     } else if (cmd.type == "javascript" || cmd.type == "js") {
         return assertJavaScript(browser, cmd);
+    } else if (cmd.type == "url") {
+        return assertUrl(browser, cmd);
+    } else if (cmd.type == "title") {
+        return assertTitle(browser, cmd);
     } else {
         TestResult test_result = createResult(cmd, Result::ERROR, "", "Unknown assertion type: " + cmd.type);
         if (!silent_mode) {
             outputResult(test_result);
         }
+        addResult(test_result);
+        return Result::ERROR;
+    }
+}
+
+Result Manager::executeAssertion(Browser& browser, Session& session, const Command& cmd) {
+    if (cmd.type == "response-header") {
+        return assertResponseHeader(session, cmd);
+    } else if (cmd.type == "request-header") {
+        return assertRequestHeader(session, cmd);
+    } else if (cmd.type == "status-code") {
+        return assertStatusCode(session, cmd);
+    } else {
+        // Delegate all other types to the browser-only overload
+        return executeAssertion(browser, cmd);
+    }
+}
+
+// ---- assertUrl ----
+
+Result Manager::assertUrl(Browser& browser, const Command& cmd) {
+    auto start_time = std::chrono::steady_clock::now();
+
+    try {
+        std::string actual_url = browser.getCurrentUrl();
+
+        auto end_time = std::chrono::steady_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
+
+        ComparisonOperator op = cmd.op;
+        std::string expected = extractOperatorFromValue(cmd.expected_value, op);
+
+        bool matches = compareValues(actual_url, expected, op, cmd.case_sensitive);
+        Result result = matches ? Result::PASS : Result::FAIL;
+
+        TestResult test_result = createResult(cmd, result, actual_url);
+        test_result.duration = duration;
+        if (!silent_mode) outputResult(test_result);
+        addResult(test_result);
+        return result;
+
+    } catch (const std::exception& e) {
+        auto end_time = std::chrono::steady_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
+        TestResult test_result = createResult(cmd, Result::ERROR, "", e.what());
+        test_result.duration = duration;
+        if (!silent_mode) outputResult(test_result);
+        addResult(test_result);
+        return Result::ERROR;
+    }
+}
+
+// ---- assertTitle ----
+
+Result Manager::assertTitle(Browser& browser, const Command& cmd) {
+    auto start_time = std::chrono::steady_clock::now();
+
+    try {
+        std::string actual_title = browser.getPageTitle();
+
+        auto end_time = std::chrono::steady_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
+
+        ComparisonOperator op = cmd.op;
+        std::string expected = extractOperatorFromValue(cmd.expected_value, op);
+
+        bool matches = compareValues(actual_title, expected, op, cmd.case_sensitive);
+        Result result = matches ? Result::PASS : Result::FAIL;
+
+        TestResult test_result = createResult(cmd, result, actual_title);
+        test_result.duration = duration;
+        if (!silent_mode) outputResult(test_result);
+        addResult(test_result);
+        return result;
+
+    } catch (const std::exception& e) {
+        auto end_time = std::chrono::steady_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
+        TestResult test_result = createResult(cmd, Result::ERROR, "", e.what());
+        test_result.duration = duration;
+        if (!silent_mode) outputResult(test_result);
+        addResult(test_result);
+        return Result::ERROR;
+    }
+}
+
+// ---- assertResponseHeader ----
+
+Result Manager::assertResponseHeader(Session& session, const Command& cmd) {
+    auto start_time = std::chrono::steady_clock::now();
+
+    try {
+        const auto& headers = session.getHttpHeaders();
+        auto end_time = std::chrono::steady_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
+
+        if (headers.empty()) {
+            TestResult test_result = createResult(cmd, Result::ERROR, "",
+                "No HTTP headers stored in session");
+            test_result.duration = duration;
+            if (!silent_mode) outputResult(test_result);
+            addResult(test_result);
+            return Result::ERROR;
+        }
+
+        const auto& last = headers.back();
+        auto it = last.responseHeaders.find(cmd.selector);
+        std::string actual = (it != last.responseHeaders.end()) ? it->second : "";
+
+        ComparisonOperator op = cmd.op;
+        std::string expected = extractOperatorFromValue(cmd.expected_value, op);
+
+        bool matches = compareValues(actual, expected, op, cmd.case_sensitive);
+        Result result = matches ? Result::PASS : Result::FAIL;
+
+        TestResult test_result = createResult(cmd, result, actual);
+        test_result.duration = duration;
+        if (!silent_mode) outputResult(test_result);
+        addResult(test_result);
+        return result;
+
+    } catch (const std::exception& e) {
+        auto end_time = std::chrono::steady_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
+        TestResult test_result = createResult(cmd, Result::ERROR, "", e.what());
+        test_result.duration = duration;
+        if (!silent_mode) outputResult(test_result);
+        addResult(test_result);
+        return Result::ERROR;
+    }
+}
+
+// ---- assertRequestHeader ----
+
+Result Manager::assertRequestHeader(Session& session, const Command& cmd) {
+    auto start_time = std::chrono::steady_clock::now();
+
+    try {
+        const auto& headers = session.getHttpHeaders();
+        auto end_time = std::chrono::steady_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
+
+        if (headers.empty()) {
+            TestResult test_result = createResult(cmd, Result::ERROR, "",
+                "No HTTP headers stored in session");
+            test_result.duration = duration;
+            if (!silent_mode) outputResult(test_result);
+            addResult(test_result);
+            return Result::ERROR;
+        }
+
+        const auto& last = headers.back();
+        auto it = last.requestHeaders.find(cmd.selector);
+        std::string actual = (it != last.requestHeaders.end()) ? it->second : "";
+
+        ComparisonOperator op = cmd.op;
+        std::string expected = extractOperatorFromValue(cmd.expected_value, op);
+
+        bool matches = compareValues(actual, expected, op, cmd.case_sensitive);
+        Result result = matches ? Result::PASS : Result::FAIL;
+
+        TestResult test_result = createResult(cmd, result, actual);
+        test_result.duration = duration;
+        if (!silent_mode) outputResult(test_result);
+        addResult(test_result);
+        return result;
+
+    } catch (const std::exception& e) {
+        auto end_time = std::chrono::steady_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
+        TestResult test_result = createResult(cmd, Result::ERROR, "", e.what());
+        test_result.duration = duration;
+        if (!silent_mode) outputResult(test_result);
+        addResult(test_result);
+        return Result::ERROR;
+    }
+}
+
+// ---- assertStatusCode ----
+
+Result Manager::assertStatusCode(Session& session, const Command& cmd) {
+    auto start_time = std::chrono::steady_clock::now();
+
+    try {
+        const auto& headers = session.getHttpHeaders();
+        auto end_time = std::chrono::steady_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
+
+        if (headers.empty()) {
+            TestResult test_result = createResult(cmd, Result::ERROR, "",
+                "No HTTP headers stored in session");
+            test_result.duration = duration;
+            if (!silent_mode) outputResult(test_result);
+            addResult(test_result);
+            return Result::ERROR;
+        }
+
+        std::string actual = std::to_string(headers.back().statusCode);
+
+        ComparisonOperator op = cmd.op;
+        std::string expected = extractOperatorFromValue(cmd.expected_value, op);
+
+        bool matches = compareValues(actual, expected, op, cmd.case_sensitive);
+        Result result = matches ? Result::PASS : Result::FAIL;
+
+        TestResult test_result = createResult(cmd, result, actual);
+        test_result.duration = duration;
+        if (!silent_mode) outputResult(test_result);
+        addResult(test_result);
+        return result;
+
+    } catch (const std::exception& e) {
+        auto end_time = std::chrono::steady_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
+        TestResult test_result = createResult(cmd, Result::ERROR, "", e.what());
+        test_result.duration = duration;
+        if (!silent_mode) outputResult(test_result);
         addResult(test_result);
         return Result::ERROR;
     }

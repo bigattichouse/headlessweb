@@ -14,6 +14,7 @@ public:
     
     int execute_commands(Browser& browser, Session& session, const std::vector<Command>& commands);
     int execute_assertions(Browser& browser, const std::vector<Assertion::Command>& assertions);
+    int execute_assertions(Browser& browser, Session& session, const std::vector<Assertion::Command>& assertions);
     
 private:
     bool execute_single_command(Browser& browser, Session& session, const Command& cmd);

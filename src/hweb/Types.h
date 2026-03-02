@@ -36,6 +36,12 @@ struct HWebConfig {
     std::vector<Command> commands;
     std::vector<Assertion::Command> assertions;
     FileOperationSettings file_settings;
+    
+    // Header export/import
+    std::string exportHeadersFile;
+    std::string exportHeadersFilter;
+    std::string importHeadersFile;
+    bool applyImportedHeaders = false;
 };
 
 enum class NavigationStrategy {

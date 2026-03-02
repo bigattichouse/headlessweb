@@ -3,6 +3,7 @@
 #include "Types.h"
 #include "OutputFormatter.h"
 #include "../Browser/Browser.h"
+#include "../Session/Session.h"
 #include <vector>
 #include <memory>
 #include <chrono>
@@ -20,9 +21,20 @@ public:
     Result assertElementValue(Browser& browser, const Command& cmd);
     Result assertCount(Browser& browser, const Command& cmd);
     Result assertJavaScript(Browser& browser, const Command& cmd);
-    
+
+    // Page-level assertion methods
+    Result assertUrl(Browser& browser, const Command& cmd);
+    Result assertTitle(Browser& browser, const Command& cmd);
+
+    // Session header assertion methods
+    Result assertResponseHeader(Session& session, const Command& cmd);
+    Result assertRequestHeader(Session& session, const Command& cmd);
+    Result assertStatusCode(Session& session, const Command& cmd);
+
     // Execute any assertion command
     Result executeAssertion(Browser& browser, const Command& cmd);
+    // Session-aware overload (required for header/status assertions)
+    Result executeAssertion(Browser& browser, Session& session, const Command& cmd);
     
     // Test suite management
     void startSuite(const std::string& name);

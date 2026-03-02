@@ -7,7 +7,7 @@ CMakeFiles/
 cmake_install.cmake
 CTestTestfile.cmake
 Makefile
-hweb
+/hweb
 hweb_tests
 test_output.xml
 Testing/
@@ -76,3 +76,6 @@ js_debug_*.cpp
 
 # Debug directory (temporary debugging files)
 debug/
+
+# Claude Code memory/cache files
+.claude/

@@ -16,6 +16,15 @@ struct Cookie {
     int64_t expires; // Unix timestamp, -1 for session cookie
 };
 
+struct HttpHeaders {
+    std::string url;
+    std::string method;  // GET, POST, etc.
+    std::map<std::string, std::string> requestHeaders;
+    std::map<std::string, std::string> responseHeaders;
+    int statusCode = 0;
+    int64_t timestamp = 0;  // Unix timestamp
+};
+
 struct FormField {
     std::string selector;
     std::string name;
@@ -105,6 +114,14 @@ public:
     std::string getCustomVariable(const std::string& key) const;
     bool hasCustomVariable(const std::string& key) const;
 
+    // HTTP Headers
+    const std::vector<HttpHeaders>& getHttpHeaders() const;
+    void setHttpHeaders(const std::vector<HttpHeaders>& headers);
+    void addHttpHeader(const HttpHeaders& header);
+    void clearHttpHeaders();
+    std::vector<HttpHeaders> getHeadersByUrlPattern(const std::string& pattern) const;
+    HttpHeaders getLatestHeadersForDomain(const std::string& domain) const;
+
     // Custom state extractors
     void addStateExtractor(const std::string& name, const std::string& jsCode);
     const std::map<std::string, std::string>& getStateExtractors() const;
@@ -117,6 +134,10 @@ public:
     // Serialization
     std::string serialize() const;
     static Session deserialize(const std::string& data);
+    
+    // Public JSON helpers for external services
+    Json::Value httpHeadersToJson(const HttpHeaders& headers) const;
+    HttpHeaders jsonToHttpHeaders(const Json::Value& json) const;
 
     // Session metadata
     void updateLastAccessed();
@@ -160,6 +181,7 @@ private:
     int64_t lastAccessed;
     std::vector<RecordedAction> recordedActions;
     bool recording;
+    std::vector<HttpHeaders> httpHeaders;
 
     // Helper methods
     Json::Value cookieToJson(const Cookie& cookie) const;

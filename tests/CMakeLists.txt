@@ -22,10 +22,13 @@ set(TEST_SOURCES
     test_main.cpp
     session/test_session.cpp
     session/test_session_manager.cpp
+    session/test_session_headers.cpp
+    session/test_header_service.cpp
     assertion/test_assertion_types.cpp
     assertion/test_output_formatter.cpp
     assertion/test_assertion_integration.cpp
     assertion/test_suite_management.cpp
+    assertion/test_new_assertion_types.cpp
     fileops/test_types.cpp
     fileops/test_path_utils.cpp
     fileops/test_upload_manager.cpp
@@ -127,6 +130,7 @@ target_sources(hweb_tests PRIVATE
     ../src/Browser/Storage.cpp
     ../src/Browser/Utilities.cpp
     ../src/Browser/Wait.cpp
+    ../src/hweb/Services/HeaderService.cpp
 )
 
 # Include directories for tests

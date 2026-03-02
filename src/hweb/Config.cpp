@@ -43,6 +43,16 @@ HWebConfig ConfigParser::parseArguments(const std::vector<std::string>& args) {
         } else if (args[i] == "--user-agent" && i + 1 < args.size()) {
             config.commands.push_back({"user-agent", "", args[++i]});
         }
+        // Header Export/Import
+        else if (args[i] == "--export-headers" && i + 1 < args.size()) {
+            config.exportHeadersFile = args[++i];
+        } else if (args[i] == "--export-headers-filter" && i + 1 < args.size()) {
+            config.exportHeadersFilter = args[++i];
+        } else if (args[i] == "--import-headers" && i + 1 < args.size()) {
+            config.importHeadersFile = args[++i];
+        } else if (args[i] == "--apply-imported-headers") {
+            config.applyImportedHeaders = true;
+        }
         // Test Suite Management
         else if (args[i] == "--test-suite") {
             parse_test_suite_command(args, i, config);
@@ -166,10 +176,80 @@ void ConfigParser::parse_assertion_command(const std::vector<std::string>& args,
         if (has_pending_assertion) {
             config.assertions.push_back(current_assertion);
         }
-        
+
         current_assertion = {};
         current_assertion.type = "element-value";
         current_assertion.selector = args[++i];
+        current_assertion.expected_value = args[++i];
+        current_assertion.op = Assertion::ComparisonOperator::EQUALS;
+        current_assertion.json_output = config.json_mode;
+        current_assertion.silent = config.silent_mode;
+        current_assertion.case_sensitive = true;
+        current_assertion.timeout_ms = 5000;
+        has_pending_assertion = true;
+    } else if (args[i] == "--assert-url" && i + 1 < args.size()) {
+        if (has_pending_assertion) {
+            config.assertions.push_back(current_assertion);
+        }
+        current_assertion = {};
+        current_assertion.type = "url";
+        current_assertion.selector = "";
+        current_assertion.expected_value = args[++i];
+        current_assertion.op = Assertion::ComparisonOperator::EQUALS;
+        current_assertion.json_output = config.json_mode;
+        current_assertion.silent = config.silent_mode;
+        current_assertion.case_sensitive = true;
+        current_assertion.timeout_ms = 5000;
+        has_pending_assertion = true;
+    } else if (args[i] == "--assert-title" && i + 1 < args.size()) {
+        if (has_pending_assertion) {
+            config.assertions.push_back(current_assertion);
+        }
+        current_assertion = {};
+        current_assertion.type = "title";
+        current_assertion.selector = "";
+        current_assertion.expected_value = args[++i];
+        current_assertion.op = Assertion::ComparisonOperator::EQUALS;
+        current_assertion.json_output = config.json_mode;
+        current_assertion.silent = config.silent_mode;
+        current_assertion.case_sensitive = true;
+        current_assertion.timeout_ms = 5000;
+        has_pending_assertion = true;
+    } else if (args[i] == "--assert-response-header" && i + 2 < args.size()) {
+        if (has_pending_assertion) {
+            config.assertions.push_back(current_assertion);
+        }
+        current_assertion = {};
+        current_assertion.type = "response-header";
+        current_assertion.selector = args[++i];       // header name
+        current_assertion.expected_value = args[++i]; // expected value
+        current_assertion.op = Assertion::ComparisonOperator::EQUALS;
+        current_assertion.json_output = config.json_mode;
+        current_assertion.silent = config.silent_mode;
+        current_assertion.case_sensitive = true;
+        current_assertion.timeout_ms = 5000;
+        has_pending_assertion = true;
+    } else if (args[i] == "--assert-request-header" && i + 2 < args.size()) {
+        if (has_pending_assertion) {
+            config.assertions.push_back(current_assertion);
+        }
+        current_assertion = {};
+        current_assertion.type = "request-header";
+        current_assertion.selector = args[++i];       // header name
+        current_assertion.expected_value = args[++i]; // expected value
+        current_assertion.op = Assertion::ComparisonOperator::EQUALS;
+        current_assertion.json_output = config.json_mode;
+        current_assertion.silent = config.silent_mode;
+        current_assertion.case_sensitive = true;
+        current_assertion.timeout_ms = 5000;
+        has_pending_assertion = true;
+    } else if (args[i] == "--assert-status-code" && i + 1 < args.size()) {
+        if (has_pending_assertion) {
+            config.assertions.push_back(current_assertion);
+        }
+        current_assertion = {};
+        current_assertion.type = "status-code";
+        current_assertion.selector = "";
         current_assertion.expected_value = args[++i];
         current_assertion.op = Assertion::ComparisonOperator::EQUALS;
         current_assertion.json_output = config.json_mode;
@@ -472,12 +552,23 @@ void ConfigParser::print_usage() {
     std::cerr << "  --json               Enable JSON output mode" << std::endl;
     std::cerr << "  --silent             Silent mode (exit codes only)" << std::endl;
     std::cerr << std::endl;
+    std::cerr << "Header Export/Import:" << std::endl;
+    std::cerr << "  --export-headers <file>              Export headers to JSON file" << std::endl;
+    std::cerr << "  --export-headers-filter <pattern>    Filter headers (URL or header names)" << std::endl;
+    std::cerr << "  --import-headers <file>              Import headers from JSON file" << std::endl;
+    std::cerr << "  --apply-imported-headers           Apply imported headers to requests" << std::endl;
+    std::cerr << std::endl;
     std::cerr << "Assertion Commands:" << std::endl;
     std::cerr << "  --assert-exists <selector> [true|false]    Assert element exists" << std::endl;
     std::cerr << "  --assert-text <selector> <text>            Assert element contains text" << std::endl;
     std::cerr << "  --assert-count <selector> <number>         Assert element count" << std::endl;
     std::cerr << "  --assert-js <expression> [expected]        Assert JavaScript expression" << std::endl;
     std::cerr << "  --assert-value <selector> <value>          Assert form element value" << std::endl;
+    std::cerr << "  --assert-url <expected>                    Assert current page URL" << std::endl;
+    std::cerr << "  --assert-title <expected>                  Assert page title" << std::endl;
+    std::cerr << "  --assert-response-header <name> <value>   Assert HTTP response header" << std::endl;
+    std::cerr << "  --assert-request-header <name> <value>    Assert HTTP request header" << std::endl;
+    std::cerr << "  --assert-status-code <code>                Assert HTTP status code" << std::endl;
     std::cerr << "  --message <text>                           Custom assertion message" << std::endl;
     std::cerr << "  --timeout <ms>                             Assertion timeout" << std::endl;
     std::cerr << std::endl;

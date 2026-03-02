@@ -14,6 +14,7 @@
 #include "Services/ManagerRegistry.h"
 #include "Services/NavigationService.h"
 #include "Services/SessionService.h"
+#include "Services/HeaderService.h"
 #include "Handlers/FileOperations.h"
 #include "../Browser/Browser.h"
 #include "../Session/Manager.h"
@@ -50,7 +51,12 @@ std::string generateSessionUUID() {
 
 int run_application(const HWebConfig& config) {
     // Initialize services
-    std::string home = std::getenv("HOME");
+    const char* homeEnv = std::getenv("HOME");
+    if (!homeEnv) {
+        Output::error("HOME environment variable is not set");
+        return 1;
+    }
+    std::string home = homeEnv;
     SessionManager sessionManager(home + "/.hweb/sessions");
     SessionService sessionService(sessionManager);
     NavigationService navigationService;
@@ -100,10 +106,29 @@ int run_application(const HWebConfig& config) {
     }
     
     // Initialize session
-    Session session = config.start_fresh ? 
+    Session session = config.start_fresh ?
         sessionService.initialize_fresh_session(sessionName) :
         sessionService.initialize_session(sessionName);
-    
+
+    // Handle header import (before navigation)
+    if (!config.importHeadersFile.empty()) {
+        std::string validation = HeaderService::validateHeadersFile(config.importHeadersFile);
+        if (!validation.empty()) {
+            Output::error("Invalid headers file: " + validation);
+            return 1;
+        }
+        
+        int imported = HeaderService::importHeadersFromFile(session, config.importHeadersFile);
+        if (imported < 0) {
+            Output::error("Failed to import headers from: " + config.importHeadersFile);
+            return 1;
+        }
+        
+        if (!config.silent_mode) {
+            Output::info("Imported " + std::to_string(imported) + " headers from " + config.importHeadersFile);
+        }
+    }
+
     // Check if we need browser
     if (config.url.empty() && config.commands.empty() && config.assertions.empty() && session.getCurrentUrl().empty()) {
         Output::error("No URL in session. Use --url to navigate.");
@@ -138,7 +163,7 @@ int run_application(const HWebConfig& config) {
     
     // Execute assertions
     if (!config.assertions.empty()) {
-        int assertion_result = commandExecutor.execute_assertions(browser, config.assertions);
+        int assertion_result = commandExecutor.execute_assertions(browser, session, config.assertions);
         if (assertion_result != 0) {
             exit_code = assertion_result;
         }
@@ -148,7 +173,25 @@ int run_application(const HWebConfig& config) {
     if (state_modified || navigationPlan.should_navigate) {
         sessionService.update_session_state(browser, session);
     }
-    
+
+    // Handle header export (after all operations)
+    if (!config.exportHeadersFile.empty()) {
+        bool exported = HeaderService::exportHeadersToFile(
+            session,
+            config.exportHeadersFile,
+            config.exportHeadersFilter
+        );
+        
+        if (!exported) {
+            Output::error("Failed to export headers to: " + config.exportHeadersFile);
+            exit_code = 1;
+        } else if (!config.silent_mode) {
+            auto stats = HeaderService::getHeadersFileStats(config.exportHeadersFile);
+            Output::info("Exported " + std::to_string(stats.totalHeaders) + 
+                        " headers to " + config.exportHeadersFile);
+        }
+    }
+
     // Save session
     if (!config.commands.empty() || !config.assertions.empty() || state_modified || navigationPlan.should_navigate) {
         if (!sessionService.save_session_safely(session, sessionName)) {

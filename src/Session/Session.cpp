@@ -128,6 +128,47 @@ void Session::clearFormFields() {
     formFields.clear();
 }
 
+// HTTP Headers implementation
+const std::vector<HttpHeaders>& Session::getHttpHeaders() const {
+    return httpHeaders;
+}
+
+void Session::setHttpHeaders(const std::vector<HttpHeaders>& headers) {
+    httpHeaders = headers;
+}
+
+void Session::addHttpHeader(const HttpHeaders& header) {
+    httpHeaders.push_back(header);
+}
+
+void Session::clearHttpHeaders() {
+    httpHeaders.clear();
+}
+
+std::vector<HttpHeaders> Session::getHeadersByUrlPattern(const std::string& pattern) const {
+    std::vector<HttpHeaders> result;
+    for (const auto& header : httpHeaders) {
+        if (header.url.find(pattern) != std::string::npos) {
+            result.push_back(header);
+        }
+    }
+    return result;
+}
+
+HttpHeaders Session::getLatestHeadersForDomain(const std::string& domain) const {
+    HttpHeaders latest;
+    int64_t latestTime = 0;
+    
+    for (const auto& header : httpHeaders) {
+        if (header.url.find(domain) != std::string::npos && header.timestamp > latestTime) {
+            latest = header;
+            latestTime = header.timestamp;
+        }
+    }
+    
+    return latest;
+}
+
 const std::set<std::string>& Session::getActiveElements() const {
     return activeElements;
 }
@@ -302,7 +343,17 @@ size_t Session::getApproximateSize() const {
     for (const auto& action : recordedActions) {
         size += action.type.size() + action.selector.size() + action.value.size();
     }
-    
+
+    for (const auto& header : httpHeaders) {
+        size += header.url.size() + header.method.size();
+        for (const auto& [key, value] : header.requestHeaders) {
+            size += key.size() + value.size();
+        }
+        for (const auto& [key, value] : header.responseHeaders) {
+            size += key.size() + value.size();
+        }
+    }
+
     return size;
 }
 
@@ -386,11 +437,57 @@ Session::RecordedAction Session::jsonToRecordedAction(const Json::Value& json) c
     return action;
 }
 
+Json::Value Session::httpHeadersToJson(const HttpHeaders& headers) const {
+    Json::Value json;
+    json["url"] = headers.url;
+    json["method"] = headers.method;
+    json["statusCode"] = headers.statusCode;
+    json["timestamp"] = static_cast<Json::Int64>(headers.timestamp);
+    
+    Json::Value reqHeaders(Json::objectValue);
+    for (const auto& [key, value] : headers.requestHeaders) {
+        reqHeaders[key] = value;
+    }
+    json["requestHeaders"] = reqHeaders;
+    
+    Json::Value respHeaders(Json::objectValue);
+    for (const auto& [key, value] : headers.responseHeaders) {
+        respHeaders[key] = value;
+    }
+    json["responseHeaders"] = respHeaders;
+    
+    return json;
+}
+
+HttpHeaders Session::jsonToHttpHeaders(const Json::Value& json) const {
+    HttpHeaders headers;
+    headers.url = json.get("url", "").asString();
+    headers.method = json.get("method", "GET").asString();
+    headers.statusCode = json.get("statusCode", 200).asInt();
+    headers.timestamp = json.get("timestamp", 0).asInt64();
+    
+    const Json::Value& reqHeaders = json.get("requestHeaders", Json::Value::null);
+    if (!reqHeaders.isNull() && reqHeaders.isObject()) {
+        for (const auto& key : reqHeaders.getMemberNames()) {
+            headers.requestHeaders[key] = reqHeaders[key].asString();
+        }
+    }
+    
+    const Json::Value& respHeaders = json.get("responseHeaders", Json::Value::null);
+    if (!respHeaders.isNull() && respHeaders.isObject()) {
+        for (const auto& key : respHeaders.getMemberNames()) {
+            headers.responseHeaders[key] = respHeaders[key].asString();
+        }
+    }
+    
+    return headers;
+}
+
 std::string Session::serialize() const {
     Json::Value root;
-    
+
     // Version for future compatibility
-    root["version"] = 3;
+    root["version"] = 4;
     
     // Basic info
     root["name"] = name;
@@ -495,7 +592,14 @@ std::string Session::serialize() const {
     }
     root["recordedActions"] = recordedActionsArray;
     root["recording"] = recording;
-    
+
+    // HTTP Headers
+    Json::Value httpHeadersArray(Json::arrayValue);
+    for (const auto& header : httpHeaders) {
+        httpHeadersArray.append(httpHeadersToJson(header));
+    }
+    root["httpHeaders"] = httpHeadersArray;
+
     Json::StreamWriterBuilder builder;
     builder["indentation"] = "  "; // Pretty print for debugging
     return Json::writeString(builder, root);
@@ -635,6 +739,13 @@ Session Session::deserialize(const std::string& data) {
         }
         session.recording = root.get("recording", false).asBool();
     }
-    
+
+    // HTTP Headers (version 4+)
+    if (version >= 4 && root.isMember("httpHeaders") && root["httpHeaders"].isArray()) {
+        for (const auto& headerJson : root["httpHeaders"]) {
+            session.httpHeaders.push_back(session.jsonToHttpHeaders(headerJson));
+        }
+    }
+
     return session;
 }

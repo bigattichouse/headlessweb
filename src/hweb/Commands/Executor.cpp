@@ -80,15 +80,30 @@ int CommandExecutor::execute_commands(Browser& browser, Session& session, const 
 int CommandExecutor::execute_assertions(Browser& browser, const std::vector<Assertion::Command>& assertions) {
     int exit_code = 0;
     auto& assertion_manager = ManagerRegistry::get_assertion_manager();
-    
+
     for (const auto& assertion : assertions) {
         Assertion::Result result = assertion_manager.executeAssertion(browser, assertion);
-        
+
         if (result == Assertion::Result::FAIL || result == Assertion::Result::ERROR) {
             exit_code = static_cast<int>(result);
         }
     }
-    
+
+    return exit_code;
+}
+
+int CommandExecutor::execute_assertions(Browser& browser, Session& session, const std::vector<Assertion::Command>& assertions) {
+    int exit_code = 0;
+    auto& assertion_manager = ManagerRegistry::get_assertion_manager();
+
+    for (const auto& assertion : assertions) {
+        Assertion::Result result = assertion_manager.executeAssertion(browser, session, assertion);
+
+        if (result == Assertion::Result::FAIL || result == Assertion::Result::ERROR) {
+            exit_code = static_cast<int>(result);
+        }
+    }
+
     return exit_code;
 }
 

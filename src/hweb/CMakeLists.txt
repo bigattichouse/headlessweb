@@ -20,6 +20,7 @@ add_library(hweb_core
     Services/ManagerRegistry.cpp
     Services/NavigationService.cpp
     Services/SessionService.cpp
+    Services/HeaderService.cpp
 )
 
 # Link required libraries to hweb_core

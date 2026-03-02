@@ -27,10 +27,10 @@ HeadlessWeb makes all of this simple with human-readable commands that work exac
 ```bash
 # Search Google and extract first result (with auto-cleanup)
 ./hweb --url https://www.google.com \
-  --wait-selector "textarea[aria-label='Search']" 3000 \
+  --wait-element-visible "textarea[aria-label='Search']" \
   --type "textarea[aria-label='Search']" "LLM wiki" \
   --click "input[name='btnK']" \
-  --wait-selector "h3" 5000 \
+  --wait-element-visible "h3" \
   --text "h3 a" \
   --end
 ```
@@ -125,11 +125,11 @@ HeadlessWeb uses a multi-step approach for reliable form filling that works with
 # Search on Google with comprehensive event simulation
 ./hweb --session search \
   --url https://www.google.com \
-  --wait-selector "textarea[aria-label='Search']" 3000 \
+  --wait-element-visible "textarea[aria-label='Search']" \
   --type "textarea[aria-label='Search']" "LLM wiki" \
   --screenshot "search-input.png" \
   --click "input[name='btnK']" \
-  --wait-selector "h3" 5000 \
+  --wait-element-visible "h3" \
   --screenshot "search-results.png" \
   --text "h3 a"
 ```
@@ -320,11 +320,12 @@ export WEBKIT_DISABLE_COMPOSITING_MODE=1
 ### Session Persistence
 Sessions are automatically saved and include:
 - Current page URL
-- All cookies
+- All cookies (including httpOnly)
 - LocalStorage data
 - Form field values
 - Custom attributes
 - Scroll positions
+- HTTP request/response headers (version 4+)
 
 This means you can close your terminal, restart your computer, and pick up exactly where you left off.
 
@@ -338,6 +339,9 @@ This means you can close your terminal, restart your computer, and pick up exact
 --list               List all existing sessions
 --help, -h           Show help message
 --debug              Enable debug output
+--verbose, -v        Enable verbose output
+--start              Start a fresh session (clears existing state)
+--allow-data-uri     Allow data: URI navigation
 --user-agent <ua>    Set custom user agent
 --width <px>         Set browser width (default: 1000)
 --json               Enable JSON output mode
@@ -383,12 +387,11 @@ This means you can close your terminal, restart your computer, and pick up exact
 ### **Waiting Commands**
 ```bash
 # Basic waiting
---wait <milliseconds>           Wait for specified time
+--wait <selector>               Wait for CSS selector to appear
 --wait-nav                      Wait for navigation to complete
 --wait-ready <timeout>          Wait for page ready state
 
 # Advanced waiting (with optional timeout in ms)
---wait-selector <sel> [timeout]     Wait for element to appear
 --wait-text-advanced <text>         Wait for text to appear anywhere
 --wait-network-idle [duration]     Wait for network to be idle (default: 500ms)
 --wait-network-request <pattern>    Wait for specific network request
@@ -425,6 +428,13 @@ This means you can close your terminal, restart your computer, and pick up exact
 --extract <key> <js-expr>       Extract data using JavaScript expression
 ```
 
+### **Header Export/Import**
+```bash
+--export-headers <file>                  Export HTTP headers to JSON file
+--export-headers-filter <pattern>        Filter by URL pattern or header names
+--import-headers <file>                  Import headers from JSON file
+```
+
 ### **Recording & Replay**
 ```bash
 --record-start                  Start recording actions
@@ -434,15 +444,29 @@ This means you can close your terminal, restart your computer, and pick up exact
 
 ### **Testing & Assertions**
 ```bash
---assert-exists <selector>      Assert element exists
---assert-text <sel> <text>      Assert element contains text
---assert-value <sel> <value>    Assert form element has value
---assert-url <pattern>          Assert URL matches pattern
---assert-title <text>           Assert page title contains text
---message <text>                Add message to test output
---timeout <ms>                  Set timeout for assertions
---test-suite start <name>       Start test suite
---test-suite end [format]       End test suite and generate report
+# DOM / page assertions
+--assert-exists <selector> [true|false]  Assert element exists (default: true)
+--assert-text <sel> <text>               Assert element text content
+--assert-count <sel> <number>            Assert number of matching elements
+--assert-value <sel> <value>             Assert form element value
+--assert-js <expression> [expected]      Assert JavaScript expression result
+--assert-url <expected>                  Assert current page URL
+--assert-title <expected>                Assert page title
+
+# HTTP header assertions (operate on most recently stored session headers)
+--assert-response-header <name> <value>  Assert HTTP response header value
+--assert-request-header <name> <value>   Assert HTTP request header value
+--assert-status-code <code>              Assert HTTP status code
+
+# All assertions support operator prefixes: !=, contains:, ~= (regex), >, <, >=, <=
+
+# Modifiers (apply to the preceding assertion)
+--message <text>                         Add label to test output
+--timeout <ms>                           Override assertion timeout
+
+# Test suites
+--test-suite start <name>                Start named test suite
+--test-suite end [format]                Print report (text|json|junit)
 ```
 
 ## Tips & Tricks
@@ -494,6 +518,7 @@ HeadlessWeb is built with a modular architecture for maintainability and testabi
 - **`ManagerRegistry.cpp`** - Singleton registry for global manager access
 - **`NavigationService.cpp`** - Navigation strategy determination and planning
 - **`SessionService.cpp`** - Session lifecycle and state management
+- **`HeaderService.cpp`** - HTTP header export/import to/from JSON files
 
 ### Command Processing (`src/hweb/Commands/`)
 - **`Executor.cpp`** - Command execution pipeline and orchestration
@@ -508,13 +533,18 @@ HeadlessWeb is built with a modular architecture for maintainability and testabi
 
 Each component is focused and typically 100-250 lines, making the codebase maintainable and testable. The architecture follows SOLID principles with clear separation of concerns.
 
-### Testing - 🏆 **100% Success Achieved**
-The modular design enables comprehensive unit testing with **629 test cases** covering:
-- **100% Pass Rate**: All 629 tests passing consistently
-- **Comprehensive Coverage**: Core components, DOM operations, session management, file operations
-- **Production Ready**: Zero failures, ultimate reliability
-- **Audit Validated**: All fixes verified as legitimate technical improvements (see [audit report](spec/TEST-VALIDITY-AUDIT-REPORT.md))
-- **Performance Optimized**: 3x speed improvement with enhanced reliability
+### Testing
+The modular design enables comprehensive unit testing covering:
+- **Core components**: Session management, DOM operations, file operations
+- **HTTP Headers**: Export/import, filtering, serialization (44 dedicated tests)
+- **Assertions**: Existence, text, count, value, JavaScript expression checks
+- **Configuration**: CLI argument parsing and validation
+
+Run tests with:
+```bash
+cd tests && ./hweb_tests
+./run_tests_headless.sh   # prevents GTK dialogs
+```
 
 ## 🔧 Troubleshooting
 
