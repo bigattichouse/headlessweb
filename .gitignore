@@ -82,3 +82,6 @@ debug/
 
 # CMake install manifest
 install_manifest.txt
+
+# Static libraries (build output)
+*.a
