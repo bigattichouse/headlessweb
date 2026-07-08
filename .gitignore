@@ -79,3 +79,6 @@ debug/
 
 # Claude Code memory/cache files
 .claude/
+
+# CMake install manifest
+install_manifest.txt

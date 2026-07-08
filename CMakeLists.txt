@@ -42,10 +42,16 @@ target_link_libraries(hweb
     ${GDKPIXBUF_LIBRARIES}
 )
 
-target_include_directories(hweb PRIVATE 
+target_include_directories(hweb PRIVATE
     ${GTK4_INCLUDE_DIRS}
     ${WEBKIT_INCLUDE_DIRS}
     ${JSONCPP_INCLUDE_DIRS}
     ${CAIRO_INCLUDE_DIRS}
     ${GDKPIXBUF_INCLUDE_DIRS}
 )
+
+# Install the hweb binary to a stable, standard location (default: /usr/local/bin/hweb).
+# A fixed path matters for the AppArmor sandbox profile, which must attach to the exact path
+# that gets run (see scripts/allow-userns-hweb.sh). Override with -DCMAKE_INSTALL_PREFIX=... or
+# the DESTDIR= convention.  Install with:  sudo make install
+install(TARGETS hweb RUNTIME DESTINATION bin)

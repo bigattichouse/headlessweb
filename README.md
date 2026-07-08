@@ -250,23 +250,42 @@ fi
 sudo apt-get update
 sudo apt-get install -y build-essential cmake pkg-config \
   libgtk-4-dev libwebkitgtk-6.0-dev libjsoncpp-dev \
-  libcairo2-dev libgdk-pixbuf2.0-dev libgtest-dev
+  libcairo2-dev libgdk-pixbuf2.0-dev libgtest-dev xvfb
 
-# Build HeadlessWeb
+# Build HeadlessWeb (standard CMake flow)
 git clone <repository-url>
 cd headlessweb
-make clean && make
+cmake .
+make -j"$(nproc)"
 
-# Run tests (optional)
-make test
+# Install system-wide → /usr/local/bin/hweb
+#   (override location with: cmake -DCMAKE_INSTALL_PREFIX=/custom .)
+sudo make install
 
 # Ready to use!
-./hweb --help
+hweb --help
 ```
 
+### Headless / sandboxed hosts (AppArmor user namespaces)
+WebKitGTK 6.0 runs each web process inside a **mandatory** bubblewrap sandbox that needs an
+unprivileged user namespace. On hardened hosts (Ubuntu 23.10+, where
+`kernel.apparmor_restrict_unprivileged_userns=1`) that is blocked — hweb detects this up front,
+prints the fix, and exits **3** (rather than crashing inside WebKit). To grant the namespace to
+**hweb only**, keeping the host restriction in place for everything else:
+
+```bash
+sudo ./scripts/allow-userns-hweb.sh --complain    # install a scoped AppArmor profile (log-only)
+DISPLAY=:99 hweb --url about:blank --assert-js true --silent   # verify (start `Xvfb :99 &` first)
+sudo ./scripts/allow-userns-hweb.sh --enforce     # lock it down
+#   undo any time:  sudo ./scripts/allow-userns-hweb.sh --revert
+```
+
+Security trade-offs, how it's scoped, and a broader (all-bwrap) alternative are documented in
+**[docs/sandbox-and-userns.md](docs/sandbox-and-userns.md)**.
+
 ### Other Systems
-- **Dependencies:** GTK4, WebKitGTK 6.0, jsoncpp, Cairo, gdk-pixbuf, Google Test (for unit tests)
-- **Build:** Standard CMake build process with modular architecture
+- **Dependencies:** GTK4, WebKitGTK 6.0, jsoncpp, Cairo, gdk-pixbuf, Google Test (for unit tests), Xvfb (headless display)
+- **Build:** Standard CMake build process (`cmake . && make && sudo make install`)
 - **Requirements:** Modern C++ compiler with C++17 support
 
 ### Development & Testing

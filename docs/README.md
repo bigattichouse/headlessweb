@@ -18,6 +18,7 @@
 - **[Quick Reference](quick-reference.md)** - API cheatsheet
 
 ### **Advanced Topics**
+- **[Sandbox & user namespaces](sandbox-and-userns.md)** - Fixing `bwrap: setting up uid map: Permission denied` on AppArmor-restricted hosts
 - **[Node.js Integration Blueprint](../spec/NODEJS-INTEGRATION-BLUEPRINT.md)** - Technical implementation details
 - **[100% Test Success Report](../spec/FINAL-ACHIEVEMENT-REPORT.md)** - Quality assurance documentation
 - **[Test Validity Audit](../spec/TEST-VALIDITY-AUDIT-REPORT.md)** - Comprehensive test validation

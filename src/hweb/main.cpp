@@ -20,7 +20,68 @@
 #include "../Session/Manager.h"
 #include "../Debug.h"
 
+#if defined(__linux__)
+#include <sched.h>
+#include <sys/wait.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <cstdio>
+#endif
+
 namespace HWeb {
+
+// ── Sandbox preflight ─────────────────────────────────────────────────────────
+// WebKitGTK 6.0's bubblewrap sandbox is MANDATORY (no API/env to disable it). It creates an
+// unprivileged user namespace and writes /proc/self/uid_map. On AppArmor-hardened hosts
+// (kernel.apparmor_restrict_unprivileged_userns=1) that write is denied and WebKit aborts the
+// whole process with a cryptic "bwrap: setting up uid map: Permission denied" / dbus-proxy
+// error and a SIGTRAP coredump — indistinguishable, to a caller, from a page/assertion failure.
+// We probe the SAME operation in a throwaway child first, so we can fail cleanly with a distinct
+// exit code and a fix hint. See docs/sandbox-and-userns.md.  Bypass: HWEB_SKIP_SANDBOX_PREFLIGHT=1.
+static constexpr int EXIT_SANDBOX_UNAVAILABLE = 3;
+
+#if defined(__linux__)
+static bool userns_uidmap_works() {
+    pid_t pid = fork();
+    if (pid < 0) return true;                       // can't probe → don't block; let WebKit try
+    if (pid == 0) {                                 // child: mimic exactly what bwrap does
+        unsigned euid = (unsigned)geteuid();        // capture BEFORE unshare — after it, geteuid() returns the
+                                                    // overflow uid (nobody), and an unprivileged process may only
+                                                    // map its OWN parent uid, so mapping that would be rejected.
+        if (unshare(CLONE_NEWUSER) != 0) _exit(1);
+        int fd = open("/proc/self/setgroups", O_WRONLY);   // deny setgroups so the map write is allowed
+        if (fd >= 0) { if (write(fd, "deny", 4) < 0) { /* best effort */ } close(fd); }
+        char buf[64];
+        int n = snprintf(buf, sizeof buf, "0 %u 1", euid);
+        fd = open("/proc/self/uid_map", O_WRONLY);
+        if (fd < 0) _exit(2);
+        ssize_t w = write(fd, buf, (size_t)n);      // THIS is what AppArmor / the userns restriction denies
+        close(fd);
+        _exit(w == n ? 0 : 3);
+    }
+    int status = 0;
+    if (waitpid(pid, &status, 0) < 0) return true;  // probe inconclusive → don't block
+    return WIFEXITED(status) && WEXITSTATUS(status) == 0;
+}
+#endif
+
+// Returns an exit code (EXIT_SANDBOX_UNAVAILABLE) if WebKit's sandbox cannot start here, else 0.
+static int sandbox_preflight() {
+#if defined(__linux__)
+    if (std::getenv("HWEB_SKIP_SANDBOX_PREFLIGHT")) return 0;
+    if (userns_uidmap_works()) return 0;
+    std::fprintf(stderr,
+        "HWEB: WebKit's mandatory sandbox cannot start — creating an unprivileged user namespace\n"
+        "      is blocked on this host (kernel.apparmor_restrict_unprivileged_userns=1). Without the\n"
+        "      fix, hweb crashes inside WebKit with a bwrap/dbus-proxy error and a coredump.\n"
+        "      Fix (scoped, recommended):  sudo ./scripts/allow-userns-bwrap.sh\n"
+        "      Details:                    docs/sandbox-and-userns.md\n"
+        "      Bypass this check:          HWEB_SKIP_SANDBOX_PREFLIGHT=1\n");
+    return EXIT_SANDBOX_UNAVAILABLE;
+#else
+    return 0;
+#endif
+}
 
 // Forward declaration for the main entry point
 int main(int argc, char* argv[]);
@@ -135,6 +196,11 @@ int run_application(const HWebConfig& config) {
         return 1;
     }
     
+    // Preflight WebKit's mandatory sandbox before we spin it up — a clean, distinct exit
+    // beats an in-WebKit abort/coredump the caller can't interpret. (Only reached once we
+    // actually need a browser, so --help / session-list paths are unaffected.)
+    if (int rc = sandbox_preflight()) return rc;
+
     // Create and configure browser
     Browser browser(config);
     browser.setViewport(config.browser_width, 800);
