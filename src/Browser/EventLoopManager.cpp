@@ -1,12 +1,8 @@
 #include "EventLoopManager.h"
+#include "../Debug.h"
 #include <iostream>
 #include <chrono>
 #include <thread>
-
-// External debug flag
-extern bool g_debug;
-
-void debug_output(const std::string& message);
 
 EventLoopManager::EventLoopManager() {
     debug_output("EventLoopManager instance created");
