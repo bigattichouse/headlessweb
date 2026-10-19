@@ -2,6 +2,7 @@
 #include "FileOps/PathUtils.h"
 #include "../utils/test_helpers.h"
 #include <filesystem>
+#include <algorithm>
 
 using namespace FileOps;
 
